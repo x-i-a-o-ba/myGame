@@ -87,6 +87,16 @@
             "kind": "resource"
         },
         {
+            "id": "UI.Game.Progression",
+            "path": "UI/Panels/UI.Game.Progression",
+            "kind": "resource"
+        },
+        {
+            "id": "UI.Game.Talent",
+            "path": "UI/Panels/UI.Game.Talent",
+            "kind": "resource"
+        },
+        {
             "id": "UI.Game.Title",
             "path": "UI/Panels/UI.Game.Title",
             "kind": "resource"
@@ -174,6 +184,16 @@
         {
             "id": "UI/Panels/UI.Game.DeathOverlay",
             "path": "UI/Panels/UI.Game.DeathOverlay",
+            "kind": "resource"
+        },
+        {
+            "id": "UI/Panels/UI.Game.Progression",
+            "path": "UI/Panels/UI.Game.Progression",
+            "kind": "resource"
+        },
+        {
+            "id": "UI/Panels/UI.Game.Talent",
+            "path": "UI/Panels/UI.Game.Talent",
             "kind": "resource"
         },
         {

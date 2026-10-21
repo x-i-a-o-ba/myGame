@@ -50,6 +50,8 @@
 
 ## Game 战斗更新顺序
 
+2026-10-21 起在下述顺序中加入成长与波次：英雄存活时先串行处理 `ProgressionCommand`（学习技能、选天赋），ECB 回放后累计击杀经验、结算升级并重算属性，再按 `CombatWaveState.NextWaveAt` 每帧最多刷一波；胜利后整局冻结，阵亡记为失败。详见 [hero-progression.md](hero-progression.md)。
+
 输入桥接写入 CombatPlayer.Destination → 玩家移动 → Burst 并行敌人追逐/近战伤害队列 → 汇总玩家伤害与死亡 → 在途弹体追踪/命中 → 到开火间隔时搜索最近存活敌人并生成弹体 → ECB 批量播放结构变化 → TransformSystemGroup 更新渲染变换 → MonoBehaviour LateUpdate 同步玩家外观、镜头和 HUD。
 
 CombatOwned 标记会话拥有的实体（含弹体 Prefab），重开和控制器销毁时集中清理。CombatEnemy 与 BenchmarkAgent 分离，各自系统不会处理对方实体。玩家死亡后冻结当前战斗状态，重开恢复配置和数量。

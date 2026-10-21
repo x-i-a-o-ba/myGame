@@ -79,7 +79,9 @@ namespace Roguelike.Abilities
         [Min(0), Tooltip("施法前摇（秒）：接受施法后等待此时长才释放，期间禁止移动、普攻与再次施法。重开会话生效。")] public float castTime;
         [Min(0), Tooltip("施法后摇（秒）：从前摇结束起计时，期间禁止移动、普攻与再次施法；不延迟已释放的效果。重开会话生效。")] public float recoveryTime;
         [InspectorName("资源消耗"), Min(0)] public float manaCost=15;
-        [Range(0,1), Tooltip("旧独立示例的每级效果增幅；当前 Game 组合技能固定一级，局内升级尚未接入。")] public float levelPower=0.25f;
+        [Range(0,1), Tooltip("仅旧独立示例使用的每级效果增幅；Game 组合技能的等级成长改用“等级成长”配置。")] public float levelPower=0.25f;
+        [Tooltip("技能等级成长：学习门槛、最高等级以及每级伤害、Buff、冷却和消耗倍率。1 级始终等于上方配置数值。")]
+        public SkillLevelGrowth growth=new SkillLevelGrowth();
         [InspectorName("指示器颜色")] public Color indicatorColor=Color.cyan;
         [Header("旧独立示例兼容（仅 stages 为空时使用）")]
         public SkillDelivery delivery;

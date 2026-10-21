@@ -105,6 +105,7 @@ namespace Roguelike.Abilities.Editor
             Field("castTime", "释放前摇 / 释放时间（秒）", "前摇结束才释放；阶段延迟从此刻计算。默认 0。Game 前后摇期间禁止移动、普攻和再次施法，重开会话后生效。");
             Field("recoveryTime", "释放后摇（秒）", "从前摇结束计算，不等待飞行或多段完成。前摇被禁止施法状态打断会取消释放，不退资源和冷却。");
             Field("manaCost", "资源消耗", "成功提交时扣除一次；不足时施法失败。");
+            Field("growth", "等级成长", "学习门槛、最高等级与每级倍率。1 级等于上方配置数值；Game 开局技能为 0 级，需要用技能点学习。");
             bool formal = recipe || serializedObject.FindProperty("stages").arraySize > 0;
             Field("indicatorColor", formal ? "指示器颜色" : "旧示例指示器颜色",
                 "工作台预览立即更新；Game 在重开会话时读取颜色快照。");
@@ -118,7 +119,7 @@ namespace Roguelike.Abilities.Editor
                 Field("areaDuration", "旧区域持续时间（秒）");
                 Field("areaInterval", "旧区域查询间隔（秒）");
                 Array("effects", "旧效果列表", "效果");
-                Field("levelPower", "旧示例每级效果增幅", "当前 Game 技能固定为一级。");
+                Field("levelPower", "旧示例每级效果增幅", "仅旧独立示例使用；Game 组合技能使用“等级成长”。");
             }
             End();
         }
@@ -173,6 +174,16 @@ namespace Roguelike.Abilities.Editor
             Field("attackDamage", "普攻伤害");
             Field("attackInterval", "普攻间隔（秒）");
             Field("range", "普攻距离（米）");
+            Section("等级成长（Dota 2 式，每升 1 级累加，重开后生效）");
+            Field("baseMana", "开局最大法力");
+            Field("baseHealthRegen", "开局生命回复（点/秒）");
+            Field("healthPerLevel", "每级最大生命", "升级时当前生命同步增加。");
+            Field("manaPerLevel", "每级最大法力");
+            Field("attackPerLevel", "每级普攻伤害");
+            Field("attackSpeedPerLevel", "每级攻击速度（小数）", "0.025 表示每级 +2.5% 攻速。");
+            Field("moveSpeedPerLevel", "每级移动速度（米/秒）");
+            Field("regenPerLevel", "每级生命回复（点/秒）");
+            Array("talents", "天赋树", "天赋层", "按英雄等级升序排列；到达等级后二选一，不消耗技能点。最多 31 层。");
             End();
         }
     }

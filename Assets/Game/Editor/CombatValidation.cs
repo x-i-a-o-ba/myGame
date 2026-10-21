@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Roguelike.Editor
 {
     /// <summary>通过真实编译库和 ECS 执行入口验证组合合同；主 AI 统一安排运行，不加载 Game 场景。</summary>
-    public static class CombatValidation
+    public static partial class CombatValidation
     {
         private static int checks;
         public static void Validate()
@@ -19,6 +19,7 @@ namespace Roguelike.Editor
             Check(SkillTargeting.FirstContact(float3.zero,new float3(10,0,0),new float3(5,0,0),1,out float first) && Mathf.Approximately(first,0.4f),"Swept collision uses entry point, not target center");
             Check(SkillTargeting.FirstContact(float3.zero,new float3(10,0,0),new float3(4.8f,0,0.99f),1,out float grazing) && grazing>first,"Grazing target with nearer center does not steal earlier collision");
             ValidateSlotsAndStages(); ValidateSourceAndDelay(); ValidateProjectiles(); ValidateBuffs(); ValidateHitGate(); ValidateInvalidConfiguration();
+            ValidateSkillLevels(); ValidateHeroProgression(); ValidateWaves();
             Debug.Log("COMBAT_VALIDATION_PASSED ability foundation checks="+checks);
         }
 
@@ -112,7 +113,9 @@ namespace Roguelike.Editor
                     var owner=f.Owner(new[]{1});
                     var offPath=f.Unit(new float3(2,0,1),1); var first=f.Unit(new float3(4,0,0),1);
                     var further=f.Unit(new float3(9,0,0),1);
-                    f.Command(owner,0,new float3(20,0,0),new float3(1,0,0)); f.Step(owner,0.5f,0.5f);
+                    f.Command(owner,0,new float3(20,0,0),new float3(1,0,0)); f.Step(owner,0,0);
+                    Check(f.State(first).Health==100,"New projectile does not consume time before its release");
+                    f.Step(owner,0.5f,0.5f);
                     Check(f.State(first).Health==64,"Linear projectile applies first impact plus explosion to the first hit");
                     Check(f.State(offPath).Health==84,"Collision radius is independent from explosion radius");
                     Check(f.State(further).Health==100,"Linear projectile stops at first hit and does not pierce");

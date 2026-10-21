@@ -25,3 +25,48 @@ MonoBehaviour:
   attackDamage: 30
   attackInterval: 0.12
   range: 20
+  baseMana: 100
+  baseHealthRegen: 1.5
+  healthPerLevel: 22
+  manaPerLevel: 12
+  attackPerLevel: 3
+  attackSpeedPerLevel: 0.025
+  moveSpeedPerLevel: 0
+  regenPerLevel: 0.1
+  talents:
+  - heroLevel: 10
+    left:
+      displayName: "+20 \u653B\u51FB\u529B"
+      stat: 1
+      value: 20
+    right:
+      displayName: "+25% \u7ECF\u9A8C\u83B7\u53D6"
+      stat: 7
+      value: 0.25
+  - heroLevel: 15
+    left:
+      displayName: "+25% \u653B\u51FB\u901F\u5EA6"
+      stat: 2
+      value: 0.25
+    right:
+      displayName: "+250 \u6700\u5927\u751F\u547D"
+      stat: 0
+      value: 250
+  - heroLevel: 20
+    left:
+      displayName: "+30% \u6280\u80FD\u4F24\u5BB3"
+      stat: 5
+      value: 0.3
+    right:
+      displayName: "-20% \u6280\u80FD\u51B7\u5374"
+      stat: 6
+      value: 0.2
+  - heroLevel: 25
+    left:
+      displayName: "+60 \u653B\u51FB\u529B"
+      stat: 1
+      value: 60
+    right:
+      displayName: "+10 \u751F\u547D\u56DE\u590D"
+      stat: 4
+      value: 10

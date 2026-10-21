@@ -113,6 +113,14 @@ namespace Roguelike.Abilities
                         Delivery=d.delivery,Targets=d.targets,CastRange=d.castRange,Radius=d.radius,
                         AreaDuration=d.areaDuration,AreaInterval=d.areaInterval,
                         IndicatorColor=new Unity.Mathematics.float4(d.indicatorColor.r,d.indicatorColor.g,d.indicatorColor.b,d.indicatorColor.a) };
+                    // 必须在整体赋值 s[i] 之后分配，避免结构体赋值覆盖 Blob 数组偏移。
+                    var levelRows=(d.growth??new SkillLevelGrowth()).Resolve(d.name);
+                    s[i].MaxLevel=levelRows.Length;
+                    var levels=builder.Allocate(ref s[i].Levels,levelRows.Length);
+                    for(int level=0;level<levelRows.Length;level++)
+                        levels[level]=new SkillLevelData {RequiredHeroLevel=levelRows[level].requiredHeroLevel,
+                            EffectScale=levelRows[level].effectScale,BuffScale=levelRows[level].buffScale,
+                            CooldownScale=levelRows[level].cooldownScale,ManaCostScale=levelRows[level].manaCostScale};
                     if(inputStages!=null && inputStages.Length>0)
                     {
                         if(inputStages.Length>MaximumStages) throw new InvalidOperationException("技能阶段超过 "+MaximumStages+"："+d.name);

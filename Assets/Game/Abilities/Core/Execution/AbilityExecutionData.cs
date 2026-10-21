@@ -38,6 +38,8 @@ namespace Roguelike.Abilities
     public struct ScheduledSkillStage : IBufferElementData
     {
         public int Skill, Stage, Remaining, Cast, ProgramVersion, Depth;
+        // 施法提交时的技能等级快照；之后再升级不改变已在途的阶段。0 按 1 级处理（旧调用者兼容）。
+        public int Level;
         public float NextAt,RootReleasedAt;
         public float3 Origin, Point, Direction;
         public Entity Target;
@@ -46,6 +48,7 @@ namespace Roguelike.Abilities
     public struct SkillFlight : IBufferElementData
     {
         public int Skill, Stage, Cast, ProgramVersion, Depth;
+        public int Level;
         public float RootReleasedAt;
         public Entity Target;
         public float3 Position, Destination, Direction;
