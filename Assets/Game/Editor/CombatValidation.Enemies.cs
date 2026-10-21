@@ -130,55 +130,59 @@ namespace Roguelike.Editor
         private static void ValidateKindSpawning()
         {
             using(var world=new World("EnemyKindValidation"))
-            using(var kinds=new NativeArray<CombatEnemyKind>(3,Allocator.Temp))
             {
-                var manager=world.EntityManager;
-                Entity MakePrefab()
-                {
-                    var prefab=manager.CreateEntity(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform),typeof(AutoAttackState),typeof(AutoAttackData),typeof(Prefab));
-                    manager.SetComponentData(prefab,new AutoAttackData{BaseAttackTime=1,Range=1,AcquisitionRange=1});
-                    manager.AddBuffer<ActiveBuff>(prefab);
-                    return prefab;
-                }
-                kinds[0]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3901,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite,FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1};
-                kinds[1]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3902,Tiers=EnemyTierMask.Normal,FirstWave=3,Weight=1,Health=0.5f,Damage=1,Speed=2,Experience=1,Scale=1};
-                kinds[2]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3903,Tiers=EnemyTierMask.Boss,FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1.5f};
-                var random=Unity.Mathematics.Random.CreateFromIndex(11);
-                bool earlyOnlyFirst=true,laterBoth=false,laterSecond=false;
-                for(int i=0;i<64;i++)
-                {
-                    earlyOnlyFirst&=CombatWaveDirector.Pick(kinds,EnemyTier.Normal,1,ref random)==0;
-                    int later=CombatWaveDirector.Pick(kinds,EnemyTier.Normal,3,ref random);
-                    laterSecond|=later==1; laterBoth|=later==0;
-                }
-                Check(earlyOnlyFirst && laterBoth && laterSecond,"Weighted pick only offers kinds whose first wave has arrived");
-                Check(CombatWaveDirector.Pick(kinds,EnemyTier.Boss,10,ref random)==2 && CombatWaveDirector.Pick(kinds,EnemyTier.Elite,5,ref random)==0,
-                    "Boss and elite tiers pick kinds that allow the tier");
-                var difficulty=ScriptableObject.CreateInstance<CombatDifficultyDefinition>();
+                var kinds=new NativeArray<CombatEnemyKind>(3,Allocator.Temp);
                 try
                 {
-                    var waves=difficulty.ToSettings();
-                    var combat=new CombatSettings{EnemyHealth=30,EnemySpeed=2,EnemyAttackDamage=4,EnemyAttackInterval=1,ArenaHalfSize=125,SafeSpawnRadius=30,MaxAlive=3000};
-                    var state=new CombatWaveState{Wave=10,Seed=3};
-                    int spawned=CombatWaveDirector.SpawnWave(manager,combat,waves,ref state,float3.zero,0,kinds);
-                    var normal=CombatWaveDirector.Stats(waves,combat,10,EnemyTier.Normal);
-                    using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(AbilityUnit)))
-                    using(var enemies=query.ToEntityArray(Allocator.Temp))
+                    var manager=world.EntityManager;
+                    Entity MakePrefab()
                     {
-                        var seen=new HashSet<int>(); bool scaled=true,bossKind=false;
-                        foreach(var enemy in enemies)
-                        {
-                            var data=manager.GetComponentData<CombatEnemy>(enemy); seen.Add(data.ConfigId);
-                            var unit=manager.GetComponentData<AbilityUnit>(enemy);
-                            if(data.Tier==EnemyTier.Normal && data.ConfigId==3902) scaled&=Mathf.Approximately(unit.MaxHealth,math.max(1,normal.Health*0.5f)) && Mathf.Approximately(unit.Speed,normal.Speed*2);
-                            if(data.Tier==EnemyTier.Boss) bossKind|=data.ConfigId==3903 && state.Boss==enemy;
-                        }
-                        Check(spawned==enemies.Length && seen.Count==3,"One wave spawns several enemy kinds from the roster");
-                        Check(scaled,"Enemy kind multiplies wave health and speed");
-                        Check(bossKind,"Boss wave spawns the boss kind and tracks it for the HUD");
+                        var prefab=manager.CreateEntity(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform),typeof(AutoAttackState),typeof(AutoAttackData),typeof(Prefab));
+                        manager.SetComponentData(prefab,new AutoAttackData{BaseAttackTime=1,Range=1,AcquisitionRange=1});
+                        manager.AddBuffer<ActiveBuff>(prefab);
+                        return prefab;
                     }
+                    kinds[0]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3901,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite,FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1};
+                    kinds[1]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3902,Tiers=EnemyTierMask.Normal,FirstWave=3,Weight=1,Health=0.5f,Damage=1,Speed=2,Experience=1,Scale=1};
+                    kinds[2]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3903,Tiers=EnemyTierMask.Boss,FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1.5f};
+                    var random=Unity.Mathematics.Random.CreateFromIndex(11);
+                    bool earlyOnlyFirst=true,laterBoth=false,laterSecond=false;
+                    for(int i=0;i<64;i++)
+                    {
+                        earlyOnlyFirst&=CombatWaveDirector.Pick(kinds,EnemyTier.Normal,1,ref random)==0;
+                        int later=CombatWaveDirector.Pick(kinds,EnemyTier.Normal,3,ref random);
+                        laterSecond|=later==1; laterBoth|=later==0;
+                    }
+                    Check(earlyOnlyFirst && laterBoth && laterSecond,"Weighted pick only offers kinds whose first wave has arrived");
+                    Check(CombatWaveDirector.Pick(kinds,EnemyTier.Boss,10,ref random)==2 && CombatWaveDirector.Pick(kinds,EnemyTier.Elite,5,ref random)==0,
+                        "Boss and elite tiers pick kinds that allow the tier");
+                    var difficulty=ScriptableObject.CreateInstance<CombatDifficultyDefinition>();
+                    try
+                    {
+                        var waves=difficulty.ToSettings();
+                        var combat=new CombatSettings{EnemyHealth=30,EnemySpeed=2,EnemyAttackDamage=4,EnemyAttackInterval=1,ArenaHalfSize=125,SafeSpawnRadius=30,MaxAlive=3000};
+                        var state=new CombatWaveState{Wave=10,Seed=3};
+                        int spawned=CombatWaveDirector.SpawnWave(manager,combat,waves,ref state,float3.zero,0,kinds);
+                        var normal=CombatWaveDirector.Stats(waves,combat,10,EnemyTier.Normal);
+                        using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(AbilityUnit)))
+                        using(var enemies=query.ToEntityArray(Allocator.Temp))
+                        {
+                            var seen=new HashSet<int>(); bool scaled=true,bossKind=false;
+                            foreach(var enemy in enemies)
+                            {
+                                var data=manager.GetComponentData<CombatEnemy>(enemy); seen.Add(data.ConfigId);
+                                var unit=manager.GetComponentData<AbilityUnit>(enemy);
+                                if(data.Tier==EnemyTier.Normal && data.ConfigId==3902) scaled&=Mathf.Approximately(unit.MaxHealth,math.max(1,normal.Health*0.5f)) && Mathf.Approximately(unit.Speed,normal.Speed*2);
+                                if(data.Tier==EnemyTier.Boss) bossKind|=data.ConfigId==3903 && state.Boss==enemy;
+                            }
+                            Check(spawned==enemies.Length && seen.Count==3,"One wave spawns several enemy kinds from the roster");
+                            Check(scaled,"Enemy kind multiplies wave health and speed");
+                            Check(bossKind,"Boss wave spawns the boss kind and tracks it for the HUD");
+                        }
+                    }
+                    finally { UnityEngine.Object.DestroyImmediate(difficulty); }
                 }
-                finally { UnityEngine.Object.DestroyImmediate(difficulty); }
+                finally { kinds.Dispose(); }
             }
         }
     }

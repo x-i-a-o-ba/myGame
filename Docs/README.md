@@ -1,8 +1,8 @@
 # 万级同屏肉鸽开发文档
 
-## 2026-10-21 敌人种类、Dota 2 式操作与 HUD（未验证）
+## 2026-10-21 敌人种类、Dota 2 式操作与 HUD
 
-新增 8 种敌人预制体与敌人名册、英雄与敌人共用的自动攻击被动模块、Dota 2 式指令（右键移动/攻击、A 攻击移动、S 停止、H 待命）和 Dota 2 风格 HUD，见 [enemies-and-controls.md](enemies-and-controls.md)。本轮只完成 C# 语法与跨文件引用检查；Unity 编译、Editor 规则、Player 冒烟、画面与手感均**未验证**。
+新增 8 种敌人预制体与敌人名册、英雄与敌人共用的自动攻击被动模块、Dota 2 式指令（右键移动/攻击、A 攻击移动、S 停止、H 待命）和 Dota 2 风格 HUD，见 [enemies-and-controls.md](enemies-and-controls.md)。合并前 Unity 编译、121 项 Editor 规则、Windows 构建与 42 项 Player 检查通过，并检查了实际 HUD 截图。人工操作手感、全部敌人实战与万敌性能未验收，见 [验证记录](validation-enemies-dota-hud-2026-10-21.md)。
 
 ## 2026-10-21 英雄成长分支合并验证
 

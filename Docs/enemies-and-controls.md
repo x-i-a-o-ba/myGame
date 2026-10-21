@@ -2,7 +2,7 @@
 
 更新：2026-10-21。本文是敌人预制体、敌人名册、自动攻击被动模块、Dota 2 式指令和新版 HUD 的说明。成长与波次规则见 [hero-progression.md](hero-progression.md)，技能组合见 [ability-foundation.md](ability-foundation.md)。
 
-> 验证状态：代码、资源、场景引用、中文 Inspector、编辑器校验用例和 Player 探针检查都已写好，但本机没有 Unity，只做了 C# 语法检查和跨文件引用检查。**Unity 编译、资源首次导入、编辑器校验、Player 冒烟、试玩手感、画面效果和万敌性能均未验证。**预制体、材质、UI 预制体和场景字段都是手写 YAML，需要在 Unity 里首次导入后确认。
+> 合并前验证（2026-10-21）：Unity 6000.3.18f1 资源导入、脚本编译、121 项 Editor 规则、Windows 构建及 42 项 Player 检查通过。修复运行代码和验证代码中 NativeArray 只读 using 变量的写入编译错误；已检查新版 HUD 与敌人离屏画面。原始键鼠手感、中文 Inspector 外观、全部特殊敌人实战与万敌性能尚未验收，详见 [验证记录](validation-enemies-dota-hud-2026-10-21.md)。
 
 ## 1. 操作（参考 Dota 2 默认键位）
 

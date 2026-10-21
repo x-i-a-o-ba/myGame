@@ -85,11 +85,13 @@ namespace Roguelike.Combat
         /// <summary>未配置敌人名册时的兼容入口：只用 CombatSettings.EnemyPrefab 一个种类。</summary>
         public static int SpawnWave(EntityManager manager,in CombatSettings combat,in CombatWaveSettings settings,ref CombatWaveState state,float3 center,int alive)
         {
-            using(var kinds=new NativeArray<CombatEnemyKind>(1,Allocator.Temp))
+            var kinds=new NativeArray<CombatEnemyKind>(1,Allocator.Temp);
+            try
             {
                 kinds[0]=LegacyKind(combat);
                 return SpawnWave(manager,combat,settings,ref state,center,alive,kinds);
             }
+            finally { kinds.Dispose(); }
         }
 
         /// <summary>

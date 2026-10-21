@@ -6,7 +6,7 @@
 
 AI 决定：新增 `AutoAttackDefinition` 自动攻击被动模块（Dota 2 的攻击距离、索敌距离、BAT、前摇、后摇、距离缓冲），英雄与敌人共用 `AutoAttackLogic` 步进，运行状态归单位的 `AutoAttackState`。操作改为 Dota 2 默认键位：右键地面移动（途中不攻击）、右键敌人攻击、A 攻击瞄准（左键敌人攻击、左键地面攻击移动）、S 停止、H 待命，加转身速度。敌人改为预制体 + `EnemyArchetype` 配置组件，开局把预制体网格合并转换成 ECS 原型（不实例化 GameObject），首批 8 种覆盖近战、远程游击、冲锋、自爆四种行为；`EnemyRoster` 名册按波次、档位和权重出场。HUD 按 Dota 2 布局重做：底部头像/属性/被动/技能栏/血蓝条/指令按钮，顶部时间波次与首领血条，天赋树面板；美术为程序生成的 PNG。规则与数值见 [enemies-and-controls.md](enemies-and-controls.md)。
 
-本轮验证：仅完成无 Unity 环境下的 C# 语法检查和跨文件引用检查，并用 Python 预览渲染检查了 HUD 布局。Unity 编译、资源导入、编辑器校验、Player 冒烟、操作手感、敌人外形、HUD 实际画面和性能均**未验证**；预制体、材质、UI 与场景字段为手写 YAML。
+合并前复验：修复两处 NativeArray 只读 using 变量写入导致的编译错误；Unity 6000.3.18f1 导入与编译、121 项 Editor 规则、Windows 构建及 42 项 Player 检查通过。已检查实际 HUD 与首波敌人画面；原始键鼠手感、Inspector 外观、全部敌人特殊行为实战与万敌性能未验收，见 [验证记录](validation-enemies-dota-hud-2026-10-21.md)。
 
 ## 2026-10-21 英雄成长与波次难度
 
