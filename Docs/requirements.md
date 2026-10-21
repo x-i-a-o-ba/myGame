@@ -6,7 +6,7 @@
 
 AI 决定：以寒冰射手为首个完整角色。采用 Dota 2 的 30 级经验表、每级 1 技能点、普通技能 4 级（门槛 1/3/5/7）、终极技能 3 级（门槛 6/12/18）、10/15/20/25 级二选一天赋；开局四技能均未学习。敌人改为每 20 秒一波、共 30 波，数量、生命、伤害、移速、经验逐波增长，每 5 波精英、每 10 波首领，击杀第 30 波首领胜利。技能等级作为 SkillDefinition 的通用成长配置编译进 Blob，不按技能或英雄分支。规则、数值与数据所有权见 [hero-progression.md](hero-progression.md)，项目总览见 [project-overview.md](project-overview.md)。旧代码 `Assets/Scripts/ProjectBase`、`Assets/_Scripts` 只给出处理建议，未删除。
 
-本轮验证：仅完成无 Unity 环境下的 C# 语法检查和跨文件引用检查。Unity 编译、编辑器验证菜单、Inspector、新 UI 面板、Player 冒烟与数值手感均**未验证**；资源与场景字段为手写 YAML，需在 Unity 中首次导入确认。
+合并前复验：Unity 6000.3.18f1 资源导入与编译、89 项 Editor 规则检查、Windows 构建、31 项 Player 集成检查通过；已修复验证代码的编译及测试准备问题。完整实玩、Inspector/天赋面板外观、平衡和万敌性能未验收，详见 [合并验证记录](validation-hero-progression-2026-10-21.md)。
 
 ## 2026-10-21 仓库公开访问
 

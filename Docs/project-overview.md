@@ -33,7 +33,7 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | Game 移动、自动攻击、死亡重开 | 已完成 |
 | 组合技能 / Buff 架构、V2 配方、中文编辑器、技能工作台 | 已完成，见 [ability-foundation.md](ability-foundation.md)、[V2 实施记录](skill-composition-v2-implementation.md) |
 | 寒冰射手四技能与指示器 | 已完成，见 [ashe-game-integration.md](ashe-game-integration.md) |
-| Dota 2 式升级、技能点、技能等级、天赋、波次难度、胜负 | 2026-10-21 新增代码与配置，**未在 Unity 中编译和试玩**，见 [hero-progression.md](hero-progression.md) |
+| Dota 2 式升级、技能点、技能等级、天赋、波次难度、胜负 | 2026-10-21 Unity 编译、89 项 Editor 规则、Windows 构建及 31 项 Player 集成检查通过；完整实玩和数值平衡未验收，见 [hero-progression.md](hero-progression.md) |
 | 万敌完整战斗性能 | 未在 Player 中实测 |
 | 选人界面、经验掉落、敌人种类/技能、局外成长、存档、音效、正式美术 | 未开始 |
 

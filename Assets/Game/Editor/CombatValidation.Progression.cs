@@ -54,7 +54,8 @@ namespace Roguelike.Editor
                     Check(Mathf.Approximately(f.Manager.GetBuffer<AbilitySlot>(owner)[0].ReadyAt,0.2f+9.2f),"Level 2 shortens cooldown (10 x 0.92)");
                     var unit=f.State(owner); unit.SkillAmplify=0.5f; unit.CooldownReduction=0.5f; f.Manager.SetComponentData(owner,unit);
                     SetLevel(f,owner,0,1);
-                    var slot=f.Manager.GetBuffer<AbilitySlot>(owner)[0]; slot.ReadyAt=0; f.Manager.GetBuffer<AbilitySlot>(owner)[0]=slot;
+                    var ownerSlots=f.Manager.GetBuffer<AbilitySlot>(owner);
+                    var slot=ownerSlots[0]; slot.ReadyAt=0; slot.Charges=compiled.MaxCharges; ownerSlots[0]=slot;
                     f.Command(owner,0,float3.zero,new float3(1,0,0)); f.Step(owner,0.3f,0.1f);
                     Check(Mathf.Approximately(f.State(enemy).Health,66),"Skill amplify multiplies skill damage (10 x 1.5)");
                     Check(Mathf.Approximately(f.Manager.GetBuffer<AbilitySlot>(owner)[0].ReadyAt,0.3f+5),"Cooldown reduction shortens cooldown (10 x 0.5)");

@@ -1,0 +1,35 @@
+COMBAT_VALIDATION_PASSED ability foundation checks=89
+COMBAT_VALIDATION_PASSED ability foundation checks=89
+GAME_BUILD_SUCCEEDED
+GAME_CHECK_PASSED: Game initializes composed hero
+GAME_CHECK_PASSED: Authored indicator references
+GAME_CHECK_PASSED: First difficulty wave spawns within alive cap
+GAME_CHECK_PASSED: Hero starts at level 1 with one skill point
+GAME_CHECK_PASSED: Skills start unlearned
+GAME_CHECK_PASSED: Unlearned skill cannot enter aim
+GAME_CHECK_PASSED: Experience table levels hero to 7 and grants skill points
+GAME_CHECK_PASSED: Level growth raises authoritative max health
+GAME_CHECK_PASSED: HUD learn buttons learn every slot once
+GAME_CHECK_PASSED: Ultimate level 2 waits for hero level 12
+GAME_CHECK_PASSED: HUD blocks movement
+GAME_CHECK_PASSED: Basic attack uses shared effect pipeline
+GAME_CHECK_PASSED: Self buff modifies attack speed
+GAME_CHECK_PASSED: HUD slot enters configured aim
+GAME_CHECK_PASSED: Confirm cone ability
+GAME_CHECK_PASSED: Successful cast commits cooldown
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: point-indicator.png
+GAME_CHECK_PASSED: Point ability accepts target
+GAME_CHECK_PASSED: Point projectile consumes one charge
+GAME_CHECK_PASSED: Linear projectile accepts direction
+GAME_CHECK_PASSED: All configured examples commit through one executor
+GAME_CHECK_PASSED: Level 10 unlocks first talent tier
+GAME_CHECK_PASSED: Talent button applies left option
+GAME_CHECK_PASSED: Next difficulty wave spawns when its timer elapses
+GAME_CHECK_PASSED: Different hero loadout changes Q aim without simulation branches
+GAME_CHECK_PASSED: Restart clears combat and flights
+GAME_CHECK_PASSED: Restart resets level and learned skills
+GAME_CHECK_PASSED: Death snapshot comes from authoritative unit
+GAME_CHECK_PASSED: Hero death records defeat outcome
+GAME_CHECK_PASSED: Restart restores configured hero
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: foundation-game.png
+GAME_SMOKE_PASSED

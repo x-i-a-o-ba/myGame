@@ -113,7 +113,9 @@ namespace Roguelike.Editor
                     var owner=f.Owner(new[]{1});
                     var offPath=f.Unit(new float3(2,0,1),1); var first=f.Unit(new float3(4,0,0),1);
                     var further=f.Unit(new float3(9,0,0),1);
-                    f.Command(owner,0,new float3(20,0,0),new float3(1,0,0)); f.Step(owner,0.5f,0.5f);
+                    f.Command(owner,0,new float3(20,0,0),new float3(1,0,0)); f.Step(owner,0,0);
+                    Check(f.State(first).Health==100,"New projectile does not consume time before its release");
+                    f.Step(owner,0.5f,0.5f);
                     Check(f.State(first).Health==64,"Linear projectile applies first impact plus explosion to the first hit");
                     Check(f.State(offPath).Health==84,"Collision radius is independent from explosion radius");
                     Check(f.State(further).Health==100,"Linear projectile stops at first hit and does not pierce");

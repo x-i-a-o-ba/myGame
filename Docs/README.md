@@ -1,5 +1,9 @@
 # 万级同屏肉鸽开发文档
 
+## 2026-10-21 英雄成长分支合并验证
+
+[英雄成长](hero-progression.md)已完成 Unity 编译、89 项 Editor 规则、Windows 构建与 31 项 Player 集成检查。完整一局、数值平衡与万敌性能仍待验收，见 [验证记录](validation-hero-progression-2026-10-21.md)。
+
 ## 2026-09-28 自由组合技能 V2
 
 用户已批准按 [V2 设计方案](skill-composition-v2-proposal.md)实施。当前新增数字模块目录、纯数据配方、共享编译器、有限事件步骤、版本化执行库及中文步骤编辑器。5 个正式技能迁移为配方输入，旧阶段保留用于恢复，Game 继续使用共享结算核心。最新职责、迁移、限制与验证见 [V2 实施记录](skill-composition-v2-implementation.md)，该记录优先于下方旧版说明。
