@@ -54,6 +54,7 @@ MonoBehaviour:
   stableId: enemy.frost_lich
   displayName: "\u971C\u9AA8\u5DEB\u5996"
   description: "\u8FDC\u7A0B\u6E38\u51FB\u7684\u7CBE\u82F1\u4E0E\u9996\u9886\uFF1A\u8FDC\u8DDD\u79BB\u53D1\u5C04\u971C\u5F39\uFF0C\u82F1\u96C4\u9760\u8FD1\u65F6\u540E\u64A4\u3002\u7B2C 10 \u6CE2\u8D77\u51FA\u73B0\u3002"
+  portrait: {fileID: 2800000, guid: 4f05a45f9c5045d089b16b49d5e9380e, type: 3}
   behavior: 1
   attack: {fileID: 11400000, guid: c5c45647d624456294acc0d0b63ba405, type: 2}
   healthMultiplier: 1.4

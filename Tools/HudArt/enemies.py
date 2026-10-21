@@ -236,6 +236,7 @@ MonoBehaviour:
   stableId: {stable}
   displayName: {us(name)}
   description: {us(desc)}
+  portrait: {{fileID: 2800000, guid: {icons[name]}, type: 3}}
   behavior: {behavior}
   attack: {{fileID: 11400000, guid: {attacks[attack]}, type: 2}}
 {fields}"""

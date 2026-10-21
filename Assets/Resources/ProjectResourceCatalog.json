@@ -97,6 +97,11 @@
             "kind": "resource"
         },
         {
+            "id": "UI.Game.TargetInfo",
+            "path": "UI/Panels/UI.Game.TargetInfo",
+            "kind": "resource"
+        },
+        {
             "id": "UI.Game.Title",
             "path": "UI/Panels/UI.Game.Title",
             "kind": "resource"
@@ -194,6 +199,11 @@
         {
             "id": "UI/Panels/UI.Game.Talent",
             "path": "UI/Panels/UI.Game.Talent",
+            "kind": "resource"
+        },
+        {
+            "id": "UI/Panels/UI.Game.TargetInfo",
+            "path": "UI/Panels/UI.Game.TargetInfo",
             "kind": "resource"
         },
         {

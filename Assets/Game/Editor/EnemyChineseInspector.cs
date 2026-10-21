@@ -22,6 +22,7 @@ namespace Roguelike.Editor
             Field("stableId","内部兼容键");
             Field("displayName","显示名称");
             Field("description","说明");
+            Field("portrait","头像","选中敌人时左上角信息面板显示的头像；为空时使用攻击模块图标。");
             Section("行为与攻击");
             Field("behavior","行为");
             Field("attack","自动攻击模块","与英雄共用的被动攻击模块：距离、前摇、后摇、基础攻击间隔。");

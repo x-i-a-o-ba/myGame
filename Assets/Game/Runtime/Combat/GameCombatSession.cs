@@ -23,6 +23,10 @@ namespace Roguelike.Combat
         public string[] SkillNames {get; private set;}
         /// <summary>本局敌人种类显示名，下标与 CombatEnemy.Kind 一致。</summary>
         public string[] EnemyNames {get; private set;}=Array.Empty<string>();
+        /// <summary>本局敌人种类预制体（只读配置），下标与 <see cref="EnemyNames"/> 对齐；兼容原型对应 null。</summary>
+        public EnemyArchetype[] EnemyArchetypes {get; private set;}=Array.Empty<EnemyArchetype>();
+        /// <summary>本局 Buff 定义，下标与 ActiveBuff.Definition 一致（展示用）。</summary>
+        public BuffDefinition[] Buffs=>activeBuffs??Array.Empty<BuffDefinition>();
         /// <summary>本局英雄自动攻击快照（展示用；权威值在会话实体的 AutoAttackData）。</summary>
         public AutoAttackData HeroAttack {get; private set;}
         // 由预制体子网格合并出的网格归会话对象所有：重开时复用（渲染系统可能仍持有上一局的注册），会话销毁时释放。
@@ -79,6 +83,7 @@ namespace Roguelike.Combat
             Entity enemy=EnemyPrototype(enemyMesh,config.enemyMaterial,legacyAttack,new EnemyBehaviorData{Behavior=EnemyBehavior.Melee},legacyColor);
             var kinds=new List<CombatEnemyKind>();
             var names=new List<string>();
+            var archetypes=new List<EnemyArchetype>();
             var prototypes=new Dictionary<EnemyArchetype,Entity>();
             foreach(var plan in roster)
             {
@@ -100,15 +105,15 @@ namespace Roguelike.Combat
                     Experience=archetype.experienceMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
                     EliteColor=Linear(Color.Lerp(baseColor,rosterAsset.eliteTint,rosterAsset.eliteTintStrength)),
                     BossColor=Linear(Color.Lerp(baseColor,rosterAsset.bossTint,rosterAsset.bossTintStrength))});
-                names.Add(archetype.Label);
+                names.Add(archetype.Label); archetypes.Add(archetype);
             }
             if(kinds.Count==0)
             {
                 kinds.Add(new CombatEnemyKind {Prefab=enemy,ConfigId=GameCombatController.EnemyConfigId,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss,
                     FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1,Color=legacyColor,EliteColor=legacyColor,BossColor=legacyColor});
-                names.Add("普通怪物");
+                names.Add("普通怪物"); archetypes.Add(null);
             }
-            EnemyNames=names.ToArray();
+            EnemyNames=names.ToArray(); EnemyArchetypes=archetypes.ToArray();
             // 敌人原型保留到重开：CombatWaveDirector 按难度曲线逐波实例化，enemyCount 只作同屏存活上限。
             int maxAlive=Mathf.Clamp(config.enemyCount,1,30000);
             float safe=Mathf.Clamp(config.safeSpawnRadius,3,config.arenaHalfSize*0.5f);
@@ -224,7 +229,7 @@ namespace Roguelike.Combat
             if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
             if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
             activeSkills=null; activeBuffs=null;
-            EnemyNames=Array.Empty<string>();
+            EnemyNames=Array.Empty<string>(); EnemyArchetypes=Array.Empty<EnemyArchetype>();
             originalLibrary=default; progressionLibrary=default; Entity=Entity.Null;
         }
         public void Dispose()

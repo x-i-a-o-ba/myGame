@@ -8,6 +8,7 @@ namespace Roguelike.Combat
     /// <summary>
     /// 读取装备技能第一段几何的瞄准预览。只决定输入目标，不结算效果。
     /// 不在技能瞄准时，同一组圆圈复用为 Dota 2 式指令预览：A 键攻击瞄准的攻击距离圈、悬停敌人与攻击目标圈。
+    /// 左键选中敌人的选中圈由目标圈在运行时克隆出独立实例，与瞄准/指令预览互不干扰。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class GameAbilityIndicator : MonoBehaviour
@@ -15,7 +16,8 @@ namespace Roguelike.Combat
         [SerializeField] private CircleIndicatorView rangeCircle,areaCircle;
         [SerializeField] private LineRenderer outline;
         private Color previewColor;
-        private const float RangeHeight=0.04f,AreaHeight=0.055f,OutlineHeight=0.075f;
+        private CircleIndicatorView selectionCircle;
+        private const float RangeHeight=0.04f,AreaHeight=0.055f,OutlineHeight=0.075f,SelectionHeight=0.05f;
         // 容纳 64 段胶囊和闭合端点，瞄准期间复用，避免每帧创建顶点数组。
         private readonly List<Vector3> outlinePoints=new List<Vector3>(68);
         private SkillAimPreview skill;
@@ -96,6 +98,18 @@ namespace Roguelike.Combat
             HideTargetViews();
         }
         private static readonly Color AttackRangeColor=new Color(1f,0.35f,0.28f,1);
+        /// <summary>选中圈：在选中敌人脚下显示；首次使用时克隆目标圈，技能瞄准与取消不会隐藏它。</summary>
+        public void ShowSelection(Vector3 center,float radius,Color color)
+        {
+            if(!areaCircle) return;
+            if(!selectionCircle)
+            {
+                selectionCircle=Instantiate(areaCircle,areaCircle.transform.parent);
+                selectionCircle.name="Selection Circle";
+            }
+            selectionCircle.Show(new Vector3(center.x,SelectionHeight,center.z),Mathf.Max(0.2f,radius),color,0.9f);
+        }
+        public void HideSelection() { if(selectionCircle) selectionCircle.Hide(); }
         private void ShowOutline()
         {
             if(outline.positionCount!=outlinePoints.Count) outline.positionCount=outlinePoints.Count;
@@ -115,7 +129,8 @@ namespace Roguelike.Combat
             if (outline != null) outline.enabled = false;
         }
 
-        private void OnDisable() => Cancel();
+        private void OnDisable() { Cancel(); HideSelection(); }
+        private void OnDestroy() { if(selectionCircle) Destroy(selectionCircle.gameObject); }
     }
 }
 

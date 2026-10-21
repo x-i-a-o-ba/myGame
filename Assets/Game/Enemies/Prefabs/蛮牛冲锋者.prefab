@@ -53,6 +53,7 @@ MonoBehaviour:
   stableId: enemy.bull_charger
   displayName: "\u86EE\u725B\u51B2\u950B\u8005"
   description: "\u8FDB\u5165\u51B2\u950B\u8DDD\u79BB\u540E\u76F4\u7EBF\u7A81\u8FDB\uFF0C\u649E\u5230\u82F1\u96C4\u9020\u6210\u9AD8\u989D\u4F24\u5BB3\uFF1B\u51B2\u950B\u95F4\u9699\u7528\u7284\u89D2\u8FD1\u6218\u3002"
+  portrait: {fileID: 2800000, guid: 406064763cc748898589fd81f0c7a53e, type: 3}
   behavior: 2
   attack: {fileID: 11400000, guid: 143ac7812ced42a39e1cb3678e30346a, type: 2}
   healthMultiplier: 1.8

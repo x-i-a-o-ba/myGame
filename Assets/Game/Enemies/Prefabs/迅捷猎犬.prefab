@@ -57,6 +57,7 @@ MonoBehaviour:
   stableId: enemy.hound
   displayName: "\u8FC5\u6377\u730E\u72AC"
   description: "\u4F53\u578B\u5C0F\u3001\u79FB\u52A8\u6781\u5FEB\u7684\u8FD1\u6218\u602A\u7269\uFF0C\u751F\u547D\u4E0E\u4F24\u5BB3\u8F83\u4F4E\uFF0C\u7ECF\u5E38\u4ECE\u4FA7\u7FFC\u5305\u6284\u3002"
+  portrait: {fileID: 2800000, guid: 0bb58d00c32149f78fee108516e5f34b, type: 3}
   behavior: 0
   attack: {fileID: 11400000, guid: 8e10d11d281e47ccb3d778c958008ff0, type: 2}
   healthMultiplier: 0.55

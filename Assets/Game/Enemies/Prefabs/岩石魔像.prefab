@@ -54,6 +54,7 @@ MonoBehaviour:
   stableId: enemy.rock_golem
   displayName: "\u5CA9\u77F3\u9B54\u50CF"
   description: "\u9AD8\u751F\u547D\u3001\u4F4E\u901F\u5EA6\u7684\u5766\u514B\u602A\u7269\uFF0C\u4F1A\u6321\u4F4F\u5176\u4ED6\u602A\u7269\u7684\u53BB\u8DEF\uFF0C\u653B\u51FB\u7F13\u6162\u4F46\u6C89\u91CD\u3002\u7B2C 6 \u6CE2\u8D77\u51FA\u73B0\u3002"
+  portrait: {fileID: 2800000, guid: c4da2d049bf1405293f4b8999d1d467c, type: 3}
   behavior: 0
   attack: {fileID: 11400000, guid: 7585fbde20264361b4d8da83ea4b8c42, type: 2}
   healthMultiplier: 3
