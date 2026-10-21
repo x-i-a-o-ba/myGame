@@ -54,7 +54,7 @@ namespace Roguelike.Combat
         private bool suppressRightUntilRelease,rightDragMoving;
         private Vector3 lastMovePoint;
         private float nextHudUpdate,smoothFrameTime,nextHover;
-        private Entity hovered;
+        private Entity hovered,selected;
         private Vector3 originalCameraPosition;
         private Quaternion originalCameraRotation;
         private float originalCameraSize,originalFarClip;
@@ -71,7 +71,8 @@ namespace Roguelike.Combat
         private readonly CombatHudSnapshot snapshot=new CombatHudSnapshot();
         /// <summary>鼠标点选敌人时在体型半径外额外放宽的距离（米）。</summary>
         public const float PickPadding=0.45f;
-        private static readonly Color MoveColor=new Color(0.35f,1f,0.45f,1),AttackColor=new Color(1f,0.32f,0.25f,1),HoverColor=new Color(1f,0.25f,0.2f,1),TargetColor=new Color(1f,0.62f,0.2f,1);
+        private static readonly Color MoveColor=new Color(0.35f,1f,0.45f,1),AttackColor=new Color(1f,0.32f,0.25f,1),HoverColor=new Color(1f,0.25f,0.2f,1),TargetColor=new Color(1f,0.62f,0.2f,1),
+            SelectionColor=new Color(1f,0.86f,0.35f,1);
         private static readonly int BaseColorId=Shader.PropertyToID("_BaseColor"),ColorId=Shader.PropertyToID("_Color");
         /// <summary>当前英雄自动攻击的攻击距离（米）；会话未就绪时读英雄旧字段。</summary>
         public float attackRange=>IsReady?session.HeroAttack.Range:hero?hero.range:0;
@@ -88,6 +89,8 @@ namespace Roguelike.Combat
         public AutoAttackState Attack=>IsReady?session.World.EntityManager.GetComponentData<AutoAttackState>(session.Entity):default;
         /// <summary>本局名册中的敌人种类名称，下标与 CombatEnemy.Kind 一致。</summary>
         public string[] EnemyKinds=>IsReady?session.EnemyNames:Array.Empty<string>();
+        /// <summary>左键选中的敌人（左上角显示信息面板）；未选中为 Entity.Null。只用于展示，不影响指令与模拟。</summary>
+        public Entity Selected=>selected;
         /// <summary>是否处于 A 键攻击瞄准：下一次左键对敌人下达攻击、对地面下达攻击移动。</summary>
         public bool AttackArmed {get; private set;}
         public HeroProgressionRules ActiveRules=>progressionRules?progressionRules:fallbackRules;
@@ -123,6 +126,7 @@ namespace Roguelike.Combat
                 hasEnemyQuery=true;
                 hud.RestartRequested+=RestartRun; hud.AbilityRequested+=CastAbility;
                 hud.LearnRequested+=LearnSkill; hud.TalentRequested+=ChooseTalentEncoded; hud.OrderRequested+=OnOrderButton;
+                hud.TargetCloseRequested+=ClearSelection;
                 RestartRun();
             }
             catch(Exception error) { Debug.LogException(error,this); enabled=false; }
@@ -130,7 +134,8 @@ namespace Roguelike.Combat
         public void RestartRun()
         {
             if(session==null) return;
-            abilityIndicator.Cancel(); suppressRightUntilRelease=false; rightDragMoving=false; AttackArmed=false; hovered=Entity.Null;
+            abilityIndicator.Cancel(); suppressRightUntilRelease=false; rightDragMoving=false; AttackArmed=false; hovered=Entity.Null; selected=Entity.Null;
+            abilityIndicator.HideSelection();
             session.Reset(this,ActiveRules,ActiveDifficulty,enemyMesh,projectileMesh);
             destinationMarker.gameObject.SetActive(false); nextHudUpdate=0;
             observedLevelUps=0; observedCommands=0;
@@ -173,6 +178,18 @@ namespace Roguelike.Combat
             destinationMarker.gameObject.SetActive(marked);
             if(marked) { destinationMarker.position=(Vector3)order.Point; TintMarker(kind==HeroOrderKind.Move?MoveColor:AttackColor); }
         }
+        /// <summary>左键选中敌人：左上角显示该敌人的信息面板并在脚下显示选中圈。只读展示，不下达指令。</summary>
+        public bool SelectEnemy(Entity target)
+        {
+            if(!Running || !Alive(target) || !session.World.EntityManager.HasComponent<CombatEnemy>(target)) return false;
+            selected=target; nextHudUpdate=0; return true;
+        }
+        /// <summary>取消选中（左键空地、Esc、面板 × 按钮，或目标死亡）。</summary>
+        public void ClearSelection()
+        {
+            if(selected==Entity.Null) return;
+            selected=Entity.Null; nextHudUpdate=0;
+        }
         /// <summary>A 键：进入攻击瞄准（显示攻击距离），技能瞄准会被取消。</summary>
         public void ArmAttack()
         {
@@ -205,7 +222,7 @@ namespace Roguelike.Combat
             if(!IsReady) return;
             if(!Input.GetMouseButton(1)) { suppressRightUntilRelease=false; rightDragMoving=false; }
             if(Input.GetKeyDown(KeyCode.F5)) { RestartRun(); return; }
-            if(!Running) { abilityIndicator.Cancel(); AttackArmed=false; hovered=Entity.Null; return; }
+            if(!Running) { abilityIndicator.Cancel(); AttackArmed=false; hovered=Entity.Null; selected=Entity.Null; return; }
             // Dota 2 默认操作：Ctrl+技能键学习/升级技能，单按技能键施放；A 攻击、S 停止、H 待命。
             bool learn=Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
             for(int i=0;i<keys.Length;i++)
@@ -221,7 +238,12 @@ namespace Roguelike.Combat
                 if(Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) ChooseTalent(0);
                 else if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) ChooseTalent(1);
             }
-            if(Input.GetKeyDown(KeyCode.Escape)) { abilityIndicator.Cancel(); AttackArmed=false; }
+            // Esc：先取消技能/攻击瞄准；没有瞄准时取消选中目标。
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                if(!abilityIndicator.IsAiming && !AttackArmed) ClearSelection();
+                abilityIndicator.Cancel(); AttackArmed=false;
+            }
             if(Input.GetMouseButtonDown(1) && (abilityIndicator.IsAiming || AttackArmed))
             { abilityIndicator.Cancel(); AttackArmed=false; suppressRightUntilRelease=true; return; }
             bool overHud=hud.BlocksPointer(Input.mousePosition);
@@ -245,6 +267,8 @@ namespace Roguelike.Combat
                 if(Input.GetMouseButtonDown(0)) { if(hovered!=Entity.Null) IssueAttack(hovered); else IssueAttackMove(point); }
                 return;
             }
+            // 左键敌人：选中并查看信息；左键空地：取消选中。
+            if(Input.GetMouseButtonDown(0)) { if(hovered!=Entity.Null) SelectEnemy(hovered); else ClearSelection(); }
             if(suppressRightUntilRelease) return;
             if(Input.GetMouseButtonDown(1))
             {
@@ -391,6 +415,7 @@ namespace Roguelike.Combat
             var rotation=Quaternion.Euler(58,0,0);
             gameCamera.transform.SetPositionAndRotation((Vector3)state.Position+rotation*new Vector3(0,-cameraZoom*0.13f,-300),rotation);
             UpdateOrderPreview(state,order);
+            UpdateSelection();
             var flights=manager.GetBuffer<SkillFlight>(session.Entity);
             for(int i=0;i<flights.Length;i++)
             {
@@ -427,6 +452,14 @@ namespace Roguelike.Combat
                 center=(Vector3)transform.Position; radius=CombatSimulationSystem.BodyRadius*transform.Scale+0.25f;
             }
             abilityIndicator.ShowOrderPreview((Vector3)state.Position,attackRange,AttackArmed,center,radius,ring!=Entity.Null,color);
+        }
+        /// <summary>选中圈跟随目标；目标死亡或被销毁时自动取消选中。不受技能瞄准影响。</summary>
+        private void UpdateSelection()
+        {
+            if(selected!=Entity.Null && (!Running || !Alive(selected))) ClearSelection();
+            if(selected==Entity.Null) { abilityIndicator.HideSelection(); return; }
+            var transform=session.World.EntityManager.GetComponentData<LocalTransform>(selected);
+            abilityIndicator.ShowSelection((Vector3)transform.Position,CombatSimulationSystem.BodyRadius*transform.Scale+0.5f,SelectionColor);
         }
         private bool Alive(Entity entity)
         {
@@ -534,14 +567,17 @@ namespace Roguelike.Combat
                 observedCommands=progression.CommandSerial;
                 if(progression.LastFailure!=ProgressionFailure.None) ShowNotice(HeroProgressionLogic.Describe(progression.LastFailure),2.5f);
             }
+            var targetContext=new TargetInfoContext{KindNames=session.EnemyNames,KindArchetypes=session.EnemyArchetypes,Buffs=session.Buffs,
+                HeroPosition=state.Position,HeroAttackRange=attackData.Range,Now=runtime.Time};
+            if(!TargetInfoBuilder.Build(manager,selected,targetContext,s.Target)) selected=Entity.Null;
             s.Hint=Time.unscaledTime<noticeUntil?notice:AttackArmed?"攻击：左键敌人攻击目标，左键地面攻击移动；右键或 Esc 取消":
                 s.PendingTalent>=0?"有可选天赋：按 1 / 2 或打开天赋树选择":progression.SkillPoints>0?"有可用技能点：Ctrl+Q/W/E/R 或点击技能上方的“+”":"";
             return s;
         }
         private void OnDestroy()
         {
-            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; }
-            if(abilityIndicator) abilityIndicator.Cancel();
+            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; }
+            if(abilityIndicator) { abilityIndicator.Cancel(); abilityIndicator.HideSelection(); }
             if(hasEnemyQuery && session!=null && session.World.IsCreated) { try { enemyQuery.Dispose(); } catch(Exception) { } }
             hasEnemyQuery=false;
             session?.Dispose(); session=null;

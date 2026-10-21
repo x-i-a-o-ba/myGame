@@ -18,13 +18,19 @@ namespace Roguelike.Combat
         public event Action<int> TalentRequested;
         /// <summary>指令按钮：0 攻击（进入攻击瞄准）、1 停止、2 原地待命。</summary>
         public event Action<int> OrderRequested;
+        /// <summary>选中目标面板的关闭按钮（×）。</summary>
+        public event Action TargetCloseRequested;
         public const string ProgressionPanel="UI.Game.Progression", TalentPanel="UI.Game.Talent", DeathPanel="UI.Game.DeathOverlay";
+        /// <summary>左键选中敌人后在左上角显示的目标信息面板。</summary>
+        public const string TargetPanel="UI.Game.TargetInfo";
         /// <summary>HUD 预制体提供的技能槽、每槽等级点与天赋层数量。</summary>
         public const int AbilitySlots=4, LevelPips=4, TalentRows=4;
+        /// <summary>目标面板的状态效果标签数量。</summary>
+        public const int TargetStatusSlots=4;
         /// <summary>天赋树面板是否被玩家手动打开（有待选天赋时总是显示）。</summary>
         public bool TalentTreeOpen {get; private set;}
         // 0 未知、1 显示、2 隐藏；只在状态变化时调用 Show/Hide，避免每次刷新都触发面板打开事件。
-        private int progressionVisible, talentVisible, deathVisible;
+        private int progressionVisible, talentVisible, deathVisible, targetVisible;
         private bool running, talentPending;
         private UIManager manager;
         private readonly Dictionary<string,string> lastText=new Dictionary<string,string>();
@@ -48,6 +54,7 @@ namespace Roguelike.Combat
                 TalentRequested?.Invoke(command.Value);
             else if (command.Id == "combat.order" && command.Value >= 0 && command.Value <= 2)
                 OrderRequested?.Invoke(command.Value);
+            else if (command.Id == TargetKeys.CloseCommand) TargetCloseRequested?.Invoke();
             else if (command.Id == "combat.talentTree")
             { TalentTreeOpen = !TalentTreeOpen; UpdateTalentPanel(); }
         }
@@ -113,6 +120,42 @@ namespace Roguelike.Combat
             Text("talent.title", s.TalentTitle);
             for (int i = 0; i < TalentRows && i < s.Talents.Length; i++) Talent(talentKeys[i], s.Talents[i], s.PendingTalent == i);
             UpdateTalentPanel();
+            // 选中目标：先打开面板再发布键值（UiEvents 会缓存并在面板启用时回放）。
+            bool showTarget = running && s.Target.Visible;
+            SetPanel(TargetPanel, showTarget, ref targetVisible);
+            if (showTarget) Target(s.Target);
+        }
+        private void Target(TargetInfoView t)
+        {
+            Picture(TargetKeys.Portrait, t.Portrait);
+            Picture(TargetKeys.AttackIcon, t.AttackIcon);
+            Text(TargetKeys.Name, t.Name);
+            Text(TargetKeys.Tier, t.TierLabel);
+            Toggle(TargetKeys.TierNormal, t.Tier == EnemyTier.Normal);
+            Toggle(TargetKeys.TierElite, t.Tier == EnemyTier.Elite);
+            Toggle(TargetKeys.TierBoss, t.Tier == EnemyTier.Boss);
+            Text(TargetKeys.Subtitle, t.Subtitle);
+            Fill(TargetKeys.Health, t.HealthFraction);
+            Text(TargetKeys.HealthText, t.HealthText);
+            Toggle(TargetKeys.InRange, t.InHeroRange);
+            Text(TargetKeys.Damage, t.Damage);
+            Text(TargetKeys.AttackRate, t.AttackInterval);
+            Text(TargetKeys.Range, t.Range);
+            Text(TargetKeys.Move, t.MoveSpeed);
+            Text(TargetKeys.Experience, t.Experience);
+            Text(TargetKeys.Distance, t.Distance);
+            Text(TargetKeys.AttackName, t.AttackName);
+            Text(TargetKeys.AttackDetail, t.AttackDetail);
+            Text(TargetKeys.AttackStatus, t.AttackStatus);
+            Text(TargetKeys.Trait, t.Trait);
+            Text(TargetKeys.Description, t.Description);
+            for (int i = 0; i < TargetStatusSlots; i++)
+            {
+                bool shown = i < t.StatusCount;
+                Toggle(TargetKeys.Statuses[i], shown);
+                Text(TargetKeys.StatusTexts[i], shown ? t.Statuses[i] : "");
+            }
+            Toggle(TargetKeys.NoStatus, t.StatusCount == 0);
         }
         private void Ability(in AbilityKeys keys, in AbilityView view)
         {
@@ -176,6 +219,37 @@ namespace Roguelike.Combat
             cache = next;
             if (visible) UI.Show(id); else UI.Hide(id);
         }
+        /// <summary>目标信息面板 UI.Game.TargetInfo 的绑定键；Prefab 由 Tools/HudArt/hud.py 生成，编辑器校验会核对全部键。</summary>
+        public static class TargetKeys
+        {
+            public const string Name = "target.name", Tier = "target.tier", Subtitle = "target.subtitle", HealthText = "target.healthText",
+                Damage = "target.damage", AttackRate = "target.attackRate", Range = "target.range", Move = "target.move",
+                Experience = "target.xp", Distance = "target.distance", AttackName = "target.attackName", AttackDetail = "target.attackDetail",
+                AttackStatus = "target.attackStatus", Trait = "target.trait", Description = "target.description";
+            public const string Portrait = "target.portrait", AttackIcon = "target.attackIcon", Health = "target.health";
+            public const string TierNormal = "target.tierNormal", TierElite = "target.tierElite", TierBoss = "target.tierBoss",
+                InRange = "target.inRange", NoStatus = "target.noStatus";
+            public const string CloseCommand = "combat.target.close";
+            public static readonly string[] Statuses = Numbered("target.status");
+            public static readonly string[] StatusTexts = Numbered("target.statusText");
+            public static readonly string[] Texts = Join(new[] { Name, Tier, Subtitle, HealthText, Damage, AttackRate, Range, Move, Experience,
+                Distance, AttackName, AttackDetail, AttackStatus, Trait, Description }, StatusTexts);
+            public static readonly string[] Images = { Portrait, AttackIcon };
+            public static readonly string[] Fills = { Health };
+            public static readonly string[] Toggles = Join(new[] { TierNormal, TierElite, TierBoss, InRange, NoStatus }, Statuses);
+            private static string[] Numbered(string prefix)
+            {
+                var result = new string[TargetStatusSlots];
+                for (int i = 0; i < result.Length; i++) result[i] = prefix + i;
+                return result;
+            }
+            private static string[] Join(string[] a, string[] b)
+            {
+                var result = new string[a.Length + b.Length];
+                a.CopyTo(result, 0); b.CopyTo(result, a.Length);
+                return result;
+            }
+        }
         private struct AbilityKeys
         {
             public string Icon, Name, Locked, Learn, Cooling, Cooldown, CooldownText, Mana, NoMana, Status;
@@ -229,6 +303,8 @@ namespace Roguelike.Combat
         public int PendingTalent = -1;
         public string TalentTitle;
         public readonly TalentRowView[] Talents = new TalentRowView[CombatHud.TalentRows];
+        /// <summary>左键选中的敌人；Visible 为假时隐藏目标面板。</summary>
+        public readonly TargetInfoView Target = new TargetInfoView();
     }
 
     /// <summary>一个技能槽的展示状态；Cooldown 为剩余冷却比例（1 = 刚进入冷却）。</summary>

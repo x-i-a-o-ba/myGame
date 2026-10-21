@@ -20,5 +20,17 @@
  "talent_option": "8d4513c44f594a99a8e00a67cecb3570",
  "hint_back": "6d2f8343958846a98d36438af48440f7",
  "boss_frame": "f2901a5962c2426296fa319d1bbfcf02",
- "highlight": "f6243bca649645cfa7246e1f29836334"
+ "highlight": "f6243bca649645cfa7246e1f29836334",
+ "target_frame": "20e4be05f28842cd921cf42303484986",
+ "target_header": "8132c957a64b489182c7bb1fd699b94f",
+ "portrait_frame": "2f8c2a5a692a422db6f367356b23e8bc",
+ "badge": "a31f7f9a3b164aa38c843ccc06313051",
+ "chip": "0ad2a7fe185844a49b790b4dbebf0c3b",
+ "divider": "922f340caf18461981f2a97f3ac7ac82",
+ "stat_damage": "78e3aeac7a054d5dafb583101c7ddc96",
+ "stat_interval": "33ce10342bf2450c9f9f8b7339b6c5e8",
+ "stat_range": "5ef237b570f444ca9261b1b6a479961d",
+ "stat_speed": "6dbc3bb0ba394c2f9502560034f81362",
+ "stat_xp": "15e18e861c874443846f856006f57cc5",
+ "stat_distance": "da0d69c9fbd4482393c0a9d9ca52d614"
 }

@@ -151,6 +151,54 @@ for i in range(4):
 text(at(root,"Footer",18,322,784,22),"每层左右二选一 · 选择后立即生效且不可更改 · 点击“天赋树”按钮或 × 关闭",12,MUTED,"MC")
 panel(root,"UI.Game.Talent",b)
 talent=root; write("UI.Game.Talent",root)
+# ================= 选中目标信息（动态，左上角） =================
+# 左键点选敌人后显示；键名与 CombatHud.TargetKeys 一一对应。
+b=Bindings()
+TW,TH=440,444; ENEMY=(1,0.62,0.5,1); FROST=(0.62,0.86,1,1)
+root=Node("UI.Game.TargetInfo",None,(0,1),(0,1),(16,-14),(TW,TH),(0,1),active=0)
+image(fill(root,"Back"),"target_frame",kind="sliced",raycast=1)
+image(at(root,"Header Glow",8,8,TW-16,132),"target_header")
+on(b.toggle("target.tierElite",at(root,"Elite Glow",-6,-6,164,164,active=0)),False); image(root.children[-1],"glow",(1,0.78,0.28,0.6))
+on(b.toggle("target.tierBoss",at(root,"Boss Glow",-6,-6,164,164,active=0)),True); image(root.children[-1],"glow",(1,0.22,0.12,0.65))
+plate=at(root,"Portrait",18,18,116,116); image(plate,"hud_plate",kind="sliced")
+por=fill(plate,"Image",7,7,7,7); b.image("target.portrait",raw(por,preview="深渊领主"))
+image(fill(plate,"Frame"),"portrait_frame",kind="sliced")
+tier=at(root,"Tier",36,124,80,24)
+for key,colr,shown in (("target.tierNormal",(0.6,0.65,0.7,1),False),("target.tierElite",(1,0.76,0.25,1),False),("target.tierBoss",(0.92,0.24,0.18,1),True)):
+    v=on(b.toggle(key,fill(tier,key.split(".")[1][4:]+" Badge",active=0)),shown); image(v,"badge",colr,kind="sliced")
+tt=fill(tier,"Text"); b.text("target.tier",text(tt,"",13,WHITE,"MC",bold=True,outline=True)); pv[tt.go]="首领"
+nm=at(root,"Name",148,16,240,34); b.text("target.name",text(nm,"",22,ENEMY,"ML",bold=True)); pv[nm.go]="深渊领主"
+cl=at(root,"Close",TW-46,16,30,30); cg=image(cl,"button",kind="sliced",raycast=1); button(cl,cg,"combat.target.close",0); text(fill(cl,"X"),"×",20,LIGHT,"MC",bold=True)
+sb=at(root,"Subtitle",148,50,276,20); b.text("target.subtitle",text(sb,"",13,MUTED,"ML")); pv[sb.go]="第 10 波 · 近战追击"
+image(at(root,"Divider",148,74,276,4),"divider",kind="sliced")
+bar(root,b,"Health",148,84,276,26,(0.8,0.17,0.11,1),"target.health","target.healthText",14,amount=0.64)
+pv[root.children[-1].children[-1].go]="3,840 / 6,000"
+inr=on(b.toggle("target.inRange",at(root,"In Range",148,114,276,20,active=0)),True); text(fill(inr,"Text"),"● 在你的攻击距离内",12,(0.55,1,0.5,1),"ML")
+out=on(b.toggle("target.inRange",at(root,"Out Of Range",148,114,276,20),invert=1),False); text(fill(out,"Text"),"○ 超出你的攻击距离",12,MUTED,"ML")
+st=at(root,"Stats",12,156,TW-24,100); image(st,"hud_plate",kind="sliced")
+cells=(("攻击力","stat_damage","target.damage","58"),("攻击间隔","stat_interval","target.attackRate","1.30 秒"),
+       ("攻击距离","stat_range","target.range","2.8 米"),("移动速度","stat_speed","target.move","1.6 (-30%)"),
+       ("击杀经验","stat_xp","target.xp","180"),("距离","stat_distance","target.distance","8.4 米"))
+for i,(label,icon,key,sample) in enumerate(cells):
+    cell=at(st,"Stat "+label,10+(i%2)*208,8+(i//2)*30,198,28)
+    image(at(cell,"Icon",0,2,24,24),icon)
+    text(at(cell,"Label",30,0,80,28),label,13,MUTED,"ML")
+    v=at(cell,"Value",88,0,106,28); b.text(key,text(v,"",15,LIGHT,"MR",bold=True)); pv[v.go]=sample
+atk=at(root,"Attack",12,264,TW-24,66); image(atk,"hud_plate",kind="sliced")
+sl=at(atk,"Icon Slot",8,8,50,50); image(sl,"slot_back"); b.image("target.attackIcon",raw(fill(sl,"Icon",4,4,4,4),preview="深渊横扫")); image(fill(sl,"Frame"),"slot_frame",kind="sliced")
+an=at(atk,"Name",68,8,200,26); b.text("target.attackName",text(an,"",15,GOLD,"ML",bold=True)); pv[an.go]="深渊横扫"
+ad=at(atk,"Detail",68,34,330,22); b.text("target.attackDetail",text(ad,"",12,MUTED,"ML")); pv[ad.go]="被动 · 近战 · 前摇 0.45 秒 · 后摇 0.50 秒"
+ast=at(atk,"Status",TW-24-128,8,118,26); b.text("target.attackStatus",text(ast,"",13,CYAN,"MR",bold=True)); pv[ast.go]="前摇中"
+tr=at(root,"Trait",18,338,TW-36,24); b.text("target.trait",text(tr,"",13,(1,0.84,0.55,1),"ML",bold=True)); pv[tr.go]="近战追击：贴身后用横扫攻击"
+chips=(("冰晶减速 2.1 秒",True),("扇击减速 1.4 秒",True),("",False),("",False))
+for i,(sample,shown) in enumerate(chips):
+    ch=on(b.toggle("target.status%d"%i,at(root,"Status %d"%i,16+i*104,368,98,24,active=0)),shown); image(ch,"chip",(0.5,0.78,1,1),kind="sliced")
+    ct=fill(ch,"Text",4,0,4,0); b.text("target.statusText%d"%i,text(ct,"",12,FROST,"MC",bold=True)); pv[ct.go]=sample
+ns=on(b.toggle("target.noStatus",at(root,"No Status",18,368,300,24,active=0)),False); text(fill(ns,"Text"),"无状态效果",12,MUTED,"ML")
+ds=at(root,"Description",18,398,TW-36,22); b.text("target.description",text(ds,"",12,(0.72,0.76,0.8,1),"UL",wrap=True)); pv[ds.go]="首领：攻击距离更长的近战巨兽，生命极高。"
+text(at(root,"Footer",18,TH-24,TW-36,18),"左键空地 / Esc 取消选择  ·  右键攻击",11,(0.5,0.55,0.6,1),"MR")
+panel(root,"UI.Game.TargetInfo",b)
+target=root; write("UI.Game.TargetInfo",root)
 # ================= 预览 =================
 from PIL import Image as I, ImageDraw as D
 W,H=1920,1080
@@ -168,8 +216,8 @@ def composite(path,roots,state):
         U.render(r,W,H,(0,0,W,H),state,P('acc.png'),bg=P('acc.png'))
     I.open(P('acc.png')).save(path)
 state=dict(tg)
-for n in (hint,talent): n.active=1
-composite(P('hud_preview.png'),[bottom,title,controls,hint,talent],state)
+for n in (hint,talent,target): n.active=1
+composite(P('hud_preview.png'),[bottom,title,controls,hint,talent,target],state)
 talent.active=0; tg2=dict(tg)
-composite(P('hud_preview2.png'),[bottom,title,controls,hint],tg2)
+composite(P('hud_preview2.png'),[bottom,title,controls,hint,target],tg2)
 print("ok")

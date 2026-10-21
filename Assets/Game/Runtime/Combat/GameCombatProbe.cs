@@ -143,16 +143,55 @@ namespace Roguelike.Combat
             Check(controller.AttackArmed,"HUD attack button arms attack targeting");
             ClickAction("combat.order",0); yield return null;
             Check(!controller.AttackArmed,"Second attack button press cancels attack targeting");
+            yield return TargetInfoChecks(controller,manager);
         }
-        private static Entity NearestEnemy(GameCombatController controller,EntityManager manager)
+        /// <summary>左键选中敌人：左上角目标信息面板显示种类名称，× 按钮取消选中并隐藏面板。</summary>
+        private IEnumerator TargetInfoChecks(GameCombatController controller,EntityManager manager)
         {
-            using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(Unity.Transforms.LocalTransform)))
+            var ui=UnityEngine.Object.FindFirstObjectByType<UIManager>();
+            Check(ui,"Scene has a UI manager for the target panel");
+            if(!ui) yield break;
+            // 选中的敌人可能在面板异步加载期间被英雄击杀；此时换一个敌人重试。
+            Entity target=Entity.Null; bool shown=false;
+            for(int attempt=0;attempt<4 && !shown;attempt++)
+            {
+                target=NearestEnemy(controller,manager,true);
+                if(target==Entity.Null || !controller.SelectEnemy(target)) { yield return null; continue; }
+                float until=Time.realtimeSinceStartup+5;
+                while(Time.realtimeSinceStartup<until && controller.Selected==target && !ui.IsVisible(CombatHud.TargetPanel)) yield return null;
+                yield return null;
+                shown=controller.Selected==target && ui.IsVisible(CombatHud.TargetPanel);
+            }
+            Check(shown,"Left-click selection shows the target info panel");
+            if(!shown) yield break;
+            int kind=manager.GetComponentData<CombatEnemy>(target).Kind;
+            string expected=kind>=0 && kind<controller.EnemyKinds.Length?controller.EnemyKinds[kind]:null;
+            Check(expected!=null && PanelText(ui,CombatHud.TargetPanel,CombatHud.TargetKeys.Name)==expected,"Target panel shows the selected enemy kind name");
+            Check(!string.IsNullOrEmpty(PanelText(ui,CombatHud.TargetPanel,CombatHud.TargetKeys.HealthText)),"Target panel shows target health");
+            yield return Capture("target-info.png");
+            ClickAction(CombatHud.TargetKeys.CloseCommand,0); yield return null;
+            Check(controller.Selected==Entity.Null,"Target panel close button clears the selection");
+            yield return null; yield return null;
+            Check(!ui.IsVisible(CombatHud.TargetPanel),"Clearing the selection hides the target panel");
+        }
+        private static string PanelText(UIManager ui,string panelId,string key)
+        {
+            var panel=ui.FindPanel(panelId);
+            if(!panel || panel.texts==null) return null;
+            foreach(var binding in panel.texts) if(binding.key==key && binding.target) return binding.target.text;
+            return null;
+        }
+        private static Entity NearestEnemy(GameCombatController controller,EntityManager manager,bool aliveOnly=false)
+        {
+            using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(Unity.Transforms.LocalTransform),typeof(AbilityUnit)))
             using(var entities=query.ToEntityArray(Allocator.Temp))
             using(var transforms=query.ToComponentDataArray<Unity.Transforms.LocalTransform>(Allocator.Temp))
+            using(var units=query.ToComponentDataArray<AbilityUnit>(Allocator.Temp))
             {
                 Entity best=Entity.Null; float bestDistance=float.MaxValue; float2 hero=controller.State.Position.xz;
                 for(int i=0;i<entities.Length;i++)
                 {
+                    if(aliveOnly && units[i].Health<=0) continue;
                     float distance=math.distancesq(transforms[i].Position.xz,hero);
                     if(distance<bestDistance) { bestDistance=distance; best=entities[i]; }
                 }

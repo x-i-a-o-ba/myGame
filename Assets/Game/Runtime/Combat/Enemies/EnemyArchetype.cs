@@ -25,6 +25,7 @@ namespace Roguelike.Combat
         [Tooltip("内部兼容键，例如 enemy.ghoul。")] public string stableId;
         [Tooltip("界面显示名称。")] public string displayName;
         [TextArea(2,4)] public string description;
+        [Tooltip("选中敌人时左上角信息面板显示的头像；为空时使用攻击模块图标。")] public Texture2D portrait;
         [Tooltip("行为决定移动与出手方式。")] public EnemyBehavior behavior;
         [Tooltip("自动攻击被动模块，与英雄共用同一套前摇/后摇/攻击间隔规则。")] public AutoAttackDefinition attack;
         [Header("数值倍率（乘以当前波次的基础数值）")]
@@ -47,6 +48,19 @@ namespace Roguelike.Combat
         [Min(0), Tooltip("爆炸伤害 = 攻击力 × 该倍率。")] public float explosionDamageMultiplier=5;
 
         public string Label=>string.IsNullOrWhiteSpace(displayName)?name:displayName;
+
+        /// <summary>行为的简短中文名称，供信息面板等界面显示。</summary>
+        public static string BehaviorLabel(EnemyBehavior behavior)
+        {
+            switch(behavior)
+            {
+                case EnemyBehavior.Melee: return "近战追击";
+                case EnemyBehavior.Ranged: return "远程游击";
+                case EnemyBehavior.Charger: return "冲锋";
+                case EnemyBehavior.Exploder: return "自爆";
+                default: return behavior.ToString();
+            }
+        }
 
         /// <summary>校验配置并生成行为快照；不修改资源。</summary>
         public EnemyBehaviorData Compile(out AutoAttackData attackData)

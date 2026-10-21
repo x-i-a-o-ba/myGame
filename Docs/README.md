@@ -1,5 +1,9 @@
 # 万级同屏肉鸽开发文档
 
+## 2026-10-21 左键选中敌人信息面板
+
+左键点敌人后脚下显示金色选中圈，左上角打开 `UI.Game.TargetInfo`：头像（8 种敌人新增头像）、档位、波次与行为、生命、攻击力/攻击间隔/攻击距离/移速/经验/距离（被 Buff 修改时显示彩色百分比）、自动攻击状态、行为特性、状态效果与说明；左键空地、Esc 或 × 关闭。见 [enemies-and-controls.md](enemies-and-controls.md) 4.1。合并前 Unity 6000.3.18f1 编译、137 项 Editor 检查、Windows 构建和 49 项 Player 检查通过，目标面板实际截图已检查。原始键鼠与多分辨率交互尚未验收，见 [验证记录](validation-enemy-info-panel-2026-10-21.md)。
+
 ## 2026-10-21 敌人种类、Dota 2 式操作与 HUD
 
 新增 8 种敌人预制体与敌人名册、英雄与敌人共用的自动攻击被动模块、Dota 2 式指令（右键移动/攻击、A 攻击移动、S 停止、H 待命）和 Dota 2 风格 HUD，见 [enemies-and-controls.md](enemies-and-controls.md)。合并前 Unity 编译、121 项 Editor 规则、Windows 构建与 42 项 Player 检查通过，并检查了实际 HUD 截图。人工操作手感、全部敌人实战与万敌性能未验收，见 [验证记录](validation-enemies-dota-hud-2026-10-21.md)。
@@ -65,7 +69,7 @@
 17. [技能配置工作台与分类设计器](skill-authoring-workbench.md)：独立窗口、六种模板、效果/阶段组合、Unity 单位范围句柄、三维抛物线投递与共享预览、保存和技能库登记。
 18. [项目整理](project-overview.md)：一页式目录、模块、完成度、遗留代码建议与后续顺序。
 19. [英雄成长、技能等级与波次难度](hero-progression.md)：Dota 2 式经验/技能点/天赋、技能等级、30 波难度曲线、胜负、操作与验证状态。
-20. [敌人种类、Dota 2 式操作与 HUD](enemies-and-controls.md)：自动攻击被动模块、右键/A/S/H 指令、8 种敌人预制体与名册、新版 HUD 面板与验证状态。
+20. [敌人种类、Dota 2 式操作与 HUD](enemies-and-controls.md)：自动攻击被动模块、右键/A/S/H 指令、8 种敌人预制体与名册、新版 HUD 面板、左键选中敌人信息面板与验证状态。
 
 ## 文档维护规则
 
