@@ -32,7 +32,7 @@
 | ECS | Entities 1.4.8 + Entities Graphics 1.4.21；基础框架、独立压测及 Game 战斗系统已加入 |
 | 现有代码 | Assets/Scripts/ProjectBase 与 Assets/_Scripts 两套 MonoBehaviour/管理工具 |
 | 场景 | Game.unity 绑定 HeroDefinition、SkillCatalog 和按配置工作的指示器；enemyCount=3000、safeSpawnRadius=30。Main、SelectScene及独立历史场景保留；完整选人UI尚未接入 |
-| 版本管理 | 2026-10-21 建立 Git 仓库，远程目标为私有仓库 x-i-a-o-ba/myGame；修改前检查工作区并保留可恢复状态，备份范围见根目录 README.md |
+| 版本管理 | 2026-10-21 建立 Git 仓库，远程为公开仓库 x-i-a-o-ba/myGame；修改前检查工作区并保留可恢复状态，备份范围见根目录 README.md |
 
 当前 Game 使用 `Roguelike.Abilities.Core`：旧固定技能类及 QWER 状态已移除，共享核心已实际接入。最新验证以 [基础架构记录](ability-foundation.md) 为准。`build4.log/player3.log/Smoke3` 属于上一版固定技能实现，不能证明本轮重构通过。万敌完整战斗性能仍未验收。
 
