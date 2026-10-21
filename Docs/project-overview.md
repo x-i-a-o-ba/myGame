@@ -35,7 +35,7 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | Game 移动、自动攻击、死亡重开 | 已完成；2026-10-21 改为 Dota 2 式指令（右键移动/攻击、A 攻击移动、S 停止、H 待命、转身速度），自动攻击改为英雄与敌人共用的被动模块，Unity 编译、121 项 Editor 规则、Windows 构建及 42 项 Player 检查通过；人工手感未验收，见 [enemies-and-controls.md](enemies-and-controls.md) |
 | 敌人种类与预制体 | 2026-10-21 新增 8 种（近战、快速、远程、冲锋、自爆、坦克、首领、远程精英），名册按波次与权重出场，已通过名册校验与 Player 混刷检查，全部特殊行为实战未验收 |
 | Dota 2 风格 HUD | 2026-10-21 重做底部技能栏、顶栏首领血条与天赋树，Player 实际 HUD 截图已检查，更多分辨率与人工交互未验收 |
-| 左键选中敌人信息面板 | 2026-10-21 新增左上角目标面板（头像、档位、生命、属性与修改百分比、攻击状态、行为特性、Buff、说明）与 8 张敌人头像；Unity 编译、运行与实际画面未验证 |
+| 左键选中敌人信息面板 | 2026-10-21 新增左上角目标面板（头像、档位、生命、属性与修改百分比、攻击状态、行为特性、Buff、说明）与 8 张敌人头像；Unity 编译、137 项 Editor 检查、Windows 构建及 49 项 Player 检查通过，目标面板截图已检查；原始键鼠交互未验收 |
 | 组合技能 / Buff 架构、V2 配方、中文编辑器、技能工作台 | 已完成，见 [ability-foundation.md](ability-foundation.md)、[V2 实施记录](skill-composition-v2-implementation.md) |
 | 寒冰射手四技能与指示器 | 已完成，见 [ashe-game-integration.md](ashe-game-integration.md) |
 | Dota 2 式升级、技能点、技能等级、天赋、波次难度、胜负 | 2026-10-21 Unity 编译、89 项 Editor 规则、Windows 构建及 31 项 Player 集成检查通过；完整实玩和数值平衡未验收，见 [hero-progression.md](hero-progression.md) |

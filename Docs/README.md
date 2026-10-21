@@ -2,7 +2,7 @@
 
 ## 2026-10-21 左键选中敌人信息面板
 
-左键点敌人后脚下显示金色选中圈，左上角打开 `UI.Game.TargetInfo`：头像（8 种敌人新增头像）、档位、波次与行为、生命、攻击力/攻击间隔/攻击距离/移速/经验/距离（被 Buff 修改时显示彩色百分比）、自动攻击状态、行为特性、状态效果与说明；左键空地、Esc 或 × 关闭。见 [enemies-and-controls.md](enemies-and-controls.md) 4.1。新增 Editor 校验与 Player 检查已写，**Unity 编译、运行与实际画面未验证**。
+左键点敌人后脚下显示金色选中圈，左上角打开 `UI.Game.TargetInfo`：头像（8 种敌人新增头像）、档位、波次与行为、生命、攻击力/攻击间隔/攻击距离/移速/经验/距离（被 Buff 修改时显示彩色百分比）、自动攻击状态、行为特性、状态效果与说明；左键空地、Esc 或 × 关闭。见 [enemies-and-controls.md](enemies-and-controls.md) 4.1。合并前 Unity 6000.3.18f1 编译、137 项 Editor 检查、Windows 构建和 49 项 Player 检查通过，目标面板实际截图已检查。原始键鼠与多分辨率交互尚未验收，见 [验证记录](validation-enemy-info-panel-2026-10-21.md)。
 
 ## 2026-10-21 敌人种类、Dota 2 式操作与 HUD
 

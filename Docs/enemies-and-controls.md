@@ -121,5 +121,5 @@ HUD 由 `CombatHud` 发布快照、`UIPanel` 绑定控件，面板是 `Assets/Re
 
 - 编辑器校验 `CombatValidation.Validate()` 新增 `ValidateAutoAttack`（前摇/出手/冷却、攻速缩放、帧率无关、前摇取消不进冷却、后摇打断保留冷却、转身速度、非法配置拒绝、英雄资源已挂模块）和 `ValidateEnemyRoster`（名册校验规则、中文 Inspector、预制体网格合并、按波次与权重抽取、首领档、一波混合多种类且倍率生效、项目名册 8 种覆盖 4 种行为）。
 - Player 探针 `GameCombatProbe`（`--game-smoke`）新增：名册多种类、攻击移动、鼠标点选敌人、右键攻击指定敌人、待命不移动、HUD 停止/攻击按钮、第 2 波混合多种敌人。
-- 选中目标面板（2026-10-21 新增）：`ValidateTargetInfo` 检查项目 8 种敌人都有头像、面板预制体 ID/遮挡/初始隐藏、全部绑定键与关闭按钮、资源清单登记，并用临时 World 构造敌人验证名称、档位、波次、血量、攻速缩放的攻击间隔、减速百分比、体型攻击距离、射程判定、前摇状态、Buff 层数与剩余时间、死亡/销毁后隐藏；Player 探针新增左键选中显示面板与种类名称、截图 `target-info.png`、× 按钮取消选中并隐藏面板。这些新增检查**未在 Unity 中运行**。
+- 选中目标面板（2026-10-21 新增）：`ValidateTargetInfo` 检查项目 8 种敌人都有头像、面板预制体 ID/遮挡/初始隐藏、全部绑定键与关闭按钮、资源清单登记，并用临时 World 构造敌人验证名称、档位、波次、血量、攻速缩放的攻击间隔、减速百分比、体型攻击距离、射程判定、前摇状态、Buff 层数与剩余时间、死亡/销毁后隐藏；Player 探针新增左键选中显示面板与种类名称、截图 `target-info.png`、× 按钮取消选中并隐藏面板。这些检查已在合并前运行：137 项 Editor 检查、Windows 构建和 49 项 Player 检查通过，目标面板截图已检查，见 [验证记录](validation-enemy-info-panel-2026-10-21.md)。
 - 上面的 ValidateAutoAttack、ValidateEnemyRoster 与 Player 检查已在 PR #2 合并前验证通过（见文首）。
