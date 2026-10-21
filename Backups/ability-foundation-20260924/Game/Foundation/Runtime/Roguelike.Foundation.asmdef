@@ -1,0 +1,5 @@
+{
+  "name": "Roguelike.Foundation",
+  "references": ["Unity.ugui"],
+  "autoReferenced": true
+}

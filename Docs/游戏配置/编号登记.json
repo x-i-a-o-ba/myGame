@@ -1,0 +1,284 @@
+{
+    "schemaVersion": 1,
+    "entries": [
+        {
+            "id": 1000,
+            "category": "skill",
+            "assetKey": "3124da9ddd961dc4bb9e5dc1160e0e78:11400000",
+            "stableId": "ability.frost_focus",
+            "path": "Assets/Game/Skills/Foundation/Skills/冰霜专注.asset",
+            "name": "冰霜专注",
+            "retired": false
+        },
+        {
+            "id": 1001,
+            "category": "skill",
+            "assetKey": "05ec15d5330abe5419bcbfdedf778c67:11400000",
+            "stableId": "ability.volley",
+            "path": "Assets/Game/Skills/Foundation/Skills/冰霜扇击.asset",
+            "name": "冰霜扇击",
+            "retired": false
+        },
+        {
+            "id": 1002,
+            "category": "skill",
+            "assetKey": "f0d6ef98d0304cd4397e5fa7e1d12581:11400000",
+            "stableId": "ability.frost_impact",
+            "path": "Assets/Game/Skills/Foundation/Skills/冰霜冲击.asset",
+            "name": "冰霜冲击",
+            "retired": false
+        },
+        {
+            "id": 1003,
+            "category": "skill",
+            "assetKey": "7344d4fce2cd8214ba3e75c4588a3cc5:11400000",
+            "stableId": "ability.crystal_arrow",
+            "path": "Assets/Game/Skills/Foundation/Skills/冰晶巨箭.asset",
+            "name": "冰晶巨箭",
+            "retired": false
+        },
+        {
+            "id": 1004,
+            "category": "skill",
+            "assetKey": "a3893bc8cab2fe44bb34142ce150d2e8:11400000",
+            "stableId": "skill.inspire",
+            "path": "Assets/Game/Abilities/Settings/E Inspire.asset",
+            "name": "E Inspire",
+            "retired": false
+        },
+        {
+            "id": 1005,
+            "category": "skill",
+            "assetKey": "133527784799b4247ae2e7fbf87a8e37:11400000",
+            "stableId": "skill.burst",
+            "path": "Assets/Game/Abilities/Settings/Q Burst.asset",
+            "name": "Q Burst",
+            "retired": false
+        },
+        {
+            "id": 1006,
+            "category": "skill",
+            "assetKey": "960e872012e1abc40988770f498ed381:11400000",
+            "stableId": "skill.frost",
+            "path": "Assets/Game/Abilities/Settings/W Frost Field.asset",
+            "name": "W Frost Field",
+            "retired": false
+        },
+        {
+            "id": 1007,
+            "category": "skill",
+            "assetKey": "c603a2f790c17ba4293be5d65a4c507d:11400000",
+            "stableId": "ability.a1a0adca2d274b72b6a4c7e61d4dcebf",
+            "path": "Assets/Game/SkillAuthoring/Content/范围技能示例.asset",
+            "name": "范围技能示例",
+            "retired": false
+        },
+        {
+            "id": 2000,
+            "category": "hero",
+            "assetKey": "f29047387b5e76b429c30ea469a0e3f5:11400000",
+            "stableId": "hero.frost_archer",
+            "path": "Assets/Game/Skills/Foundation/寒冰射手.asset",
+            "name": "寒冰射手",
+            "retired": false
+        },
+        {
+            "id": 2001,
+            "category": "hero",
+            "assetKey": "42ce87a7ad244e4409e2f72ccb13b18e:11400000",
+            "stableId": "hero.frost_archer_alternate",
+            "path": "Assets/Game/Skills/Foundation/寒冰射手·换槽示例.asset",
+            "name": "寒冰射手·换槽示例",
+            "retired": false
+        },
+        {
+            "id": 3000,
+            "category": "monster",
+            "assetKey": "monster:3000",
+            "stableId": "",
+            "path": "Assets/Scenes/Game.unity",
+            "name": "普通怪物",
+            "retired": false
+        },
+        {
+            "id": 4000,
+            "category": "effect",
+            "assetKey": "12a4173b07c489743a78d1e76080174e:11400000",
+            "stableId": "effect.9461525a7492404b8e18bf95738f6069",
+            "path": "Assets/Game/SkillAuthoring/Content/范围技能示例·伤害效果.asset",
+            "name": "范围技能示例·伤害效果",
+            "retired": false
+        },
+        {
+            "id": 4001,
+            "category": "effect",
+            "assetKey": "56f3d5343f0cd4748b26912b820099ed:11400000",
+            "stableId": "effect.ca77a76ab9b249219c00753aa078a9fa",
+            "path": "Assets/Game/Skills/Foundation/Effects/冰晶爆炸伤害.asset",
+            "name": "冰晶爆炸伤害",
+            "retired": false
+        },
+        {
+            "id": 4002,
+            "category": "effect",
+            "assetKey": "791f711cea9d82349a2673209014f12b:11400000",
+            "stableId": "effect.6653cd78205341239d33d86fb47d7fb4",
+            "path": "Assets/Game/Skills/Foundation/Effects/冰晶首中伤害.asset",
+            "name": "冰晶首中伤害",
+            "retired": false
+        },
+        {
+            "id": 4003,
+            "category": "effect",
+            "assetKey": "db8c2bb5d7ba7f749a103ad76e0cb467:11400000",
+            "stableId": "effect.47fd7946cfdb4f80843f46b888106ee2",
+            "path": "Assets/Game/Skills/Foundation/Effects/冰霜冲击伤害.asset",
+            "name": "冰霜冲击伤害",
+            "retired": false
+        },
+        {
+            "id": 4004,
+            "category": "effect",
+            "assetKey": "51df81526f9ecc347b643ed08bb01a42:11400000",
+            "stableId": "effect.5b2e0dd30abb4011a84f06b01bfe4979",
+            "path": "Assets/Game/Skills/Foundation/Effects/冰霜扇击伤害.asset",
+            "name": "冰霜扇击伤害",
+            "retired": false
+        },
+        {
+            "id": 4005,
+            "category": "effect",
+            "assetKey": "eaad2490a23cc8e48979266996d47b08:11400000",
+            "stableId": "effect.ee1720bbecfa4fae88de5169e8239271",
+            "path": "Assets/Game/Skills/Foundation/Effects/施加冰晶减速.asset",
+            "name": "施加冰晶减速",
+            "retired": false
+        },
+        {
+            "id": 4006,
+            "category": "effect",
+            "assetKey": "a4c1d3c1a9f724049a8061a26c91974b:11400000",
+            "stableId": "effect.645fd12511cd440483f47d5e53c58c3b",
+            "path": "Assets/Game/Skills/Foundation/Effects/施加冰晶眩晕.asset",
+            "name": "施加冰晶眩晕",
+            "retired": false
+        },
+        {
+            "id": 4007,
+            "category": "effect",
+            "assetKey": "e5d9c5d164c6cd04981fa8b845c0239c:11400000",
+            "stableId": "effect.44ed1aebdd5e4de0a989f3007cad7861",
+            "path": "Assets/Game/Skills/Foundation/Effects/施加冰霜专注.asset",
+            "name": "施加冰霜专注",
+            "retired": false
+        },
+        {
+            "id": 4008,
+            "category": "effect",
+            "assetKey": "72282bc99f34428428ee275e7bff9ac4:11400000",
+            "stableId": "effect.a982e694958845c1bd2af1b286dbaac6",
+            "path": "Assets/Game/Skills/Foundation/Effects/施加扇击减速.asset",
+            "name": "施加扇击减速",
+            "retired": false
+        },
+        {
+            "id": 4009,
+            "category": "effect",
+            "assetKey": "4dae654f45f148ca8cf287121dccb906:11400000",
+            "stableId": "effect.generic_heal",
+            "path": "Assets/Game/Skills/Foundation/Effects/通用治疗.asset",
+            "name": "通用治疗",
+            "retired": false
+        },
+        {
+            "id": 4010,
+            "category": "effect",
+            "assetKey": "3a70e3fa0813430392c9b0fb5ba19c0f:11400000",
+            "stableId": "effect.generic_dispel",
+            "path": "Assets/Game/Skills/Foundation/Effects/通用驱散.asset",
+            "name": "通用驱散",
+            "retired": false
+        },
+        {
+            "id": 5000,
+            "category": "buff",
+            "assetKey": "62c02bb0e97e79640a5ce69045c8ea40:11400000",
+            "stableId": "buff.burn",
+            "path": "Assets/Game/Abilities/Settings/Burn.asset",
+            "name": "Burn",
+            "retired": false
+        },
+        {
+            "id": 5001,
+            "category": "buff",
+            "assetKey": "62dac026455ec614988ddefbb45b72be:11400000",
+            "stableId": "buff.frost",
+            "path": "Assets/Game/Abilities/Settings/Frost Slow.asset",
+            "name": "Frost Slow",
+            "retired": false
+        },
+        {
+            "id": 5002,
+            "category": "buff",
+            "assetKey": "174a49731759d6e4396fa7fc423768a8:11400000",
+            "stableId": "buff.haste",
+            "path": "Assets/Game/Abilities/Settings/Haste.asset",
+            "name": "Haste",
+            "retired": false
+        },
+        {
+            "id": 5003,
+            "category": "buff",
+            "assetKey": "053600e8f5a15eb49b3cbe45a8854734:11400000",
+            "stableId": "buff.poison",
+            "path": "Assets/Game/Abilities/Settings/Poison.asset",
+            "name": "Poison",
+            "retired": false
+        },
+        {
+            "id": 5004,
+            "category": "buff",
+            "assetKey": "3d73348ebfdb4044ab6ad5832c043058:11400000",
+            "stableId": "buff.vitality",
+            "path": "Assets/Game/Abilities/Settings/Vitality.asset",
+            "name": "Vitality",
+            "retired": false
+        },
+        {
+            "id": 5005,
+            "category": "buff",
+            "assetKey": "3a8394a740d5701468ed3a904aee6c3d:11400000",
+            "stableId": "buff.crystal_slow",
+            "path": "Assets/Game/Skills/Foundation/Buffs/冰晶减速.asset",
+            "name": "冰晶减速",
+            "retired": false
+        },
+        {
+            "id": 5006,
+            "category": "buff",
+            "assetKey": "0fb1c0d09d44d4e4e88bff3eba485966:11400000",
+            "stableId": "buff.crystal_stun",
+            "path": "Assets/Game/Skills/Foundation/Buffs/冰晶眩晕.asset",
+            "name": "冰晶眩晕",
+            "retired": false
+        },
+        {
+            "id": 5007,
+            "category": "buff",
+            "assetKey": "24eb8f36bb568274bb8b7bfc73c60bae:11400000",
+            "stableId": "buff.frost_focus",
+            "path": "Assets/Game/Skills/Foundation/Buffs/冰霜专注.asset",
+            "name": "冰霜专注",
+            "retired": false
+        },
+        {
+            "id": 5008,
+            "category": "buff",
+            "assetKey": "791f470112b04214a9115b491531fc18:11400000",
+            "stableId": "buff.volley_slow",
+            "path": "Assets/Game/Skills/Foundation/Buffs/扇击减速.asset",
+            "name": "扇击减速",
+            "retired": false
+        }
+    ]
+}

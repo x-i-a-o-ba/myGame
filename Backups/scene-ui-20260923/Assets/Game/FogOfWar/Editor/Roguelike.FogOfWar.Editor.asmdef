@@ -1,0 +1,1 @@
+{"name":"Roguelike.FogOfWar.Editor","references":["Roguelike.FogOfWar","Unity.Collections","Unity.Mathematics","Unity.ugui"],"includePlatforms":["Editor"]}

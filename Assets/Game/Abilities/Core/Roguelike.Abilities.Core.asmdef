@@ -1,0 +1,5 @@
+{
+  "name": "Roguelike.Abilities.Core",
+  "rootNamespace": "Roguelike.Abilities",
+  "references": ["Unity.Entities", "Unity.Transforms", "Unity.Mathematics", "Unity.Collections", "Unity.Burst"]
+}

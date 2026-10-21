@@ -1,0 +1,9 @@
+本目录素材均来自 OpenGameArt，许可为 CC0。
+
+- Kenney Particle Pack：https://opengameart.org/content/particle-pack-80-sprites
+- Fire and Spell Animations（ztn，原作 Spiney）：https://opengameart.org/content/fire-and-spell-animations
+- Pixel Art Spells（DevWizard）：https://opengameart.org/content/pixel-art-spells
+- Spell Effects（StarsteelGaming）：https://opengameart.org/content/spell-effects-by-starsteelgaming
+- Explosion（BenHickling）：https://opengameart.org/content/explosion-7
+
+未收录英雄联盟或 DOTA2 的官方特效。

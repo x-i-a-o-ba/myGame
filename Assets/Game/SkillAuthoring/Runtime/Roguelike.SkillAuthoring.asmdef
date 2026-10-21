@@ -1,0 +1,5 @@
+{
+  "name": "Roguelike.SkillAuthoring",
+  "references": ["Roguelike.Abilities.Core"],
+  "autoReferenced": true
+}

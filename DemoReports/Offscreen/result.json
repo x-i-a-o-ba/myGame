@@ -1,0 +1,12 @@
+{
+    "passed": true,
+    "enemies": 10000,
+    "shots": 26,
+    "hits": 25,
+    "kills": 25,
+    "cpu": "AMD Ryzen 7 7745HX with Radeon Graphics ",
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "unity": "6000.3.18f1",
+    "resolution": "1920x1080",
+    "notes": "Functional integration check only; not a 60 FPS performance certification."
+}

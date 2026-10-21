@@ -1,0 +1,12 @@
+{
+  "name": "Roguelike.SkillIndicators.Editor",
+  "references": [
+    "Roguelike.SkillIndicators",
+    "Unity.ugui",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Roguelike.Foundation"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

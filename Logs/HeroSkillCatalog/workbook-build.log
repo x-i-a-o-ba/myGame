@@ -1,0 +1,4 @@
+{"kind":"table","sheet":"ID查询","address":"A4:B10","rows":7,"cols":2,"values":[["输入英雄或技能ID","ability.crystal_arrow"],[null,null],["匹配数量",1],["类型","技能"],["名称","冰晶巨箭"],["用途","正式配置"],["Unity资源路径","Assets/Game/Skills/Foundation/Skills/冰晶巨箭.asset"]]}
+{"kind":"notice","message":"Cell search matched 0 entries."}
+Inspect result written to file: D:\UnityProject\myGame\outputs\hero-skills-20260924\英雄与技能配置.xlsx.inspect.ndjson
+WORKBOOK_VALIDATED heroes=2 skills=8 loadouts=8 stages=5

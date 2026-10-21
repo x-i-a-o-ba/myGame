@@ -1,0 +1,9 @@
+{
+  "name": "Roguelike.SkillIndicators",
+  "rootNamespace": "Roguelike.SkillIndicators",
+  "references": [
+    "Unity.ugui",
+    "Roguelike.Foundation"
+  ],
+  "autoReferenced": true
+}

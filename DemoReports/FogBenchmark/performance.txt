@@ -1,0 +1,9 @@
+CPU: AMD Ryzen 7 7745HX with Radeon Graphics 
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+128 moving sources / 10000 targets / 128x128 cells / radius16
+Three runs: 10s warmup + 60s capture each.
+Samples 1728
+p50 4.080 ms
+p95 5.164 ms
+p99 5.319 ms
+Wall time for solver+target query+presentation upload; excludes drawing, not an FPS certification.

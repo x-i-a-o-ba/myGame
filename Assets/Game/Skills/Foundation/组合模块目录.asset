@@ -1,0 +1,244 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d92716a643b5442e831356193c4405ad, type: 3}
+  m_Name: "\u7EC4\u5408\u6A21\u5757\u76EE\u5F55"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.SkillModuleCatalog
+  catalogVersion: 1
+  deliveries:
+  - id: 10000
+    displayName: "\u7ACB\u5373\u7ED3\u7B97"
+    playerAllowed: 1
+    kind: 0
+    maxRange: 150
+    maxSpeed: 100
+    maxFlightSeconds: 10
+    maxArcHeight: 30
+  - id: 10001
+    displayName: "\u98DE\u5411\u76EE\u6807\u70B9"
+    playerAllowed: 1
+    kind: 1
+    maxRange: 150
+    maxSpeed: 100
+    maxFlightSeconds: 10
+    maxArcHeight: 30
+  - id: 10002
+    displayName: "\u76F4\u7EBF\u9996\u78B0\u5F39\u4F53"
+    playerAllowed: 1
+    kind: 2
+    maxRange: 150
+    maxSpeed: 100
+    maxFlightSeconds: 10
+    maxArcHeight: 30
+  - id: 10003
+    displayName: "\u4E09\u7EF4\u629B\u7269\u7EBF"
+    playerAllowed: 1
+    kind: 3
+    maxRange: 150
+    maxSpeed: 100
+    maxFlightSeconds: 10
+    maxArcHeight: 30
+  queries:
+  - id: 10100
+    displayName: "\u81EA\u8EAB\uFF08\u654C\u65B9\u5173\u7CFB\uFF09"
+    playerAllowed: 1
+    scope: 0
+    shape: 0
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
+  - id: 10101
+    displayName: "\u654C\u65B9\u5355\u4F53"
+    playerAllowed: 1
+    scope: 1
+    shape: 0
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
+  - id: 10102
+    displayName: "\u654C\u65B9\u5168\u4F53"
+    playerAllowed: 1
+    scope: 3
+    shape: 0
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
+  - id: 10103
+    displayName: "\u654C\u65B9\u5706\u5F62\u8303\u56F4"
+    playerAllowed: 1
+    scope: 2
+    shape: 0
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
+  - id: 10104
+    displayName: "\u654C\u65B9\u6247\u5F62\u8303\u56F4"
+    playerAllowed: 1
+    scope: 2
+    shape: 1
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
+  - id: 10105
+    displayName: "\u654C\u65B9\u76F4\u7EBF\u8303\u56F4"
+    playerAllowed: 1
+    scope: 2
+    shape: 2
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
+  - id: 10106
+    displayName: "\u81EA\u8EAB\uFF08\u53CB\u65B9\u5173\u7CFB\uFF09"
+    playerAllowed: 1
+    scope: 0
+    shape: 0
+    targets: 1
+    maxRange: 150
+    maxRadius: 40
+  - id: 10107
+    displayName: "\u53CB\u65B9\u5355\u4F53"
+    playerAllowed: 1
+    scope: 1
+    shape: 0
+    targets: 1
+    maxRange: 150
+    maxRadius: 40
+  - id: 10108
+    displayName: "\u53CB\u65B9\u5168\u4F53"
+    playerAllowed: 1
+    scope: 3
+    shape: 0
+    targets: 1
+    maxRange: 150
+    maxRadius: 40
+  - id: 10109
+    displayName: "\u53CB\u65B9\u5706\u5F62\u8303\u56F4"
+    playerAllowed: 1
+    scope: 2
+    shape: 0
+    targets: 1
+    maxRange: 150
+    maxRadius: 40
+  - id: 10110
+    displayName: "\u53CB\u65B9\u6247\u5F62\u8303\u56F4"
+    playerAllowed: 1
+    scope: 2
+    shape: 1
+    targets: 1
+    maxRange: 150
+    maxRadius: 40
+  - id: 10111
+    displayName: "\u53CB\u65B9\u76F4\u7EBF\u8303\u56F4"
+    playerAllowed: 1
+    scope: 2
+    shape: 2
+    targets: 1
+    maxRange: 150
+    maxRadius: 40
+  effects:
+  - definition: {fileID: 11400000, guid: 12a4173b07c489743a78d1e76080174e, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 56f3d5343f0cd4748b26912b820099ed, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 791f711cea9d82349a2673209014f12b, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: db8c2bb5d7ba7f749a103ad76e0cb467, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 51df81526f9ecc347b643ed08bb01a42, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: eaad2490a23cc8e48979266996d47b08, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: a4c1d3c1a9f724049a8061a26c91974b, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: e5d9c5d164c6cd04981fa8b845c0239c, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 72282bc99f34428428ee275e7bff9ac4, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 4dae654f45f148ca8cf287121dccb906, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 3a70e3fa0813430392c9b0fb5ba19c0f, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  buffs:
+  - {fileID: 11400000, guid: 62c02bb0e97e79640a5ce69045c8ea40, type: 2}
+  - {fileID: 11400000, guid: 62dac026455ec614988ddefbb45b72be, type: 2}
+  - {fileID: 11400000, guid: 174a49731759d6e4396fa7fc423768a8, type: 2}
+  - {fileID: 11400000, guid: 053600e8f5a15eb49b3cbe45a8854734, type: 2}
+  - {fileID: 11400000, guid: 3d73348ebfdb4044ab6ad5832c043058, type: 2}
+  - {fileID: 11400000, guid: 3a8394a740d5701468ed3a904aee6c3d, type: 2}
+  - {fileID: 11400000, guid: 0fb1c0d09d44d4e4e88bff3eba485966, type: 2}
+  - {fileID: 11400000, guid: 24eb8f36bb568274bb8b7bfc73c60bae, type: 2}
+  - {fileID: 11400000, guid: 791f470112b04214a9115b491531fc18, type: 2}

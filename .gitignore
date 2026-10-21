@@ -1,0 +1,58 @@
+# Unity generated caches and local editor state
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Uu]ser[Ss]ettings/
+/MemoryCaptures/
+/Recordings/
+/Assets/AssetStoreTools*
+/Assets/AddressableAssetsData/*/*.bin*
+/Assets/StreamingAssets/aa/
+
+# IDE-generated files
+/.vs/
+/.idea/
+/.vscode/
+/*.csproj
+/*.unityproj
+/*.sln
+/*.slnx
+/*.suo
+/*.user
+/*.userprefs
+/*.pidb
+/*.booproj
+/*.svd
+/*.pdb
+/*.mdb
+/*.opendb
+/*.VC.db
+/*.DotSettings.user
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+!.env.sample
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+id_rsa
+id_ed25519
+credentials.json
+auth.json
+
+# OS and tool caches
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+node_modules/
+
+# Keep authored backups, exports and historical validation evidence.
+# Only exclude Unity's transient shader compiler logs here.
+/Logs/shadercompiler-*.log

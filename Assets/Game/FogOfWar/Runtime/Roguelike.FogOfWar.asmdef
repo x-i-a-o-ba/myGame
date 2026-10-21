@@ -1,0 +1,10 @@
+{
+  "name": "Roguelike.FogOfWar",
+  "references": [
+    "Unity.Burst",
+    "Unity.Collections",
+    "Unity.Mathematics",
+    "Unity.ugui",
+    "Roguelike.Foundation"
+  ]
+}

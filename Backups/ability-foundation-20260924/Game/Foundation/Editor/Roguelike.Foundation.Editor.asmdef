@@ -1,0 +1,5 @@
+{
+ "name": "Roguelike.Foundation.Editor",
+ "references": ["Roguelike.Foundation", "Roguelike.Runtime", "Roguelike.Abilities", "Roguelike.SkillIndicators", "Roguelike.FogOfWar", "Unity.ugui"],
+ "includePlatforms": ["Editor"]
+}

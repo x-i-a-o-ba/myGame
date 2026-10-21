@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>AI 制作室 · myGame</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="masthead">
+      <div class="identity">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <div class="eyebrow">MYGAME / PRODUCTION ROOM</div>
+          <h1>AI 制作室</h1>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="meta-pill">CODEX 原生子代理</span>
+        <span class="meta-pill amber">规划与草案 · 只读</span>
+        <span id="connectionBadge" class="connection offline"><i></i><span>连接中</span></span>
+      </div>
+    </header>
+
+    <div id="notice" class="notice" hidden role="status"></div>
+
+    <div class="workspace" id="workspace">
+      <aside class="rail">
+        <section class="rail-card direction-card">
+          <div class="section-kicker"><span class="serial">01</span> 当前方向</div>
+          <h2 id="goalTitle">等你给一个方向</h2>
+          <p id="goalSubtext">主 AI 会自行拆解、派工、审查交付，并在最后向你汇报。</p>
+          <div class="direction-rule"></div>
+          <div class="run-meta">
+            <span>主任务</span>
+            <strong id="rootId">尚未开始</strong>
+          </div>
+        </section>
+
+        <section class="rail-card">
+          <div class="section-kicker"><span class="serial">02</span> 工作进度</div>
+          <ol class="milestones" id="milestones">
+            <li><b>方向</b><small>等待输入</small></li>
+            <li><b>主 AI 拆解</b><small>未开始</small></li>
+            <li><b>子 AI 交付</b><small>未开始</small></li>
+            <li><b>主 AI 审查</b><small>未开始</small></li>
+            <li><b>向你汇报</b><small>未开始</small></li>
+          </ol>
+        </section>
+
+        <section class="rail-card roster-card">
+          <div class="section-kicker"><span class="serial">03</span> 可调用角色</div>
+          <div id="roleRoster" class="role-roster"></div>
+          <p class="small-note">角色按任务调用，不会同时常驻。项目主任务可按需安排测试角色。</p>
+        </section>
+      </aside>
+
+      <main class="main-stage">
+        <div class="stage-top">
+          <div>
+            <div class="eyebrow">ONE GOAL · MANY SPECIALISTS</div>
+            <h2>把所有协作放在一张桌上</h2>
+          </div>
+          <nav class="view-switcher" aria-label="视图">
+            <button type="button" class="view-button active" data-view="group">群聊</button>
+            <button type="button" class="view-button" data-view="split">分屏</button>
+            <button type="button" class="view-button" data-view="flow">流程图</button>
+          </nav>
+        </div>
+
+        <section id="groupView" class="view group-view">
+          <div class="view-intro">
+            <div class="live-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div><strong>团队频道</strong><p>这里汇集真实派工、可见消息与主 AI 的汇报。每个子 AI 仍有独立任务。</p></div>
+            <span id="feedCount" class="count">0 条动态</span>
+          </div>
+          <div id="feed" class="feed">
+            <div class="empty-state">
+              <div class="empty-orbit" aria-hidden="true"><span>●</span></div>
+              <h3>先告诉主 AI，你想做什么</h3>
+              <p>例如：“规划下一轮战斗 Demo 的敌人种类和美术方向”。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="splitView" class="view split-view" hidden>
+          <div class="view-intro compact"><div><strong>成员对话 · 同屏</strong><p>每个窗口显示该任务可读取的公开消息与工具活动。</p></div></div>
+          <div id="splitRooms" class="split-rooms"></div>
+        </section>
+
+        <section id="flowView" class="view flow-view" hidden>
+          <div class="view-intro compact"><div><strong>协作路径</strong><p>状态取自同一批真实任务事件；灰色角色尚未接到任务。</p></div></div>
+          <div id="flowCanvas" class="flow-canvas"></div>
+        </section>
+
+        <form id="goalForm" class="composer">
+          <label for="goalInput"><span class="composer-icon" aria-hidden="true">✳</span> 只给主 AI 一个大方向</label>
+          <textarea id="goalInput" rows="3" maxlength="4000" placeholder="想让这支 AI 团队先推进什么？可以只说目标和你关心的体验。"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-hint">本看板只读调查 · 实现与验证由项目原生主任务负责</div>
+            <div class="composer-actions">
+              <button type="button" id="attachButton" class="ghost-button">查看已有任务</button>
+              <button type="button" id="stopButton" class="ghost-button" hidden>暂停本轮</button>
+              <button type="button" id="newButton" class="ghost-button" hidden>新建方向</button>
+              <button type="submit" id="sendButton" class="send-button">交给主 AI <span aria-hidden="true">↗</span></button>
+            </div>
+          </div>
+        </form>
+      </main>
+
+      <aside class="inspector">
+        <div class="inspector-heading">
+          <div><div class="section-kicker"><span class="serial">04</span> 成员对话</div><h2>每个 AI 都可展开</h2></div>
+          <span id="agentCount" class="count">0 位在线</span>
+        </div>
+        <div id="roomTabs" class="room-tabs"></div>
+        <div id="roomDetail" class="room-detail">
+          <div class="room-placeholder"><div class="room-symbol">◎</div><strong>等候成员加入</strong><p>主 AI 派出子代理后，独立会话会出现在这里。</p></div>
+        </div>
+        <div class="inspector-foot">
+          <span class="foot-mark">i</span>
+          <p>群聊是可见事件的汇总，不代表子 AI 彼此共享聊天记录；隐藏推理不会展示。</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <dialog id="attachDialog" class="attach-dialog">
+    <form method="dialog" id="attachForm">
+      <div class="dialog-kicker">ATTACH EXISTING TASK</div>
+      <h2>查看一个已有 Codex 任务</h2>
+      <p>输入主任务 ID，工作台会只读加载它和已发现的子代理对话。</p>
+      <label for="attachInput">主任务 ID</label>
+      <input id="attachInput" autocomplete="off" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      <div class="dialog-actions">
+        <button type="button" id="cancelAttach" class="ghost-button">取消</button>
+        <button type="submit" class="send-button">接入任务 ↗</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1311 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.18f1 (5ebeb53e4c07) revision 6209205'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-20716" at "2026-09-24T01:31:59.1308149Z"
+OS: 'Windows 11  (10.0.26200) CoreCountrySpecific' Language: 'zh' Physical Memory: 32036 MB
+BatchMode: 0, IsHumanControllingUs: 1, StartBugReporterOnCrash: 1, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-09-24T01:31:59Z
+
+COMMAND LINE ARGUMENTS:
+E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Unity.exe
+-projectPath
+D:\UnityProject\myGame_validation_20260923
+-executeMethod
+Roguelike.SkillAuthoring.Editor.SkillAuthoringVisualCheck.CaptureAndExit
+-logFile
+D:\UnityProject\myGame_validation_20260923\skill-authoring-visual2.log
+Successfully changed project path to: D:\UnityProject\myGame_validation_20260923
+D:/UnityProject/myGame_validation_20260923
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [3000]  Target information:
+
+Player connection [3000]  * "[IP] 198.18.0.1 [Port] 55505 [Flags] 2 [Guid] 772930143 [EditorId] 772930143 [Version] 1048832 [Id] WindowsEditor(7,����) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [3000]  * "[IP] 192.168.1.4 [Port] 55505 [Flags] 2 [Guid] 772930143 [EditorId] 772930143 [Version] 1048832 [Id] WindowsEditor(7,����) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [3000] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [3000] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-46516" after 0.3 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-20716"
+[Licensing::IpcConnector] LicenseClient-20716 channel disconnected successfully.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-20716-6000.3.18" at "2026-09-24T01:32:01.0660678Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 5244, path: "E:/AllApplicattion/unityHub/UnityEditor/6000.3.18f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              de4e99c7c7d3409383fc20207fab1264
+  Correlation Id:          8da7406e261a694cd5e714c79ce9beed
+  External correlation Id: 6507541573813057140
+  Machine Id:              MsiXOUNdgcVPRIGOCsuDRpL2jaQ=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-20716-6000.3.18" (connect: 0.00s, validation: 0.00s, handshake: 0.01s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-20716-6000.3.18-notifications" at "2026-09-24T01:32:01.0793167Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-H4VT-NYB9-Q69E-CR8Z-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: 2026-10-05T20:26:27Z
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.00
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-H4VT-NYB9-Q69E-CR8Z-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: 2026-10-05T20:26:27Z
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Module] Licensing Background thread has ended after 1.95s
+[Licensing::Module] Licensing is initialized (took 1.34s).
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-H4VT-NYB9-Q69E-CR8Z-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: 2026-10-05T20:26:27Z
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 0.25 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.18f1 (5ebeb53e4c07)
+[Subsystems] Discovering subsystems at path E:/AllApplicattion/unityHub/UnityEditor/6000.3.18f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path D:/UnityProject/myGame_validation_20260923/Assets
+GfxDevice: creating device client; kGfxThreadingModeThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 4060 Laptop GPU (ID=0x28a0)
+    Vendor:   NVIDIA
+    VRAM:     7957 MB
+    Driver:   32.0.15.7628
+Initialize mono
+Mono path[0] = 'E:/AllApplicattion/unityHub/UnityEditor/6000.3.18f1/Editor/Data/Managed'
+Mono path[1] = 'E:/AllApplicattion/unityHub/UnityEditor/6000.3.18f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'E:/AllApplicattion/unityHub/UnityEditor/6000.3.18f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56516
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: E:/AllApplicattion/unityHub/UnityEditor/6000.3.18f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.000979 seconds.
+- Loaded All Assemblies, in  0.317 seconds
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.343 seconds
+Domain Reload Profiling: 660ms
+	BeginReloadAssembly (109ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (13ms)
+	RebuildCommonClasses (30ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (134ms)
+		LoadAssemblies (96ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (132ms)
+			TypeCache.Refresh (130ms)
+				TypeCache.ScanAssembly (120ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (343ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (311ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (37ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (65ms)
+			ProcessInitializeOnLoadAttributes (125ms)
+			ProcessInitializeOnLoadMethodAttributes (80ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-H4VT-NYB9-Q69E-CR8Z-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: 2026-10-05T20:26:27Z
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 77 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.entities@1.4.8 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.entities@6ce362df365b)
+    com.unity.entities.graphics@1.4.21 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.entities.graphics@4079b47c8361)
+    com.unity.collab-proxy@2.12.4 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.collab-proxy@0b1559bcd34e)
+    com.unity.timeline@1.8.12 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.timeline@8cd8509afae5)
+    com.unity.visualscripting@1.9.11 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.visualscripting@8bed5ad90189)
+    com.unity.ide.visualstudio@2.0.26 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.ide.rider@3.0.40 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.ide.rider@e4950c6d131b)
+    com.unity.editorcoroutines@1.1.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.editorcoroutines@87a15ed012c2)
+    com.unity.performance.profile-analyzer@1.4.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.performance.profile-analyzer@2bb26871883c)
+    com.unity.testtools.codecoverage@1.3.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.testtools.codecoverage@19a841221620)
+    com.unity.2d.animation@13.0.5 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.animation@5d1ab6c077e2)
+    com.unity.2d.pixel-perfect@5.1.1 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.pixel-perfect@09d99455b901)
+    com.unity.2d.psdimporter@12.0.2 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.psdimporter@f207d91d598d)
+    com.unity.2d.spriteshape@13.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.spriteshape@0738bab11647)
+    com.unity.2d.tilemap.extras@6.0.2 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.tilemap.extras@4c5cdf9da5f3)
+    com.unity.2d.aseprite@3.0.2 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.aseprite@20edb5643ab5)
+    com.unity.2d.tooling@1.0.4 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.tooling@04422e023209)
+    com.unity.burst@1.8.29 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.collections@2.6.8 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.collections@84e8eb3fc12e)
+    com.unity.mathematics@1.3.3 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.mathematics@19a9377c4ffa)
+    com.unity.serialization@3.1.3 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.serialization@7725fb70c685)
+    com.unity.profiling.core@1.0.3 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.profiling.core@8a49f7027d06)
+    com.unity.nuget.mono-cecil@1.11.6 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.scriptablebuildpipeline@2.6.1 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.scriptablebuildpipeline@36e3b5898ee2)
+    com.unity.test-framework.performance@3.5.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.test-framework.performance@8b56083ec0f0)
+    com.unity.searcher@4.9.4 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.settings-manager@2.1.1 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.settings-manager@0b8638c5ce86)
+    com.unity.2d.common@12.0.4 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.common@3e42aeccb30d)
+  Built-in packages:
+    com.unity.feature.2d@2.0.2 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.feature.2d@0309d34ea7f2)
+    com.unity.feature.development@1.0.2 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.feature.development@767aadbc6eb7)
+    com.unity.multiplayer.center@1.0.1 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.multiplayer.center@f01f4ba8d00a)
+    com.unity.render-pipelines.universal@17.3.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.render-pipelines.universal@35356061dd01)
+    com.unity.ugui@2.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.ugui@2e4da8434a5c)
+    com.unity.modules.accessibility@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.render-pipelines.core@17.3.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.render-pipelines.core@43eeb73e554f)
+    com.unity.shadergraph@17.3.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.shadergraph@2b401d56d4b3)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d)
+    com.unity.test-framework@1.6.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.test-framework@ecf40a72f8c1)
+    com.unity.2d.sprite@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.sprite@d8bb22511404)
+    com.unity.2d.tilemap@1.0.0 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.2d.tilemap@06f4a9532942)
+    com.unity.ext.nunit@2.0.5 (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.unity.ext.nunit@d8c07649098d)
+  Git packages:
+    com.dbrizov.naughtyattributes@https://github.com/dbrizov/NaughtyAttributes.git#b11d62b28c5fcbe242988f9f8d451deb925cf23b (location: D:\UnityProject\myGame_validation_20260923\Library\PackageCache\com.dbrizov.naughtyattributes@b11d62b28c5f)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.02 seconds
+Asset Packages/com.unity.render-pipelines.universal/Tests/Editor/Tools/Converters/ReadonlyMaterialConverter/ReadonlyMaterialConverterTests.MaterialReferenceBuilder.cs has no meta file, but it's in an immutable folder. The asset will be ignored.
+Asset Packages/com.unity.render-pipelines.universal/Tests/Editor/Tools/Converters/ReadonlyMaterialConverter/ReadonlyMaterialConverterTests.MaterialReferenceChanger.cs has no meta file, but it's in an immutable folder. The asset will be ignored.
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: D:/UnityProject/myGame_validation_20260923
+ExitCode: 0 Duration: 1s37ms
+[1154/1521  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1509/1521  0s] Csc Library/Bee/artifacts/1900b0aE.dag/Roguelike.SkillAuthoring.Editor.dll (+2 others)
+Assets\Game\SkillAuthoring\Editor\SkillAuthoringValidation.cs(61,17): warning EA0002: You should only construct new StageData{Shape=AreaShape.Cone,Range=10,HalfAngleDegrees=35} through a BlobBuilder, as it may only live in blob storage. Try using BlobBuilder .Construct/.ConstructRoot/.SetPointer.
+[1510/1521  0s] Csc Library/Bee/artifacts/1900b0aE.dag/Roguelike.Abilities.Editor.dll (+2 others)
+[1512/1521  0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Roguelike.Abilities.Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Roguelike.Abilities.Editor.dll, with 137 defines and 293 references
+
+processors: Unity.Entities.CodeGen.EntitiesILPostProcessors, Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Entities.CodeGen.EntitiesILPostProcessors
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1513/1521  0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Roguelike.SkillAuthoring.Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Roguelike.SkillAuthoring.Editor.dll, with 137 defines and 289 references
+
+processors: Unity.Entities.CodeGen.EntitiesILPostProcessors, Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Entities.CodeGen.EntitiesILPostProcessors
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1514/1521  0s] CopyFiles Library/ScriptAssemblies/Roguelike.Abilities.Editor.dll
+[1515/1521  0s] CopyFiles Library/ScriptAssemblies/Roguelike.SkillAuthoring.Editor.dll
+[1516/1521  0s] CopyFiles Library/ScriptAssemblies/Roguelike.SkillAuthoring.Editor.pdb
+[1517/1521  0s] CopyFiles Library/ScriptAssemblies/Roguelike.Abilities.Editor.pdb
+[1518/1521  0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll, with 139 defines and 373 references
+
+processors: Unity.Entities.CodeGen.EntitiesILPostProcessors, Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Entities.CodeGen.EntitiesILPostProcessors
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+*** Tundra build success (0.99 seconds), 10 items updated, 1521 evaluated
+Assets\Game\SkillAuthoring\Editor\SkillAuthoringValidation.cs(61,17): warning EA0002: You should only construct new StageData{Shape=AreaShape.Cone,Range=10,HalfAngleDegrees=35} through a BlobBuilder, as it may only live in blob storage. Try using BlobBuilder .Construct/.ConstructRoot/.SetPointer.
+AssetDatabase: script compilation time: 1.495188s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.914 seconds
+Refreshing native plugins compatible for Editor in 1.47 ms, found 6 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.38 ms, found 6 plugins.
+TypeManager.Initialize took: 178ms
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.865 seconds
+Domain Reload Profiling: 4778ms
+	BeginReloadAssembly (315ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (46ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (166ms)
+	RebuildCommonClasses (29ms)
+	RebuildNativeTypeToScriptingClass (11ms)
+	initialDomainReloadingComplete (20ms)
+	LoadAllAssembliesAndSetupDomain (537ms)
+		LoadAssemblies (282ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (326ms)
+			TypeCache.Refresh (228ms)
+				TypeCache.ScanAssembly (214ms)
+			BuildScriptInfoCaches (85ms)
+			ResolveRequiredComponents (10ms)
+	FinalizeReload (3866ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (3555ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (21ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (168ms)
+			ProcessInitializeOnLoadAttributes (3177ms)
+			ProcessInitializeOnLoadMethodAttributes (181ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (1ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (36ms)
+Refreshing native plugins compatible for Editor in 1.58 ms, found 6 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=eb66081c2eb330544b2263301010e7d3): Total: 7.245 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=4443 ms
+		Asset DB Callback time: managed=278 ms, native=32 ms
+		Scripting: domain reloads=1, domain reload time=914 ms, compile time=1497 ms, other=78 ms
+		Project Asset Count: scripts=2098, non-scripts=4108
+		Asset File Changes: new=0, changed=3, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.002ms
+	InvokePackagesCallback: 26.878ms
+	ApplyChangesToAssetFolders: 0.641ms
+	Scan: 157.465ms
+	OnSourceAssetsModified: 0.934ms
+	CategorizeAssetsWithTransientArtifact: 63.742ms
+	ProcessAssetsWithTransientArtifactChanges: 95.561ms
+	CategorizeAssets: 78.220ms
+	ImportOutOfDateAssets: 3878.793ms (2378.533ms without children)
+		CompileScripts: 1496.717ms
+		ReloadNativeAssets: 0.040ms
+		UnloadImportedAssets: 1.271ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.416ms
+		InitializingProgressBar: 0.002ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.814ms
+	PostProcessAllAssets: 280.484ms
+	Hotreload: 4.073ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 0.966ms
+	PersistCurrentRevisions: 0.318ms
+	UnloadStreamsEnd: 0.002ms
+	GenerateScriptTypeHashes: 3.081ms
+	Untracked: 2656.677ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.02 seconds
+Scanning for USB devices : 6.602ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-myGame
+Unloading 70 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/Scenes/技能配置工作台.unity'
+	Deserialize:            2.501 ms
+	Integration:            344.100 ms
+	Integration of assets:  0.028 ms
+	Thread Wait Time:       0.025 ms
+	Total Operation Time:   346.655 ms
+Unloading 8920 unused Assets / (12.3 MB). Loaded Objects now: 9679.
+Memory consumption went from 245.6 MB to 233.3 MB.
+Total: 23.479700 ms (FindLiveObjects: 1.796400 ms CreateObjectMapping: 1.820000 ms MarkObjects: 10.232400 ms  DeleteObjects: 9.629000 ms)
+
+[LAYOUT] About to load UserSettings\Layouts\default-6000.dwlt, keepMainWindow=False
+[LAYOUT] About to save layout D:\UnityProject\myGame_validation_20260923\UserSettings\Layouts\default-6000.dwlt
+[LAYOUT] About to save layout C:/Users/20716/AppData/Roaming/Unity/Editor-5.x/Preferences\Layouts\current\default-6000.dwlt
+[MODES] ModeService[default].InitializeCurrentMode
+[MODES] ModeService[default].RaiseModeChanged(default, default)
+This project uses Input Manager, which is marked for deprecation. To manage input in your project, use the <a href="https://docs.unity3d.com/Packages/com.unity.inputsystem@latest">Input System package</a> instead.
+Opening scene 'Assets/Scenes/技能配置工作台.unity'
+Unloading 38 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/Scenes/技能配置工作台.unity'
+	Deserialize:            0.902 ms
+	Integration:            334.020 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.036 ms
+	Total Operation Time:   334.961 ms
+Unloading 2 unused Assets / (76.8 KB). Loaded Objects now: 9880.
+Memory consumption went from 278.1 MB to 278.1 MB.
+Total: 12.426100 ms (FindLiveObjects: 0.581300 ms CreateObjectMapping: 0.255100 ms MarkObjects: 11.537700 ms  DeleteObjects: 0.051200 ms)
+
+<RI> Initializing input.
+<RI> Input initialized.
+[Project] Loading completed in 13.312 seconds
+	Project init time: 				10.587 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		1.633 seconds
+		Asset Database init time: 		0.438 seconds
+		Global illumination init time: 	0.002 seconds
+		Assemblies load time: 			0.676 seconds
+		Unity extensions init time: 	0.021 seconds
+		Asset Database refresh time: 	7.245 seconds
+	Scene opening time: 			2.149 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1790213532339,"processId":46516,"projectLoad":13.3122928,"projectInit":10.587232,"templateInit":0.0,"packageManagerInit":1.6328014,"assetDatabaseInit":0.4384622,"globalIlluminationInit":0.0023703,"assembliesLoad":0.6757526,"unityExtensionsInit":0.021388,"assetDatabaseRefresh":7.2449094,"sceneOpening":2.1493804}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1790213532339,"processId":46516,"editorVersion":"6000.3.18f1 (5ebeb53e4c07)","branch":"6000.3/staging","buildType":"Release","platform":"Windows"}
+Start Indexing on Editor startup
+[Indexing] Starting Initial Indexing for Assets
+Created GICache directory at C:/Users/20716/AppData/LocalLow/Unity/Caches/GiCache. Took: 0.009s, timestamps: [14.148 - 14.158]
+Starting new worker id: 0 with log in D:/UnityProject/myGame_validation_20260923/Logs/AssetImportWorker0.log
+Starting new worker id: 1 with log in D:/UnityProject/myGame_validation_20260923/Logs/AssetImportWorker1.log
+Starting new worker id: 2 with log in D:/UnityProject/myGame_validation_20260923/Logs/AssetImportWorker2.log
+Starting new worker id: 3 with log in D:/UnityProject/myGame_validation_20260923/Logs/AssetImportWorker3.log
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully updated the access token
+[Licensing::Module] Successfully updated access token: "0dqWL4o4"... (expires: 2026-09-24T03:32:15Z)
+Worker ready: AssetImportWorker0 0
+Worker ready: AssetImportWorker2 2
+Worker ready: AssetImportWorker1 1
+Worker ready: AssetImportWorker3 3
+[Worker1] Start importing Assets/Art/技能指示器ui/01_范围圈/01_悬停技能只显示最大距离.png using Guid(18698bbfb2fa3ec4fab4929ac8dc5d5e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/01_范围圈/08_眼位和它提供的视野.png using Guid(f3bad5a113ffc584cbba11ff2cc0f3cf) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/hook.png using Guid(ffd4cc2ffff7d604eb1b0a7fcbf53a38) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/05_矢量双击/01_先点起点，再拉方向.png using Guid(1453adc8d86257a42a8b891a7e305a38) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: '579f9184ad98248f00e4098b16a8214b') in 0.1496628 seconds
+[Worker3]  -> (artifact id: 'b9c92a392aef488416c83d1fc7eb65fc') in 0.1425486 seconds
+[Worker1] Start importing Assets/Game/Abilities/Core/ApplyBuffEffect.cs using Guid(50ac21f4f53e4f938bed0b0863dd3e0b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/02_点选落点/23_沿着圆周放一圈立柱.png using Guid(8875d4699d9af8644948b22f011a19ec) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '88c411133d6592033d263a43e26599c0') in 0.0041638 seconds
+[Worker3]  -> (artifact id: '0b200e4e0c553fdaac91c9fc23c6e1a4') in 0.0101066 seconds
+[Worker0]  -> (artifact id: '3bf08881d58b215036b62d7f713d7ea4') in 0.1516717 seconds
+[Worker1] Start importing Assets/Game/Runtime/Roguelike.Runtime.asmdef using Guid(c4b4047c575858542a773956d22c5c88) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/02_点选落点/20_三角形范围.png using Guid(63a323e2eef54c047baac4e78e8ec3f2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '6bbd9b5a9c397816ce88f0a860f13423') in 0.0052375 seconds
+[Worker0] Start importing Assets/Game/Abilities/Runtime/SkillSimulationSystem.cs using Guid(5c9d2d4cf5954ba4f888bfe639970470) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3]  -> (artifact id: '3d6dcab590bbf8639c70d18cbc132f53') in 0.0119164 seconds
+[Worker0]  -> (artifact id: '29b122fc5104db52637b866b13079682') in 0.0052468 seconds
+[Worker1] Start importing Assets/Game/Abilities/Materials/Player.mat using Guid(4c44f07531662a6419c0beff285def1f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/Abilities/Core/BuffDefinition.cs using Guid(59fd6a1c49a8aea40bc5761551ea0157) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2]  -> (artifact id: '8734c7445a0b51523ca2163634043af3') in 0.1444596 seconds
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/reticle.png using Guid(3967940dae97cf34fb4b4f007b44f64e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: 'fdecdcb5339f0392a8b9b76abb9d80db') in 0.0050652 seconds
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '148e1cecc2c535f67f77f438a1d08c3b') in 0.0106976 seconds
+[Worker1]  -> (artifact id: 'bec4d9c1096df8fc7524444f6c5a49c4') in 0.0238288 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/boomerang.png using Guid(96fd9ba954996b34799dcb332f715c3f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/Abilities/Settings/Haste.asset using Guid(174a49731759d6e4396fa7fc423768a8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Runtime/SkillDemoInput.cs using Guid(704369116ad607b44bff6efe0a2197f1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2]  -> (artifact id: '649538317aaea03c55f29052dd910384') in 0.0119758 seconds
+[Worker0] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/Abilities/Editor/Roguelike.Abilities.Editor.asmdef using Guid(120f3422c210ec74792b693a102b9672) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0]  -> (artifact id: '5ff816c48ecef779f112e6ce8abfee24') in 0.0037365 seconds
+[Worker1]  -> (artifact id: 'e01b719bfdad13c8c5bea5d00cd5068c') in 0.0037067 seconds
+[Worker3]  -> (artifact id: '8509efb2d26d629869878b55ce166fa0') in 0.0260842 seconds
+[Worker2] Start importing Assets/Game/Abilities/Settings/Passive Poison Sting.asset using Guid(ac54e4090a5800f4e9ad1bb8a7d94851) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/Abilities/Core/HeroDefinition.cs using Guid(506f255f06ad4036af9871eac2853e09) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/donut.png using Guid(18182505f4a24f14686b83c88a95faf6) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'a111aa66d87ef101c15b3af0f9082b9f') in 0.0029683 seconds
+[Worker0]  -> (artifact id: '68884bb39af7580b1ca433543cacecd2') in 0.0111611 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/scatter.png using Guid(6bafb60c998068f4caef477f7ee2db89) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2]  -> (artifact id: '4735c4d838e1d626c7b138220ba125df') in 0.0228851 seconds
+[Worker3]  -> (artifact id: '2b78ff9f3c335eed181b01e34984b9dd') in 0.0110736 seconds
+[Worker1] Start importing Assets/Game/Abilities/Editor/SkillDemoTools.cs using Guid(0228aa00e9fcc1e458843da5427354f2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'edbebcad56fce027facdd79b9de494b6') in 0.0041476 seconds
+[Worker0] Start importing Assets/Game/Abilities/Core/SkillAimPreview.cs using Guid(d277289817174059b5a9f23dffbcb4f6) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '43fd0af9257db37b20491eef35962e1e') in 0.0035055 seconds
+[Worker2] Start importing Assets/Game/Abilities/Settings/Demo Skill Catalog.asset using Guid(8f059c54ed7dd6443813ef3250354d67) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/Abilities/Settings/E Inspire.asset using Guid(a3893bc8cab2fe44bb34142ce150d2e8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2]  -> (artifact id: '6a32af53dd73d9b50ac6278187a5cc12') in 0.0090331 seconds
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'feece14b9939fa956b21387aab0c0d14') in 0.0078332 seconds
+[Worker1] Start importing Assets/Game/Abilities/Settings/Frost Slow.asset using Guid(62dac026455ec614988ddefbb45b72be) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Settings/Poison.asset using Guid(053600e8f5a15eb49b3cbe45a8854734) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/Abilities/Settings/W Frost Field.asset using Guid(960e872012e1abc40988770f498ed381) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'db3178db597ac42a0e81fa5e6bbf037f') in 0.0253943 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/line_gap.png using Guid(535102cde611caa479ec72bd99baec0f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'd56c40dc908b36a33319384cb05d2c27') in 0.0285435 seconds
+[Worker2]  -> (artifact id: 'd297419c5b4ea80a46eb354d4fe0894b') in 0.0136018 seconds
+[Worker3]  -> (artifact id: '9cf115c7aaa4c9726caf793d066977e1') in 0.0111278 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/spread.png using Guid(02313433a8319294584a7b3a89e766b5) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/Abilities/Settings/Vitality.asset using Guid(3d73348ebfdb4044ab6ad5832c043058) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/cone_90.png using Guid(87a13cef2bb00844eb286bfc0c45bf91) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'c792525f126f1c3d294f3151f9b0e18e') in 0.0114985 seconds
+[Worker2]  -> (artifact id: '3a44039badfe7feb4ede99b6e8254f69') in 0.0061017 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/cone_180.png using Guid(c970420c16ed6dd438eb529b6ea0dea9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0]  -> (artifact id: '8db58e3e6fef4d93e9bdcbf6072e41c2') in 0.0097708 seconds
+[Worker3]  -> (artifact id: 'dc35990a5fcad663c9ee001a633be980') in 0.0115277 seconds
+[Worker2] Start importing Assets/Game/Abilities/Core/DamageEffect.cs using Guid(ac105d962aa04ce8a68bbe2773d44435) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/hexagon.png using Guid(719a62d1a35de244e8af68e6fe293c98) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker2]  -> (artifact id: '358dcbb22e150cbe25444f2f3a89fc77') in 0.0043451 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/cone_45.png using Guid(b7647cde872763e4380ad13699e49d43) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/cone_15.png using Guid(446ccbd86cb4e024881b76c78f79bfa2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '97086de858875e206349930138783979') in 0.0095213 seconds
+[Worker3] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'e4861008b90ae641ae559fcd953a7614') in 0.0090432 seconds
+[Worker3]  -> (artifact id: '00e887c6d083681eb2ce79d72c75b13a') in 0.0106333 seconds
+[Worker2] Start importing Assets/Game/Abilities/Runtime/SkillDemoPresentation.cs using Guid(a6c0e30d40a48fb42a27aaa25f6860b5) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/Abilities/Runtime/SkillDemoController.cs using Guid(3d55c0a8d6d59274f87a0acde8f2f2ba) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2]  -> (artifact id: '1c0a53f708f2abd87c0959b130df530e') in 0.0040477 seconds
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Runtime/SkillDemoHud.cs using Guid(d4e8a9ce5b35e8640bdc77124896c523) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '0bf89e2c9e8faa9090ae84c019064554') in 0.0042161 seconds
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '6a90a2291859b39e62fa153a6761af1c') in 0.0036692 seconds
+[Worker3] Start importing Assets/Game/Abilities/Core/SkillCatalog.cs using Guid(11cb1e087ebfd60449d9ab500d6514f3) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '439644d9e767f862328bb728fb185dba') in 0.0040395 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/x_shape.png using Guid(3954059773a7af54a89fd20345082b73) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/Abilities/Editor/AbilityInspectorValidation.cs using Guid(a61df1e89441403ebe8da34a044e73f3) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Runtime/SkillDemoWorld.cs using Guid(2793096b449635849a459b117b02165f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: '8194e69fca598a36cecf8ea08587a6a2') in 0.0039713 seconds
+[Worker2]  -> (artifact id: 'e1d2ecd5aa12ac0d0808b89ce5d890cf') in 0.0086206 seconds
+[Worker0]  -> (artifact id: 'ecab519b2422908964a16706c5310e7f') in 0.0039906 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/line_mid.png using Guid(0ed51ed5635538845814bb2e7a1e48d8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'dd3b4e8f860d2df2adf635b67ff5cabf') in 0.0099208 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/10_技能栏与小地图/11_引导读条.png using Guid(3d36be82e958f8642b4f4d03df51b9a3) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Game/FogOfWar/Editor/FogValidation.cs using Guid(d890f3f0e8c1ef74ca9924cd9228e21e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/line_taper.png using Guid(5bd8dfea700a1e243a646b66e7286f56) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: '998b57df4480c7245adfbcbf54f621f9') in 0.0042971 seconds
+[Worker2]  -> (artifact id: 'ba2c35436bb97e91f73f1b97f5dc434f') in 0.0100831 seconds
+[Worker0]  -> (artifact id: '16b464c5285401c3ed597ba9b7d408cb') in 0.0090584 seconds
+[Worker3] Start importing Assets/Game/FogOfWar/Editor/Roguelike.FogOfWar.Editor.asmdef using Guid(5a27dc989d56f3f46ac0bd6a6cde758e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '998d5f22365dc09377be3df6293399d8') in 0.0049229 seconds
+[Worker1] Start importing Assets/Game/Runtime/Authoring/EnemyAuthoring.cs using Guid(e88746a67a122904aa3e875877b038eb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Runtime/Benchmark/BenchmarkSimulationSystem.cs using Guid(4bf12c5f273d2e14bbfb6cd05fa70ad5) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: '578ce231ffcc85c460b1337720fbeef1') in 0.0041046 seconds
+[Worker2] Start importing Assets/Game/Runtime/Combat/CombatComponents.cs using Guid(37cc7b22927c40e9bc23cda1696427da) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'aee4048fd52cf18681a6b3cee5ac68d1') in 0.0038204 seconds
+[Worker2]  -> (artifact id: '66c66b72502347af66c7d9aa726c52e1') in 0.0037897 seconds
+[Worker3] Start importing Assets/Game/Runtime/Benchmark/BenchmarkRunner.cs using Guid(07e3c5d7a67b4ba4b9fa7bf26ab789ba) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'e11beaf499bf990282f6470ab4b9e8b8') in 0.0044171 seconds
+[Worker1] Start importing Assets/Game/FogOfWar/Runtime/FogDemoProbe.cs using Guid(d85dbd56582e63c4fb27d5ddfff3d0e2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Game/FogOfWar/Materials/Tree.mat using Guid(9164933e5eb766245b208a3f435a5f80) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/10_技能栏与小地图/12_蓄力条.png using Guid(04a3e767983e60e44b928f2e4ca3bb8a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'cb1df00850ed76debea9b6921e7ab9f5') in 0.0036907 seconds
+[Worker2]  -> (artifact id: 'e5c773d0c8bba4b913d48cee2d1fabe4') in 0.0116916 seconds
+[Worker0]  -> (artifact id: 'e8add06a97d96895f7e182d6d393bb33') in 0.0138386 seconds
+[Worker3] Start importing Assets/Game/FogOfWar/Runtime/FogHeightRegion.cs using Guid(b110181423a5f1a458715359bb18cb81) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '75b5829eced67f4a989c1ae2df2808dd') in 0.0042946 seconds
+[Worker1] Start importing Assets/Game/Abilities/Materials/Attack Beam.mat using Guid(2861088b0b668a04880aa03672ed1ecb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/parallel.png using Guid(9ed476330dfbb254c9b4fec33979307b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '0b7e986fadda3af207cc2dd0dbc79819') in 0.0059236 seconds
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/spiral.png using Guid(298f7eb27246c6847ac972d27db50c91) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2]  -> (artifact id: '9bb102d03f083edc966fe3961a841cb1') in 0.0088803 seconds
+[Worker0]  -> (artifact id: 'a237404a3e82a53b227577676c65765a') in 0.0096665 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/line_end.png using Guid(2c04e098e07e8b64682289fd8b12dd23) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '8da0ae0641656f6d6f29f3566ad1757f') in 0.0098755 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/10_技能栏与小地图/16_敌方正在放一个危险技能.png using Guid(1de68ab6ce3a94148b0988b3752174cf) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Runtime/Combat/GameAbilityIndicator.cs using Guid(130b4d4b403a473dac118f51a12a2a75) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Game/Abilities/Core/Roguelike.Abilities.Core.asmdef using Guid(4123b863b32a4acf894148972570cb5a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: '136ff9662728c591ba5b0ffe1e7cb3b5') in 0.0089175 seconds
+[Worker0]  -> (artifact id: '6e72d56c5a033e8bbc9171585aab89e0') in 0.0040225 seconds
+[Worker2]  -> (artifact id: '8ce6730db122341137be24f43a825291') in 0.0047829 seconds
+[Worker3] Start importing Assets/Game/Abilities/Core/AbilityData.cs using Guid(bf7ba0f139ab37b4c83d5e18596d2171) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'fd9198f63a43ef0cac13bb3f13804312') in 0.004265 seconds
+[Worker1] Start importing Assets/Game/Abilities/Runtime/SkillDemoButton.cs using Guid(f5a813816b8192748a606c0615b1e7f0) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Core/AbilityGeometry.cs using Guid(7b9eaa3a65aad5241a4c4b1dc20cf2f4) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/ring_dashed.png using Guid(eb443dc0a9d85ba46b654d368fcce587) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: 'd8d33add1dfaa47425ef2dd9e1064b73') in 0.0040905 seconds
+[Worker2] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'b6c8c87ff6a88efaa97f94f6b43d201b') in 0.0036437 seconds
+[Worker2]  -> (artifact id: 'ee0e2e52ed7b85220866e87eeb1072d0') in 0.0086232 seconds
+[Worker3] Start importing Assets/Game/Foundation/Editor/SceneFrameworkMigration.cs using Guid(809565d3e186ce843800124ed7299ffa) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'ce7defb60769ec71baefd96ec3e32941') in 0.0037236 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/10_技能栏与小地图/14_小地图上的技能方向.png using Guid(4aa561cde17ce4a4786e0190520a2501) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Editor/SkillDemoAssets.cs using Guid(03dae45857f28204aa49b066e3de98a2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '85987972a3db1d54306d8fa8e9d13381') in 0.0032211 seconds
+[Worker2] Start importing Assets/Game/Abilities/Core/AbilityEffects.cs using Guid(499ab81f44272df44b04f9d444a3ef33) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '526b0a313c3d8a0d21d1068a80832f94') in 0.0101751 seconds
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '91cb9b76873926c01b24b005c73e4200') in 0.0038186 seconds
+[Worker3] Start importing Assets/Game/Abilities/Core/EffectDefinition.cs using Guid(7f8338afc1dd4273aa347299fca9819b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '8848d1adfa8101291920027e9545a556') in 0.0037994 seconds
+[Worker0] Start importing Assets/Game/Abilities/Runtime/AbilityJobs.cs using Guid(c17c4a4d1ba4ad345acb869377c703aa) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1] Start importing Assets/Art/技能指示器ui/10_技能栏与小地图/15_第二段已经可以再按.png using Guid(16f520a0cf6affa4bbe2ec4bc52cfab4) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0]  -> (artifact id: '6768455cc31a7069d14c9576441c89a3') in 0.0032804 seconds
+[Worker2] Start importing Assets/Game/Runtime/Combat/CombatHud.cs using Guid(02e64338ea7a4724b16a9002cb79b01f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: 'aeb4eb31fd0e0fea23448cb35770bee1') in 0.0040389 seconds
+[Worker1]  -> (artifact id: '2b79847c5f007b54c5f2ccec3988ef8e') in 0.0108139 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/curve.png using Guid(e255a22bd03e3714f80982acbbe9d4f8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '055af48ff210e33efcea4648daaaeead') in 0.0112148 seconds
+[Worker0] Start importing Assets/Game/Abilities/Settings/Burn.asset using Guid(62c02bb0e97e79640a5ce69045c8ea40) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/FogOfWar/Runtime/Roguelike.FogOfWar.asmdef using Guid(90ca9af984b96774ebfbbd6e0f98922a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0]  -> (artifact id: '99306ae12caec5fda98477dd030ff322') in 0.0051559 seconds
+[Worker2]  -> (artifact id: '286f87eb7803ddb6a4cf89fa9d55fd00') in 0.0040632 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/shockwave.png using Guid(8d07e08d4f6d2f44885e264c657aeeec) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '895d765304512b8156ced4b7d59d49b0') in 0.009261 seconds
+[Worker3] Start importing Assets/Game/Runtime/Combat/GameCombatController.cs using Guid(49a9989d47a74f8489d8bb228176f2c9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '3eaecbe84f7f7478c4ec2fdde7ddf747') in 0.0041153 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/ring_fill.png using Guid(1f9c997315244184980868a178542d4e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/pull.png using Guid(d7e22e3c1829ce4418754376aba98084) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'f9ee3b65ab9159d7cd6320f94dd513e8') in 0.0081763 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/cone_30.png using Guid(c62e6b855be6d0d4ca695f9bf77ddb95) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2]  -> (artifact id: '4e643694dab27f9bf38e6a97975a1f72') in 0.0095997 seconds
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '57bc318d7d4253f092c23ad7fceb1e4f') in 0.0083704 seconds
+[Worker3] Start importing Assets/Game/FogOfWar/Materials/Red Unit.mat using Guid(6ef3c4cd479d340438b16fe6e199e6df) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/FogOfWar/Materials/Terrain.mat using Guid(5600c2e25a8bcf44c8ac5bc3e823acca) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/orbit.png using Guid(8cf09223eec5f3c439e6cef20e43e523) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0]  -> (artifact id: '5d212d99e8186688af9a4413ab065c56') in 0.0060055 seconds
+[Worker3]  -> (artifact id: 'b32179eb3f21703efbd3156a95d58f2d') in 0.0206724 seconds
+[Worker1] Start importing Assets/Game/FogOfWar/Runtime/FogTargetBatch.cs using Guid(bce0b3ad73d695144a5f00585acc460a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '6db8f5559e31b370a9fe127098fee9f4') in 0.0033244 seconds
+[Worker2]  -> (artifact id: '092be4f6ab216d99d688f98c8449dc31') in 0.0110007 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/10_技能栏与小地图/03_冷却时的遮罩.png using Guid(65ea0df70a6961e4c931c01d80cd0608) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/Foundation/Runtime/SceneLayout.cs using Guid(93947f122ac88534ca95c267a00eba80) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Art/技能指示器ui/03_直线弹道/25_起点、路径和终点是三段.png using Guid(3ade32ffb2f864a4194e26e02501a925) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: 'b009ffdeabea51072cc54f0d75c21ea1') in 0.004687 seconds
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/Runtime/Combat/GameCombatProbe.cs using Guid(224af9d977164ae7acf707da62ca71b2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0]  -> (artifact id: '76b5719056effe0f8a3f5a841ffdd7a9') in 0.0099781 seconds
+[Worker2]  -> (artifact id: 'de7576cf9d71a4b9f332a1b8b7e7109e') in 0.0034884 seconds
+[Worker1]  -> (artifact id: '1706339ecfe3928f0cd995c9d837ca40') in 0.0090436 seconds
+[Worker3] Start importing Assets/Game/FogOfWar/Materials/Ward.mat using Guid(2847413486618f6479b9eff51b82963a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Abilities/Materials/Ground.mat using Guid(4a8b84492d49f5843a896c9d787961b8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/06_自身范围/06_绕着自己转一整圈.png using Guid(e9cdf64257909d943816043578abde0f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/meteor.png using Guid(aff9ba87dea3e754aba2b12d57e45c25) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: 'daa7540769267b6739956baa6189121d') in 0.0061186 seconds
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'd08f69e3a011cc73516a0519211b1268') in 0.0096082 seconds
+[Worker2]  -> (artifact id: '15116433d00e1b7ca0df953e87b52930') in 0.0104242 seconds
+[Worker0]  -> (artifact id: '5171b3fe3d714fa9debd5fca1924f144') in 0.0156834 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/03_直线弹道/21_两个单位之间被线拴住.png using Guid(1cba0faff278c0d45931ebb70491609a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Art/技能指示器ui/07_放置地形/06_把人困在一个环里.png using Guid(1580b1681afa84f47bc6e6a66f422ff5) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/00_总览/00_怎么看.jpg using Guid(52dfeeddc05986a48bef0f1bcf4651fe) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: '0bc5c4d6581fc8ece80c4cad01cb1d26') in 0.008587 seconds
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/Fonts/NotoSansSC.ttf using Guid(ab0786ada57caea46b95753ec47d65c0) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2]  -> (artifact id: '3bea4aadaf00b0f3c9764271dbb75a9d') in 0.0090577 seconds
+[Worker1]  -> (artifact id: '83681fbbbe755ec42970ca2af1199854') in 0.0114152 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/07_放置地形/08_一对可以穿梭的门.png using Guid(18f989dca02b54241b67059dbfd27f87) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/Runtime/Simulation/EnemyComponents.cs using Guid(202a409d87a58b148913762c2fde349d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/FogOfWar/Shaders/FogGround.shader using Guid(b75fe863f42982a46bd7a2b0b8559fc9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: '904947f564f9bab4b0b21211b48f79b6') in 0.0091269 seconds
+[Worker1] (ScriptedImporter)
+[Worker2]  -> (artifact id: '76ea53241eb5a79756d589095dfcc79b') in 0.0039455 seconds
+[Worker0]  -> (artifact id: '42e134fd460b03be6c5b0058b2d63f12') in 0.03987 seconds
+[Worker1]  -> (artifact id: 'ab0856e694fba700e1c98b7bc8265645') in 0.0084767 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/04_扇形弧线/13_扇形正在旋转.png using Guid(2667cc04f7fcaa747b9df1c2865eefc5) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Game/FogOfWar/Materials/High Ground.mat using Guid(177af5c8873e71f4e9d0747cd88636a8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/ring_thin.png using Guid(1b615a139fbf2614aa79f69d370eca87) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'dd7eb800b985ec2251fa5c03e24a7b4d') in 0.0057608 seconds
+[Worker1] Start importing Assets/Game/Abilities/Editor/AbilityValidation.cs using Guid(22c2375b8fe212e428966e2d8c7c06fe) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2]  -> (artifact id: '256aa8a56b1dd4ef0320370ee30213b1') in 0.0096433 seconds
+[Worker0]  -> (artifact id: 'c0cc0bcd7b4f7f6ced2a498b6c157578') in 0.0085427 seconds
+[Worker1]  -> (artifact id: 'f815e7553cc9ce0a264ef7b51e16b8b0') in 0.0037953 seconds
+[Worker3] Start importing Assets/Game/SkillIndicatorDemo/Materials/Floor.mat using Guid(2e4758860658e3a4098bb325f2520be7) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Game/SkillAuthoring/Content/工作平面.mat using Guid(80d91a14e401e9741bdf8f134230ab67) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Art/UnitRing.asset using Guid(de927b759cc9cdf4e8c06e7b759a494b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Settings/W - 扩大范围.asset using Guid(ad34e19f01085e1469bae6e51197f60c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: '76d565a9d2efc706120c02135e7d33c3') in 0.0058949 seconds
+[Worker3]  -> (artifact id: '2816262909fef1a262458336bcfa2d26') in 0.0075361 seconds
+[Worker0]  -> (artifact id: '8cb7976fcfce720021478148def825dd') in 0.0056207 seconds
+[Worker2]  -> (artifact id: 'd8a5b0afe45a9ad5f82672245e61ceb4') in 0.0223004 seconds
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Settings/E - 远距投放.asset using Guid(24c7c710867b616408a69cda9a7a9244) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringSceneTools.cs using Guid(b5fcf79910864c5b859d0f835c3b7763) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Resources/UI/Panels/UI.DeveloperHelp.prefab using Guid(f8b15cb9e9fd3374da4f77036c5295a7) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0]  -> (artifact id: '24137c43ad0c4d7cd566c71a2614b9b3') in 0.0036099 seconds
+[Worker1]  -> (artifact id: 'ac851cc5a1cf33d848e1ca4401ff3a64') in 0.0061079 seconds
+[Worker2] Start importing Assets/Game/SkillIndicatorDemo/Runtime/CircleSkillPreset.cs using Guid(2858831159134934981fee2b3bffa09a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '74df1cf30ff628f7045526eb7000dd65') in 0.0044907 seconds
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Runtime/CircleIndicatorView.cs using Guid(9138e379bf3796f48bc1e3b9ca6fc97d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringWindow.cs using Guid(3767f15455214a33b6cf25fd88d957d7) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0]  -> (artifact id: '45b30815146317e74fc100ce59a350cb') in 0.0040968 seconds
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'e619d4513a9146830157a0127eda9813') in 0.003093 seconds
+[Worker3]  -> (artifact id: '7a16f8d3e6be39997281831ac1399c0d') in 0.0472942 seconds
+[Worker2] Start importing Assets/Game/SkillAuthoring/Runtime/Roguelike.SkillAuthoring.asmdef using Guid(6d1f697eba2b4cd0a3eea11928140302) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '0f059486b64d8f4e77ae1b951cd4ace9') in 0.003465 seconds
+[Worker0] Start importing Assets/Game/SkillAuthoring/Content/目标参照.mat using Guid(7f73630c2eb3d1346a11d1f105c7f3f9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Prefabs/CastRange.prefab using Guid(8c0df95656137a842a44c99470bafe82) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0]  -> (artifact id: '4824655153a0b897c9025b7bfe7f4379') in 0.0073277 seconds
+[Worker3] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringVisualCheck.cs using Guid(368113d14e814c52b962bc1c8d57d6c7) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringValidation.cs using Guid(e963ab811d2e46219d96414ac16e69c8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'e8c24596215aef364f497fc62070ef2c') in 0.0035737 seconds
+[Worker1]  -> (artifact id: '3a330a2ef891cde9c1675867bb5fc3a6') in 0.0188327 seconds
+[Worker2]  -> (artifact id: '7cdcbc0e839d7463aa92e2fa320c350b') in 0.0039519 seconds
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Runtime/IndicatorDemoProbe.cs using Guid(49b06310f2af883418ffa7e412a5187c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '5d27fef6951e2d8eac9d96647ab877a5') in 0.0036886 seconds
+[Worker2] Start importing Assets/Resources/Music/BK/Black.mp3 using Guid(213aa83a9a9470447a3c754a8bf5cbd4) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Game/Skills/Foundation/寒冰射手·换槽示例.asset using Guid(42ce87a7ad244e4409e2f72ccb13b18e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringAssets.cs using Guid(13fd60a9934d44d29244a03b28a2fdf3) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'c4986e176c4c801e0eb589d6f9292f5e') in 0.003978 seconds
+[Worker1]  -> (artifact id: 'd32c33843e1b97186bd5c9842d6de440') in 0.0090533 seconds
+[Worker0] Start importing Assets/Game/SkillAuthoring/Editor/Roguelike.SkillAuthoring.Editor.asmdef using Guid(412dd56622634d8c8405616a16849caf) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '6dc34c05d2d90a914c5ec4e74dff762d') in 0.0049891 seconds
+[Worker3] Start importing Assets/Game/SkillIndicatorDemo/Materials/CastFlash.mat using Guid(19d618b346e27094288fbb9e49046987) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Runtime/IndicatorFeedback.cs using Guid(af02deadbf28ddc42bcd59af31da7dcb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '7523cc9de91921e11f6e33bbaa21e64d') in 0.0035667 seconds
+[Worker3]  -> (artifact id: '84deefa0e1a27c1026b3257585c4c716') in 0.0086109 seconds
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Editor/IndicatorDemoTools.cs using Guid(3a9a113821912e8488bcce84dbec9dd9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '83b9d34c6ec99da0d345508378599844') in 0.0043712 seconds
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Runtime/IndicatorDemoHud.cs using Guid(65940d17a52984b479e2ee282f1aef06) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringSceneGUI.cs using Guid(4ddd4fedc2484d30881915447aa08d05) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '2571afd45439f98c1788c93fe8499c79') in 0.0037319 seconds
+[Worker3]  -> (artifact id: 'b366820478def8506655b441131ce972') in 0.0041686 seconds
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Art/UnitDisk.asset using Guid(25a55abfb7b0cb640920314dd768de64) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '7a2b4713acf2e7ed7f0d29e294176749') in 0.0054972 seconds
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Runtime/CircleTargeting.cs using Guid(3fa0eb62138bcf8459733df038f6990f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringWorkspaceEditor.cs using Guid(76844f8f8458457cb234285c23a7c065) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'a764b616af19a988c6c676c71b20337e') in 0.0037329 seconds
+[Worker3]  -> (artifact id: '618b91795108945e56de2c236ac762f9') in 0.0035618 seconds
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Runtime/IndicatorDemoInput.cs using Guid(446ba0dacc75aa74191125679c6ac966) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '71a45ffc1e9ce629e35a67b954ba7442') in 0.0031714 seconds
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Materials/Facing.mat using Guid(878423c09498ae144880827ef642f234) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Game/Skills/Indicators/GameIndicatorOverlay.shader using Guid(a5d9117fca79493687854e7d5b14ea63) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '5f719019a560ea09abf5c49d2a06226e') in 0.0085739 seconds
+[Worker3]  -> (artifact id: '703d7e6a78c1649f4087dd762853f118') in 0.0087039 seconds
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Runtime/IndicatorDemoController.cs using Guid(515d50dea0c581146940b33aad15fd46) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '3e681e30f41128c25835332027be3ea0') in 0.0040334 seconds
+[Worker1] Start importing Assets/Game/Abilities/Core/SkillDefinition.cs using Guid(6cc422bfd635fd741a1ec1319385aac9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/cone_dead.png using Guid(3709bf449bd87cc4390458a6adfd1482) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '07a5f364b7616c509f756bdfbf955f1f') in 0.00375 seconds
+[Worker3]  -> (artifact id: 'd37e1819ef77a8bc02b5b34983611bec') in 0.0108042 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/07_放置地形/05_一块矩形障碍.png using Guid(a940fb1f9e8add44eb1e67b54cc36689) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '10b9b8fcacd5c90886b9a26481c772c8') in 0.0101454 seconds
+[Worker1] Start importing Assets/Game/Abilities/Settings/Q Burst.asset using Guid(133527784799b4247ae2e7fbf87a8e37) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'e499de1520798b10efed8025d820f88c') in 0.0057484 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/04_扇形弧线/03_45 度扇形.png using Guid(772ae2c64e48b5b42826030b4a529401) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '2ab450f8035240a36fd8f1c5f54a9ccb') in 0.0091039 seconds
+[Worker0] Start importing Assets/Game/Abilities/Core/PassiveDefinition.cs using Guid(6dc296d5dcfd43d45a0ff47f06e56063) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'a116dc5875a222e3f781097d5770476c') in 0.0036556 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/04_扇形弧线/11_只有扇环那一段是甜区.png using Guid(9f566a77caaecdb4f9260fbdbca4f9b2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/07_放置地形/10_一片地雷.png using Guid(66031cb8d7d271243990b83c94c8926d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '5cf3e81600b4caae304c34748f05b103') in 0.0118142 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/01_范围圈/05_太近不能放，太远也不能放.png using Guid(051e13a658bf80d4e83f07356189bc74) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3]  -> (artifact id: '713e0cc435f01997d29d06c2f66ed075') in 0.0113374 seconds
+[Worker0]  -> (artifact id: 'bd6b4550e8c2577507640b18398e31a1') in 0.0098603 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/09_特殊形状/08_第二段换成另一种形状.png using Guid(d407ac0758b18b142a59fac76a071464) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/04_扇形弧线/14_普攻前方的劈砍.png using Guid(d3274dd9dcb8c3546a12392e172f7648) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '8a0fae8c39b1345b707a9f8613536fc5') in 0.0103349 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/01_范围圈/13_没蓝或被沉默时圈变灰.png using Guid(628fe5576b0394c409c929e333fe7534) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: 'b157c5aecda543114f60bb7bb1c6fc56') in 0.0091504 seconds
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '2e65b5d4ece5dba1f925a549b278cf60') in 0.0104262 seconds
+[Worker1] Start importing Assets/Game/Materials/GameEnemy.mat using Guid(f0fd89693a864b7498f315ef79ed54b1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/circle_r.png using Guid(a7960c655b91d2c4cadf82cd8fc44b72) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '6048ddb2a51a2764050d4079a68b50bb') in 0.0086551 seconds
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '8ee81be1045d3433fdd2636a777df6f4') in 0.0139727 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/line_thin.png using Guid(b14266b1154460b47bc4c16593bc1ed1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'ae441da0c05a375e5bca4c2405a335c5') in 0.0104839 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/02_点选落点/11_预警圈正在变小.png using Guid(880d04871fecf2045bfb229f754305ed) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2]  -> (artifact id: '6a3f986dd8e0e61d73257ccb5eee2b98') in 0.3562914 seconds
+[Worker1]  -> (artifact id: 'c789a5bffb4663457a8db6d803b8c45b') in 0.0082341 seconds
+[Worker3] Start importing Assets/Resources/UI/Panels/UI.Game.BottomHUD.prefab using Guid(7ed0cc13d3d08f04bbcd8e3a6f3b4845) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_090.png using Guid(cda993d98d0c8634cacfbe2523d0cf6b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'db2097a1c8c54cf7c0c3adcf9f330b5f') in 0.0191333 seconds
+[Worker0]  -> (artifact id: 'd09691d8ead93e53e4bbfbbf4084bd77') in 0.0092158 seconds
+[Worker1] Start importing Assets/Scripts/ProjectBase/Event/EventCenter.cs using Guid(e63fcbef1c635da44a4169c378543950) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Scripts/ProjectBase/Base/SingletonMono.cs using Guid(c6c3b3e6259ecdf4994886c52f9bf310) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'a809012522c9f7afa5bd7e17d48e3902') in 0.0038418 seconds
+[Worker2]  -> (artifact id: 'ae2415d6a0e421493459a60563040abc') in 0.0049821 seconds
+[Worker0] Start importing Assets/Resources/UI/Panels/UI.SkillArchitectureDemo.Skillslotseditablelayout.prefab using Guid(b7f150cefc083d24fa1d1381f272459e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Scripts/ProjectBase/Mono/MonoController.cs using Guid(88b796d2e5084b642857b9b2c2aa1d3e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'ea1d5312e1947b21ee3a05a08df9a0f6') in 0.0033092 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/引导_025.png using Guid(35451819484dd304a8d79c24721ea6ce) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Scripts/ProjectBase/AStar/AStarNode.cs using Guid(b6c5cc82da9424b4184fd18c55e37f30) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '0d61d1796afb86d1fc4abaf559613f6c') in 0.0056377 seconds
+[Worker1]  -> (artifact id: 'b1f19dded2b5cb59f57d9709c306c2fb') in 0.0099698 seconds
+[Worker3] Start importing Assets/Resources/UI/Panels/UI.Game.Controls.prefab using Guid(2f465d0237c193043977bab989c65d8a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Resources/UI/Panels/UI.SkillIndicatorDemo.Controls.prefab using Guid(da2db9f190a864143b24b2d8c514d675) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Scripts/ProjectBase/AStar/AStarMgr.cs using Guid(fc92b78a6d750d34eaac7ffb59253bd4) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '33fb7a51db4f196d973582583555739f') in 0.0040907 seconds
+[Worker0]  -> (artifact id: '367b15bc94b66afa2bc88b57e0889e3e') in 0.0467959 seconds
+[Worker3]  -> (artifact id: '68136ad193588d695597abb82dcab135') in 0.0158743 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_080.png using Guid(9fa95dbb57664174394d7f7b386424ad) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/_Scripts/UI/Main/MainPanel.cs using Guid(6fb9cb7399bd8c44eb18f04ec5772ab1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_070.png using Guid(dfee5e6c7d2925e40a787dc1d64f21e1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'b3bf32ec0d89d58a698188a4e7f2d966') in 0.0040527 seconds
+[Worker1]  -> (artifact id: 'ca8ab1341c74466da904b4c67bcf7909') in 0.0428312 seconds
+[Worker2]  -> (artifact id: 'd641d4d682e9e955b70b0becbe4b1924') in 0.0093673 seconds
+[Worker0]  -> (artifact id: '54729544f16a24689ef3857d8b3c0aad') in 0.0091962 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_040.png using Guid(2cae8ffad1568af4c92ff8a389ad6b40) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/引导_000.png using Guid(a602352f86600f64c9ecb91d29650962) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/引导_050.png using Guid(bae7f20a022b21045b481080fb7d6b30) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Scripts/ProjectBase/Mono/MonoMgr.cs using Guid(ac23176e235a19b4cafa3f8d3181be0c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '6483119d157d0031582658b439d140bc') in 0.0038285 seconds
+[Worker1]  -> (artifact id: 'b5798d0a65461d5a664924c09fbbeec0') in 0.007908 seconds
+[Worker3]  -> (artifact id: '7d0f2657dcff74654bb540f94d9f51b0') in 0.0099368 seconds
+[Worker2]  -> (artifact id: '1a1b8df33c30a0082d1f674fae387e2a') in 0.0090536 seconds
+[Worker0] Start importing Assets/Resources/UI/Panels/UI.FogOfWarDemo.Selectedtargetinformation.prefab using Guid(92be538c12b3d4c49b3b169b42720351) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/扩张_00.png using Guid(7e253ea114807ed4082a9a606d3f24a0) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Scripts/ProjectBase/UI/BasePanel.cs using Guid(00d27a205b8cb774f8c82a40aa10cc91) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] Start importing Assets/Resources/UI/Panels/UI.SelectScene.SelectPanel.prefab using Guid(e5794581e2f9a2a408605d4725c11435) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2]  -> (artifact id: 'd81e4a647919ecd31a87e959cfbea94c') in 0.0046477 seconds
+[Worker3]  -> (artifact id: '751d6bcbf8dfb1d84ffb018cd1a3f1a3') in 0.0081143 seconds
+[Worker0]  -> (artifact id: '2e94800e390500605fdce9fc0c8978c3') in 0.0135626 seconds
+[Worker1]  -> (artifact id: '101aff3e8239c7c2050746d44f631e0b') in 0.0076375 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_020.png using Guid(2bd0bdb4886424f4d9fdc8fff52d9619) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Resources/UI/Panels/UI.SkillIndicatorDemo.Skillselectionandstatus.prefab using Guid(de57333980d4763408777289ff2bb1a0) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Resources/ProjectResourceCatalog.json using Guid(43963632c7a49484084d1f7fe8b3e94b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1] Start importing Assets/Art/技能指示器ui/09_特殊形状/09_敌方、友方和自己叠在同一张图.png using Guid(6e5e6a11efce1924cbd67139c434f28a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: '436c9a04bd5e8307930ca51ceace56fa') in 0.0087976 seconds
+[Worker1] (ScriptedImporter)
+[Worker0]  -> (artifact id: '7ace9978d98f5977879a0f7d2557c8d5') in 0.0039815 seconds
+[Worker1]  -> (artifact id: '708654597a4ba6257c30ef886f8e5ff5') in 0.0086807 seconds
+[Worker3] Start importing Assets/Game/FogOfWar/Materials/Fog Smoothing.mat using Guid(402d0e58a2904a14e8f73c1d9a66dd78) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '3e9a73b2e95c6537185799635e4c2c12') in 0.0054027 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/double_circle.png using Guid(cb56749282c37244ca1e2f2de20fc388) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Game/SkillIndicatorDemo/Materials/Boundary.mat using Guid(f4d14a95f0a504c44b46cb26f936cedf) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2]  -> (artifact id: '50128f7f7e8c5eba23ee9e0ef2af02b2') in 0.0403604 seconds
+[Worker1] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'e5ae58abc1259c4c760635efaa6f499d') in 0.0071993 seconds
+[Worker1]  -> (artifact id: '158abaf333a36dcbaaccd6323ff7e0e7') in 0.0115921 seconds
+[Worker3] Start importing Assets/Resources/UI/Panels/UI.FogOfWarDemo.Debugcontrols.prefab using Guid(089759485131f3d4a9f8308a4c1b8178) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/SkillAuthoring/Content/范围技能示例·伤害效果.asset using Guid(12a4173b07c489743a78d1e76080174e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] Start importing Assets/Game/Runtime/Combat/CombatSimulationSystem.cs using Guid(2dd56e0188c54b11b72e9188b8bf6928) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] (ScriptedImporter)
+[Worker2]  -> (artifact id: '2c648603f6ccfcc4b27ebc6e0fc6c74c') in 0.0056805 seconds
+[Worker0]  -> (artifact id: 'f512eca7d20e6a35cd78ea8b0c00e793') in 0.004454 seconds
+[Worker1] Start importing Assets/_Scripts/Common/UI/UIEventListener.cs using Guid(958c16a7546a97b479f5aaf7880baa8f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '126d44cf88eee1fe8c5f6514fc54f90d') in 0.0028195 seconds
+[Worker3]  -> (artifact id: '329afcb5ac202269be3c0206f57c35bb') in 0.0162399 seconds
+[Worker2] Start importing Assets/Game/Foundation/Runtime/Roguelike.Foundation.asmdef using Guid(919fd93c00e70c4469e9bee1417ec728) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Resources/UI/Panels/UI.FogOfWarDemo.Minimapfiltered.prefab using Guid(24b3c75690b7a6a46b820271276b4b3c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_100.png using Guid(5e0ba77e5fa0e644a9a87ca5a92a39af) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1] Start importing Assets/Resources/UI/Panels/UI.Main.MainPanel.prefab using Guid(d1c10436fd73eae4f8227d8d2c5cfbd8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker2]  -> (artifact id: '1780dbbb1f51c8e15bc54f89ba0ed5d9') in 0.004025 seconds
+[Worker3]  -> (artifact id: 'fe590021ada8d3637980ae7592ce659a') in 0.0093733 seconds
+[Worker1]  -> (artifact id: '2e1337bf8b8d5e2390ac2ba8c0889b73') in 0.0093443 seconds
+[Worker0]  -> (artifact id: '9980436e23becb48197659b8d0fe3ecf') in 0.0150082 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/引导_075.png using Guid(d10c6817458812c4aadfece52df4d1f7) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: 'd22d1c764b83b50cad09f0990689470d') in 0.0080155 seconds
+[Worker3] Start importing Assets/Game/SkillAuthoring/Content/施法者参照.mat using Guid(94c1651ef5e5a014485a5bb7cb91727f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Materials/Grid.mat using Guid(ee026af3bbfd14d449077f0792f83886) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker0] Start importing Assets/Scripts/ProjectBase/Scenes/ScenesMgr.cs using Guid(81efdd9fcfc0e6b419a73235129610d8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'ce75e880061c86a57060abc9a21cb2b2') in 0.0046245 seconds
+[Worker3]  -> (artifact id: '7367806d987042dbf6419c6ecf9cc628') in 0.0050054 seconds
+[Worker0]  -> (artifact id: 'f451b51aae0f5e1bd73a12c98f5263a6') in 0.0033641 seconds
+[Worker2] Start importing Assets/Game/FogOfWar/Runtime/FogDemoHud.cs using Guid(7c79d6497ba9840408538e90cfee8dd1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '2f326ca0c7d7d38900c596d1d983517e') in 0.0033881 seconds
+[Worker0] Start importing Assets/Game/Runtime/Combat/GameCombatSession.cs using Guid(7046d189177a4f1584f3f049f892f40f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/冷却遮罩_000.png using Guid(43d709e26fc9d7f41a87f7c5d356e34f) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/SkillAuthoring/Content/范围技能示例.asset using Guid(c603a2f790c17ba4293be5d65a4c507d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'af9cd493a6bcd076bc1d03aa61ae3ba3') in 0.0037537 seconds
+[Worker1]  -> (artifact id: 'd29178d4db9b741a548910564affbf24') in 0.004081 seconds
+[Worker3]  -> (artifact id: '0e396cf167b1097ab1ae140004723d5d') in 0.0090239 seconds
+[Worker2] Start importing Assets/Game/Skills/Indicators/GameTargetArea.prefab using Guid(e36fb730388be6347b1d83d697ce0e56) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Game/FogOfWar/Materials/Blue Unit.mat using Guid(591488adfe328aa4185d59758326886c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2]  -> (artifact id: '47d836e100f12c6705e26e92662dd3d2') in 0.0085949 seconds
+[Worker1] Start importing Assets/Game/SkillIndicatorDemo/Prefabs/TargetArea.prefab using Guid(91c46fdbeaa70704595c750416ee5e69) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0]  -> (artifact id: '5007b2e2a9e67b1404837b399d268e7c') in 0.00614 seconds
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Resources/UI/Panels/UI.SkillArchitectureDemo.Commandsandruntimesummary.prefab using Guid(1621e5c37f36b21489278362a654733a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '08cbe559f7085652b4cf66ec1d5ae32f') in 0.0085877 seconds
+[Worker2] Start importing Assets/Game/FogOfWar/Runtime/FogDemoPresentation.cs using Guid(404278a40c0e75f4d92eab069ba7a289) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: '9c4d1e34cf86018e12d7c58031c62b6e') in 0.0186137 seconds
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '716531f0777e849033a044538a959db9') in 0.0033865 seconds
+[Worker0] Start importing Assets/Game/FogOfWar/Prefabs/敌人视野.prefab using Guid(c5375482f919b2748ab497ccc7de6513) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '61d0fa2840a73f0ec23c79db37143a91') in 0.007264 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/wall.png using Guid(3df6763d109ea46419ce0aa039f49118) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/Foundation/Editor/Roguelike.Foundation.Editor.asmdef using Guid(6119e8cd7bef32f4194b4baa0c7eb10b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '8af6456ba4679755b8698210727559f8') in 0.0098541 seconds
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Game/SkillIndicatorDemo/Prefabs/CastFeedback.prefab using Guid(bf465cf9deba0394c9f0e5b2057cb904) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3]  -> (artifact id: '75fe49b4302d102f6ab08eb46661583c') in 0.0034124 seconds
+[Worker2]  -> (artifact id: 'f0ff56f0fed5b976087f0e575e136b76') in 0.0095457 seconds
+[Worker0] Start importing Assets/Game/Abilities/Settings/Passive Vitality.asset using Guid(35d4ef5d22e88b54ba9e579c2918ac65) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: 'a5f64be5d9e6542dc08b6c1e8dbf04a9') in 0.0048439 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/ally/rect_flat.png using Guid(632917d1a1c2b1749b34d380a81562cf) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/ally/ring_fill.png using Guid(2703dc5dfe4cd4443bf4e6f9c9983e1d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/three_part.png using Guid(75395e7b541d28d43bf64acb3bef16f8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: '8c73e9b49f6921fba6d1775d1f76a25c') in 0.0097153 seconds
+[Worker3]  -> (artifact id: '4c12da145fd56721ade9438a11f90d1e') in 0.0094681 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/block/wall.png using Guid(89b5f5590745f404fb21653fb0bc9306) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2]  -> (artifact id: '88270fdeb041bd4477f02301a000de96') in 0.0097056 seconds
+[Worker0]  -> (artifact id: '62ea42541c6a4df29f471a482f4d6a1a') in 0.0083356 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/ally/wall.png using Guid(542d97f6e2995da4c9031dcfc4159afb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/ally/cone_120.png using Guid(654f3a65ee04bb941a6f9793ea109551) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/cross.png using Guid(a84cdbb60b4a9c94e87b6f57a87cacba) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1]  -> (artifact id: '5bfed4bfdd037becaa9641125d0aa026') in 0.0079323 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/block/line_mid.png using Guid(a487cf35b62b9c2439fc0a0a4dfa78b4) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'b2b40610ea5492348feea5a9297dd54f') in 0.009462 seconds
+[Worker2]  -> (artifact id: '601a6e1648ec26a857aebeb327977bda') in 0.0094211 seconds
+[Worker0]  -> (artifact id: 'a838659ee3ba9017cf9f59c1848f598e') in 0.0071394 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/enemy/cross.png using Guid(3d042d1ba3b05e544bc0a84a1b80176e) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/ally/ring_dashed.png using Guid(264051135578ff84cb2e24d9c6c508cb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/扩张_03.png using Guid(76c68b47b741de341836bc6f14fb1f73) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'f3675ca71aa636cad3a3db292102b742') in 0.0074738 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/block/cone_90.png using Guid(0131261c546b03046959d04bfe0d9bcd) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker1]  -> (artifact id: '5f0f445d28017f5f801dacd4a7627254') in 0.0097707 seconds
+[Worker2]  -> (artifact id: 'd37c77a2d29ce931658317ad29d053aa') in 0.0079468 seconds
+[Worker0]  -> (artifact id: '661c5dc185a8dce5cc8933e9751ef3e6') in 0.0093557 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/block/donut.png using Guid(1d427d7cae3f70d42b36b5d0104d7938) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/line_end.png using Guid(c669b7f0a5819744dae335f875e2f67a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/enemy/dash.png using Guid(d2703c7db900dc74fbe5928c03ba7526) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker3]  -> (artifact id: '294e4350384ed3a2df9732a1c45f05ea') in 0.0102137 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/扩张_02.png using Guid(4e67d31b67c75014796483d21d1674df) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1]  -> (artifact id: '3e4800d46dee477d66680f531926943a') in 0.0075767 seconds
+[Worker2]  -> (artifact id: '2b748709050c61ef207d4c17a088f945') in 0.0083648 seconds
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '0fbb796b4cfff0154662f2d91d7c21bf') in 0.0084921 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/ally/line_wide.png using Guid(36655325717ebc941860371eed113b25) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/block/cone_45.png using Guid(caa2983c93c82de4084cdc0bd42f7af8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/enemy/cone_60.png using Guid(8de812fc317d0a0428901765826195b2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'd7dd00d67d93628a09dc8fec591e35d5') in 0.0084187 seconds
+[Worker2]  -> (artifact id: '5d8fb39ec5925397c14694019dfc6805') in 0.0070705 seconds
+[Worker1]  -> (artifact id: 'e74881327fc9c9be5220ef2ed6eb7e7f') in 0.0078829 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/block/line_end.png using Guid(1e3a18a3714bf9c4382f3ea63ce9971b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '294eaae9908dd0c5b1c56c77f1417dd7') in 0.0111888 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/block/dash.png using Guid(b53e313f199263a4ca7ab37c8528a28d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/ally/cone_90.png using Guid(5fa9d9b58bc029d449e02d9339d8dd8d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/dash.png using Guid(03364750ad8a07644b9f2f45ed312474) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'd23d42888888b0ea6201505fd40fd323') in 0.0071994 seconds
+[Worker1]  -> (artifact id: 'e2dbf042a13e856ef788a7a5b674ff82') in 0.0067904 seconds
+[Worker2]  -> (artifact id: 'fbbbfd2378b12c3cd475e4830dad78a5') in 0.0077998 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/block/circle_r.png using Guid(dc6039ac0fd94814d91ee3e73ac69da2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '8e96a08253053d1f51f13b56ba40b5d8') in 0.0105731 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/block/cone_120.png using Guid(3e3576ce509c8d241ae9d1cc4c16afee) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/circle_r.png using Guid(7b787ab1bba3ce344b8ddc4b46a8b6da) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/block/cross.png using Guid(e7a9edf1a81e9a44ba3d75d878a8c4f8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: '05969f2e94e575e040f1dd2f8dc3f54e') in 0.0086091 seconds
+[Worker3]  -> (artifact id: '246a19bdd60283ffb0275a7070e381c3') in 0.0088232 seconds
+[Worker1]  -> (artifact id: '3ae28e51176582810bcf25f3dde95815') in 0.0094542 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/ally/ring_thin.png using Guid(eb3c85ec91855834189e6b4836829004) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+SKILL_AUTHORING_VISUAL_CAPTURED: SceneView and Chinese workbench GUI.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Roguelike.SkillAuthoring.Editor.SkillAuthoringVisualCheck:Tick () (at Assets/Game/SkillAuthoring/Editor/SkillAuthoringVisualCheck.cs:48)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Game/SkillAuthoring/Editor/SkillAuthoringVisualCheck.cs Line: 48)
+
+[Worker0]  -> (artifact id: '56629192989471efced0353486a450fb') in 0.0089043 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/block/cone_60.png using Guid(77a69a7c6a7ee7d419ea92db71ce6d7d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/block/line_wide.png using Guid(e1b0b57031e70924592e414f9ef8b14d) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/block/rect_flat.png using Guid(281ce49e045e86a4c88b650f92943dfb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'ea09b56c0779326fa764f0ef66f4ef71') in 0.0089276 seconds
+[Worker2]  -> (artifact id: 'a44cb1027b744583b050575c3da2a49b') in 0.008449 seconds
+[Worker3]  -> (artifact id: 'c6bbd3c206ca2a2e0edec594b9709a6a') in 0.008587 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/收缩_00.png using Guid(30c9c637f112d5542a9449563a695cf9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '31a45aa4010bc04dc6fd19a3f6cfe658') in 0.0085771 seconds
+[Worker1] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/收缩_01.png using Guid(5b20798bb67e26e40a65a460c5074b04) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/enemy/circle_r.png using Guid(54805306a60044343b875ce835c125a5) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/cone_45.png using Guid(9a0eb9e11133624428abe3ff2a2f812c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3]  -> (artifact id: '5ca07fe07c3e2e3d25f72d57d29694e6') in 0.007186 seconds
+[Worker2]  -> (artifact id: '6f476bbe52e83842f0f7efe6d7501753') in 0.0074499 seconds
+[Worker1]  -> (artifact id: '53da7c55a0d92280efbe3428751a8954') in 0.0096631 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/12_状态色/block/double_circle.png using Guid(398c5dc6e33b4b444ae4171a4289bfbb) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '5324a89390f7847ed21605396beef6c6') in 0.0090445 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/帧/收缩_02.png using Guid(5ecdd194ee33a1a48888e7d65f986fc2) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Art/技能指示器ui/12_状态色/ally/line_mid.png using Guid(9f37f707b9722cc4bb933657b466c23c) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/block/line_thin.png using Guid(fc6061d83c338df45aff5b7969f234f6) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1]  -> (artifact id: '7b4953340846e6ed7c14ba8ab6e10acd') in 0.0078621 seconds
+[Worker2]  -> (artifact id: '1a9ddaa0d63282ad710f363d92efd266') in 0.0083512 seconds
+[Worker3]  -> (artifact id: '2aa00a78ddbb6c3b49bc632ba13a154a') in 0.0091389 seconds
+[Worker0] Start importing Assets/Art/技能指示器ui/11_可染色底图/chain.png using Guid(69db7c34986de8642b0a35dd968ee7fe) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '7ded176702492d7060b2cb08dbafb286') in 0.007861 seconds
+[Worker2] Start importing Assets/Game/SkillAuthoring/Runtime/SkillAuthoringWorkspace.cs using Guid(2f6a8a0b9a0f4af1bc29432c2e9abddf) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] Start importing Assets/Art/技能指示器ui/12_状态色/ally/cone_60.png using Guid(26c49597adda65c42930156d149368b9) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Resources/UI/Panels/UI.SkillIndicatorDemo.Titleanddemonotice.prefab using Guid(607fa18a43666274a8e6595854ec28e3) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker2]  -> (artifact id: 'b91a018315bcd8def20a5f9efed12e59') in 0.0038814 seconds
+[Worker3]  -> (artifact id: 'a2470c45f24d2a4d1cbbdb9a53b53aba') in 0.0081302 seconds
+[Worker1]  -> (artifact id: '66e4c2460b592e97096fd20e487c0cce') in 0.0136989 seconds
+[Worker0] Start importing Assets/Game/FogOfWar/Runtime/FogDemoInput.cs using Guid(cdee80dc6107d6a43be5f1d0f3eccf5b) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '9134e74bed569ea00d847f5b4fa48886') in 0.0029625 seconds
+[Worker2] Start importing Assets/Resources/UI/Panels/UI.Game.DeathOverlay.prefab using Guid(27d024a2713d39047a5e4fec839a0496) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker3] Start importing Assets/Game/Abilities/Core/DispelEffect.cs using Guid(0338df72e44045d9bb3e62540317abc8) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker3]  -> (artifact id: '1094b27777b23fe6d6203f0f6e0e935c') in 0.0036078 seconds
+[Worker1] Start importing Assets/Game/Abilities/Runtime/Roguelike.Abilities.asmdef using Guid(abad1826e7bba004ca9e04dc0f21df4a) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[LAYOUT] About to save layout D:\UnityProject\myGame_validation_20260923\UserSettings\Layouts\default-6000.dwlt
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '2f702382d3e9495193137a6c5fb6e187') in 0.0036805 seconds
+[Worker2]  -> (artifact id: '4c5536639d481d1954681d05fdba0b3c') in 0.0150082 seconds
+[Worker0] Start importing Assets/Scripts/ProjectBase/Base/BaseManager.cs using Guid(0df36fe7932fd2043be7874fde40a0c1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[LAYOUT] About to save layout C:/Users/20716/AppData/Roaming/Unity/Editor-5.x/Preferences\Layouts\current\default-6000.dwlt
+[Worker0] (ScriptedImporter)
+[Worker0]  -> (artifact id: '4c198b0172f4c055213b035ff43e1641') in 0.0040174 seconds
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/three_part.png using Guid(839b3265f7573cc41a4dd53d7e499b68) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/FogOfWar/Runtime/FogObstacle.cs using Guid(5e0b687cd7b5ba04c929efcb0b48e401) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3]  -> (artifact id: '109d879038fcfdb5aed5a4148f943461') in 0.0082909 seconds
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: '2a7a17d4a3eeb1422d080ad365047d87') in 0.0037851 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/12_状态色/ally/double_circle.png using Guid(046e93f2fc0410844b309cc55d0f2fd1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker0] Start importing Assets/Resources/Music/Sound/Black.mp3 using Guid(37faaaf4e09a3634391b0efdb296e248) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker0] (ScriptedImporter)
+[Worker2]  -> (artifact id: 'e565834f5084fca1c840e2b5d98e5adc') in 0.0082129 seconds
+[Worker3] Start importing Assets/Scripts/ProjectBase/UI/UIManager.cs using Guid(016c19915f9f9ae41aeaf1ff84082dbd) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] Start importing Assets/Game/Abilities/Editor/AbilityChineseInspector.cs using Guid(98a982663ee845cba4fafaaf4196b4f3) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] (ScriptedImporter)
+[Worker3]  -> (artifact id: 'bf8b3a18ee7b525b46ae2641210195c6') in 0.005291 seconds
+[Worker1]  -> (artifact id: 'a1619d3cd62222ac750d414c3d71d001') in 0.0047921 seconds
+[Worker2] Start importing Assets/Game/Skills/Indicators/GameCastRange.prefab using Guid(8027328152121dc45a8c0f9165febdea) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+[Worker2]  -> (artifact id: 'b2a05f42a240d0851207caf9326f9bfb') in 0.0055755 seconds
+Unloading 12 Unused Serialized files (Serialized files now loaded: 0)
+[Worker3] Start importing Assets/Art/技能指示器ui/11_可染色底图/hatch.png using Guid(e7ae093663291da42a7492c83a2208a1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker1] Start importing Assets/Game/SkillAuthoring/Editor/SkillAuthoringPreview.cs using Guid(acbfc2d1111649e394409bb510a61fd1) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker3] (ScriptedImporter)
+[Worker1] (ScriptedImporter)
+[Worker1]  -> (artifact id: 'b672e678b6d219a48b019f23ce2dccd1') in 0.0052149 seconds
+[Worker3]  -> (artifact id: '8e7e34b063a0c74e7aa47f0a960fa5de') in 0.0141095 seconds
+[Worker2] Start importing Assets/Art/技能指示器ui/11_可染色底图/cleave.png using Guid(f71c9315e75c6614f94b9bdf767fd108) Importer(2089858483,b0f066a214c2f5e87bad3c948f4d605d) 
+[Worker2] (ScriptedImporter)
+Unloading 75 unused Assets / (17.0 MB). Loaded Objects now: 10803.
+Memory consumption went from 383.5 MB to 366.5 MB.
+Total: 26.618200 ms (FindLiveObjects: 1.003000 ms CreateObjectMapping: 0.437200 ms MarkObjects: 20.508200 ms  DeleteObjects: 4.668500 ms)
+
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-20716-6000.3.18-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-20716-6000.3.18 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1790213545021,"processId":46516,"allocatedMemory":26168152,"memoryLabels":[{"Default":29313},{"Permanent":15236},{"NewDelete":65717},{"Thread":4230344},{"Manager":2817389},{"VertexData":8},{"Geometry":816},{"Texture":296},{"Shader":79393},{"Material":24},{"GfxDevice":55872},{"Animation":392},{"Audio":3040},{"FreeType":8},{"FontEngine":736},{"Physics":2146},{"Physics2D":16},{"Serialization":63752},{"Input":14984},{"JobScheduler":33024},{"TextLib":16056},{"Mono":32},{"MonoCode":64},{"ScriptingNativeRuntime":155060},{"BaseObject":1620208},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":83160},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":10730},{"DynamicArray":126787},{"HashMap":3869374},{"Utility":2661058},{"Curl":48},{"PoolAlloc":4744},{"AI":80},{"TypeTree":11341},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":6768},{"WebRequest":6449},{"VR":47994},{"SceneManager":504},{"Video":208},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":384},{"Hierarchy":608},{"CoreStats":13112},{"Identifiers":6480},{"Gui":267576},{"EditorUtility":291604},{"VersionControl":4},{"Undo":947},{"AssetDatabase":9120033},{"EditorGi":328},{"UnityConnect":29504},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2867},{"Licensing":664},{"AssetReference":32},{"IPCStream":32}]}

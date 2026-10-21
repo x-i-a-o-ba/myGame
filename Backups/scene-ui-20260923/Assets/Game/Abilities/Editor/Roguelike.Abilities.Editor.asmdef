@@ -1,0 +1,1 @@
+{"name":"Roguelike.Abilities.Editor","references":["Roguelike.Abilities","Roguelike.SkillIndicators","Unity.Entities","Unity.Entities.Hybrid","Unity.Transforms","Unity.Mathematics","Unity.Collections","Unity.ugui"],"includePlatforms":["Editor"]}
