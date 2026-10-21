@@ -1,4 +1,1 @@
 sandbox_mode = "workspace-write"
-
-[agents]
-enabled = false
