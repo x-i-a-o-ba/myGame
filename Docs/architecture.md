@@ -5,6 +5,15 @@
 用户要求组合地基优先，已移除Game固定QWER实现，当前契约见 [ability-foundation.md](ability-foundation.md)。`HeroDefinition → SkillDefinition → Stage[] → EffectDefinition[]`，Buff独立；Core无UI依赖，Game采用AbilityUnit唯一属性权威。GameCombatSession负责实体与Blob生命周期，Controller只装配输入/展示，CombatSimulationSystem处理战斗宿主行为，技能由AbilityExecution调度。现有行为差异、未实现内容与本轮验证统一见新文档。下文关于四份专用配置和旧验证的段落为历史记录。
 
 
+## 2026-10-21 自动攻击模块、Dota 2 式指令与敌人种类
+
+- `Abilities/Core/AutoAttack`：`AutoAttackDefinition`（ScriptableObject，只存配置）编译为 `AutoAttackData` 组件；`AutoAttackLogic.Step` 是纯函数，推进 `AutoAttackState`（目标、阶段、计时、冷却），返回开始/出手/取消事件，英雄（主线程 `StepHero`）和敌人（Burst `EnemyJob`）共用。伤害结算仍由宿主负责：英雄弹道走共享效果入口并触发普攻命中事件，敌人近战/弹道/冲锋/自爆写入英雄伤害队列。
+- 输入层只写 `HeroOrder`（Idle/Move/AttackTarget/AttackMove/Hold + 目标点 + 目标实体 + 序号），`StepHero` 处理新指令（打断前后摇，保留冷却）、目标有效性与牵引、自动索敌、按 `CombatSettings.TurnRate` 转身、移动与攻击节奏。鼠标点选敌人在 `GameCombatController.PickEnemy`（射线到敌人中心的距离，按体型放宽）。
+- 敌人：`Runtime/Combat/Enemies` 的 `EnemyArchetype`（预制体配置组件）与 `EnemyRoster`（名册）。`GameCombatSession.Reset` 先校验整份名册再清空旧会话；每个种类合并预制体网格后建一个 ECS 原型（`CombatEnemy` + `AutoAttackData/State` + `EnemyBehaviorData` + 实例颜色），种类表存为会话实体上的 `CombatEnemyKind` 缓冲；`CombatWaveDirector` 每波按档位、波次、权重抽种类，再乘种类倍率实例化。敌方弹体是 `HostileProjectile` 实体，由并行任务追踪英雄。
+- HUD：`CombatHud` 把 `CombatHudSnapshot` 转成面板键值，只在值变化时发布；`UIPanel` 新增填充方向（横向/纵向/径向）与显隐开关绑定。UI 不读取 ECS。
+
+详见 [enemies-and-controls.md](enemies-and-controls.md)。Unity 编译与运行**未验证**。
+
 后续开发遵循 [模块化与胶水层规范](architecture-guidelines.md)。Game 是持续开发的战斗场景，当前操作见[Game 战斗指南](game-combat.md)；旧文档中的 Game Demo 称谓仅指历史交付版本。
 
 用户新增场景可维护性要求后，已完成其中的场景展示迁移：固定 UI、场地、主角外观、移动标记和 EventSystem 保存到 Game；HUD 通过展示快照与重开事件连接。迁移工具只在 Editor 中创建缺失展示，运行时不再拼装这些固定对象。修改入口和所有权见 [场景维护说明](scene-authoring.md)。
@@ -52,7 +61,7 @@
 
 2026-10-21 起在下述顺序中加入成长与波次：英雄存活时先串行处理 `ProgressionCommand`（学习技能、选天赋），ECB 回放后累计击杀经验、结算升级并重算属性，再按 `CombatWaveState.NextWaveAt` 每帧最多刷一波；胜利后整局冻结，阵亡记为失败。详见 [hero-progression.md](hero-progression.md)。
 
-输入桥接写入 CombatPlayer.Destination → 玩家移动 → Burst 并行敌人追逐/近战伤害队列 → 汇总玩家伤害与死亡 → 在途弹体追踪/命中 → 到开火间隔时搜索最近存活敌人并生成弹体 → ECB 批量播放结构变化 → TransformSystemGroup 更新渲染变换 → MonoBehaviour LateUpdate 同步玩家外观、镜头和 HUD。
+（2026-10-21 起：输入桥接写入 HeroOrder → StepHero 转身/移动/自动攻击 → Burst 并行敌人行为与敌方弹体 → 汇总英雄伤害；下面为旧顺序。）输入桥接写入 CombatPlayer.Destination → 玩家移动 → Burst 并行敌人追逐/近战伤害队列 → 汇总玩家伤害与死亡 → 在途弹体追踪/命中 → 到开火间隔时搜索最近存活敌人并生成弹体 → ECB 批量播放结构变化 → TransformSystemGroup 更新渲染变换 → MonoBehaviour LateUpdate 同步玩家外观、镜头和 HUD。
 
 CombatOwned 标记会话拥有的实体（含弹体 Prefab），重开和控制器销毁时集中清理。CombatEnemy 与 BenchmarkAgent 分离，各自系统不会处理对方实体。玩家死亡后冻结当前战斗状态，重开恢复配置和数量。
 

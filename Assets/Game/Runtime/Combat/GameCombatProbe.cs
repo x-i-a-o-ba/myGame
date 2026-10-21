@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using Roguelike.Abilities;
 using Roguelike.Foundation.UI;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -53,9 +54,14 @@ namespace Roguelike.Combat
             controller.LearnSkill(3); yield return null; yield return null;
             Check(manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[3].Level==1 && controller.Progression.LastFailure==ProgressionFailure.HeroLevelTooLow,"Ultimate level 2 waits for hero level 12");
             Check(!controller.TryMoveFromScreen(new Vector2(Screen.width*0.5f,5)),"HUD blocks movement");
-            controller.SetDestination(new Vector3(controller.safeSpawnRadius+12,0,0));
+            Check(controller.EnemyKinds.Length>1,"Enemy roster provides several enemy kinds");
+            // 攻击移动：走向远处并自动攻击途中索敌距离内的敌人（Dota 2 的 A + 左键地面）。
+            controller.IssueAttackMove(new Vector3(controller.safeSpawnRadius+12,0,0));
+            yield return null;
+            Check(controller.Order.Kind==HeroOrderKind.AttackMove,"Attack-move order is recorded");
             yield return new WaitForSeconds(3);
-            Check(controller.State.ShotsFired>0 && controller.State.Hits>0,"Basic attack uses shared effect pipeline");
+            Check(controller.State.ShotsFired>0 && controller.State.Hits>0,"Auto attack module fires through the shared effect pipeline");
+            yield return OrderChecks(controller,manager);
             var slots=manager.GetBuffer<AbilitySlot>(controller.SessionEntity);
             var q=slots[0]; q.HitStacks=originalHero.skills[0].requiredHits; slots[0]=q;
             Click(0);
@@ -91,6 +97,7 @@ namespace Roguelike.Combat
             manager.SetComponentData(controller.SessionEntity,waveState);
             yield return null; yield return null;
             Check(controller.Wave.Wave==2 && controller.Wave.SpawnedTotal>spawnedBefore,"Next difficulty wave spawns when its timer elapses");
+            Check(DistinctEnemyKinds(manager)>1,"Waves mix several enemy kinds from the roster");
             // 换序的英雄证明输入槽不是技能身份；克隆仅供探针，不修改项目资源。
             var alternate=Instantiate(originalHero);
             alternate.stableId="probe.reordered"; alternate.skills=(SkillDefinition[])originalHero.skills.Clone();
@@ -110,6 +117,57 @@ namespace Roguelike.Combat
             Check(controller.State.Health==originalHero.health,"Restart restores configured hero");
             yield return Capture("foundation-game.png");
             Finish(controller);
+        }
+        /// <summary>Dota 2 式指令：右键敌人攻击、S 停止、H 待命、HUD 指令按钮与鼠标点选敌人。</summary>
+        private IEnumerator OrderChecks(GameCombatController controller,EntityManager manager)
+        {
+            Entity target=NearestEnemy(controller,manager);
+            Check(target!=Entity.Null,"Enemies remain near the hero after attack-move");
+            if(target==Entity.Null) yield break;
+            var screen=controller.gameCamera.WorldToScreenPoint(manager.GetComponentData<Unity.Transforms.LocalTransform>(target).Position);
+            Check(controller.PickEnemy(screen)!=Entity.Null,"Mouse ray picks the enemy under the cursor");
+            float healthBefore=manager.GetComponentData<AbilityUnit>(target).Health;
+            controller.IssueAttack(target); yield return null;
+            Check((controller.Order.Kind==HeroOrderKind.AttackTarget && controller.Order.Target==target) || !manager.Exists(target),"Right-clicking an enemy issues an attack order");
+            float until=Time.realtimeSinceStartup+4;
+            while(Time.realtimeSinceStartup<until && manager.Exists(target) && manager.GetComponentData<AbilityUnit>(target).Health>=healthBefore) yield return null;
+            Check(!manager.Exists(target) || manager.GetComponentData<AbilityUnit>(target).Health<healthBefore,"Attack order damages the chosen target");
+            controller.Hold(); yield return null; yield return null;
+            var held=controller.State.Position;
+            yield return new WaitForSeconds(0.5f);
+            Check(controller.Order.Kind==HeroOrderKind.Hold && math.distance(held.xz,controller.State.Position.xz)<0.01f,"Hold position keeps the hero in place");
+            yield return WaitForAction("combat.order",1);
+            ClickAction("combat.order",1); yield return null;
+            Check(controller.Order.Kind==HeroOrderKind.Idle,"HUD stop button issues stop");
+            ClickAction("combat.order",0); yield return null;
+            Check(controller.AttackArmed,"HUD attack button arms attack targeting");
+            ClickAction("combat.order",0); yield return null;
+            Check(!controller.AttackArmed,"Second attack button press cancels attack targeting");
+        }
+        private static Entity NearestEnemy(GameCombatController controller,EntityManager manager)
+        {
+            using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(Unity.Transforms.LocalTransform)))
+            using(var entities=query.ToEntityArray(Allocator.Temp))
+            using(var transforms=query.ToComponentDataArray<Unity.Transforms.LocalTransform>(Allocator.Temp))
+            {
+                Entity best=Entity.Null; float bestDistance=float.MaxValue; float2 hero=controller.State.Position.xz;
+                for(int i=0;i<entities.Length;i++)
+                {
+                    float distance=math.distancesq(transforms[i].Position.xz,hero);
+                    if(distance<bestDistance) { bestDistance=distance; best=entities[i]; }
+                }
+                return best;
+            }
+        }
+        private static int DistinctEnemyKinds(EntityManager manager)
+        {
+            using(var query=manager.CreateEntityQuery(typeof(CombatEnemy)))
+            using(var enemies=query.ToComponentDataArray<CombatEnemy>(Allocator.Temp))
+            {
+                var ids=new System.Collections.Generic.HashSet<int>();
+                foreach(var enemy in enemies) ids.Add(enemy.ConfigId);
+                return ids.Count;
+            }
         }
         /// <summary>面板由 UIManager 异步加载，并在 HUD 下一次刷新时显示；按钮可见前等待，最多 5 秒。</summary>
         private IEnumerator WaitForAction(string command,int value)

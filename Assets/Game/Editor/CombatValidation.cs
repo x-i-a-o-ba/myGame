@@ -19,7 +19,7 @@ namespace Roguelike.Editor
             Check(SkillTargeting.FirstContact(float3.zero,new float3(10,0,0),new float3(5,0,0),1,out float first) && Mathf.Approximately(first,0.4f),"Swept collision uses entry point, not target center");
             Check(SkillTargeting.FirstContact(float3.zero,new float3(10,0,0),new float3(4.8f,0,0.99f),1,out float grazing) && grazing>first,"Grazing target with nearer center does not steal earlier collision");
             ValidateSlotsAndStages(); ValidateSourceAndDelay(); ValidateProjectiles(); ValidateBuffs(); ValidateHitGate(); ValidateInvalidConfiguration();
-            ValidateSkillLevels(); ValidateHeroProgression(); ValidateWaves();
+            ValidateSkillLevels(); ValidateHeroProgression(); ValidateWaves(); ValidateAutoAttack(); ValidateEnemyRoster();
             Debug.Log("COMBAT_VALIDATION_PASSED ability foundation checks="+checks);
         }
 

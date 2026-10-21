@@ -19,6 +19,8 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | `Assets/Game/FogOfWar`、`SkillIndicatorDemo` | — | 独立迷雾与指示器演示，Game 中视野已关闭 |
 | `Assets/Game/Skills/Foundation` | 资源 | 正式技能、Buff、效果、两份英雄、技能库 |
 | `Assets/Game/Progression` | 资源 | 经验与等级规则、关卡难度曲线 |
+| `Assets/Game/Enemies` | 资源 | 8 个敌人种类预制体、敌人自动攻击模块、材质与敌人名册（代码在 `Runtime/Combat/Enemies`） |
+| `Assets/Game/UI` | 资源 | Dota 2 风格 HUD 的精灵与图标（程序生成 PNG） |
 | `Assets/Resources/UI/Panels` | 资源 | 按需加载的 UI 面板，ID 登记在 `Resources/ProjectResourceCatalog.json` |
 | `Assets/Scripts/ProjectBase`、`Assets/_Scripts` | 无 asmdef | 2021 版遗留的 MonoBehaviour 管理工具（单例、事件、输入、对象池、A*、UI 等，共 24 个脚本），当前 Game 代码不引用 |
 | `Docs`、`Tools`、`Backups`、`BenchmarkReports` | — | 文档、辅助脚本、迁移备份和压测报告 |
@@ -30,12 +32,14 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | 功能 | 状态 |
 | --- | --- |
 | URP、ECS 框架、万级压测场景 | 已完成，历史构建与 Player 验证见 [requirements.md](requirements.md) |
-| Game 移动、自动攻击、死亡重开 | 已完成 |
+| Game 移动、自动攻击、死亡重开 | 已完成；2026-10-21 改为 Dota 2 式指令（右键移动/攻击、A 攻击移动、S 停止、H 待命、转身速度），自动攻击改为英雄与敌人共用的被动模块，**未在 Unity 中编译和试玩**，见 [enemies-and-controls.md](enemies-and-controls.md) |
+| 敌人种类与预制体 | 2026-10-21 新增 8 种（近战、快速、远程、冲锋、自爆、坦克、首领、远程精英），名册按波次与权重出场，**未在 Unity 中验证** |
+| Dota 2 风格 HUD | 2026-10-21 重做底部技能栏、顶栏首领血条与天赋树，**未在 Unity 中验证**画面 |
 | 组合技能 / Buff 架构、V2 配方、中文编辑器、技能工作台 | 已完成，见 [ability-foundation.md](ability-foundation.md)、[V2 实施记录](skill-composition-v2-implementation.md) |
 | 寒冰射手四技能与指示器 | 已完成，见 [ashe-game-integration.md](ashe-game-integration.md) |
 | Dota 2 式升级、技能点、技能等级、天赋、波次难度、胜负 | 2026-10-21 Unity 编译、89 项 Editor 规则、Windows 构建及 31 项 Player 集成检查通过；完整实玩和数值平衡未验收，见 [hero-progression.md](hero-progression.md) |
 | 万敌完整战斗性能 | 未在 Player 中实测 |
-| 选人界面、经验掉落、敌人种类/技能、局外成长、存档、音效、正式美术 | 未开始 |
+| 选人界面、经验掉落、敌人技能（复用技能组合）、局外成长、存档、音效、正式美术与动画 | 未开始 |
 
 ## 遗留代码建议（未执行）
 
@@ -43,8 +47,8 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 
 ## 建议的后续顺序
 
-1. 在 Unity 中打开项目，跑 **Tools/Roguelike/验证/战斗与成长（不构建）**，修正编译或验证问题，试玩一局调节经验和难度曲线。
+1. 在 Unity 中打开项目，跑 **Tools/Roguelike/验证/战斗与成长（不构建）**，修正编译或验证问题；检查新 HUD 画面、敌人预制体外形和 Dota 2 式操作手感，试玩一局调节经验、难度曲线和各敌人倍率。
 2. Player 中把同屏上限调到一万，按 [performance.md](performance.md) 测帧时间；必要时为索敌和范围技能加空间划分。
-3. 经验球掉落与拾取范围；敌人种类（远程、冲锋）与精英/首领技能，复用技能组合架构。
+3. 经验球掉落与拾取范围；精英/首领技能（复用技能组合架构）；敌人之间的避让与分离。
 4. 选人界面与第二个完整英雄，验证成长系统对其他英雄的复用。
 5. 局外成长、存档、音效与正式美术资源。

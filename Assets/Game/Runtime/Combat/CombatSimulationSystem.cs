@@ -3,18 +3,30 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 namespace Roguelike.Combat
 {
-    /// <summary>Game战斗宿主：移动/普攻/死亡计数、经验升级与波次刷怪。技能投递和Buff共用Abilities核心，不按技能身份分支。</summary>
+    /// <summary>
+    /// Game战斗宿主：Dota 2 式英雄指令（移动/攻击目标/攻击移动/待命/停止）、自动攻击被动模块、多种敌人行为、死亡计数、
+    /// 经验升级与波次刷怪。技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
+    /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
     public partial class CombatSimulationSystem : SystemBase
     {
+        /// <summary>自动索敌目标超出索敌距离后仍继续追击的额外牵引距离（米）。</summary>
+        public const float LeashExtra=4;
+        /// <summary>敌人体型半径 = 缩放 × 该系数（米），用于攻击距离与点选。</summary>
+        public const float BodyRadius=0.5f;
+        private const float AcquireRetry=0.1f,HostileHitRadius=0.6f,FlashSeconds=0.12f,MoveFacing=0.5f;
+        /// <summary>同屏敌方弹体上限；超出时远程攻击直接结算伤害，避免弹体数量失控。</summary>
+        public const int MaxHostileProjectiles=2500;
         private NativeQueue<float> pendingDamage;
+        private NativeQueue<HostileShot> pendingShots;
         private AbilityExecution abilities;
-        private EntityQuery enemies, projectiles;
+        private EntityQuery enemies, projectiles, hostileProjectiles;
         public bool TryReplaceLibrary(Entity owner,BlobAssetReference<AbilityLibrary> replacement,out string failure)
         {
             Dependency.Complete(); EntityManager.CompleteAllTrackedJobs();
@@ -26,14 +38,16 @@ namespace Roguelike.Combat
         protected override void OnCreate()
         {
             pendingDamage=new NativeQueue<float>(Allocator.Persistent);
+            pendingShots=new NativeQueue<HostileShot>(Allocator.Persistent);
             enemies=GetEntityQuery(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform));
             projectiles=GetEntityQuery(typeof(CombatProjectile),typeof(LocalTransform));
+            hostileProjectiles=GetEntityQuery(typeof(HostileProjectile),typeof(LocalTransform));
             abilities=new AbilityExecution(EntityManager);
             RequireForUpdate<CombatSettings>();
             RequireForUpdate<AbilityRuntime>();
         }
         protected override void OnDestroy()
-        { Dependency.Complete(); abilities.Dispose(); pendingDamage.Dispose(); }
+        { Dependency.Complete(); abilities.Dispose(); pendingDamage.Dispose(); pendingShots.Dispose(); }
 
         protected override void OnUpdate()
         {
@@ -50,39 +64,32 @@ namespace Roguelike.Combat
             Dependency=new TickBuffs {Library=runtime.Library,Now=now,Delta=dt}.ScheduleParallel(Dependency);
             Dependency.Complete();
             var hero=manager.GetComponentData<AbilityUnit>(session);
-            if(hero.Health<=0)
-            {
-                abilities.Step(session,now,dt);
-                manager.DestroyEntity(projectiles);
-                player.ActiveProjectiles=0; player.Health=0;
-                manager.SetComponentData(session,player); Defeat(session,ref waveState); return;
-            }
+            if(hero.Health<=0) { Die(session,ref player,ref waveState,now,dt); return; }
             ProcessProgression(session,ref runtime.Library.Value);
             hero=manager.GetComponentData<AbilityUnit>(session);
             player.Elapsed+=dt;
-            float3 movement=player.Destination-player.Position; movement.y=0;
-            float distance=math.length(movement);
-            // 动作锁归技能持有者，不写入 Buff 聚合的 Controls，避免每帧重算相互覆盖。
-            if(distance>0.03f && (hero.Controls&ControlFlags.MovementBlocked)==0 && !AbilityCastTiming.IsBusy(runtime,runtime.Time))
-            {
-                player.Facing=movement/distance;
-                player.Position+=player.Facing*math.min(distance,hero.Speed*dt);
-            }
+            // 英雄指令、转身、移动与自动攻击节奏；动作锁归技能持有者，施法前后摇期间不移动、不普攻。
+            var order=manager.GetComponentData<HeroOrder>(session);
+            var attack=manager.GetComponentData<AutoAttackState>(session);
+            var attackData=manager.GetComponentData<AutoAttackData>(session);
+            bool released=StepHero(ref player,ref order,ref attack,attackData,hero,config,AbilityCastTiming.IsBusy(runtime,runtime.Time),dt);
+            Entity releaseTarget=attack.Target;
+            manager.SetComponentData(session,order); manager.SetComponentData(session,attack);
             manager.SetComponentData(session,LocalTransform.FromPosition(player.Position));
-            Dependency=new PursuitJob {PlayerPosition=player.Position,DeltaTime=dt,
-                AttackRange=config.EnemyAttackRange,AttackInterval=config.EnemyAttackInterval,
-                AttackDamage=config.EnemyAttackDamage,Damage=pendingDamage.AsParallelWriter()}.ScheduleParallel(Dependency);
+            var hostileCommands=new EntityCommandBuffer(Allocator.TempJob);
+            Dependency=new EnemyJob {PlayerPosition=player.Position,DeltaTime=dt,Damage=pendingDamage.AsParallelWriter(),
+                Shots=pendingShots.AsParallelWriter()}.ScheduleParallel(Dependency);
+            Dependency=new HostileProjectileJob {Target=player.Position,DeltaTime=dt,HitRadius=HostileHitRadius,
+                Damage=pendingDamage.AsParallelWriter(),Commands=hostileCommands.AsParallelWriter()}.ScheduleParallel(Dependency);
             // 此处是所有并行单位写入与串行效果写入的明确交接点。
             Dependency.Complete();
+            hostileCommands.Playback(manager); hostileCommands.Dispose();
+            SpawnHostileShots(config);
             ref var library=ref runtime.Library.Value;
             while(pendingDamage.TryDequeue(out float damage))
                 abilities.Apply(Entity.Null,session,-1,new EffectData{Kind=EffectKind.Damage,Amount=damage},ref library,now);
             hero=manager.GetComponentData<AbilityUnit>(session);
-            if(hero.Health<=0)
-            {
-                abilities.Step(session,now,dt); manager.DestroyEntity(projectiles);
-                player.ActiveProjectiles=0; player.Health=0; manager.SetComponentData(session,player); Defeat(session,ref waveState); return;
-            }
+            if(hero.Health<=0) { Die(session,ref player,ref waveState,now,dt); return; }
             abilities.RebuildIndex();
             using var destroy=new EntityCommandBuffer(Allocator.Temp);
             using(var bullets=projectiles.ToEntityArray(Allocator.Temp))
@@ -91,15 +98,15 @@ namespace Roguelike.Combat
                     Entity bullet=bullets[i]; var projectile=manager.GetComponentData<CombatProjectile>(bullet);
                     var transform=manager.GetComponentData<LocalTransform>(bullet);
                     projectile.Lifetime-=dt;
-                    if(projectile.Lifetime<=0 || !manager.Exists(projectile.Target) || !manager.HasComponent<AbilityUnit>(projectile.Target) ||
-                        manager.GetComponentData<AbilityUnit>(projectile.Target).Health<=0)
+                    if(projectile.Lifetime<=0 || !Alive(projectile.Target))
                     { destroy.DestroyEntity(bullet); continue; }
                     var target=manager.GetComponentData<LocalTransform>(projectile.Target);
                     float3 offset=target.Position-transform.Position; float remaining=math.length(offset);
                     if(remaining<=projectile.Speed*dt+0.35f)
                     {
                         abilities.Apply(session,projectile.Target,-1,new EffectData{Kind=EffectKind.Damage,Amount=projectile.Damage},ref library,now);
-                        abilities.RecordBasicAttackHit(session); player.Hits++;
+                        if(projectile.CountsAsBasicAttackHit) abilities.RecordBasicAttackHit(session);
+                        player.Hits++;
                         destroy.DestroyEntity(bullet);
                     }
                     else
@@ -111,37 +118,41 @@ namespace Roguelike.Combat
             abilities.Step(session,now,dt);
             hero=manager.GetComponentData<AbilityUnit>(session);
             runtime=manager.GetComponentData<AbilityRuntime>(session);
-            player.FireCooldown-=dt;
-            if(hero.Health>0 && player.FireCooldown<=0 && (hero.Controls&ControlFlags.AttackBlocked)==0 && !AbilityCastTiming.IsBusy(runtime,now))
+            // 自动攻击出手：弹道攻击发射追踪弹体，近战攻击立即结算；目标已在本帧死亡时本次攻击落空。
+            if(released && hero.Health>0 && Alive(releaseTarget))
             {
-                Entity nearest=Entity.Null; float closest=config.AttackRange*config.AttackRange;
-                using var units=enemies.ToEntityArray(Allocator.Temp);
-                for(int i=0;i<units.Length;i++)
-                {
-                    var enemy=units[i]; if(manager.GetComponentData<AbilityUnit>(enemy).Health<=0) continue;
-                    float squared=math.distancesq(player.Position,manager.GetComponentData<LocalTransform>(enemy).Position);
-                    if(squared<closest) { closest=squared; nearest=enemy; }
-                }
-                player.FireCooldown=config.AttackInterval/math.max(0.01f,hero.AttackSpeedMultiplier);
-                if(nearest!=Entity.Null)
+                player.ShotsFired++;
+                if(attackData.Delivery==AttackDelivery.Projectile)
                 {
                     Entity bullet=destroy.Instantiate(config.ProjectilePrefab);
-                    destroy.SetComponent(bullet,new CombatProjectile {Target=nearest,Damage=hero.Attack,Speed=config.ProjectileSpeed,Lifetime=5});
+                    destroy.SetComponent(bullet,new CombatProjectile {Target=releaseTarget,Damage=hero.Attack,Speed=attackData.ProjectileSpeed,Lifetime=5,
+                        CountsAsBasicAttackHit=attackData.CountsAsBasicAttackHit});
                     destroy.SetComponent(bullet,LocalTransform.FromPositionRotationScale(player.Position+new float3(0,0.5f,0),quaternion.identity,0.27f));
-                    player.ShotsFired++;
+                }
+                else
+                {
+                    abilities.Apply(session,releaseTarget,-1,new EffectData{Kind=EffectKind.Damage,Amount=hero.Attack},ref runtime.Library.Value,runtime.Time);
+                    if(attackData.CountsAsBasicAttackHit) abilities.RecordBasicAttackHit(session);
+                    player.Hits++;
                 }
             }
             float experience=0; bool victory=false;
             var waves=manager.GetComponentData<CombatWaveSettings>(session);
             using(var units=enemies.ToEntityArray(Allocator.Temp))
+            using(var stats=enemies.ToComponentDataArray<AbilityUnit>(Allocator.Temp))
+            using(var records=enemies.ToComponentDataArray<CombatEnemy>(Allocator.Temp))
                 for(int i=0;i<units.Length;i++)
-                    if(manager.GetComponentData<AbilityUnit>(units[i]).Health<=0)
+                {
+                    if(stats[i].Health>0) continue;
+                    var enemy=records[i];
+                    // 自爆死亡不给经验、不计击杀，也不会触发首领胜利。
+                    if(!enemy.SelfDestructed)
                     {
-                        var enemy=manager.GetComponentData<CombatEnemy>(units[i]);
-                        experience+=enemy.Experience;
+                        experience+=enemy.Experience; player.Kills++;
                         if(enemy.Tier==EnemyTier.Boss && waves.FinalWave>0 && enemy.Wave==waves.FinalWave) victory=true;
-                        destroy.DestroyEntity(units[i]); player.Kills++;
                     }
+                    destroy.DestroyEntity(units[i]);
+                }
             destroy.Playback(manager);
             // 经验与升级在 ECB 回放之后串行结算；属性成长只改基础值，再统一重算 Buff 聚合属性。
             var progression=manager.GetComponentData<HeroProgression>(session);
@@ -156,15 +167,151 @@ namespace Roguelike.Combat
             if(victory) waveState.Outcome=CombatOutcome.Victory;
             else if(player.Elapsed>=waveState.NextWaveAt)
             {
-                // 每帧最多刷一波，避免卡顿后集中补刷造成尖峰。
+                // 每帧最多刷一波，避免卡顿后集中补刷造成尖峰。实例化会使缓冲区失效，先复制种类表。
                 waveState.Wave++; waveState.NextWaveAt+=waves.WaveInterval;
-                CombatWaveDirector.SpawnWave(manager,config,waves,ref waveState,player.Position,enemies.CalculateEntityCount());
+                using(var kinds=manager.GetBuffer<CombatEnemyKind>(session).ToNativeArray(Allocator.Temp))
+                    CombatWaveDirector.SpawnWave(manager,config,waves,ref waveState,player.Position,enemies.CalculateEntityCount(),kinds);
             }
             manager.SetComponentData(session,waveState);
             player.AliveEnemies=enemies.CalculateEntityCount();
-            player.ActiveProjectiles=projectiles.CalculateEntityCount()+manager.GetBuffer<SkillFlight>(session).Length;
+            player.ActiveProjectiles=projectiles.CalculateEntityCount()+hostileProjectiles.CalculateEntityCount()+manager.GetBuffer<SkillFlight>(session).Length;
             player.Health=hero.Health; player.MaximumHealth=hero.MaxHealth;
             manager.SetComponentData(session,player);
+        }
+        private void Die(Entity session,ref CombatPlayer player,ref CombatWaveState waveState,float now,float dt)
+        {
+            abilities.Step(session,now,dt);
+            EntityManager.DestroyEntity(projectiles); EntityManager.DestroyEntity(hostileProjectiles);
+            while(pendingShots.TryDequeue(out _)) { }
+            player.ActiveProjectiles=0; player.Health=0;
+            EntityManager.SetComponentData(session,player); Defeat(session,ref waveState);
+        }
+        private bool Alive(Entity entity)
+            =>entity!=Entity.Null && EntityManager.Exists(entity) && EntityManager.HasComponent<AbilityUnit>(entity) &&
+              EntityManager.GetComponentData<AbilityUnit>(entity).Health>0;
+        /// <summary>读取存活敌人的位置、平面距离与体型半径；目标已死亡或被销毁时返回 false。</summary>
+        private bool TryTarget(Entity entity,float3 from,out float3 position,out float distance,out float radius)
+        {
+            position=default; distance=0; radius=0;
+            if(!Alive(entity) || !EntityManager.HasComponent<CombatEnemy>(entity) || !EntityManager.HasComponent<LocalTransform>(entity)) return false;
+            var transform=EntityManager.GetComponentData<LocalTransform>(entity);
+            position=transform.Position; float3 offset=position-from; offset.y=0;
+            distance=math.length(offset); radius=BodyRadius*transform.Scale;
+            return true;
+        }
+        /// <summary>索敌：返回体表距离不超过 radius 的最近存活敌人。批量复制组件，避免逐实体查询。</summary>
+        private Entity Nearest(float3 from,float radius)
+        {
+            Entity best=Entity.Null; float closest=radius;
+            using var units=enemies.ToEntityArray(Allocator.Temp);
+            using var transforms=enemies.ToComponentDataArray<LocalTransform>(Allocator.Temp);
+            using var stats=enemies.ToComponentDataArray<AbilityUnit>(Allocator.Temp);
+            for(int i=0;i<units.Length;i++)
+            {
+                if(stats[i].Health<=0) continue;
+                float distance=math.distance(from.xz,transforms[i].Position.xz)-BodyRadius*transforms[i].Scale;
+                if(distance<=closest) { closest=distance; best=units[i]; }
+            }
+            return best;
+        }
+        /// <summary>
+        /// Dota 2 式英雄步进：处理新指令、目标有效性与牵引、自动索敌、转身、移动与攻击节奏。
+        /// 返回 true 表示本帧攻击出手，目标为 attack.Target。
+        /// </summary>
+        private bool StepHero(ref CombatPlayer player,ref HeroOrder order,ref AutoAttackState attack,in AutoAttackData data,in AbilityUnit hero,
+            in CombatSettings config,bool busy,float dt)
+        {
+            if(order.Serial!=player.HandledOrder)
+            {
+                player.HandledOrder=order.Serial;
+                Entity ordered=order.Kind==HeroOrderKind.AttackTarget?order.Target:Entity.Null;
+                // 任何新指令都会打断攻击前摇与后摇（冷却保留）；重复右键同一目标不打断正在进行的攻击。
+                if(!(order.Kind==HeroOrderKind.AttackTarget && ordered==attack.Target)) AutoAttackLogic.Interrupt(ref attack);
+                attack.Target=ordered; attack.AcquireDelay=0;
+            }
+            float3 position=player.Position;
+            Entity target=order.Kind==HeroOrderKind.Move?Entity.Null:attack.Target;
+            float3 targetPosition=default; float targetDistance=0,targetRadius=0;
+            if(target!=Entity.Null && !TryTarget(target,position,out targetPosition,out targetDistance,out targetRadius)) target=Entity.Null;
+            if(target==Entity.Null && order.Kind==HeroOrderKind.AttackTarget) { order.Kind=HeroOrderKind.Idle; order.Target=Entity.Null; }
+            // 自动索敌得到的目标有牵引距离：超出后放弃，待命时只攻击攻击距离内的目标。
+            if(target!=Entity.Null && order.Kind!=HeroOrderKind.AttackTarget)
+            {
+                float leash=order.Kind==HeroOrderKind.Hold?data.Range+targetRadius+data.RangeBuffer:data.AcquisitionRange+LeashExtra;
+                if(targetDistance>leash) target=Entity.Null;
+            }
+            attack.AcquireDelay=math.max(0,attack.AcquireDelay-dt);
+            bool acquires=data.AutoAcquire && (order.Kind==HeroOrderKind.Idle || order.Kind==HeroOrderKind.AttackMove || order.Kind==HeroOrderKind.Hold);
+            if(target==Entity.Null && acquires && attack.AcquireDelay<=0)
+            {
+                target=Nearest(position,order.Kind==HeroOrderKind.Hold?data.Range:data.AcquisitionRange);
+                if(target==Entity.Null || !TryTarget(target,position,out targetPosition,out targetDistance,out targetRadius))
+                { target=Entity.Null; attack.AcquireDelay=AcquireRetry; }
+            }
+            attack.Target=target;
+            float3 desired=math.normalizesafe(new float3(player.Facing.x,0,player.Facing.z),new float3(0,0,1));
+            float3 goal=position; bool wantMove=false,inRange=false; float stopDistance=0;
+            if(target!=Entity.Null)
+            {
+                float reach=data.Range+targetRadius;
+                inRange=targetDistance<=reach+(attack.Phase==AttackPhase.Windup?data.RangeBuffer:0);
+                float3 toTarget=targetPosition-position; toTarget.y=0;
+                if(math.lengthsq(toTarget)>0.000001f) desired=math.normalize(toTarget);
+                if(!inRange && order.Kind!=HeroOrderKind.Hold) { goal=targetPosition; wantMove=true; stopDistance=reach*0.95f; }
+            }
+            else if(order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove)
+            {
+                float3 offset=order.Point-position; offset.y=0;
+                if(math.length(offset)>0.05f) { goal=order.Point; wantMove=true; desired=math.normalize(offset); }
+                else order.Kind=HeroOrderKind.Idle;
+            }
+            player.Destination=order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove?order.Point:position;
+            if(!busy) player.Facing=Turn(player.Facing,desired,config.TurnRate*dt);
+            float facing=math.dot(player.Facing,desired);
+            bool attackAllowed=!busy && (hero.Controls&ControlFlags.AttackBlocked)==0;
+            bool engage=target!=Entity.Null && inRange && attackAllowed && (attack.Phase==AttackPhase.Windup || facing>=AutoAttackLogic.FacingTolerance);
+            var result=AutoAttackLogic.Step(ref attack,data,hero.AttackSpeedMultiplier,engage,dt);
+            // 前摇中站定；后摇和待机可以移动（移动本身会让 engage 为假从而打断后摇）。
+            bool canMove=!busy && (hero.Controls&ControlFlags.MovementBlocked)==0 && attack.Phase!=AttackPhase.Windup;
+            if(wantMove && canMove && facing>=MoveFacing)
+            {
+                float3 offset=goal-position; offset.y=0;
+                float travel=math.min(math.length(offset)-stopDistance,hero.Speed*dt);
+                if(travel>0)
+                {
+                    float limit=math.max(1,config.ArenaHalfSize-2);
+                    position+=desired*travel;
+                    position.x=math.clamp(position.x,-limit,limit); position.z=math.clamp(position.z,-limit,limit);
+                    player.Position=position;
+                }
+            }
+            return result==AutoAttackEvent.Released;
+        }
+        /// <summary>按最大角速度把朝向转向目标方向（绕 Y 轴）；maxRadians 为 0 时瞬间转向。</summary>
+        public static float3 Turn(float3 current,float3 desired,float maxRadians)
+        {
+            current.y=0; desired.y=0;
+            current=math.normalizesafe(current,new float3(0,0,1));
+            desired=math.normalizesafe(desired,current);
+            if(maxRadians<=0 || math.dot(current,desired)>=math.cos(maxRadians)) return desired;
+            float3 left=math.mul(quaternion.RotateY(maxRadians),current);
+            float3 right=math.mul(quaternion.RotateY(-maxRadians),current);
+            return math.dot(left,desired)>=math.dot(right,desired)?left:right;
+        }
+        /// <summary>把敌人远程出手请求实例化为敌方弹体；超过上限时直接结算伤害。</summary>
+        private void SpawnHostileShots(in CombatSettings config)
+        {
+            int active=hostileProjectiles.CalculateEntityCount();
+            using var spawn=new EntityCommandBuffer(Allocator.Temp);
+            while(pendingShots.TryDequeue(out var shot))
+            {
+                if(config.HostileProjectilePrefab==Entity.Null || active>=MaxHostileProjectiles) { pendingDamage.Enqueue(shot.Damage); continue; }
+                active++;
+                Entity projectile=spawn.Instantiate(config.HostileProjectilePrefab);
+                spawn.SetComponent(projectile,new HostileProjectile {Damage=shot.Damage,Speed=shot.Speed,Lifetime=4});
+                spawn.SetComponent(projectile,LocalTransform.FromPositionRotationScale(shot.Origin,quaternion.identity,0.32f));
+            }
+            spawn.Playback(EntityManager);
         }
         private void Defeat(Entity session,ref CombatWaveState state)
         {
@@ -204,24 +351,104 @@ namespace Roguelike.Combat
             private void Execute(ref AbilityUnit unit,DynamicBuffer<ActiveBuff> buffs)
             { AbilityEffects.Tick(ref unit,buffs,ref Library.Value,Now,Delta); }
         }
+        /// <summary>敌人行为任务：按 EnemyBehavior 移动、冲锋、保持距离或自爆，并用自动攻击模块决定出手时机。</summary>
         [BurstCompile]
-        private partial struct PursuitJob : IJobEntity
+        private partial struct EnemyJob : IJobEntity
         {
             public float3 PlayerPosition;
-            public float DeltaTime,AttackRange,AttackInterval,AttackDamage;
+            public float DeltaTime;
             public NativeQueue<float>.ParallelWriter Damage;
-            private void Execute(ref LocalTransform transform,ref CombatEnemy enemy,in AbilityUnit unit)
+            public NativeQueue<HostileShot>.ParallelWriter Shots;
+            private void Execute(ref LocalTransform transform,ref CombatEnemy enemy,ref AutoAttackState attack,ref AbilityUnit unit,
+                ref URPMaterialPropertyBaseColor color,in AutoAttackData data,in EnemyBehaviorData behavior)
             {
                 if(unit.Health<=0) return;
+                // 受击闪白：生命下降时短暂混入白色。
+                if(unit.Health<enemy.LastHealth-0.001f) enemy.Flash=FlashSeconds;
+                enemy.LastHealth=unit.Health;
+                enemy.Flash=math.max(0,enemy.Flash-DeltaTime);
+                color.Value=math.lerp(enemy.BaseColor,new float4(1,1,1,enemy.BaseColor.w),enemy.Flash/FlashSeconds*0.75f);
                 float3 offset=PlayerPosition-transform.Position; offset.y=0;
                 float distance=math.length(offset);
-                float reach=AttackRange+enemy.Reach;
-                if(distance>reach && (unit.Controls&ControlFlags.MovementBlocked)==0)
-                    transform.Position+=math.normalizesafe(offset)*math.min(distance-reach,unit.Speed*DeltaTime);
-                if((unit.Controls&ControlFlags.AttackBlocked)!=0) return;
-                enemy.AttackCooldown-=DeltaTime;
-                if(distance<=reach+0.05f && enemy.AttackCooldown<=0)
-                { Damage.Enqueue(unit.Attack); enemy.AttackCooldown=AttackInterval/math.max(0.01f,unit.AttackSpeedMultiplier); }
+                float3 direction=distance>0.0001f?offset/distance:new float3(0,0,1);
+                bool canMove=(unit.Controls&ControlFlags.MovementBlocked)==0;
+                bool canAttack=(unit.Controls&ControlFlags.AttackBlocked)==0;
+                float reach=data.Range+enemy.Reach;
+                float step=unit.Speed*DeltaTime;
+                if(behavior.Behavior==EnemyBehavior.Charger)
+                {
+                    enemy.ChargeReadyIn=math.max(0,enemy.ChargeReadyIn-DeltaTime);
+                    if(enemy.ChargeTimer>0)
+                    {
+                        // 冲锋中沿锁定方向直线突进，撞到英雄造成一次伤害；被定身或眩晕打断。
+                        enemy.ChargeTimer-=DeltaTime;
+                        if(!canMove) enemy.ChargeTimer=0;
+                        else transform.Position+=enemy.ChargeDirection*unit.Speed*behavior.ChargeSpeedMultiplier*DeltaTime;
+                        if(!enemy.ChargeHit && distance<=reach+0.3f)
+                        {
+                            enemy.ChargeHit=true; enemy.ChargeTimer=0;
+                            if(canAttack) Damage.Enqueue(unit.Attack*behavior.ChargeDamageMultiplier);
+                        }
+                        transform.Rotation=quaternion.LookRotationSafe(enemy.ChargeDirection,math.up());
+                        AutoAttackLogic.Step(ref attack,data,unit.AttackSpeedMultiplier,false,DeltaTime);
+                        return;
+                    }
+                    if(canMove && enemy.ChargeReadyIn<=0 && distance<=behavior.ChargeTriggerRange && distance>reach+0.5f)
+                    {
+                        enemy.ChargeDirection=direction; enemy.ChargeTimer=behavior.ChargeDuration; enemy.ChargeHit=false;
+                        enemy.ChargeReadyIn=behavior.ChargeCooldown+behavior.ChargeDuration;
+                        AutoAttackLogic.Interrupt(ref attack);
+                        transform.Rotation=quaternion.LookRotationSafe(direction,math.up());
+                        return;
+                    }
+                }
+                bool engage;
+                if(behavior.Behavior==EnemyBehavior.Ranged)
+                {
+                    // 远程：停在偏好距离射击，英雄贴近时后退。
+                    float preferred=math.max(0.5f,data.Range*behavior.PreferredDistance)+enemy.Reach;
+                    if(canMove && attack.Phase!=AttackPhase.Windup)
+                    {
+                        if(distance>preferred) transform.Position+=direction*math.min(distance-preferred,step);
+                        else if(distance<behavior.RetreatDistance) transform.Position-=direction*math.min(behavior.RetreatDistance-distance,step*0.7f);
+                    }
+                    engage=canAttack && distance<=reach+(attack.Phase==AttackPhase.Windup?data.RangeBuffer:0);
+                }
+                else
+                {
+                    // 近战、冲锋（未冲锋时）与自爆：追到攻击距离；前摇中站定。
+                    if(canMove && distance>reach && attack.Phase!=AttackPhase.Windup) transform.Position+=direction*math.min(distance-reach,step);
+                    engage=canAttack && distance<=reach+(attack.Phase==AttackPhase.Windup?data.RangeBuffer:0.05f);
+                }
+                if(distance>0.0001f) transform.Rotation=quaternion.LookRotationSafe(direction,math.up());
+                if(AutoAttackLogic.Step(ref attack,data,unit.AttackSpeedMultiplier,engage,DeltaTime)!=AutoAttackEvent.Released) return;
+                if(behavior.Behavior==EnemyBehavior.Exploder)
+                {
+                    // 自爆：爆炸半径内的英雄受到伤害；自身死亡，不给经验、不计击杀。
+                    if(distance<=behavior.ExplosionRadius+enemy.Reach) Damage.Enqueue(unit.Attack*behavior.ExplosionDamageMultiplier);
+                    enemy.SelfDestructed=true; unit.Health=0;
+                }
+                else if(data.Delivery==AttackDelivery.Projectile)
+                    Shots.Enqueue(new HostileShot {Origin=transform.Position+new float3(0,0.4f*transform.Scale,0),Damage=unit.Attack,Speed=data.ProjectileSpeed});
+                else Damage.Enqueue(unit.Attack);
+            }
+        }
+        /// <summary>敌方弹体任务：追踪英雄位置，命中后把伤害写入待结算队列并销毁。</summary>
+        [BurstCompile]
+        private partial struct HostileProjectileJob : IJobEntity
+        {
+            public float3 Target;
+            public float DeltaTime,HitRadius;
+            public NativeQueue<float>.ParallelWriter Damage;
+            public EntityCommandBuffer.ParallelWriter Commands;
+            private void Execute(Entity entity,[ChunkIndexInQuery] int sortKey,ref LocalTransform transform,ref HostileProjectile shot)
+            {
+                shot.Lifetime-=DeltaTime;
+                float3 offset=Target-transform.Position;
+                float remaining=math.length(offset),travel=shot.Speed*DeltaTime;
+                if(remaining<=travel+HitRadius) { Damage.Enqueue(shot.Damage); Commands.DestroyEntity(sortKey,entity); return; }
+                if(shot.Lifetime<=0) { Commands.DestroyEntity(sortKey,entity); return; }
+                transform.Position+=offset/remaining*travel;
             }
         }
     }
