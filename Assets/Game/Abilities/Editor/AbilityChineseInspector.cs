@@ -88,6 +88,7 @@ namespace Roguelike.Abilities.Editor
             using(new EditorGUI.DisabledScope(true)) { Field("configId", "技能 ID（数字编号）"); Field("stableId", "内部兼容键"); }
             AssignMissingNumber();
             Field("displayName", "技能名称", "用于界面显示。");
+            Field("icon", "技能图标", "Game 底部技能栏显示；为空时显示纯色底。");
             Field("aim", "瞄准方式", "自身、目标点、方向或单位；不会决定伤害类型。");
             bool recipe=SkillRecipeAdapter.IsRecipe((SkillDefinition)target);
             Field("modules","组合模块目录","通过数字 ID 查找投递、查询和效果模块。");
@@ -172,8 +173,11 @@ namespace Roguelike.Abilities.Editor
             Field("health", "基础生命值");
             Field("speed", "移动速度（米/秒）");
             Field("attackDamage", "普攻伤害");
-            Field("attackInterval", "普攻间隔（秒）");
-            Field("range", "普攻距离（米）");
+            Field("attackInterval", "普攻间隔（秒）", "旧字段：未指定自动攻击模块时作为基础攻击间隔。");
+            Field("range", "普攻距离（米）", "旧字段：未指定自动攻击模块时使用。");
+            Field("basicAttack", "自动攻击（被动模块）", "攻击距离、索敌距离、基础攻击间隔、前后摇与弹道；可与敌人共用同一模块。");
+            Field("turnRate", "转身速度（度/秒）", "移动与开始攻击前先转向；0 表示瞬间转身。");
+            Field("portrait", "头像", "Game 底部 HUD 显示。");
             Section("等级成长（Dota 2 式，每升 1 级累加，重开后生效）");
             Field("baseMana", "开局最大法力");
             Field("baseHealthRegen", "开局生命回复（点/秒）");
@@ -198,6 +202,39 @@ namespace Roguelike.Abilities.Editor
             Array("skills", "技能定义", "技能", "被英雄装备的技能必须登记在这里。");
             Array("buffs", "Buff 定义", "Buff", "被效果引用的 Buff 必须登记在这里。");
             Array("passives", "旧示例被动定义", "被动", "当前 Game 尚未接入通用被动触发框架。");
+            End();
+        }
+    }
+
+    [CustomEditor(typeof(AutoAttackDefinition))]
+    [CanEditMultipleObjects]
+    internal sealed class AutoAttackDefinitionChineseInspector : AbilityChineseInspector
+    {
+        public override void OnInspectorGUI()
+        {
+            Begin();
+            EditorGUILayout.HelpBox("自动攻击被动模块：英雄和敌人共用。Dota 2 式节奏：开始攻击 → 前摇（可被移动取消）→ 出手 → 后摇（可被指令打断）；" +
+                "实际间隔、前摇、后摇都除以攻速倍率。重开 Game 后生效。", MessageType.Info);
+            Field("stableId", "内部兼容键");
+            Field("displayName", "模块名称");
+            Field("icon", "图标", "HUD 被动栏显示。");
+            Field("description", "说明");
+            Section("攻击方式");
+            Field("delivery", "结算方式", "近战前摇结束立即命中；弹道前摇结束发射追踪弹体。");
+            Field("projectileSpeed", "弹道速度（米/秒）", "仅弹道使用。");
+            Field("countsAsBasicAttackHit", "触发普攻命中事件", "命中时为需要普攻叠层的技能计数，例如冰霜专注。");
+            Section("距离");
+            Field("range", "攻击距离（米）", "从单位中心计算，另加目标体型。");
+            Field("acquisitionRange", "索敌距离（米）", "待机或攻击移动时自动寻找此距离内最近的敌人；小于攻击距离时按攻击距离处理。");
+            Field("rangeBuffer", "攻击距离缓冲（米）", "前摇期间目标离开攻击距离不超过该值时仍会出手。");
+            Field("autoAcquire", "自动索敌", "关闭后只攻击被右键指定的目标。");
+            Section("节奏（随攻速缩放）");
+            Field("baseAttackTime", "基础攻击间隔（秒）", "Dota 2 的 BAT；实际间隔 = 基础间隔 / 攻速倍率。");
+            Field("attackPoint", "攻击前摇（秒）", "开始攻击到出手；不能超过基础攻击间隔。");
+            Field("backswing", "攻击后摇（秒）", "出手后的收招；可被任意移动或指令打断。");
+            var data = (AutoAttackDefinition)target;
+            if (targets.Length == 1 && data.baseAttackTime > 0)
+                EditorGUILayout.HelpBox($"攻速倍率 1 时：每秒 {1 / data.baseAttackTime:0.##} 次攻击，前摇 {data.attackPoint:0.###} 秒，后摇 {data.backswing:0.###} 秒。", MessageType.None);
             End();
         }
     }

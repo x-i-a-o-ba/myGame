@@ -16,6 +16,10 @@ namespace Roguelike.Abilities
         [InspectorName("普攻伤害"), Min(0)] public float attackDamage=18;
         [InspectorName("普攻间隔（秒）"), Min(0.01f)] public float attackInterval=0.65f;
         [InspectorName("普攻距离（米）"), Min(0)] public float range=16;
+        [Tooltip("自动攻击被动模块：攻击距离、索敌距离、基础攻击间隔、前后摇与弹道。为空时用上方旧普攻间隔/距离生成无前后摇的弹道攻击。")]
+        public AutoAttackDefinition basicAttack;
+        [Min(0), Tooltip("转身速度（度/秒）：移动和开始攻击前需要先转向目标；0 表示瞬间转身。")] public float turnRate=1080;
+        [Tooltip("HUD 头像。为空时显示纯色底。")] public Texture2D portrait;
         [Header("等级成长（Dota 2 式，每升 1 级累加）")]
         [Min(0), Tooltip("开局最大法力；当前技能多数不消耗法力。")] public float baseMana=100;
         [Min(0), Tooltip("开局每秒生命回复。")] public float baseHealthRegen=1.5f;
@@ -47,6 +51,14 @@ namespace Roguelike.Abilities
                     throw new InvalidOperationException("英雄技能未登记在库中："+name+" / 槽 "+i);
             }
             return result;
+        }
+        /// <summary>生成英雄的自动攻击快照：优先使用自动攻击模块，否则沿用旧普攻间隔与距离。</summary>
+        public AutoAttackData ResolveAttack(float fallbackProjectileSpeed)
+        {
+            if(!Finite(turnRate) || turnRate<0) throw new InvalidOperationException("英雄转身速度必须是有限的非负数："+name);
+            if(basicAttack) return basicAttack.Compile();
+            return new AutoAttackData {Delivery=AttackDelivery.Projectile,Range=range,AcquisitionRange=range,BaseAttackTime=attackInterval,
+                ProjectileSpeed=Mathf.Max(1,fallbackProjectileSpeed),RangeBuffer=1.5f,AutoAcquire=true,CountsAsBasicAttackHit=true};
         }
         /// <summary>验证成长与天赋配置；只读，不修改共享资源。</summary>
         public void ValidateProgression()

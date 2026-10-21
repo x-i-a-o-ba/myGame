@@ -72,6 +72,8 @@ namespace Roguelike.Foundation.UI
         public void Text(string key, string value) => Events.Publish(new UiValue { Key = key, Text = value, Kind = UiValueKind.Text });
         public void Texture(string key, Texture value) => Events.Publish(new UiValue { Key = key, Texture = value, Kind = UiValueKind.Texture });
         public void Fill(string key, float value) => Events.Publish(new UiValue { Key = key, Number = value, Kind = UiValueKind.Fill });
+        /// <summary>按键切换面板内绑定对象的显隐；对象不存在时忽略。</summary>
+        public void Visible(string key, bool visible) => Events.Publish(new UiValue { Key = key, Number = visible ? 1 : 0, Kind = UiValueKind.Visible });
         private void OnDestroy() { StopAllCoroutines(); Events.Clear(); PanelOpened = null; panels.Clear(); loading.Clear(); desiredVisibility.Clear(); }
     }
 }

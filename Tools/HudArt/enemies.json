@@ -1,0 +1,79 @@
+{
+ "roster": "91435bcec21046efb74915127f3dbd2c",
+ "hostile": "fd06f46f0791466697dcb1363cdb6251",
+ "attacks": {
+  "冰箭普攻": "5374a548d0d643d7a8f4b64ec5b2ffe7",
+  "腐爪": "26c9c3b736b64fafa881425c5080d827",
+  "迅捷撕咬": "8e10d11d281e47ccb3d778c958008ff0",
+  "骨箭": "484eaf08617d4b5991f61ccfcad63654",
+  "蛮角冲撞": "143ac7812ced42a39e1cb3678e30346a",
+  "毒囊自爆": "1c4925f110b24d5aa1816a6ec61c88db",
+  "岩石重击": "7585fbde20264361b4d8da83ea4b8c42",
+  "深渊横扫": "fbb699201ef5462494ba82ab7cdce496",
+  "巫妖霜弹": "c5c45647d624456294acc0d0b63ba405"
+ },
+ "prefabs": {
+  "3001": {
+   "path": "Assets/Game/Enemies/Prefabs/腐化食尸鬼.prefab",
+   "guid": "4664f792cbed49f7953b1642f94e67e3",
+   "component": 4127538355715876718,
+   "name": "腐化食尸鬼",
+   "stable": "enemy.ghoul"
+  },
+  "3002": {
+   "path": "Assets/Game/Enemies/Prefabs/迅捷猎犬.prefab",
+   "guid": "0148d39a1a66443eaf9ed41e4791e0c8",
+   "component": 327166426177962618,
+   "name": "迅捷猎犬",
+   "stable": "enemy.hound"
+  },
+  "3003": {
+   "path": "Assets/Game/Enemies/Prefabs/骷髅弓手.prefab",
+   "guid": "baabf897d8bf4c46946a7573518ab17b",
+   "component": 1162408049307120960,
+   "name": "骷髅弓手",
+   "stable": "enemy.skeleton_archer"
+  },
+  "3004": {
+   "path": "Assets/Game/Enemies/Prefabs/蛮牛冲锋者.prefab",
+   "guid": "a80395477a0141219d8d3e7031a1646b",
+   "component": 669259657311150719,
+   "name": "蛮牛冲锋者",
+   "stable": "enemy.bull_charger"
+  },
+  "3005": {
+   "path": "Assets/Game/Enemies/Prefabs/爆裂毒囊.prefab",
+   "guid": "40e7adbea79446229c181e0673820e81",
+   "component": 2122610207335516857,
+   "name": "爆裂毒囊",
+   "stable": "enemy.toxic_sac"
+  },
+  "3006": {
+   "path": "Assets/Game/Enemies/Prefabs/岩石魔像.prefab",
+   "guid": "7d1efde1513041b29c94568ef7ea9f79",
+   "component": 294869362402068463,
+   "name": "岩石魔像",
+   "stable": "enemy.rock_golem"
+  },
+  "3007": {
+   "path": "Assets/Game/Enemies/Prefabs/深渊领主.prefab",
+   "guid": "bffe868347a64acabc9b9fed3c55cc8b",
+   "component": 627129538977734335,
+   "name": "深渊领主",
+   "stable": "enemy.abyss_lord"
+  },
+  "3008": {
+   "path": "Assets/Game/Enemies/Prefabs/霜骨巫妖.prefab",
+   "guid": "f6c56a0a78cb442e8ff332b0fe34d457",
+   "component": 140452038508195850,
+   "name": "霜骨巫妖",
+   "stable": "enemy.frost_lich"
+  }
+ },
+ "scripts": {
+  "AutoAttackDefinition": "3331f61cef564eb18fd2faa5da95637d",
+  "AutoAttackLogic": "fae2abde4bb0422c927c262b5e5337ac",
+  "EnemyArchetype": "ecdd36e9fc664e5e8695c97180e7809d",
+  "EnemyRoster": "b1f26af0a7404fed852ef7c33f620d3c"
+ }
+}

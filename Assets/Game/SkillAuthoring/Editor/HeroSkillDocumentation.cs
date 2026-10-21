@@ -88,10 +88,32 @@ namespace Roguelike.SkillAuthoring.Editor
                 var configs = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<GameCombatController>(true)).ToArray();
                 if (configs.Length != 1) throw new InvalidOperationException("怪物文档需要 Game 场景中唯一的战斗配置。");
                 var c = configs[0];
-                return new[] { new MonsterRow { id = GameCombatController.EnemyConfigId, name = "普通怪物", usage = "当前统一怪物配置", path = path,
+                var rows = new List<MonsterRow> { new MonsterRow { id = GameCombatController.EnemyConfigId, name = "普通怪物", usage = "未配置敌人名册时的兼容怪物", path = path,
                     health = c.enemyHealth, speed = c.enemySpeed, attackDamage = c.enemyAttackDamage, attackInterval = c.enemyAttackInterval, range = c.enemyAttackRange } };
+                // 名册种类：数值为第 1 波普通档（场景基础值 × 种类倍率），攻击节奏取自动攻击模块。
+                var seen = new HashSet<EnemyArchetype>();
+                foreach (var entry in c.enemyRoster ? c.enemyRoster.entries : Array.Empty<EnemySpawnEntry>())
+                {
+                    var a = entry?.prefab;
+                    if (!a || !seen.Add(a)) continue;
+                    rows.Add(new MonsterRow { id = a.configId, name = a.Label, usage = MonsterUsage(a, entry), path = AssetDatabase.GetAssetPath(a),
+                        health = c.enemyHealth * a.healthMultiplier, speed = c.enemySpeed * a.speedMultiplier, attackDamage = c.enemyAttackDamage * a.damageMultiplier,
+                        attackInterval = a.attack ? a.attack.baseAttackTime : 0, range = a.attack ? a.attack.range : 0 });
+                }
+                return rows.OrderBy(r => r.id).ToArray();
             }
             finally { EditorSceneManager.ClosePreviewScene(scene); }
+        }
+
+        private static string MonsterUsage(EnemyArchetype a, EnemySpawnEntry entry)
+        {
+            string behavior = a.behavior == EnemyBehavior.Ranged ? "远程游击" : a.behavior == EnemyBehavior.Charger ? "冲锋" : a.behavior == EnemyBehavior.Exploder ? "自爆" : "近战追击";
+            var tiers = new List<string>();
+            if ((entry.tiers & EnemyTierMask.Normal) != 0) tiers.Add("普通");
+            if ((entry.tiers & EnemyTierMask.Elite) != 0) tiers.Add("精英");
+            if ((entry.tiers & EnemyTierMask.Boss) != 0) tiers.Add("首领");
+            string waves = entry.lastWave > 0 ? $"第 {entry.firstWave}–{entry.lastWave} 波" : $"第 {entry.firstWave} 波起";
+            return $"{behavior}；{string.Join("/", tiers)}；{waves}；权重 {entry.weight:0.##}";
         }
 
         [Serializable] private sealed class MonsterRow

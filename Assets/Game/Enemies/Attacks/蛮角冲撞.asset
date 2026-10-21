@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3331f61cef564eb18fd2faa5da95637d, type: 3}
+  m_Name: "\u86EE\u89D2\u51B2\u649E"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.AutoAttackDefinition
+  stableId: attack.horn_gore
+  displayName: "\u86EE\u89D2\u9876\u649E"
+  icon: {fileID: 2800000, guid: 26b5691979ce4c968a9fade288f495b8, type: 3}
+  description: "\u8FD1\u6218\uFF1A\u51B2\u950B\u95F4\u9699\u7528\u7284\u89D2\u9876\u649E\u8D34\u8EAB\u76EE\u6807\u3002"
+  delivery: 0
+  range: 1.4
+  acquisitionRange: 14
+  baseAttackTime: 1.2
+  attackPoint: 0.4
+  backswing: 0.5
+  projectileSpeed: 0
+  rangeBuffer: 0.5
+  autoAcquire: 1
+  countsAsBasicAttackHit: 0

@@ -5,7 +5,10 @@ using UnityEngine;
 
 namespace Roguelike.Combat
 {
-    /// <summary>读取装备技能第一段几何的瞄准预览。只决定输入目标，不结算效果。</summary>
+    /// <summary>
+    /// 读取装备技能第一段几何的瞄准预览。只决定输入目标，不结算效果。
+    /// 不在技能瞄准时，同一组圆圈复用为 Dota 2 式指令预览：A 键攻击瞄准的攻击距离圈、悬停敌人与攻击目标圈。
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class GameAbilityIndicator : MonoBehaviour
     {
@@ -75,6 +78,24 @@ namespace Roguelike.Combat
             target=default; direction=default;
             if(rangeCircle) rangeCircle.Hide(); HideTargetViews();
         }
+        /// <summary>指令预览：showRange 显示以 origin 为中心的攻击距离圈，showUnit 在敌人脚下显示目标圈。技能瞄准期间忽略。</summary>
+        public void ShowOrderPreview(Vector3 origin,float attackRange,bool showRange,Vector3 unit,float unitRadius,bool showUnit,Color unitColor)
+        {
+            if(IsAiming || !HasBindings) return;
+            if(showRange) rangeCircle.Show(new Vector3(origin.x,RangeHeight,origin.z),Mathf.Max(0.1f,attackRange),AttackRangeColor,0.55f);
+            else rangeCircle.Hide();
+            if(showUnit) areaCircle.Show(new Vector3(unit.x,AreaHeight,unit.z),Mathf.Max(0.2f,unitRadius),unitColor,0.95f);
+            else areaCircle.Hide();
+            outline.enabled=false;
+        }
+        /// <summary>隐藏指令预览；技能瞄准期间不影响瞄准显示。</summary>
+        public void HideOrderPreview()
+        {
+            if(IsAiming) return;
+            if(rangeCircle) rangeCircle.Hide();
+            HideTargetViews();
+        }
+        private static readonly Color AttackRangeColor=new Color(1f,0.35f,0.28f,1);
         private void ShowOutline()
         {
             if(outline.positionCount!=outlinePoints.Count) outline.positionCount=outlinePoints.Count;

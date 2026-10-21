@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Roguelike.Editor
 {
-    /// <summary>场景 HUD 缺失时创建可编辑布局；不覆盖已有布局。</summary>
+    /// <summary>场景 HUD 缺失时创建可编辑的旧式兜底布局；不覆盖已有布局。正式 HUD 是 Resources/UI/Panels 下的面板预制体，由 UIManager 加载。</summary>
     internal sealed class CombatHudSceneBuilder
     {
         private Font font;
@@ -89,7 +89,9 @@ namespace Roguelike.Editor
 
         private static void Bind(SerializedObject serialized, string name, Object value)
         {
-            serialized.FindProperty(name).objectReferenceValue = value;
+            // 2026-10-21 起 CombatHud 不再序列化这些旧控件字段；字段不存在时跳过，兜底布局仍可创建。
+            var property = serialized.FindProperty(name);
+            if (property != null) property.objectReferenceValue = value;
         }
 
         private RectTransform Panel(string label, Transform parent, Vector2 min, Vector2 max,

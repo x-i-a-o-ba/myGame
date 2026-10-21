@@ -101,6 +101,78 @@
             "retired": false
         },
         {
+            "id": 3001,
+            "category": "monster",
+            "assetKey": "monster:3001",
+            "stableId": "enemy.ghoul",
+            "path": "Assets/Game/Enemies/Prefabs/腐化食尸鬼.prefab",
+            "name": "腐化食尸鬼",
+            "retired": false
+        },
+        {
+            "id": 3002,
+            "category": "monster",
+            "assetKey": "monster:3002",
+            "stableId": "enemy.hound",
+            "path": "Assets/Game/Enemies/Prefabs/迅捷猎犬.prefab",
+            "name": "迅捷猎犬",
+            "retired": false
+        },
+        {
+            "id": 3003,
+            "category": "monster",
+            "assetKey": "monster:3003",
+            "stableId": "enemy.skeleton_archer",
+            "path": "Assets/Game/Enemies/Prefabs/骷髅弓手.prefab",
+            "name": "骷髅弓手",
+            "retired": false
+        },
+        {
+            "id": 3004,
+            "category": "monster",
+            "assetKey": "monster:3004",
+            "stableId": "enemy.bull_charger",
+            "path": "Assets/Game/Enemies/Prefabs/蛮牛冲锋者.prefab",
+            "name": "蛮牛冲锋者",
+            "retired": false
+        },
+        {
+            "id": 3005,
+            "category": "monster",
+            "assetKey": "monster:3005",
+            "stableId": "enemy.toxic_sac",
+            "path": "Assets/Game/Enemies/Prefabs/爆裂毒囊.prefab",
+            "name": "爆裂毒囊",
+            "retired": false
+        },
+        {
+            "id": 3006,
+            "category": "monster",
+            "assetKey": "monster:3006",
+            "stableId": "enemy.rock_golem",
+            "path": "Assets/Game/Enemies/Prefabs/岩石魔像.prefab",
+            "name": "岩石魔像",
+            "retired": false
+        },
+        {
+            "id": 3007,
+            "category": "monster",
+            "assetKey": "monster:3007",
+            "stableId": "enemy.abyss_lord",
+            "path": "Assets/Game/Enemies/Prefabs/深渊领主.prefab",
+            "name": "深渊领主",
+            "retired": false
+        },
+        {
+            "id": 3008,
+            "category": "monster",
+            "assetKey": "monster:3008",
+            "stableId": "enemy.frost_lich",
+            "path": "Assets/Game/Enemies/Prefabs/霜骨巫妖.prefab",
+            "name": "霜骨巫妖",
+            "retired": false
+        },
+        {
             "id": 4000,
             "category": "effect",
             "assetKey": "12a4173b07c489743a78d1e76080174e:11400000",

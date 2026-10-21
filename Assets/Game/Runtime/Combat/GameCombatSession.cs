@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Roguelike.Abilities;
 using Unity.Collections;
 using Unity.Entities;
@@ -20,6 +21,12 @@ namespace Roguelike.Combat
         public BlobAssetReference<AbilityLibrary> Library => World!=null && World.IsCreated && World.EntityManager.Exists(Entity) && World.EntityManager.HasComponent<AbilityRuntime>(Entity)
             ? World.EntityManager.GetComponentData<AbilityRuntime>(Entity).Library : originalLibrary;
         public string[] SkillNames {get; private set;}
+        /// <summary>本局敌人种类显示名，下标与 CombatEnemy.Kind 一致。</summary>
+        public string[] EnemyNames {get; private set;}=Array.Empty<string>();
+        /// <summary>本局英雄自动攻击快照（展示用；权威值在会话实体的 AutoAttackData）。</summary>
+        public AutoAttackData HeroAttack {get; private set;}
+        // 由预制体子网格合并出的网格归会话对象所有：重开时复用（渲染系统可能仍持有上一局的注册），会话销毁时释放。
+        private readonly Dictionary<EnemyArchetype,Mesh> meshCache=new Dictionary<EnemyArchetype,Mesh>();
         private SkillDefinition[] activeSkills;
         private BuffDefinition[] activeBuffs;
         private readonly EntityQuery owned;
@@ -33,12 +40,20 @@ namespace Roguelike.Combat
             owned=world.EntityManager.CreateEntityQuery(new EntityQueryDesc {All=new[]{ComponentType.ReadOnly<CombatOwned>()},
                 Options=EntityQueryOptions.IncludePrefab|EntityQueryOptions.IncludeDisabledEntities});
         }
+        /// <summary>编译好的名册条目：配置校验在清空旧会话之前完成，失败时旧会话保持不变。</summary>
+        private struct RosterPlan
+        {
+            public EnemySpawnEntry Entry; public EnemyArchetype Archetype; public Material Material;
+            public EnemyBehaviorData Behavior; public AutoAttackData Attack;
+        }
         public void Reset(GameCombatController config,HeroProgressionRules rules,CombatDifficultyDefinition difficulty,Mesh enemyMesh,Mesh projectileMesh)
         {
             int[] loadout=config.hero.ResolveSkills(config.skillCatalog);
             if(loadout.Length>4) throw new InvalidOperationException("当前Game输入/HUD支持4个槽，英雄槽数不能超过4。");
             if(!rules || !difficulty) throw new InvalidOperationException("Game缺少经验规则或难度曲线。");
             var waves=difficulty.ToSettings();
+            var heroAttack=config.hero.ResolveAttack(config.projectileSpeed);
+            var roster=PlanRoster(config.enemyRoster);
             var nextProgression=HeroProgressionLogic.Compile(rules,config.hero);
             BlobAssetReference<AbilityLibrary> nextLibrary;
             try { nextLibrary=config.skillCatalog.Compile(); }
@@ -46,7 +61,7 @@ namespace Roguelike.Combat
             for(int i=0;i<loadout.Length;i++)
                 if(nextLibrary.Value.Skills[loadout[i]].Stages.Length==0)
                 { nextLibrary.Dispose(); nextProgression.Dispose(); throw new InvalidOperationException("Game英雄必须使用组合阶段配置，旧示例配置需显式迁移。"); }
-            Clear(); originalLibrary=nextLibrary; progressionLibrary=nextProgression;
+            Clear(); originalLibrary=nextLibrary; progressionLibrary=nextProgression; HeroAttack=heroAttack;
             activeSkills=new SkillDefinition[config.skillCatalog.skills.Length];
             for(int i=0;i<activeSkills.Length;i++) activeSkills[i]=UnityEngine.Object.Instantiate(config.skillCatalog.skills[i]);
             activeBuffs=config.skillCatalog.buffs;
@@ -55,17 +70,55 @@ namespace Roguelike.Combat
             var manager=World.EntityManager;
             Entity bullet=Rendered(projectileMesh,config.projectileMaterial);
             manager.AddComponent<CombatProjectile>(bullet); manager.AddComponent<Prefab>(bullet);
-            Entity enemy=Rendered(enemyMesh,config.enemyMaterial);
-            manager.AddComponent<CombatEnemy>(enemy); manager.AddBuffer<ActiveBuff>(enemy);
-            manager.AddComponentData(enemy,new AbilityUnit {Team=1,Health=config.enemyHealth,MaxHealth=config.enemyHealth,
-                BaseSpeed=config.enemySpeed,Speed=config.enemySpeed,BaseAttack=config.enemyAttackDamage,Attack=config.enemyAttackDamage,AttackSpeedMultiplier=1});
-            manager.AddComponent<Prefab>(enemy);
+            Entity hostile=Rendered(projectileMesh,config.enemyProjectileMaterial?config.enemyProjectileMaterial:config.enemyMaterial);
+            manager.AddComponent<HostileProjectile>(hostile); manager.AddComponent<Prefab>(hostile);
+            // 未配置名册时的兼容原型：场景里的统一敌人网格、材质与近战数值。名册为空时它就是唯一种类。
+            var legacyAttack=new AutoAttackData {Delivery=AttackDelivery.Melee,Range=config.enemyAttackRange,AcquisitionRange=config.enemyAttackRange,
+                BaseAttackTime=config.enemyAttackInterval,RangeBuffer=0.5f,AutoAcquire=true};
+            float4 legacyColor=LinearColor(config.enemyMaterial);
+            Entity enemy=EnemyPrototype(enemyMesh,config.enemyMaterial,legacyAttack,new EnemyBehaviorData{Behavior=EnemyBehavior.Melee},legacyColor);
+            var kinds=new List<CombatEnemyKind>();
+            var names=new List<string>();
+            var prototypes=new Dictionary<EnemyArchetype,Entity>();
+            foreach(var plan in roster)
+            {
+                if(!prototypes.TryGetValue(plan.Archetype,out Entity prototype))
+                {
+                    if(!meshCache.TryGetValue(plan.Archetype,out var mesh) || !mesh)
+                    {
+                        mesh=plan.Archetype.BuildMesh(out bool created);
+                        if(created) meshCache[plan.Archetype]=mesh;
+                    }
+                    if(!mesh) { Debug.LogWarning("敌人预制体没有可用网格，改用场景统一敌人网格："+plan.Archetype.name,plan.Archetype); mesh=enemyMesh; }
+                    prototype=EnemyPrototype(mesh,plan.Material,plan.Attack,plan.Behavior,LinearColor(plan.Material));
+                    prototypes.Add(plan.Archetype,prototype);
+                }
+                var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=config.enemyRoster;
+                Color baseColor=MaterialColor(plan.Material);
+                kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstWave=entry.firstWave,LastWave=entry.lastWave,
+                    Weight=entry.weight,Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
+                    Experience=archetype.experienceMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
+                    EliteColor=Linear(Color.Lerp(baseColor,rosterAsset.eliteTint,rosterAsset.eliteTintStrength)),
+                    BossColor=Linear(Color.Lerp(baseColor,rosterAsset.bossTint,rosterAsset.bossTintStrength))});
+                names.Add(archetype.Label);
+            }
+            if(kinds.Count==0)
+            {
+                kinds.Add(new CombatEnemyKind {Prefab=enemy,ConfigId=GameCombatController.EnemyConfigId,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss,
+                    FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1,Color=legacyColor,EliteColor=legacyColor,BossColor=legacyColor});
+                names.Add("普通怪物");
+            }
+            EnemyNames=names.ToArray();
             // 敌人原型保留到重开：CombatWaveDirector 按难度曲线逐波实例化，enemyCount 只作同屏存活上限。
             int maxAlive=Mathf.Clamp(config.enemyCount,1,30000);
             float safe=Mathf.Clamp(config.safeSpawnRadius,3,config.arenaHalfSize*0.5f);
             Entity=manager.CreateEntity(typeof(CombatOwned),typeof(CombatPlayer),typeof(CombatSettings),typeof(AbilityRuntime),typeof(AbilityUnit),typeof(LocalTransform));
             manager.AddBuffer<ActiveBuff>(Entity); manager.AddBuffer<SkillCommand>(Entity); manager.AddBuffer<ScheduledSkillStage>(Entity);
             manager.AddBuffer<SkillFlight>(Entity); manager.AddBuffer<SkillCue>(Entity); manager.AddBuffer<ProgressionCommand>(Entity);
+            manager.AddComponentData(Entity,heroAttack); manager.AddComponentData(Entity,new AutoAttackState());
+            manager.AddComponentData(Entity,new HeroOrder{Kind=HeroOrderKind.Idle});
+            var kindBuffer=manager.AddBuffer<CombatEnemyKind>(Entity);
+            foreach(var kind in kinds) kindBuffer.Add(kind);
             var slots=manager.AddBuffer<AbilitySlot>(Entity);
             // Dota 2 式开局：所有技能 0 级（未学习），英雄 1 级并持有初始技能点。
             foreach(int index in loadout) slots.Add(new AbilitySlot{Definition=index,Level=0,Charges=originalLibrary.Value.Skills[index].MaxCharges});
@@ -81,11 +134,46 @@ namespace Roguelike.Combat
             float3 origin=new float3(0,0.55f,0);
             manager.SetComponentData(Entity,LocalTransform.FromPosition(origin));
             manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=hero.health,MaximumHealth=hero.health});
-            manager.SetComponentData(Entity,new CombatSettings{ProjectilePrefab=bullet,PlayerSpeed=hero.speed,AttackRange=hero.range,
-                AttackInterval=hero.attackInterval,ProjectileSpeed=config.projectileSpeed,ProjectileDamage=hero.attackDamage,
+            manager.SetComponentData(Entity,new CombatSettings{ProjectilePrefab=bullet,HostileProjectilePrefab=hostile,PlayerSpeed=hero.speed,
+                TurnRate=math.radians(hero.turnRate),
                 EnemyAttackRange=config.enemyAttackRange,EnemyAttackDamage=config.enemyAttackDamage,EnemyAttackInterval=config.enemyAttackInterval,ArenaHalfSize=config.arenaHalfSize,
                 EnemyPrefab=enemy,EnemyHealth=config.enemyHealth,EnemySpeed=config.enemySpeed,SafeSpawnRadius=safe,MaxAlive=maxAlive});
         }
+        /// <summary>校验名册全部条目并生成快照；名册为空引用时返回空列表（使用兼容原型）。</summary>
+        private static List<RosterPlan> PlanRoster(EnemyRoster roster)
+        {
+            var result=new List<RosterPlan>();
+            if(!roster) return result;
+            string failure=roster.Validate();
+            if(failure!=null) throw new InvalidOperationException("敌人名册无效："+failure);
+            foreach(var entry in roster.entries)
+            {
+                var behavior=entry.prefab.Compile(out var attack);
+                result.Add(new RosterPlan{Entry=entry,Archetype=entry.prefab,Material=entry.prefab.ResolveMaterial(),Behavior=behavior,Attack=attack});
+            }
+            return result;
+        }
+        private Entity EnemyPrototype(Mesh mesh,Material material,in AutoAttackData attack,in EnemyBehaviorData behavior,float4 color)
+        {
+            var manager=World.EntityManager;
+            Entity enemy=Rendered(mesh,material);
+            manager.AddComponent<CombatEnemy>(enemy); manager.AddBuffer<ActiveBuff>(enemy);
+            manager.AddComponentData(enemy,new AbilityUnit {Team=1,Health=1,MaxHealth=1,AttackSpeedMultiplier=1});
+            manager.AddComponentData(enemy,attack); manager.AddComponentData(enemy,new AutoAttackState());
+            manager.AddComponentData(enemy,behavior);
+            manager.AddComponentData(enemy,new URPMaterialPropertyBaseColor {Value=color});
+            manager.AddComponent<Prefab>(enemy);
+            return enemy;
+        }
+        private static Color MaterialColor(Material material)
+            =>!material?Color.white:material.HasProperty("_BaseColor")?material.GetColor("_BaseColor"):material.color;
+        // 实例颜色覆盖直接进入着色器常量；线性色彩空间下需要先把材质面板里的颜色转换为线性值。
+        private static float4 Linear(Color color)
+        {
+            var value=QualitySettings.activeColorSpace==ColorSpace.Linear?color.linear:color;
+            return new float4(value.r,value.g,value.b,value.a);
+        }
+        private static float4 LinearColor(Material material)=>Linear(MaterialColor(material));
         private Entity Rendered(Mesh mesh,Material material)
         {
             var manager=World.EntityManager;
@@ -136,18 +224,25 @@ namespace Roguelike.Combat
             if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
             if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
             activeSkills=null; activeBuffs=null;
+            EnemyNames=Array.Empty<string>();
             originalLibrary=default; progressionLibrary=default; Entity=Entity.Null;
         }
         public void Dispose()
         {
-            if(World!=null && World.IsCreated) { Clear(); owned.Dispose(); }
+            if(World!=null && World.IsCreated) { Clear(); owned.Dispose(); ReleaseMeshes(); }
             else
             {
                 if(originalLibrary.IsCreated) originalLibrary.Dispose();
                 if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
                 if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
                 activeSkills=null; activeBuffs=null;
+                ReleaseMeshes();
             }
+        }
+        private void ReleaseMeshes()
+        {
+            foreach(var mesh in meshCache.Values) if(mesh) UnityEngine.Object.Destroy(mesh);
+            meshCache.Clear();
         }
     }
 }
