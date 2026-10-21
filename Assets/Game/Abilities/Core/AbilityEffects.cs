@@ -64,7 +64,7 @@ namespace Roguelike.Abilities
             return result;
         }
 
-        /// <summary>从基础值和全部存活贡献重建属性，移除贡献不做反向减法。Multiply 按强度/层数乘方。</summary>
+        /// <summary>从基础值和全部存活贡献重建属性，移除贡献不做反向减法。Multiply 按强度/层数乘方。英雄成长只改基础值后调用本方法。</summary>
         public static void Recalculate(ref AbilityUnit unit,DynamicBuffer<ActiveBuff> buffs,ref AbilityLibrary library)
         {
             float3 add=0,percent=0,multiply=1;
@@ -92,9 +92,9 @@ namespace Roguelike.Abilities
                     }
                 }
             }
-            float3 final=math.max(0,(new float3(unit.BaseSpeed,unit.BaseAttack,1)+add)*(1+percent)*multiply);
+            float3 final=math.max(0,(new float3(unit.BaseSpeed,unit.BaseAttack,1+unit.AttackSpeedBonus)+add)*(1+percent)*multiply);
             unit.Speed=final.x; unit.Attack=final.y; unit.AttackSpeedMultiplier=final.z;
-            unit.Regen=math.max(0,regen); unit.Controls=controls;
+            unit.Regen=math.max(0,unit.BaseRegen+regen); unit.Controls=controls;
         }
 
         /// <summary>补齐有效期内周期伤害；刷新不改周期起点。死亡清贡献；周期伤害不派生普攻命中事件。</summary>

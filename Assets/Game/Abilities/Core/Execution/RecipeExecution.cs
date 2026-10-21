@@ -80,7 +80,7 @@ namespace Roguelike.Abilities
         }
         private static ScheduledSkillStage Context(in SkillFlight flight)=>new ScheduledSkillStage {
             Skill=flight.Skill,Stage=flight.Stage,Cast=flight.Cast,ProgramVersion=flight.ProgramVersion,
-            Depth=flight.Depth,RootReleasedAt=flight.RootReleasedAt,Direction=flight.Direction,Target=flight.Target };
+            Depth=flight.Depth,Level=flight.Level,RootReleasedAt=flight.RootReleasedAt,Direction=flight.Direction,Target=flight.Target };
 
         private static bool HasTrigger(ref SkillData skill,int parent,RecipeTrigger trigger)
         {
@@ -119,7 +119,7 @@ namespace Roguelike.Abilities
                 if(error!=RecipeExecutionFailure.None) { Reject(ref runtime,context,child.NodeId,error); continue; }
                 derivedCounts[(owner,context.Cast)]=count+child.RepeatCount;
                 scheduled.Add(new ScheduledSkillStage { Skill=context.Skill,Stage=i,Cast=context.Cast,
-                    ProgramVersion=context.ProgramVersion,Depth=context.Depth+1,RootReleasedAt=context.RootReleasedAt,
+                    ProgramVersion=context.ProgramVersion,Depth=context.Depth+1,Level=context.Level,RootReleasedAt=context.RootReleasedAt,
                     Remaining=child.RepeatCount,NextAt=eventAt+child.Delay,Origin=position,Point=position,Direction=direction,Target=target });
             }
         }

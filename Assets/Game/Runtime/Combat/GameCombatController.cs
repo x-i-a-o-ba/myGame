@@ -18,14 +18,19 @@ namespace Roguelike.Combat
         [Header("英雄和技能库（重开生效）")]
         public HeroDefinition hero;
         public SkillCatalog skillCatalog;
+        [Header("成长与难度（重开生效）")]
+        [Tooltip("经验与等级规则：经验表、最高等级、技能点。为空时使用 Dota 2 默认值并输出警告。")]
+        public HeroProgressionRules progressionRules;
+        [Tooltip("关卡难度曲线：波次间隔、数量/生命/伤害增长、精英与首领、最终波。为空时使用默认曲线并输出警告。")]
+        public CombatDifficultyDefinition difficulty;
         [Header("场地与敌人（重开生效）")]
-        [Range(1,30000)] public int enemyCount=10000;
+        [Range(1,30000), Tooltip("同屏存活敌人上限；波次刷怪超过上限的部分会被跳过（首领除外）。")] public int enemyCount=10000;
         [Min(30)] public float arenaHalfSize=125;
         [Min(3)] public float safeSpawnRadius=9;
-        [Min(1)] public float enemyHealth=30;
-        [Min(0)] public float enemySpeed=2;
+        [Min(1), Tooltip("第 1 波普通敌人的生命；之后按难度曲线逐波增长。")] public float enemyHealth=30;
+        [Min(0), Tooltip("第 1 波普通敌人的移动速度（米/秒）。")] public float enemySpeed=2;
         [Min(0.1f)] public float enemyAttackRange=1.25f;
-        [Min(0)] public float enemyAttackDamage=4;
+        [Min(0), Tooltip("第 1 波普通敌人的攻击伤害；之后按难度曲线逐波增长。")] public float enemyAttackDamage=4;
         [Min(0.1f)] public float enemyAttackInterval=1;
         [Min(0.1f)] public float projectileSpeed=38;
         [Header("相机")]
@@ -43,12 +48,23 @@ namespace Roguelike.Combat
         private float originalCameraSize,originalFarClip;
         private bool originalOrthographic;
         private readonly KeyCode[] keys={KeyCode.Q,KeyCode.W,KeyCode.E,KeyCode.R};
+        private static readonly string[] slotKeys={"Q","W","E","R"};
+        private HeroProgressionRules fallbackRules;
+        private CombatDifficultyDefinition fallbackDifficulty;
+        private string notice;
+        private float noticeUntil;
+        private int observedLevelUps,observedCommands;
         public float attackRange=>hero?hero.range:0;
         public float playerHealth=>hero?hero.health:0;
         public bool IsReady=>session!=null && session.World.IsCreated && session.World.EntityManager.Exists(session.Entity);
         public CombatPlayer State=>IsReady?session.World.EntityManager.GetComponentData<CombatPlayer>(session.Entity):default;
         public Entity SessionEntity=>IsReady?session.Entity:Entity.Null;
         public SkillDefinition SkillAt(int slot)=>hero && slot>=0 && slot<hero.skills.Length?hero.skills[slot]:null;
+        public HeroProgression Progression=>IsReady?session.World.EntityManager.GetComponentData<HeroProgression>(session.Entity):default;
+        public CombatWaveState Wave=>IsReady?session.World.EntityManager.GetComponentData<CombatWaveState>(session.Entity):default;
+        public HeroProgressionRules ActiveRules=>progressionRules?progressionRules:fallbackRules;
+        public CombatDifficultyDefinition ActiveDifficulty=>difficulty?difficulty:fallbackDifficulty;
+        private bool Running=>IsReady && State.Health>0 && Wave.Outcome==CombatOutcome.Running;
         private void Start()
         {
             try
@@ -62,8 +78,19 @@ namespace Roguelike.Combat
                 originalCameraSize=gameCamera.orthographicSize; originalFarClip=gameCamera.farClipPlane; originalOrthographic=gameCamera.orthographic;
                 var world=World.DefaultGameObjectInjectionWorld;
                 if(world==null || !world.IsCreated) throw new InvalidOperationException("ECS World不可用。");
+                if(!progressionRules)
+                {
+                    fallbackRules=ScriptableObject.CreateInstance<HeroProgressionRules>(); fallbackRules.name="默认经验与等级规则";
+                    Debug.LogWarning("Game 未指定经验与等级规则，使用 Dota 2 默认经验表。",this);
+                }
+                if(!difficulty)
+                {
+                    fallbackDifficulty=ScriptableObject.CreateInstance<CombatDifficultyDefinition>(); fallbackDifficulty.name="默认关卡难度曲线";
+                    Debug.LogWarning("Game 未指定关卡难度曲线，使用默认曲线。",this);
+                }
                 session=new GameCombatSession(world);
                 hud.RestartRequested+=RestartRun; hud.AbilityRequested+=CastAbility;
+                hud.LearnRequested+=LearnSkill; hud.TalentRequested+=ChooseTalent;
                 RestartRun();
             }
             catch(Exception error) { Debug.LogException(error,this); enabled=false; }
@@ -72,9 +99,11 @@ namespace Roguelike.Combat
         {
             if(session==null) return;
             abilityIndicator.Cancel(); suppressRightUntilRelease=false;
-            session.Reset(this,enemyMesh,projectileMesh);
+            session.Reset(this,ActiveRules,ActiveDifficulty,enemyMesh,projectileMesh);
             destinationMarker.gameObject.SetActive(false); nextHudUpdate=0;
-            Debug.Log($"GAME_STARTED enemies={enemyCount}; hero={hero.stableId}; composedSkills={hero.skills.Length}");
+            observedLevelUps=0; observedCommands=0;
+            ShowNotice("按 Ctrl+Q/W/E/R 或点击“学习”按钮学习第一个技能",6);
+            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; composedSkills={hero.skills.Length}; finalWave={ActiveDifficulty.finalWave}");
         }
         /// <summary>选择英雄配置并重新开局；不改变共享配置。选人界面可调用此边界。</summary>
         public void SelectHero(HeroDefinition selected)
@@ -102,8 +131,16 @@ namespace Roguelike.Combat
             if(!IsReady) return;
             if(!Input.GetMouseButton(1)) suppressRightUntilRelease=false;
             if(Input.GetKeyDown(KeyCode.F5)) { RestartRun(); return; }
-            if(State.Health<=0) { abilityIndicator.Cancel(); return; }
-            for(int i=0;i<keys.Length;i++) if(Input.GetKeyDown(keys[i])) CastAbility(i);
+            if(!Running) { abilityIndicator.Cancel(); return; }
+            // Dota 2 默认操作：Ctrl+技能键学习/升级技能，单按技能键施放。
+            bool learn=Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            for(int i=0;i<keys.Length;i++)
+                if(Input.GetKeyDown(keys[i])) { if(learn) LearnSkill(i); else CastAbility(i); }
+            if(HeroProgressionLogic.PendingTalent(Progression)>=0)
+            {
+                if(Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) ChooseTalent(0);
+                else if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) ChooseTalent(1);
+            }
             if(Input.GetKeyDown(KeyCode.Escape)) abilityIndicator.Cancel();
             if(Input.GetMouseButtonDown(1) && abilityIndicator.IsAiming)
             { abilityIndicator.Cancel(); suppressRightUntilRelease=true; return; }
@@ -121,9 +158,12 @@ namespace Roguelike.Combat
         }
         public void CastAbility(int slot)
         {
-            if(!IsReady || State.Health<=0) return;
+            if(!Running) return;
             var slots=session.World.EntityManager.GetBuffer<AbilitySlot>(session.Entity);
             if(slot<0 || slot>=slots.Length) return;
+            // 未学习的技能不进入瞄准；执行器同样会以 NotLearned 拒绝，此处仅提供即时提示。
+            if(slots[slot].Level<=0)
+            { abilityIndicator.Cancel(); ShowNotice($"{session.SkillNames[slot]} 尚未学习：按 Ctrl+{slotKeys[slot]} 学习",2.5f); return; }
             ref var skill=ref session.Library.Value.Skills[slots[slot].Definition];
             if(skill.Aim==AimMode.Self) { Queue(slot,(Vector3)State.Position,(Vector3)State.Facing); return; }
             if(abilityIndicator.IsAiming && abilityIndicator.ActiveSlot==slot) abilityIndicator.Cancel();
@@ -132,6 +172,32 @@ namespace Roguelike.Combat
                 abilityIndicator.BeginAim(slot,SkillAimPreview.From(ref skill));
             }
         }
+        /// <summary>学习或升级技能槽。规则在模拟系统中权威结算，这里只预检以给出即时提示。</summary>
+        public void LearnSkill(int slot)
+        {
+            if(!Running) return;
+            var manager=session.World.EntityManager;
+            var slots=manager.GetBuffer<AbilitySlot>(session.Entity);
+            if(slot<0 || slot>=slots.Length) return;
+            var progression=Progression;
+            var failure=HeroProgressionLogic.CanLearn(progression,ref session.Library.Value.Skills[slots[slot].Definition],slots[slot].Level);
+            if(failure==ProgressionFailure.HeroLevelTooLow)
+                ShowNotice($"{session.SkillNames[slot]} 需要英雄等级 {SkillLevels.RequiredHeroLevel(ref session.Library.Value.Skills[slots[slot].Definition],slots[slot].Level+1)}",2.5f);
+            else if(failure!=ProgressionFailure.None) ShowNotice($"{session.SkillNames[slot]}：{HeroProgressionLogic.Describe(failure)}",2.5f);
+            else ShowNotice($"{session.SkillNames[slot]} 升到 {slots[slot].Level+1} 级",2);
+            manager.GetBuffer<ProgressionCommand>(session.Entity).Add(new ProgressionCommand{Kind=ProgressionCommandKind.LearnSkill,Value=slot});
+        }
+        /// <summary>选择当前待选天赋层的左（0）或右（1）选项。</summary>
+        public void ChooseTalent(int option)
+        {
+            if(!Running || (option!=0 && option!=1)) return;
+            int tier=HeroProgressionLogic.PendingTalent(Progression);
+            if(tier<0) return;
+            var talents=hero.talents;
+            if(talents!=null && tier<talents.Length) ShowNotice("已选择天赋："+(option==0?talents[tier].left:talents[tier].right).Label,3);
+            session.World.EntityManager.GetBuffer<ProgressionCommand>(session.Entity).Add(new ProgressionCommand{Kind=ProgressionCommandKind.ChooseTalent,Value=option});
+        }
+        private void ShowNotice(string text,float seconds) { notice=text; noticeUntil=Time.unscaledTime+seconds; }
         private void Queue(int slot,Vector3 point,Vector3 direction)
         {
             Entity target=Entity.Null;
@@ -152,7 +218,7 @@ namespace Roguelike.Combat
         }
         public bool TryConfirmAbilityAt(Vector3 point)
         {
-            if(!IsReady || State.Health<=0 || !abilityIndicator.IsAiming) return false;
+            if(!Running || !abilityIndicator.IsAiming) return false;
             abilityIndicator.UpdateAim((Vector3)State.Position,point,true,arenaHalfSize);
             int slot=abilityIndicator.ActiveSlot;
             if(!abilityIndicator.TryConfirm(out Vector3 target,out Vector3 direction)) return false;
@@ -196,9 +262,59 @@ namespace Roguelike.Combat
             smoothFrameTime=Mathf.Lerp(smoothFrameTime,Time.unscaledDeltaTime,0.08f);
             if(Time.unscaledTime<nextHudUpdate) return;
             nextHudUpdate=Time.unscaledTime+0.1f;
+            var progression=Progression; var wave=Wave;
             hud.Refresh(new CombatHudState{Health=state.Health,MaximumHealth=state.MaximumHealth,Elapsed=state.Elapsed,
                 AliveEnemies=state.AliveEnemies,Kills=state.Kills,ActiveProjectiles=state.ActiveProjectiles,Aiming=abilityIndicator.IsAiming,
-                SkillQ=SlotLabel(0),SkillW=SlotLabel(1),SkillE=SlotLabel(2),SkillR=SlotLabel(3)},smoothFrameTime>0?1/smoothFrameTime:0,attackRange);
+                SkillQ=SlotLabel(0),SkillW=SlotLabel(1),SkillE=SlotLabel(2),SkillR=SlotLabel(3),
+                Victory=wave.Outcome==CombatOutcome.Victory,Wave=wave.Wave,Level=progression.Level},smoothFrameTime>0?1/smoothFrameTime:0,attackRange);
+            hud.RefreshProgression(ProgressionSnapshot(state,progression,wave));
+        }
+        private CombatProgressionHudState ProgressionSnapshot(in CombatPlayer state,in HeroProgression progression,in CombatWaveState wave)
+        {
+            var result=new CombatProgressionHudState {Outcome=state.Health<=0?CombatOutcome.Defeat:wave.Outcome,
+                Level=progression.Level,SkillPoints=progression.SkillPoints};
+            if(!progression.Library.IsCreated) return result;
+            float2 progress=HeroProgressionLogic.LevelProgress(progression);
+            result.ExperienceFraction=progress.y>0?progress.x/progress.y:1;
+            result.ExperienceText=progress.y>0?$"经验 {progress.x:0} / {progress.y:0}":"已满级";
+            var settings=session.World.EntityManager.GetComponentData<CombatWaveSettings>(session.Entity);
+            string final=settings.FinalWave>0?$" / {settings.FinalWave}":"（无尽）";
+            string next=settings.FinalWave>0 && wave.FinalBossSpawned?"击杀最终首领获胜":$"下一波 {Mathf.Max(0,wave.NextWaveAt-state.Elapsed):0}s";
+            result.WaveText=$"第 {wave.Wave}{final} 波  ·  {next}";
+            if(progression.LevelUpSerial!=observedLevelUps)
+            { observedLevelUps=progression.LevelUpSerial; ShowNotice($"升到 {progression.Level} 级！"+(progression.SkillPoints>0?"按 Ctrl+Q/W/E/R 学习技能":""),3); }
+            if(progression.CommandSerial!=observedCommands)
+            {
+                observedCommands=progression.CommandSerial;
+                if(progression.LastFailure!=ProgressionFailure.None) ShowNotice(HeroProgressionLogic.Describe(progression.LastFailure),2.5f);
+            }
+            result.Hint=Time.unscaledTime<noticeUntil?notice:progression.SkillPoints>0?"有可用技能点：Ctrl+Q/W/E/R 学习":"";
+            result.LearnQ=LearnLabel(0,progression); result.LearnW=LearnLabel(1,progression);
+            result.LearnE=LearnLabel(2,progression); result.LearnR=LearnLabel(3,progression);
+            int tier=HeroProgressionLogic.PendingTalent(progression);
+            if(tier>=0 && hero.talents!=null && tier<hero.talents.Length)
+            {
+                var talent=hero.talents[tier];
+                result.TalentPending=true;
+                result.TalentTitle=$"{talent.heroLevel} 级天赋  ·  按 1 / 2 或点击选择（不消耗技能点）";
+                result.TalentLeft="1   "+talent.left.Label; result.TalentRight="2   "+talent.right.Label;
+            }
+            return result;
+        }
+        private string LearnLabel(int index,in HeroProgression progression)
+        {
+            var slots=session.World.EntityManager.GetBuffer<AbilitySlot>(session.Entity);
+            if(index>=slots.Length) return "";
+            var slot=slots[index]; ref var skill=ref session.Library.Value.Skills[slot.Definition];
+            var failure=HeroProgressionLogic.CanLearn(progression,ref skill,slot.Level);
+            string key=slotKeys[index];
+            switch(failure)
+            {
+                case ProgressionFailure.None: return $"+ {key}  {slot.Level}→{slot.Level+1}";
+                case ProgressionFailure.SkillMaxed: return $"{key} 已满级";
+                case ProgressionFailure.HeroLevelTooLow: return $"{key} 需 Lv{SkillLevels.RequiredHeroLevel(ref skill,slot.Level+1)}";
+                default: return $"{key}  {slot.Level}/{SkillLevels.MaxLevel(ref skill)}";
+            }
         }
         private string SlotLabel(int index)
         {
@@ -206,18 +322,21 @@ namespace Roguelike.Combat
             var slots=manager.GetBuffer<AbilitySlot>(session.Entity);
             if(index>=slots.Length) return "空槽";
             var slot=slots[index]; ref var skill=ref session.Library.Value.Skills[slot.Definition];
+            if(slot.Level<=0) return $"{session.SkillNames[index]}\n未学习";
             var runtime=manager.GetComponentData<AbilityRuntime>(session.Entity);
             float now=runtime.Time;
             string status=slot.ReadyAt>now?$"冷却 {slot.ReadyAt-now:0.0}s":skill.RequiredHits>slot.HitStacks?$"{slot.HitStacks}/{skill.RequiredHits} 层":slot.Charges<=0?$"充能 {Mathf.Max(0,slot.RechargeAt-now):0.0}s":"就绪";
             if(AbilityCastTiming.IsBusy(runtime,now))
                 status=runtime.CastSlot!=index?"动作锁定":now<runtime.ReleaseAt?$"释放前摇 {runtime.ReleaseAt-now:0.0}s":$"释放后摇 {runtime.ActionReadyAt-now:0.0}s";
-            return $"{session.SkillNames[index]}\n{status}";
+            return $"{session.SkillNames[index]} {slot.Level}/{SkillLevels.MaxLevel(ref skill)}\n{status}";
         }
         private void OnDestroy()
         {
-            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; }
+            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalent; }
             if(abilityIndicator) abilityIndicator.Cancel();
             session?.Dispose(); session=null;
+            if(fallbackRules) Destroy(fallbackRules);
+            if(fallbackDifficulty) Destroy(fallbackDifficulty);
             if(gameCamera)
             { gameCamera.transform.SetPositionAndRotation(originalCameraPosition,originalCameraRotation); gameCamera.orthographicSize=originalCameraSize; gameCamera.farClipPlane=originalFarClip; gameCamera.orthographic=originalOrthographic; }
         }

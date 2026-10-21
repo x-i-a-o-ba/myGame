@@ -50,10 +50,12 @@ namespace Roguelike.Abilities
             for(int i=0;i<slots.Length;i++)
             {
                 var slot=slots[i]; ref var skill=ref library.Skills[slot.Definition];
+                // 充能恢复使用当前等级与冷却缩减；已排定的下一次恢复时间不回溯修改。
+                float recharge=math.max(0.001f,skill.RechargeSeconds*SkillLevels.CooldownScale(ref skill,slot.Level,unit));
                 while(slot.Charges<skill.MaxCharges && slot.RechargeAt<=now)
                 {
                     slot.Charges++;
-                    slot.RechargeAt+=math.max(0.001f,skill.RechargeSeconds);
+                    slot.RechargeAt+=recharge;
                 }
                 slots[i]=slot;
             }
@@ -175,11 +177,14 @@ namespace Roguelike.Abilities
             var slot=slots[command.Slot]; ref var skill=ref runtime.Library.Value.Skills[slot.Definition];
             var unit=manager.GetComponentData<AbilityUnit>(owner);
             if(unit.Health<=0) { runtime.LastFailure=CastFailure.Dead; return; }
+            if(slot.Level<=0) { runtime.LastFailure=CastFailure.NotLearned; return; }
             if(AbilityCastTiming.IsBusy(runtime,runtime.Time)) { runtime.LastFailure=CastFailure.Busy; return; }
             if((unit.Controls&ControlFlags.CastBlocked)!=0) return;
             if(slot.ReadyAt>runtime.Time || slot.Charges<=0) { runtime.LastFailure=CastFailure.Cooldown; return; }
             if(slot.HitStacks<skill.RequiredHits) return;
-            if(unit.Mana<skill.ManaCost) { runtime.LastFailure=CastFailure.Mana; return; }
+            float manaCost=SkillLevels.ManaCost(ref skill,slot.Level);
+            float cooldownScale=SkillLevels.CooldownScale(ref skill,slot.Level,unit);
+            if(unit.Mana<manaCost) { runtime.LastFailure=CastFailure.Mana; return; }
             if(!math.all(math.isfinite(command.Point)) || !math.all(math.isfinite(command.Direction))) return;
             var origin=manager.GetComponentData<LocalTransform>(owner).Position;
             var point=SkillTargeting.ClampPoint(origin,command.Point,skill.CastRange);
@@ -197,9 +202,9 @@ namespace Roguelike.Abilities
             float readyAt=releaseAt+skill.RecoveryTime;
             if(!math.isfinite(releaseAt) || !math.isfinite(readyAt)) return;
             // 所有校验通过后才提交，资源与冷却只支付一次。
-            unit.Mana-=skill.ManaCost;
-            slot.ReadyAt=runtime.Time+skill.Cooldown;
-            if(slot.Charges==skill.MaxCharges) slot.RechargeAt=runtime.Time+skill.RechargeSeconds;
+            unit.Mana-=manaCost;
+            slot.ReadyAt=runtime.Time+skill.Cooldown*cooldownScale;
+            if(slot.Charges==skill.MaxCharges) slot.RechargeAt=runtime.Time+skill.RechargeSeconds*cooldownScale;
             slot.Charges--; slot.HitStacks=0;
             slots[command.Slot]=slot; manager.SetComponentData(owner,unit);
             runtime.CastSerial++; runtime.LastFailure=CastFailure.None;
@@ -210,7 +215,7 @@ namespace Roguelike.Abilities
                 ref var stage=ref skill.Stages[i];
                 if(skill.UsesRecipe && stage.ParentStage>=0) continue;
                 stages.Add(new ScheduledSkillStage {Skill=slot.Definition,Stage=i,Remaining=stage.RepeatCount,
-                    NextAt=releaseAt+stage.Delay,Cast=runtime.CastSerial,ProgramVersion=runtime.ProgramVersion,RootReleasedAt=releaseAt,
+                    NextAt=releaseAt+stage.Delay,Cast=runtime.CastSerial,ProgramVersion=runtime.ProgramVersion,RootReleasedAt=releaseAt,Level=slot.Level,
                     Origin=origin,Point=point,Direction=direction,Target=command.Target});
             }
         }
@@ -228,7 +233,7 @@ namespace Roguelike.Abilities
                 float3 planar=pending.Point-pending.Origin; planar.y=0;
                 float3 fallback=pending.Direction; fallback.y=0;
                 manager.GetBuffer<SkillFlight>(owner).Add(new SkillFlight {Skill=pending.Skill,Stage=pending.Stage,Cast=pending.Cast,
-                    ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,RootReleasedAt=pending.RootReleasedAt,
+                    ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
                     Target=pending.Target,Start=start,Position=start,Destination=end,
                     Direction=math.normalizesafe(planar,math.normalizesafe(fallback,new float3(0,0,1))),StartedAt=pending.NextAt,Elapsed=0});
                 return;
@@ -238,7 +243,7 @@ namespace Roguelike.Abilities
             if(distance<0.0001f)
             { Resolve(owner,pending,destination,pending.Direction,pending.Target,ref library,now,ref runtime); return; }
             manager.GetBuffer<SkillFlight>(owner).Add(new SkillFlight {Skill=pending.Skill,Stage=pending.Stage,Cast=pending.Cast,
-                ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,RootReleasedAt=pending.RootReleasedAt,
+                ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
                 Target=pending.Target,Position=pending.Origin,Destination=destination,Direction=(destination-pending.Origin)/distance,RemainingRange=distance,
                 StartedAt=pending.NextAt,Elapsed=0});
         }
@@ -292,18 +297,35 @@ namespace Roguelike.Abilities
             // 没有监听分支时不采集每个目标的位置，也不进入派生扫描。
             float3 position=default;
             if((damageEvents || killEvents) && IsAlive(target)) position=manager.GetComponentData<LocalTransform>(target).Position;
-            var outcome=Apply(source,target,context.Skill,effect,ref library,now);
+            var outcome=Apply(source,target,context.Skill,effect,ref library,now,SkillPower(source,ref library.Skills[context.Skill],context.Level,effect));
             if(damageEvents && outcome.ActualDamage>0)
                 Emit(source,context,RecipeTrigger.OnDamage,position,context.Direction,target,ref library,now,ref runtime);
             if(killEvents && outcome.Killed)
                 Emit(source,context,RecipeTrigger.OnKill,position,context.Direction,target,ref library,now,ref runtime);
         }
+        /// <summary>技能等级与来源技能增强换算成效果强度：伤害乘等级倍率×(1+技能增强)，治疗只乘等级倍率，Buff 乘 Buff 倍率。</summary>
+        private float SkillPower(Entity source,ref SkillData skill,int level,in EffectData effect)
+        {
+            var row=SkillLevels.Row(ref skill,level);
+            switch(effect.Kind)
+            {
+                case EffectKind.Damage:
+                    float amplify=manager.Exists(source) && manager.HasComponent<AbilityUnit>(source)?manager.GetComponentData<AbilityUnit>(source).SkillAmplify:0;
+                    return row.EffectScale*(1+math.max(0,amplify));
+                case EffectKind.Heal: return row.EffectScale;
+                case EffectKind.ApplyBuff: return row.BuffScale;
+                default: return 1;
+            }
+        }
+        /// <summary>普攻、敌人攻击等非技能来源使用强度 1。</summary>
         public EffectOutcome Apply(Entity source,Entity target,int origin,EffectData effect,ref AbilityLibrary library,float now)
+            =>Apply(source,target,origin,effect,ref library,now,1);
+        public EffectOutcome Apply(Entity source,Entity target,int origin,EffectData effect,ref AbilityLibrary library,float now,float power)
         {
             if(!IsAlive(target)) return default;
             var unit=manager.GetComponentData<AbilityUnit>(target);
             var outcome=AbilityEffects.Apply(ref unit,manager.GetBuffer<ActiveBuff>(target),ref library,
-                new EffectRequest{Source=source,Target=target,Origin=origin,Effect=effect,Power=1},now);
+                new EffectRequest{Source=source,Target=target,Origin=origin,Effect=effect,Power=math.max(0,power)},now);
             manager.SetComponentData(target,unit);
             return outcome;
         }
@@ -313,7 +335,8 @@ namespace Roguelike.Abilities
             var runtime=manager.GetComponentData<AbilityRuntime>(owner);
             for(int i=0;i<slots.Length;i++)
             {
-                var slot=slots[i]; int maximum=runtime.Library.Value.Skills[slot.Definition].RequiredHits;
+                var slot=slots[i]; if(slot.Level<=0) continue; // 未学习的技能不积累普攻层数。
+                int maximum=runtime.Library.Value.Skills[slot.Definition].RequiredHits;
                 slot.HitStacks=math.min(maximum,slot.HitStacks+1); slots[i]=slot;
             }
         }

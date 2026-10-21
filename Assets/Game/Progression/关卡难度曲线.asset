@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e64113140ea4db08c223c6cb220d39e, type: 3}
+  m_Name: "\u5173\u5361\u96BE\u5EA6\u66F2\u7EBF"
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.CombatDifficultyDefinition
+  waveInterval: 20
+  firstWaveAt: 0
+  finalWave: 30
+  spawnRingWidth: 25
+  baseCount: 80
+  countGrowthPerWave: 0.15
+  maxPerWave: 2000
+  healthGrowth: 1.07
+  damageGrowth: 1.05
+  speedPerWave: 0.03
+  maxSpeed: 6
+  baseExperience: 3
+  experienceGrowth: 1.02
+  eliteEvery: 5
+  eliteBaseCount: 3
+  eliteWavesPerExtra: 5
+  eliteHealth: 10
+  eliteDamage: 2.5
+  eliteScale: 1.6
+  eliteExperience: 12
+  bossEvery: 10
+  bossHealth: 60
+  bossDamage: 5
+  bossScale: 2.6
+  bossExperience: 80
+  bossSpeed: 0.8

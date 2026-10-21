@@ -19,6 +19,7 @@ namespace Roguelike.Abilities.Editor
             Inspect<HealEffect, EffectDefinitionChineseInspector>();
             Inspect<ApplyBuffEffect, EffectDefinitionChineseInspector>();
             Inspect<DispelEffect, EffectDefinitionChineseInspector>();
+            Inspect<HeroProgressionRules, HeroProgressionRulesChineseInspector>();
 
             var skill = ScriptableObject.CreateInstance<SkillDefinition>();
             try
@@ -33,11 +34,22 @@ namespace Roguelike.Abilities.Editor
                 if (drawer.GetPropertyHeight(stage, new GUIContent("阶段 1")) <= EditorGUIUtility.singleLineHeight)
                     throw new InvalidOperationException("组合阶段缺少展开布局。");
                 if (Attribute.GetCustomAttribute(typeof(SkillStageChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
-                    Attribute.GetCustomAttribute(typeof(AttributeModifierChineseDrawer), typeof(CustomPropertyDrawer)) == null)
+                    Attribute.GetCustomAttribute(typeof(AttributeModifierChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
+                    Attribute.GetCustomAttribute(typeof(SkillLevelGrowthChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
+                    Attribute.GetCustomAttribute(typeof(SkillLevelRowChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
+                    Attribute.GetCustomAttribute(typeof(HeroTalentTierChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
+                    Attribute.GetCustomAttribute(typeof(TalentOptionChineseDrawer), typeof(CustomPropertyDrawer)) == null)
                     throw new InvalidOperationException("嵌套配置的中文绘制器未注册。");
+                var growth = serialized.FindProperty("growth");
+                if (growth != null) growth.isExpanded = true;
+                if (growth == null || new SkillLevelGrowthChineseDrawer().GetPropertyHeight(growth, new GUIContent("等级成长")) <= EditorGUIUtility.singleLineHeight * 2)
+                    throw new InvalidOperationException("技能等级成长缺少展开布局。");
+                var track = growth.FindPropertyRelative("track");
+                if (track == null || Array.IndexOf(track.enumDisplayNames, "自定义逐级表") < 0)
+                    throw new InvalidOperationException("技能成长类型枚举没有显示中文名称。");
             }
             finally { UnityEngine.Object.DestroyImmediate(skill); }
-            Debug.Log("ABILITY_INSPECTOR_CHINESE_PASSED: nine inspectors, enum labels, nested drawers.");
+            Debug.Log("ABILITY_INSPECTOR_CHINESE_PASSED: ten inspectors, enum labels, nested drawers.");
         }
 
         private static void Inspect<TAsset, TEditor>() where TAsset : ScriptableObject where TEditor : UnityEditor.Editor

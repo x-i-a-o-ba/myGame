@@ -17,6 +17,9 @@ namespace Roguelike.Abilities
         // Presentation snapshot, compiled with the same lifetime as the geometry (RGBA, each 0..1).
         public float4 IndicatorColor;
         public BlobArray<StageData> Stages;
+        // 等级表由 SkillLevelGrowth 编译；为空时按 1 级处理。运行中的当前等级归 AbilitySlot。
+        public int MaxLevel;
+        public BlobArray<SkillLevelData> Levels;
         // Preserved only for the standalone historical sample scheduler.
         public SkillDelivery Delivery; public TargetRelation Targets;
         public float CastRange,Radius,Cooldown,ManaCost,AreaDuration,AreaInterval,LevelPower;
@@ -59,6 +62,10 @@ namespace Roguelike.Abilities
         public uint PassiveMask;
         public float AttackSpeedMultiplier;
         public ControlFlags Controls;
+        // 英雄成长写入的基础值，默认 0 时与旧行为一致：攻速基础为 1+AttackSpeedBonus，回复为 BaseRegen+Buff。
+        public float BaseRegen,AttackSpeedBonus;
+        // 技能伤害增强（0.3=+30%）与冷却缩减（0.2=-20%），执行器按来源读取。
+        public float SkillAmplify,CooldownReduction;
     }
     [InternalBufferCapacity(2)]
     public struct ActiveBuff : IBufferElementData
@@ -66,6 +73,7 @@ namespace Roguelike.Abilities
         public int Definition,Origin,Stacks; public Entity Source;
         public float ExpiresAt,NextTick,Scale;
     }
+    /// <summary>持有者的技能槽运行状态。Level 为 0 表示尚未学习，执行器拒绝施放并返回 NotLearned。</summary>
     [InternalBufferCapacity(3)]
     public struct AbilitySlot : IBufferElementData
     {
@@ -73,7 +81,7 @@ namespace Roguelike.Abilities
         public int Charges,HitStacks;
         public float RechargeAt;
     }
-    public enum CastFailure { None,Dead,Cooldown,Mana,OutOfRange,AreaLimit,Invalid,Busy,Interrupted }
+    public enum CastFailure { None,Dead,Cooldown,Mana,OutOfRange,AreaLimit,Invalid,Busy,Interrupted,NotLearned }
     /// <summary>演示会话组件使系统只在独立场景生效，不接管既有 Combat 单位。</summary>
     public struct AbilitySession : IComponentData
     {

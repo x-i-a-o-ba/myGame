@@ -31,7 +31,7 @@
 | URP | 17.3.0；Forward+ 与全局 GraphicsSettings 已绑定，各 Quality 继承全局设置；基础构建与 Player 初始化已验证 |
 | ECS | Entities 1.4.8 + Entities Graphics 1.4.21；基础框架、独立压测及 Game 战斗系统已加入 |
 | 现有代码 | Assets/Scripts/ProjectBase 与 Assets/_Scripts 两套 MonoBehaviour/管理工具 |
-| 场景 | Game.unity 绑定 HeroDefinition、SkillCatalog 和按配置工作的指示器；enemyCount=3000、safeSpawnRadius=30。Main、SelectScene及独立历史场景保留；完整选人UI尚未接入 |
+| 场景 | Game.unity 绑定 HeroDefinition、SkillCatalog、经验与等级规则、关卡难度曲线和按配置工作的指示器；enemyCount=3000（同屏存活上限）、safeSpawnRadius=30。Main、SelectScene及独立历史场景保留；完整选人UI尚未接入 |
 | 版本管理 | 2026-10-21 建立 Git 仓库，远程为公开仓库 x-i-a-o-ba/myGame；修改前检查工作区并保留可恢复状态，备份范围见根目录 README.md |
 
 当前 Game 使用 `Roguelike.Abilities.Core`：旧固定技能类及 QWER 状态已移除，共享核心已实际接入。最新验证以 [基础架构记录](ability-foundation.md) 为准。`build4.log/player3.log/Smoke3` 属于上一版固定技能实现，不能证明本轮重构通过。万敌完整战斗性能仍未验收。
@@ -55,6 +55,8 @@
 15. [项目开发约定](../AGENTS.md)：AI 按目标自主选择方案、工具、技能与协作方式。旧 [AI 团队手册](ai-team/README.md)仅作历史参考。
 16. [Game 寒冰技能与指示器](ashe-game-integration.md)：四份技能配置、W/E/R 瞄准、E 范围伤害、Game 视野封存及本轮验证状态。
 17. [技能配置工作台与分类设计器](skill-authoring-workbench.md)：独立窗口、六种模板、效果/阶段组合、Unity 单位范围句柄、三维抛物线投递与共享预览、保存和技能库登记。
+18. [项目整理](project-overview.md)：一页式目录、模块、完成度、遗留代码建议与后续顺序。
+19. [英雄成长、技能等级与波次难度](hero-progression.md)：Dota 2 式经验/技能点/天赋、技能等级、30 波难度曲线、胜负、操作与验证状态。
 
 ## 文档维护规则
 

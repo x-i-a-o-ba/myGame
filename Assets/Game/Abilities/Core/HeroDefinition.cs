@@ -16,6 +16,17 @@ namespace Roguelike.Abilities
         [InspectorName("普攻伤害"), Min(0)] public float attackDamage=18;
         [InspectorName("普攻间隔（秒）"), Min(0.01f)] public float attackInterval=0.65f;
         [InspectorName("普攻距离（米）"), Min(0)] public float range=16;
+        [Header("等级成长（Dota 2 式，每升 1 级累加）")]
+        [Min(0), Tooltip("开局最大法力；当前技能多数不消耗法力。")] public float baseMana=100;
+        [Min(0), Tooltip("开局每秒生命回复。")] public float baseHealthRegen=1.5f;
+        [Min(0), Tooltip("每级增加的最大生命，当前生命同步增加。")] public float healthPerLevel=22;
+        [Min(0), Tooltip("每级增加的最大法力。")] public float manaPerLevel=12;
+        [Min(0), Tooltip("每级增加的普攻伤害。")] public float attackPerLevel=3;
+        [Min(0), Tooltip("每级增加的攻击速度，小数：0.025 表示 +2.5%。")] public float attackSpeedPerLevel=0.025f;
+        [Min(0), Tooltip("每级增加的移动速度（米/秒）。")] public float moveSpeedPerLevel;
+        [Min(0), Tooltip("每级增加的每秒生命回复。")] public float regenPerLevel=0.1f;
+        [Tooltip("按英雄等级升序排列的天赋层；每层二选一，不消耗技能点。最多 31 层。")]
+        public HeroTalentTier[] talents=HeroTalentTier.Defaults();
 
         /// <summary>验证英雄与给定库的引用。返回槽位到库索引的映射，不修改共享资源。</summary>
         public int[] ResolveSkills(SkillCatalog catalog)
@@ -36,6 +47,30 @@ namespace Roguelike.Abilities
                     throw new InvalidOperationException("英雄技能未登记在库中："+name+" / 槽 "+i);
             }
             return result;
+        }
+        /// <summary>验证成长与天赋配置；只读，不修改共享资源。</summary>
+        public void ValidateProgression()
+        {
+            float[] values={baseMana,baseHealthRegen,healthPerLevel,manaPerLevel,attackPerLevel,attackSpeedPerLevel,moveSpeedPerLevel,regenPerLevel};
+            foreach(float value in values)
+                if(!Finite(value) || value<0) throw new InvalidOperationException("英雄成长数值必须是有限的非负数："+name);
+            var tiers=talents??Array.Empty<HeroTalentTier>();
+            if(tiers.Length>31) throw new InvalidOperationException("天赋最多 31 层："+name);
+            for(int i=0;i<tiers.Length;i++)
+            {
+                var tier=tiers[i];
+                if(tier==null) throw new InvalidOperationException("天赋层为空："+name+" / 第 "+(i+1)+" 层");
+                if(tier.heroLevel<1 || (i>0 && tiers[i-1]!=null && tier.heroLevel<tiers[i-1].heroLevel))
+                    throw new InvalidOperationException("天赋层必须按英雄等级升序排列且不小于 1："+name+" / 第 "+(i+1)+" 层");
+                Talent(tier.left,i); Talent(tier.right,i);
+            }
+        }
+        private void Talent(TalentOption option,int tier)
+        {
+            if(!Enum.IsDefined(typeof(TalentStat),option.stat) || !Finite(option.value))
+                throw new InvalidOperationException("天赋属性未知或数值非法："+name+" / 第 "+(tier+1)+" 层");
+            if(option.stat==TalentStat.CooldownReduction && (option.value<0 || option.value>=1))
+                throw new InvalidOperationException("冷却缩减天赋必须在 0 到 1 之间："+name+" / 第 "+(tier+1)+" 层");
         }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }

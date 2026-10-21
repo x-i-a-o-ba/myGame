@@ -98,6 +98,13 @@ MonoBehaviour:
   recoveryTime: 0
   manaCost: 0
   levelPower: 0
+  growth:
+    track: 1
+    effectPerLevel: 0.75
+    buffPerLevel: 0.15
+    cooldownReductionPerLevel: 0.15
+    manaCostPerLevel: 0.1
+    customLevels: []
   indicatorColor: {r: 0, g: 1, b: 1, a: 1}
   delivery: 0
   targets: 0
