@@ -71,6 +71,8 @@ namespace Roguelike.Combat
         public Entity ProjectilePrefab, HostileProjectilePrefab;
         /// <summary>英雄转身速度（弧度/秒），0 表示瞬间转身。</summary>
         public float PlayerSpeed, TurnRate;
+        /// <summary>移动中攻击：移动指令不打断攻击并自动攻击攻击距离内的敌人，前摇不定身，朝向目标的同时沿移动方向位移。</summary>
+        public bool AttackWhileMoving;
         public float EnemyAttackRange, EnemyAttackDamage, EnemyAttackInterval, ArenaHalfSize;
         // 未配置敌人名册时使用的单一敌人原型与基础数值；原型实体带 Prefab 标记，随会话销毁。
         public Entity EnemyPrefab;
@@ -106,7 +108,7 @@ namespace Roguelike.Combat
     {
         /// <summary>待机：原地不动，自动攻击索敌距离内的敌人并在牵引距离内追击。</summary>
         Idle,
-        /// <summary>移动：走到目标点，途中不攻击；到达后转为待机。</summary>
+        /// <summary>移动：走到目标点，到达后转为待机。英雄开启“移动中攻击”时途中自动攻击攻击距离内的敌人且不停下，否则途中不攻击。</summary>
         Move,
         /// <summary>攻击指定目标：追击并攻击直到目标死亡，然后转为待机。</summary>
         AttackTarget,
@@ -118,8 +120,17 @@ namespace Roguelike.Combat
     public struct HeroOrder : IComponentData
     {
         public HeroOrderKind Kind; public float3 Point; public Entity Target;
-        /// <summary>每次输入层下达新指令时递增，用于取消前摇。</summary>
+        /// <summary>每次输入层下达新指令时递增，用于取消前摇（移动中攻击开启时移动类指令不取消）。</summary>
         public int Serial;
+    }
+    /// <summary>一帧英雄动作意图：由模拟系统按指令与索敌生成，交给纯函数 CombatSimulationSystem.StepMotion 推进。</summary>
+    public struct HeroMotion
+    {
+        public bool HasTarget; public float3 TargetPosition; public float TargetRadius;
+        /// <summary>目标在攻击距离外时是否追击；待命与移动中攻击不追击。</summary>
+        public bool Chase;
+        /// <summary>是否走向 Destination；移动中攻击时可与攻击目标同时生效。</summary>
+        public bool Travel; public float3 Destination;
     }
     /// <summary>Game移动意图、战斗计数与展示快照。Health来自AbilityUnit，不是伤害写入入口。</summary>
     public struct CombatPlayer : IComponentData

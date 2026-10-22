@@ -108,5 +108,10 @@
  "Assets/Game/UI/Icons/爆裂毒囊.png": "f283858eddb14f25b1edb9de6c92c9b9",
  "Assets/Game/UI/Icons/岩石魔像.png": "c4da2d049bf1405293f4b8999d1d467c",
  "Assets/Game/UI/Icons/深渊领主.png": "6f7405bd38014820ace9d40b6052fdb9",
- "Assets/Game/UI/Icons/霜骨巫妖.png": "4f05a45f9c5045d089b16b49d5e9380e"
+ "Assets/Game/UI/Icons/霜骨巫妖.png": "4f05a45f9c5045d089b16b49d5e9380e",
+ "Assets/Game/UI/Sprites/tooltip_frame.png": "04ce95be05cb4af29a5fec8c085004de",
+ "Assets/Game/UI/Sprites/tooltip_header.png": "d3a2ada9d96a46a0bc6e2828e6e83ea9",
+ "Assets/Game/UI/Sprites/tooltip_block.png": "1c0808677e904869b486614a266bc93b",
+ "Assets/Game/UI/Sprites/tt_cooldown.png": "ad48b8cc7cd94566812240c5db6ff2a0",
+ "Assets/Game/UI/Sprites/tt_mana.png": "3002cb8f446b4726bba2849fa8ab076b"
 }

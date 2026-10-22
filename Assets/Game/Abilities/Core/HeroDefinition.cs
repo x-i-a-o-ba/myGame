@@ -19,6 +19,8 @@ namespace Roguelike.Abilities
         [Tooltip("自动攻击被动模块：攻击距离、索敌距离、基础攻击间隔、前后摇与弹道。为空时用上方旧普攻间隔/距离生成无前后摇的弹道攻击。")]
         public AutoAttackDefinition basicAttack;
         [Min(0), Tooltip("转身速度（度/秒）：移动和开始攻击前需要先转向目标；0 表示瞬间转身。")] public float turnRate=1080;
+        [Tooltip("移动中攻击：右键移动途中自动攻击攻击距离内的敌人且不停下，攻击前摇不定身，新的移动指令不打断攻击。关闭后恢复 Dota 2 式“移动取消攻击”。重开生效。")]
+        public bool attackWhileMoving=true;
         [Tooltip("HUD 头像。为空时显示纯色底。")] public Texture2D portrait;
         [Header("等级成长（Dota 2 式，每升 1 级累加）")]
         [Min(0), Tooltip("开局最大法力；当前技能多数不消耗法力。")] public float baseMana=100;

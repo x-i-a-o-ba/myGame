@@ -25,7 +25,7 @@ namespace Roguelike.Abilities
         [Min(0.1f), Tooltip("攻击距离（米），从单位中心计算，另加目标体型。")] public float range=16;
         [Min(0), Tooltip("索敌距离（米）：待机、攻击移动时自动寻找此距离内最近的敌人。小于攻击距离时按攻击距离处理。")] public float acquisitionRange=20;
         [Min(0.01f), Tooltip("基础攻击间隔（秒），即 Dota 2 的 BAT；实际间隔 = 基础间隔 / 攻速倍率。")] public float baseAttackTime=1.7f;
-        [Min(0), Tooltip("攻击前摇（秒）：开始攻击到出手的时间，随攻速缩放；前摇期间移动或失去目标会取消本次攻击且不进入冷却。")] public float attackPoint=0.3f;
+        [Min(0), Tooltip("攻击前摇（秒）：开始攻击到出手的时间，随攻速缩放；前摇期间失去目标会取消本次攻击且不进入冷却；英雄关闭“移动中攻击”时移动也会取消。")] public float attackPoint=0.3f;
         [Min(0), Tooltip("攻击后摇（秒）：出手后的收招时间，随攻速缩放；任意移动或新指令可立即取消。")] public float backswing=0.5f;
         [Min(0), Tooltip("弹道速度（米/秒）；仅弹道攻击使用。")] public float projectileSpeed=30;
         [Min(0), Tooltip("前摇期间允许目标离开攻击距离的缓冲（米），对应 Dota 2 的攻击距离缓冲。")] public float rangeBuffer=1.5f;

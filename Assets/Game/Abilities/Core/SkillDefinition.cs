@@ -64,6 +64,7 @@ namespace Roguelike.Abilities
         [InspectorName("稳定 ID")] public string stableId;
         [InspectorName("显示名称")] public string displayName;
         [Tooltip("HUD 技能栏图标；为空时显示纯色底。")] public Texture2D icon;
+        [TextArea(2,5), Tooltip("技能说明：鼠标悬停技能图标时显示在提示框中；数值行由配置自动生成，这里只写玩法描述。")] public string description;
         [Tooltip("数字模块目录；启用配方时必须指定。")] public SkillModuleCatalog modules;
         [Tooltip("启用后配方为唯一执行配置；旧阶段仅保留迁移恢复用途。")]
         public SkillRecipe recipe=new SkillRecipe();

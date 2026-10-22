@@ -4,8 +4,8 @@
 
 - `01_Systems > Game Combat` 的 `GameCombatController` 新增两个引用：“敌人名册”指向 `Assets/Game/Enemies/敌人名册.asset`，“敌方远程弹体材质”指向 `Assets/Game/Enemies/Materials/敌方弹体.mat`。名册为空时只刷旧的统一敌人。
 - 敌人外形在 `Assets/Game/Enemies/Prefabs/` 的预制体里改（子物体网格会合并成一个 ECS 网格，第一个 MeshRenderer 的材质决定颜色）；预制体不会被放进场景，也不会实例化成 GameObject。数值、行为与攻击模块在预制体根节点的 `EnemyArchetype` 上改，出场规则在名册里改。
-- HUD 布局在 `Assets/Resources/UI/Panels/` 的面板预制体里改：`UI.Game.BottomHUD`（底部技能栏）、`UI.Game.Title`（顶栏与首领血条）、`UI.Game.Controls`、`UI.Game.Progression`、`UI.Game.Talent`（天赋树）、`UI.Game.TargetInfo`（左键选中敌人后的左上角信息面板，按需加载，绑定键见 `CombatHud.TargetKeys`）。控件通过面板上的 `UIPanel` 绑定键接收数据，改名或删控件时同步调整绑定列表；按钮用 `UIAction` 发命令。场景里 BottomHUD/Title/Controls 实例覆盖了锚点和尺寸，改布局时注意实例覆盖。
-- 美术资源在 `Assets/Game/UI/Sprites`（九宫格边框已在导入设置中配置）和 `Assets/Game/UI/Icons`。技能图标在 SkillDefinition 的“HUD 技能栏图标”，头像与被动图标在 HeroDefinition 和自动攻击模块上；敌人头像在敌人预制体 `EnemyArchetype` 的“头像”字段。
+- HUD 布局在 `Assets/Resources/UI/Panels/` 的面板预制体里改：`UI.Game.BottomHUD`（底部技能栏）、`UI.Game.Title`（顶栏与首领血条）、`UI.Game.Controls`、`UI.Game.Progression`、`UI.Game.Talent`（天赋树）、`UI.Game.TargetInfo`（左键选中敌人后的左上角信息面板，按需加载，绑定键见 `CombatHud.TargetKeys`）、`UI.Game.AbilityTooltip`（技能悬停提示，按需加载，绑定键见 `CombatHud.TooltipKeys`，分段顺序与间距在根节点的 `UITooltip` 上改）。BottomHUD 的技能槽与被动栏挂有 `UIHoverAction`（`combat.hover`，值 0–4），删除或替换槽位时一并保留。控件通过面板上的 `UIPanel` 绑定键接收数据，改名或删控件时同步调整绑定列表；按钮用 `UIAction` 发命令。场景里 BottomHUD/Title/Controls 实例覆盖了锚点和尺寸，改布局时注意实例覆盖。
+- 美术资源在 `Assets/Game/UI/Sprites`（九宫格边框已在导入设置中配置）和 `Assets/Game/UI/Icons`。技能图标在 SkillDefinition 的“HUD 技能栏图标”，头像与被动图标在 HeroDefinition 和自动攻击模块上；敌人头像在敌人预制体 `EnemyArchetype` 的“头像”字段；技能悬停提示的说明在 SkillDefinition 的“技能说明”；“移动中攻击”开关在 HeroDefinition 上。
 - 以上 YAML 为手写，**未在 Unity 中打开验证**；首次打开时如有丢失引用，按本节重新指定即可。详细说明见 [enemies-and-controls.md](enemies-and-controls.md)。
 
 ## 2026-09-24 当前技能架构（优先于下方历史章节）

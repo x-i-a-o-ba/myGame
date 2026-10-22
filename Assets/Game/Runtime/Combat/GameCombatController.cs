@@ -126,7 +126,7 @@ namespace Roguelike.Combat
                 hasEnemyQuery=true;
                 hud.RestartRequested+=RestartRun; hud.AbilityRequested+=CastAbility;
                 hud.LearnRequested+=LearnSkill; hud.TalentRequested+=ChooseTalentEncoded; hud.OrderRequested+=OnOrderButton;
-                hud.TargetCloseRequested+=ClearSelection;
+                hud.TargetCloseRequested+=ClearSelection; hud.HoverChanged+=OnHoverChanged;
                 RestartRun();
             }
             catch(Exception error) { Debug.LogException(error,this); enabled=false; }
@@ -150,7 +150,7 @@ namespace Roguelike.Combat
             if(session!=null) RestartRun();
         }
         // ---------- Dota 2 式指令 ----------
-        /// <summary>移动指令（右键地面）：走到目标点，途中不攻击，到达后待机。保留旧名称供探针与外部调用。</summary>
+        /// <summary>移动指令（右键地面）：走到目标点，到达后待机。英雄开启“移动中攻击”时途中自动攻击攻击距离内的敌人且不停下。保留旧名称供探针与外部调用。</summary>
         public void SetDestination(Vector3 point)=>IssueOrder(HeroOrderKind.Move,point,Entity.Null);
         /// <summary>攻击移动（A + 左键地面）：走向目标点，途中自动攻击索敌距离内的敌人。</summary>
         public void IssueAttackMove(Vector3 point)=>IssueOrder(HeroOrderKind.AttackMove,point,Entity.Null);
@@ -567,6 +567,7 @@ namespace Roguelike.Combat
                 observedCommands=progression.CommandSerial;
                 if(progression.LastFailure!=ProgressionFailure.None) ShowNotice(HeroProgressionLogic.Describe(progression.LastFailure),2.5f);
             }
+            BuildTooltip(s.Tooltip,slots,unit,runtime,attackState,progression,busy);
             var targetContext=new TargetInfoContext{KindNames=session.EnemyNames,KindArchetypes=session.EnemyArchetypes,Buffs=session.Buffs,
                 HeroPosition=state.Position,HeroAttackRange=attackData.Range,Now=runtime.Time};
             if(!TargetInfoBuilder.Build(manager,selected,targetContext,s.Target)) selected=Entity.Null;
@@ -574,9 +575,33 @@ namespace Roguelike.Combat
                 s.PendingTalent>=0?"有可选天赋：按 1 / 2 或打开天赋树选择":progression.SkillPoints>0?"有可用技能点：Ctrl+Q/W/E/R 或点击技能上方的“+”":"";
             return s;
         }
+        /// <summary>悬停的技能槽变化时立即刷新 HUD，避免提示框等待下一个 0.1 秒刷新周期。</summary>
+        private void OnHoverChanged()=>nextHudUpdate=0;
+        /// <summary>按 HUD 悬停槽位组装 Dota 2 式提示：0–3 为技能槽（技能库编译数据 + 槽位状态），4 为自动攻击被动；只读 ECS 权威状态。</summary>
+        private void BuildTooltip(AbilityTooltipView view,DynamicBuffer<AbilitySlot> slots,in AbilityUnit unit,in AbilityRuntime runtime,
+            in AutoAttackState attackState,in HeroProgression progression,bool busy)
+        {
+            view.Visible=false;
+            int index=hud.HoveredSlot;
+            if(index==CombatHud.PassiveSlot)
+            {
+                AbilityTooltipBuilder.BuildAttack(session.HeroAttack,attackState,unit,hero.basicAttack,hero.attackWhileMoving,Alive(attackState.Target),view);
+                return;
+            }
+            if(index<0 || index>=slots.Length || index>=slotKeys.Length) return;
+            var slot=slots[index]; var original=SkillAt(index); var active=session.ActiveSkill(slot.Definition);
+            string description=active && !string.IsNullOrWhiteSpace(active.description)?active.description:original?original.description:"";
+            var context=new SkillTooltipContext{Hotkey=slotKeys[index],Name=session.SkillNames[index],Description=description,
+                Icon=active && active.icon?active.icon:original?original.icon:null,
+                Track=active?active.growth.track:original?original.growth.track:SkillLevelTrack.Basic,
+                Buffs=session.Buffs,Slot=slot,Owner=unit,Progression=progression,Now=runtime.Time,
+                CastWindup=busy && runtime.CastSlot==index && runtime.Time<runtime.ReleaseAt,
+                CastRecovery=busy && runtime.CastSlot==index && runtime.Time>=runtime.ReleaseAt};
+            AbilityTooltipBuilder.BuildSkill(ref session.Library.Value,ref session.Library.Value.Skills[slot.Definition],context,view);
+        }
         private void OnDestroy()
         {
-            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; }
+            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; hud.HoverChanged-=OnHoverChanged; }
             if(abilityIndicator) { abilityIndicator.Cancel(); abilityIndicator.HideSelection(); }
             if(hasEnemyQuery && session!=null && session.World.IsCreated) { try { enemyQuery.Dispose(); } catch(Exception) { } }
             hasEnemyQuery=false;

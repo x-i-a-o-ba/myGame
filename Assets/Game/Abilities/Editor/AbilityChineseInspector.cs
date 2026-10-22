@@ -89,6 +89,7 @@ namespace Roguelike.Abilities.Editor
             AssignMissingNumber();
             Field("displayName", "技能名称", "用于界面显示。");
             Field("icon", "技能图标", "Game 底部技能栏显示；为空时显示纯色底。");
+            Field("description", "技能说明", "鼠标悬停技能图标时显示；伤害、范围、冷却等数值行由配置自动生成，这里只写玩法描述。");
             Field("aim", "瞄准方式", "自身、目标点、方向或单位；不会决定伤害类型。");
             bool recipe=SkillRecipeAdapter.IsRecipe((SkillDefinition)target);
             Field("modules","组合模块目录","通过数字 ID 查找投递、查询和效果模块。");
@@ -177,6 +178,7 @@ namespace Roguelike.Abilities.Editor
             Field("range", "普攻距离（米）", "旧字段：未指定自动攻击模块时使用。");
             Field("basicAttack", "自动攻击（被动模块）", "攻击距离、索敌距离、基础攻击间隔、前后摇与弹道；可与敌人共用同一模块。");
             Field("turnRate", "转身速度（度/秒）", "移动与开始攻击前先转向；0 表示瞬间转身。");
+            Field("attackWhileMoving", "移动中攻击", "开启：右键移动途中自动攻击攻击距离内的敌人且不停下，前摇不定身，按住右键拖动也能持续出手。关闭：Dota 2 式移动取消攻击。重开后生效。");
             Field("portrait", "头像", "Game 底部 HUD 显示。");
             Section("等级成长（Dota 2 式，每升 1 级累加，重开后生效）");
             Field("baseMana", "开局最大法力");
@@ -213,7 +215,7 @@ namespace Roguelike.Abilities.Editor
         public override void OnInspectorGUI()
         {
             Begin();
-            EditorGUILayout.HelpBox("自动攻击被动模块：英雄和敌人共用。Dota 2 式节奏：开始攻击 → 前摇（可被移动取消）→ 出手 → 后摇（可被指令打断）；" +
+            EditorGUILayout.HelpBox("自动攻击被动模块：英雄和敌人共用。Dota 2 式节奏：开始攻击 → 前摇（可被移动取消；英雄开启“移动中攻击”时移动不取消）→ 出手 → 后摇（可被指令打断）；" +
                 "实际间隔、前摇、后摇都除以攻速倍率。重开 Game 后生效。", MessageType.Info);
             Field("stableId", "内部兼容键");
             Field("displayName", "模块名称");

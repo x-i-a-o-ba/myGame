@@ -16,6 +16,7 @@ MonoBehaviour:
   stableId: ability.frost_impact
   displayName: "\u51B0\u971C\u51B2\u51FB"
   icon: {fileID: 2800000, guid: 52c19dd17e684ff7a3757975e4dc43db, type: 3}
+  description: "\u5411\u76EE\u6807\u70B9\u53D1\u5C04\u4E00\u679A\u51B0\u971C\u5F39\uFF0C\u62B5\u8FBE\u540E\u5BF9\u843D\u70B9\u5468\u56F4\u7684\u654C\u4EBA\u9020\u6210\u4F24\u5BB3\u3002\u53EF\u50A8\u5B58\u591A\u6B21\u5145\u80FD\uFF0C\u8FDE\u7EED\u65BD\u653E\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1

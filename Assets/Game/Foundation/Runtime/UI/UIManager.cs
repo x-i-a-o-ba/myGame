@@ -16,6 +16,14 @@ namespace Roguelike.Foundation.UI
         public int PanelCount => panels.Count;
         public event System.Action<UIPanel> PanelOpened;
         public UIPanel FindPanel(string id) => panels.TryGetValue(id, out var panel) ? panel : null;
+        /// <summary>当前指针悬停的提示源矩形（<see cref="UIHoverAction"/> 所在对象）；没有悬停时为 null。供提示框定位。</summary>
+        public RectTransform HoverSource { get; private set; }
+        /// <summary>由 <see cref="UIHoverAction"/> 调用：进入时登记，离开时只清除自己，避免先进后出的顺序问题。</summary>
+        public void SetHover(RectTransform source, bool entered)
+        {
+            if (entered) HoverSource = source;
+            else if (HoverSource == source) HoverSource = null;
+        }
         private void Awake()
         {
             foreach (var panel in GetComponentsInChildren<UIPanel>(true)) Register(panel);
@@ -74,6 +82,6 @@ namespace Roguelike.Foundation.UI
         public void Fill(string key, float value) => Events.Publish(new UiValue { Key = key, Number = value, Kind = UiValueKind.Fill });
         /// <summary>按键切换面板内绑定对象的显隐；对象不存在时忽略。</summary>
         public void Visible(string key, bool visible) => Events.Publish(new UiValue { Key = key, Number = visible ? 1 : 0, Kind = UiValueKind.Visible });
-        private void OnDestroy() { StopAllCoroutines(); Events.Clear(); PanelOpened = null; panels.Clear(); loading.Clear(); desiredVisibility.Clear(); }
+        private void OnDestroy() { StopAllCoroutines(); Events.Clear(); PanelOpened = null; HoverSource = null; panels.Clear(); loading.Clear(); desiredVisibility.Clear(); }
     }
 }

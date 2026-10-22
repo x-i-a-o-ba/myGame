@@ -37,4 +37,4 @@ W已改为扇形查询组合例，不保留九射线各自首中。R目标若在
 
 ## 验证与限制
 
-最新结果和证据见 [基础架构记录](ability-foundation.md)。当前Game只有四个可见输入槽，Core支持更长英雄配置但Game启动会明确拒绝超过四槽。局内升级、技能等级、天赋与波次已于2026-10-21加入（见 [hero-progression.md](hero-progression.md)，Unity 编译与试玩未验证）；敌人种类、Dota 2 式操作与新 HUD 同日加入（见 [enemies-and-controls.md](enemies-and-controls.md)，PR #2 合并前已通过 Unity 编译、Editor 规则与 Player 检查，手感未验收）；左键选中敌人信息面板随后加入（Unity 编译、运行与画面未验证）；被动事件总线、光环、完整时停、Excel导入器、完整选人界面、经验掉落留待明确内容需求；不把这些当已实现。万级完整战斗性能需另做Player实测。
+最新结果和证据见 [基础架构记录](ability-foundation.md)。当前Game只有四个可见输入槽，Core支持更长英雄配置但Game启动会明确拒绝超过四槽。局内升级、技能等级、天赋与波次已于2026-10-21加入（见 [hero-progression.md](hero-progression.md)，Unity 编译与试玩未验证）；敌人种类、Dota 2 式操作与新 HUD 同日加入（见 [enemies-and-controls.md](enemies-and-controls.md)，PR #2 合并前已通过 Unity 编译、Editor 规则与 Player 检查，手感未验收）；左键选中敌人信息面板随后加入（Unity 编译、运行与画面未验证）；技能悬停详细提示与移动中攻击于 2026-10-22 加入（Unity 编译、运行、画面与手感未验证）；被动事件总线、光环、完整时停、Excel导入器、完整选人界面、经验掉落留待明确内容需求；不把这些当已实现。万级完整战斗性能需另做Player实测。

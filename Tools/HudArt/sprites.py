@@ -247,6 +247,43 @@ def distance_icon(c):
 stat_icon("stat_damage",damage_icon); stat_icon("stat_interval",interval_icon); stat_icon("stat_range",range_icon)
 stat_icon("stat_speed",speed_icon); stat_icon("stat_xp",xp_icon); stat_icon("stat_distance",distance_icon)
 
+# 33. 技能提示框：深蓝灰底 + 钢灰描边 + 顶部内高光（Dota 2 提示框风格），9 宫格
+s,c=surface(128,128)
+rrect(c,0,0,128,128,8); c.set_source(lin(0,0,0,128,[(0,hexc('#1f262e')),(0.3,hexc('#171c22')),(1,hexc('#0c0f12'))])); c.fill()
+for y in range(4,124,3):
+    c.set_source_rgba(1,1,1,0.010 if y%2 else 0.016); c.rectangle(4,y,120,1); c.fill()
+rrect(c,0.75,0.75,126.5,126.5,8); c.set_line_width(1.5); c.set_source_rgba(0,0,0,0.95); c.stroke()
+rrect(c,2.5,2.5,123,123,6.5); c.set_line_width(1.4); c.set_source(lin(0,0,0,128,[(0,hexc('#8a99a8')),(0.5,hexc('#4b5662')),(1,hexc('#2b333b'))])); c.stroke()
+rrect(c,4.5,4.5,119,119,5); c.set_line_width(1); c.set_source_rgba(0.8,0.9,1,0.07); c.stroke()
+emit("tooltip_frame",s,(16,16,16,16))
+
+# 34. 技能提示框头部光带：左上冷色辉光向右下渐隐（直接拉伸）
+s,c=surface(256,64)
+c.rectangle(0,0,256,64); c.set_source(lin(0,0,256,0,[(0,(0.32,0.55,0.75,0.42)),(0.5,(0.18,0.32,0.46,0.16)),(1,(0.1,0.16,0.22,0))])); c.fill()
+c.rectangle(0,0,256,64); c.set_source(lin(0,0,0,64,[(0,(1,1,1,0.05)),(0.6,(0,0,0,0)),(1,(0,0,0,0.3))])); c.fill()
+emit("tooltip_header",s)
+
+# 35. 技能数值块：更暗的内嵌底 + 左侧冷色细条，9 宫格
+s,c=surface(48,48)
+rrect(c,0.5,0.5,47,47,5); c.set_source(lin(0,0,0,48,[(0,(0.03,0.045,0.06,0.88)),(1,(0.06,0.08,0.1,0.88))])); c.fill_preserve()
+c.set_line_width(1); c.set_source_rgba(0.55,0.68,0.8,0.22); c.stroke()
+c.rectangle(1.5,6,2,36); c.set_source_rgba(0.55,0.82,1,0.55); c.fill()
+emit("tooltip_block",s,(10,10,10,10))
+
+# 36–37. 提示框冷却 / 法力小图标（40×40，自带颜色）
+def cooldown_icon(c):
+    c.arc(20,21,14,0,2*math.pi); c.set_source(lin(0,7,0,35,[(0,hexc('#e9eef2')),(1,hexc('#8995a0'))])); c.fill_preserve()
+    c.set_source_rgba(0,0,0,0.85); c.set_line_width(1.4); c.stroke()
+    c.arc(20,21,10.5,0,2*math.pi); c.set_source(lin(0,10,0,32,[(0,hexc('#2a323a')),(1,hexc('#151a1f'))])); c.fill()
+    c.move_to(20,21); c.arc(20,21,10.5,-math.pi/2,0.35*math.pi); c.close_path(); c.set_source_rgba(0.6,0.85,1,0.45); c.fill()
+    c.move_to(20,21); c.line_to(20,13.5); c.move_to(20,21); c.line_to(25.5,23.5); c.set_line_width(2); c.set_source_rgba(1,1,1,0.95); c.stroke()
+    c.rectangle(17,3.5,6,3.5); c.set_source(lin(0,3,0,7,[(0,GOLD_HI),(1,GOLD_LO)])); c.fill()
+def mana_icon(c):
+    rrect(c,7,7,26,26,5); c.set_source(lin(7,7,33,33,[(0,hexc('#9fd2ff')),(0.45,hexc('#2f7fe8')),(1,hexc('#153b8c'))])); c.fill_preserve()
+    c.set_source_rgba(0,0,0,0.85); c.set_line_width(1.4); c.stroke()
+    rrect(c,9.5,9.5,21,8,3); c.set_source_rgba(1,1,1,0.32); c.fill()
+stat_icon("tt_cooldown",cooldown_icon); stat_icon("tt_mana",mana_icon)
+
 save_guids(g)
 json.dump(out,open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'sprites.json'),'w'),indent=1)
 print(len(out),"sprites")
