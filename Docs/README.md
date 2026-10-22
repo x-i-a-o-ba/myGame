@@ -2,7 +2,7 @@
 
 ## 2026-10-22 技能悬停详细提示与移动中攻击
 
-鼠标悬停 Q/W/E/R 或被动图标时，图标上方显示 Dota 2 式提示 `UI.Game.AbilityTooltip`：名称、热键、类型、等级、施法属性、说明、逐级数值（当前级白、可升下一级绿、其他灰）、冷却与法力、附注与状态。英雄新增“移动中攻击”（寒冰射手开启）：右键移动途中自动攻击攻击距离内的敌人，边走边打。见 [enemies-and-controls.md](enemies-and-controls.md) 1 与 4.2。新增 Editor 校验与 Player 检查已写，**Unity 编译、运行、实际画面与手感未验证**。
+鼠标悬停 Q/W/E/R 或被动图标时，图标上方显示 Dota 2 式提示 `UI.Game.AbilityTooltip`：名称、热键、类型、等级、施法属性、说明、逐级数值（当前级白、可升下一级绿、其他灰）、冷却与法力、附注与状态。英雄新增“移动中攻击”（寒冰射手开启）：右键移动途中自动攻击攻击距离内的敌人，边走边打。见 [enemies-and-controls.md](enemies-and-controls.md) 1 与 4.2。合并前 Unity 6000.3.18f1 编译、171 项 Editor 检查、Windows 构建及 62 项 Player 检查通过，无跳过项，提示框实际截图已检查。人工手感与多分辨率未验收，见 [验证记录](validation-ability-tooltip-2026-10-22.md)。
 
 ## 2026-10-21 左键选中敌人信息面板
 

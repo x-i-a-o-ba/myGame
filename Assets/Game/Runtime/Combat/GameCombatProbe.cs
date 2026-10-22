@@ -191,33 +191,43 @@ namespace Roguelike.Combat
         /// <summary>移动中攻击：攻击距离内有敌人时右键移动，英雄一边走向目的地一边出手（不停下、不追击）。</summary>
         private IEnumerator MoveAttackChecks(GameCombatController controller,EntityManager manager)
         {
-            if(!controller.hero || !controller.hero.attackWhileMoving) { Debug.Log("GAME_CHECK_SKIPPED: hero does not attack while moving"); yield break; }
-            Entity target=Entity.Null; float until=Time.realtimeSinceStartup+3;
-            while(Time.realtimeSinceStartup<until)
+            Check(controller.hero && controller.hero.attackWhileMoving,"Smoke hero enables attack while moving");
+            if(!controller.hero || !controller.hero.attackWhileMoving) yield break;
+            Entity template=NearestEnemy(controller,manager,true);
+            Check(template!=Entity.Null,"Move-attack check has a live enemy template");
+            if(template==Entity.Null) yield break;
+            // 普攻会在敌人进入近距离前将其击杀，等待随机目标会让用例静默跳过。
+            // 仅在显式冒烟模式复制一个静止耐久目标，完成后销毁；不修改配置或正常游戏规则。
+            Entity target=manager.Instantiate(template);
+            try
             {
-                target=NearestEnemy(controller,manager,true);
-                if(target!=Entity.Null && math.distance(manager.GetComponentData<Unity.Transforms.LocalTransform>(target).Position.xz,controller.State.Position.xz)<controller.attackRange*0.7f) break;
-                target=Entity.Null; yield return null;
+                float3 start=controller.State.Position;
+                float3 forward=math.normalizesafe(new float3(controller.State.Facing.x,0,controller.State.Facing.z),new float3(0,0,1));
+                var transform=manager.GetComponentData<Unity.Transforms.LocalTransform>(target);
+                transform.Position=start+forward*math.min(8,controller.attackRange*0.5f);
+                manager.SetComponentData(target,transform);
+                var unit=manager.GetComponentData<AbilityUnit>(target);
+                unit.Health=unit.MaxHealth=10000; unit.BaseSpeed=unit.Speed=0; unit.BaseAttack=unit.Attack=0;
+                unit.Controls=ControlFlags.None;
+                manager.GetBuffer<ActiveBuff>(target).Clear();
+                manager.SetComponentData(target,unit);
+                float3 destination=start+new float3(-forward.z,0,forward.x)*6;
+                float limit=math.max(1,controller.arenaHalfSize-3);
+                destination.x=math.clamp(destination.x,-limit,limit); destination.z=math.clamp(destination.z,-limit,limit);
+                int shots=controller.State.ShotsFired;
+                controller.SetDestination((Vector3)destination); yield return null;
+                Check(controller.Order.Kind==HeroOrderKind.Move || controller.Order.Kind==HeroOrderKind.Idle,"Right-click ground issues a move order");
+                bool firedWhileMoving=false; float until=Time.realtimeSinceStartup+1.5f;
+                while(Time.realtimeSinceStartup<until && !firedWhileMoving)
+                {
+                    var state=controller.State;
+                    if(state.ShotsFired>shots && math.distance(state.Position.xz,start.xz)>0.1f && math.distance(state.Position.xz,destination.xz)>0.3f) firedWhileMoving=true;
+                    shots=math.max(shots,state.ShotsFired);
+                    yield return null;
+                }
+                Check(firedWhileMoving,"Hero attacks enemies in range while walking to the destination");
             }
-            if(target==Entity.Null) { Debug.Log("GAME_CHECK_SKIPPED: no enemy within attack range for attack-while-moving"); yield break; }
-            float3 start=controller.State.Position;
-            float3 toEnemy=math.normalizesafe(manager.GetComponentData<Unity.Transforms.LocalTransform>(target).Position-start); toEnemy.y=0;
-            // 横向移动：保持在敌人攻击距离内，同时明显离开起点。
-            float3 destination=start+new float3(-toEnemy.z,0,toEnemy.x)*6;
-            float limit=math.max(1,controller.arenaHalfSize-3);
-            destination.x=math.clamp(destination.x,-limit,limit); destination.z=math.clamp(destination.z,-limit,limit);
-            int shots=controller.State.ShotsFired;
-            controller.SetDestination((Vector3)destination); yield return null;
-            Check(controller.Order.Kind==HeroOrderKind.Move || controller.Order.Kind==HeroOrderKind.Idle,"Right-click ground issues a move order");
-            bool firedWhileMoving=false; until=Time.realtimeSinceStartup+1.5f;
-            while(Time.realtimeSinceStartup<until && !firedWhileMoving)
-            {
-                var state=controller.State;
-                if(state.ShotsFired>shots && math.distance(state.Position.xz,start.xz)>0.1f && math.distance(state.Position.xz,destination.xz)>0.3f) firedWhileMoving=true;
-                shots=math.max(shots,state.ShotsFired);
-                yield return null;
-            }
-            Check(firedWhileMoving,"Hero attacks enemies in range while walking to the destination");
+            finally { if(manager.Exists(target)) manager.DestroyEntity(target); }
             controller.Hold(); yield return null;
         }
         /// <summary>左键选中敌人：左上角目标信息面板显示种类名称，× 按钮取消选中并隐藏面板。</summary>
