@@ -7,7 +7,7 @@ namespace Roguelike.Combat
 {
     /// <summary>
     /// Game HUD 展示桥：把 <see cref="CombatHudSnapshot"/> 发布为 UI 键值（只发布变化的值），
-    /// 并把重开、施放、学习、天赋、指令按钮意图转发给控制器。面板布局与样式全部在 Prefab 中制作。
+    /// 并把重开、施放、学习、天赋、指令、商店购买与装备出售意图转发给控制器。面板布局与样式全部在 Prefab 中制作。
     /// </summary>
     public sealed class CombatHud : MonoBehaviour
     {
@@ -20,26 +20,46 @@ namespace Roguelike.Combat
         public event Action<int> OrderRequested;
         /// <summary>选中目标面板的关闭按钮（×）。</summary>
         public event Action TargetCloseRequested;
-        /// <summary>悬停的 HUD 槽变化（进入或离开技能 / 被动图标）；控制器据此立即刷新提示框。</summary>
+        /// <summary>悬停的 HUD 槽变化（进入或离开技能 / 被动图标、装备格、属性面板、商店卡片）；控制器据此立即刷新提示框。</summary>
         public event Action HoverChanged;
+        /// <summary>商店卡片左键购买：值 = 装备库下标（当前页 × <see cref="ShopCards"/> + 卡片序号）。</summary>
+        public event Action<int> BuyRequested;
+        /// <summary>装备栏右键出售：值 = 装备栏格（0–5）。</summary>
+        public event Action<int> SellRequested;
+        /// <summary>商店打开、关闭或翻页；控制器据此立即刷新 HUD。</summary>
+        public event Action ShopChanged;
         public const string ProgressionPanel="UI.Game.Progression", TalentPanel="UI.Game.Talent", DeathPanel="UI.Game.DeathOverlay";
         /// <summary>左键选中敌人后在左上角显示的目标信息面板。</summary>
         public const string TargetPanel="UI.Game.TargetInfo";
         /// <summary>鼠标悬停技能或被动图标时显示的 Dota 2 式详细提示框。</summary>
         public const string TooltipPanel="UI.Game.AbilityTooltip";
-        /// <summary>悬停命令：值 0–3 为 Q/W/E/R，<see cref="PassiveSlot"/> 为自动攻击被动；离开时为 -1 - 值。</summary>
+        /// <summary>按 B 或点击商店按钮打开的商店面板。</summary>
+        public const string ShopPanel="UI.Game.Shop";
+        /// <summary>
+        /// 悬停命令：值 0–3 为 Q/W/E/R，<see cref="PassiveSlot"/> 为自动攻击被动，<see cref="EquipmentHoverBase"/>+格为装备栏，
+        /// <see cref="StatsHover"/> 为属性面板，<see cref="ShopHoverBase"/>+卡片为商店卡片；离开时为 -1 - 值。
+        /// </summary>
         public const string HoverCommand="combat.hover";
         public const int PassiveSlot=4;
+        /// <summary>商店与装备命令：商店开关、购买（值 = 当前页卡片序号）、翻页（0 上一页、1 下一页）、出售（值 = 装备栏格，右键）。</summary>
+        public const string ShopCommand="combat.shop", BuyCommand="combat.shop.buy", PageCommand="combat.shop.page", SellCommand="combat.equip.sell";
+        /// <summary>HUD 预制体提供的装备栏格数与商店每页卡片数；装备栏、属性面板与商店卡片的悬停值。</summary>
+        public const int EquipmentSlots=6, ShopCards=12, EquipmentHoverBase=10, StatsHover=20, ShopHoverBase=100;
         /// <summary>HUD 预制体提供的技能槽、每槽等级点与天赋层数量。</summary>
         public const int AbilitySlots=4, LevelPips=4, TalentRows=4;
         /// <summary>目标面板的状态效果标签数量。</summary>
         public const int TargetStatusSlots=4;
         /// <summary>天赋树面板是否被玩家手动打开（有待选天赋时总是显示）。</summary>
         public bool TalentTreeOpen {get; private set;}
-        /// <summary>当前悬停的 HUD 槽：0–3 为技能，<see cref="PassiveSlot"/> 为被动，-1 表示没有悬停。</summary>
+        /// <summary>当前悬停的 HUD 槽（取值见 <see cref="IsHoverValue"/>），-1 表示没有悬停。</summary>
         public int HoveredSlot {get; private set;}=-1;
+        /// <summary>商店面板是否打开（B 键或商店按钮切换，Esc 关闭；战斗结束时自动关闭）。</summary>
+        public bool ShopOpen {get; private set;}
+        /// <summary>商店当前页（从 0 开始），按快照的总页数夹紧。</summary>
+        public int ShopPage {get; private set;}
         // 0 未知、1 显示、2 隐藏；只在状态变化时调用 Show/Hide，避免每次刷新都触发面板打开事件。
-        private int progressionVisible, talentVisible, deathVisible, targetVisible, tooltipVisible;
+        private int progressionVisible, talentVisible, deathVisible, targetVisible, tooltipVisible, shopVisible;
+        private int shopPages = 1;
         private bool running, talentPending;
         private UIManager manager;
         private readonly Dictionary<string,string> lastText=new Dictionary<string,string>();
@@ -65,14 +85,50 @@ namespace Roguelike.Combat
                 OrderRequested?.Invoke(command.Value);
             else if (command.Id == TargetKeys.CloseCommand) TargetCloseRequested?.Invoke();
             else if (command.Id == HoverCommand) Hover(command.Value);
+            else if (command.Id == ShopCommand) ToggleShop();
+            else if (command.Id == BuyCommand && command.Value >= 0 && command.Value < ShopCards)
+                BuyRequested?.Invoke(ShopPage * ShopCards + command.Value);
+            else if (command.Id == PageCommand) TurnPage(command.Value == 0 ? -1 : 1);
+            else if (command.Id == SellCommand && command.Value >= 0 && command.Value < EquipmentSlots)
+                SellRequested?.Invoke(command.Value);
             else if (command.Id == "combat.talentTree")
             { TalentTreeOpen = !TalentTreeOpen; UpdateTalentPanel(); }
         }
         public bool BlocksPointer(Vector2 position) => UI.Blocks(position);
+        /// <summary>HUD 识别的悬停值：0–3 技能、4 被动、10–15 装备栏、20 属性面板、100–111 商店卡片。</summary>
+        public static bool IsHoverValue(int value)
+            => (value >= 0 && value <= PassiveSlot) || (value >= EquipmentHoverBase && value < EquipmentHoverBase + EquipmentSlots) ||
+               value == StatsHover || (value >= ShopHoverBase && value < ShopHoverBase + ShopCards);
+        /// <summary>打开或关闭商店；战斗未进行时不能打开。</summary>
+        public void ToggleShop()
+        {
+            if (!ShopOpen && !running) return;
+            ShopOpen = !ShopOpen;
+            SetPanel(ShopPanel, ShopOpen, ref shopVisible);
+            Toggle(ShopKeys.Open, ShopOpen);
+            ShopChanged?.Invoke();
+        }
+        /// <summary>关闭商店；返回商店原本是否打开（Esc 据此决定是否继续取消选中目标）。</summary>
+        public bool CloseShop()
+        {
+            if (!ShopOpen) return false;
+            ShopOpen = false;
+            SetPanel(ShopPanel, false, ref shopVisible);
+            Toggle(ShopKeys.Open, false);
+            ShopChanged?.Invoke();
+            return true;
+        }
+        private void TurnPage(int delta)
+        {
+            int next = Mathf.Clamp(ShopPage + delta, 0, Mathf.Max(0, shopPages - 1));
+            if (next == ShopPage) return;
+            ShopPage = next;
+            ShopChanged?.Invoke();
+        }
         private void Hover(int value)
         {
             int next = HoveredSlot;
-            if (value >= 0 && value <= PassiveSlot) next = value;
+            if (IsHoverValue(value)) next = value;
             else if (value < 0 && UIHoverAction.ExitValue(HoveredSlot) == value) next = -1;
             if (next == HoveredSlot) return;
             HoveredSlot = next;
@@ -109,11 +165,20 @@ namespace Roguelike.Combat
             Text("hero.regen", s.Regen > 0 ? $"+{s.Regen:0.0}" : "");
             Fill("hero.mana", s.MaximumMana > 0 ? s.Mana / s.MaximumMana : 0);
             Text("hero.manaText", $"{Mathf.FloorToInt(s.Mana)} / {s.MaximumMana:0}");
-            // 属性面板
-            Text("stats.attack", $"{s.AttackDamage:0}");
-            Text("stats.attackSpeed", $"{s.AttacksPerSecond:0.0}/秒");
-            Text("stats.range", $"{s.AttackRange:0}");
-            Text("stats.move", $"{s.MoveSpeed:0.#}");
+            // 属性面板（悬停显示完整属性与来源）
+            Text(StatsKeys.Attack, $"{s.AttackDamage:0}");
+            Text(StatsKeys.AttackSpeed, $"{s.AttacksPerSecond:0.0}/秒");
+            Text(StatsKeys.Range, $"{s.AttackRange:0.#}");
+            Text(StatsKeys.Move, $"{s.MoveSpeed:0.#}");
+            Text(StatsKeys.Amplify, Percent(s.SkillAmplify));
+            Text(StatsKeys.Cooldown, Percent(s.CooldownReduction));
+            Text(StatsKeys.Reduction, Percent(s.DamageReduction));
+            Text(StatsKeys.Critical, Percent(s.CriticalChance));
+            // 金币、装备栏与商店
+            Text(EquipmentKeys.Gold, $"{Mathf.FloorToInt(Mathf.Max(0, s.Gold)):N0}");
+            for (int i = 0; i < EquipmentSlots && i < s.Equipment.Length; i++) Equip(i, s.Equipment[i]);
+            if (!running && ShopOpen) CloseShop();
+            Shop(s);
             // 自动攻击被动模块
             Picture("passive.icon", s.PassiveIcon);
             Text("passive.name", s.PassiveName);
@@ -156,6 +221,37 @@ namespace Roguelike.Combat
                 if (layout) layout.Refresh();
             }
         }
+        private void Equip(int slot, in EquipmentSlotView view)
+        {
+            Toggle(EquipmentKeys.Locked[slot], !view.Exists);
+            Toggle(EquipmentKeys.Filled[slot], view.Filled);
+            Picture(EquipmentKeys.Icons[slot], view.Filled ? view.Icon : null);
+            Toggle(EquipmentKeys.HasIcon[slot], view.Filled && view.Icon != null);
+            Text(EquipmentKeys.Names[slot], view.Filled ? view.Name : "");
+        }
+        private void Shop(CombatHudSnapshot s)
+        {
+            shopPages = Mathf.Max(1, s.ShopPages);
+            ShopPage = Mathf.Clamp(ShopPage, 0, shopPages - 1);
+            Toggle(ShopKeys.Open, ShopOpen);
+            SetPanel(ShopPanel, running && ShopOpen, ref shopVisible);
+            Text(ShopKeys.Hint, s.ShopHint);
+            Toggle(ShopKeys.Paged, shopPages > 1);
+            Text(ShopKeys.Page, $"{s.ShopPage + 1} / {shopPages}");
+            for (int c = 0; c < ShopCards && c < s.Shop.Length; c++)
+            {
+                var card = s.Shop[c];
+                Toggle(ShopKeys.Visible[c], card.Visible);
+                if (!card.Visible) continue;
+                Picture(ShopKeys.Icons[c], card.Icon);
+                Toggle(ShopKeys.HasIcon[c], card.Icon != null);
+                Text(ShopKeys.Names[c], card.Name);
+                Text(ShopKeys.Prices[c], $"{card.Price:N0}");
+                Toggle(ShopKeys.Poor[c], card.CannotAfford);
+                Toggle(ShopKeys.Owned[c], card.Owned);
+            }
+        }
+        private static string Percent(float value) => $"{value:0.#}%";
         private void Tooltip(AbilityTooltipView t)
         {
             Picture(TooltipKeys.Icon, t.Icon);
@@ -164,7 +260,7 @@ namespace Roguelike.Combat
             Toggle(TooltipKeys.HasHotkey, !string.IsNullOrEmpty(t.Hotkey));
             Text(TooltipKeys.Kind, t.Kind);
             Text(TooltipKeys.Level, t.LevelText);
-            Toggle(TooltipKeys.HasLevel, !t.Passive);
+            Toggle(TooltipKeys.HasLevel, !t.Passive && !t.NoLevel);
             Toggle(TooltipKeys.Passive, t.Passive);
             Text(TooltipKeys.Properties, t.Properties);
             Section(TooltipKeys.Description, TooltipKeys.HasDescription, t.Description);
@@ -176,8 +272,8 @@ namespace Roguelike.Combat
             Toggle(TooltipKeys.HasCost, !string.IsNullOrEmpty(t.Cooldown) || !string.IsNullOrEmpty(t.Mana));
             for (int p = 0; p < LevelPips; p++)
             {
-                Toggle(TooltipKeys.PipSlots[p], !t.Passive && p < t.MaxLevel);
-                Toggle(TooltipKeys.Pips[p], !t.Passive && p < t.Level);
+                Toggle(TooltipKeys.PipSlots[p], !t.Passive && !t.NoLevel && p < t.MaxLevel);
+                Toggle(TooltipKeys.Pips[p], !t.Passive && !t.NoLevel && p < t.Level);
             }
         }
         private void Section(string textKey, string toggleKey, string value)
@@ -334,6 +430,42 @@ namespace Roguelike.Combat
                 return result;
             }
         }
+        /// <summary>属性面板（BottomHUD）的绑定键；左列攻击 / 攻速 / 距离 / 移速，右列技能伤害 / 冷却缩减 / 伤害减免 / 暴击。</summary>
+        public static class StatsKeys
+        {
+            public const string Attack = "stats.attack", AttackSpeed = "stats.attackSpeed", Range = "stats.range", Move = "stats.move",
+                Amplify = "stats.amplify", Cooldown = "stats.cooldown", Reduction = "stats.reduction", Critical = "stats.critical";
+            public static readonly string[] Texts = { Attack, AttackSpeed, Range, Move, Amplify, Cooldown, Reduction, Critical };
+        }
+        /// <summary>金币与装备栏（BottomHUD）的绑定键；第 i 格的键前缀为 equip.s{i}.。金币键同时绑定在商店面板上。</summary>
+        public static class EquipmentKeys
+        {
+            public const string Gold = "hero.gold";
+            public static readonly string[] Icons = Numbered("equip.s", ".icon", EquipmentSlots), Filled = Numbered("equip.s", ".filled", EquipmentSlots),
+                HasIcon = Numbered("equip.s", ".hasIcon", EquipmentSlots), Names = Numbered("equip.s", ".name", EquipmentSlots),
+                Locked = Numbered("equip.s", ".locked", EquipmentSlots);
+            public static readonly string[] Texts = TargetKeys.Join(new[] { Gold }, Names);
+            public static readonly string[] Images = Icons;
+            public static readonly string[] Toggles = TargetKeys.Join(TargetKeys.Join(Filled, HasIcon), Locked);
+        }
+        /// <summary>商店面板 UI.Game.Shop 的绑定键；第 c 张卡片的键前缀为 shop.c{c}.。<see cref="Open"/> 绑定在 BottomHUD 的商店按钮上。</summary>
+        public static class ShopKeys
+        {
+            public const string Open = "shop.open", Page = "shop.page", Paged = "shop.paged", Hint = "shop.hint";
+            public static readonly string[] Visible = Numbered("shop.c", ".visible", ShopCards), Icons = Numbered("shop.c", ".icon", ShopCards),
+                Names = Numbered("shop.c", ".name", ShopCards), Prices = Numbered("shop.c", ".price", ShopCards),
+                Poor = Numbered("shop.c", ".poor", ShopCards), Owned = Numbered("shop.c", ".owned", ShopCards),
+                HasIcon = Numbered("shop.c", ".hasIcon", ShopCards);
+            public static readonly string[] Texts = TargetKeys.Join(TargetKeys.Join(new[] { Page, Hint, EquipmentKeys.Gold }, Names), Prices);
+            public static readonly string[] Images = Icons;
+            public static readonly string[] Toggles = TargetKeys.Join(TargetKeys.Join(TargetKeys.Join(TargetKeys.Join(new[] { Paged }, Visible), Poor), Owned), HasIcon);
+        }
+        private static string[] Numbered(string prefix, string suffix, int count)
+        {
+            var result = new string[count];
+            for (int i = 0; i < count; i++) result[i] = prefix + i + suffix;
+            return result;
+        }
         private struct AbilityKeys
         {
             public string Icon, Name, Locked, Learn, Cooling, Cooldown, CooldownText, Mana, NoMana, Status;
@@ -376,6 +508,15 @@ namespace Roguelike.Combat
         public float ExperienceFraction; public string ExperienceText;
         public float Health, MaximumHealth, Regen, Mana, MaximumMana;
         public float AttackDamage, AttacksPerSecond, AttackRange, MoveSpeed;
+        /// <summary>技能伤害、冷却缩减、伤害减免（已夹到上限）与暴击几率，单位为百分点。</summary>
+        public float SkillAmplify, CooldownReduction, DamageReduction, CriticalChance;
+        /// <summary>当前金币（可带小数，界面向下取整）与装备栏各格。</summary>
+        public float Gold;
+        public readonly EquipmentSlotView[] Equipment = new EquipmentSlotView[CombatHud.EquipmentSlots];
+        /// <summary>商店当前页的卡片、页码（从 0 开始，已夹紧）、总页数与装备总数；ShopHint 为商店底部说明。</summary>
+        public readonly ShopCardView[] Shop = new ShopCardView[CombatHud.ShopCards];
+        public int ShopPage, ShopPages = 1, ShopItemCount;
+        public string ShopHint;
         public string PassiveName, PassiveStatus; public Texture PassiveIcon;
         public readonly AbilityView[] Abilities = new AbilityView[CombatHud.AbilitySlots];
         public string Order; public bool AttackArmed, Aiming;
@@ -401,6 +542,23 @@ namespace Roguelike.Combat
         public int Level, MaxLevel;
         public float Cooldown;
         public bool Learnable, NoMana;
+    }
+
+    /// <summary>装备栏一格的展示状态：Exists 表示装备库配置了这一格，Filled 表示格中有装备。</summary>
+    public struct EquipmentSlotView
+    {
+        public bool Exists, Filled;
+        public Texture Icon;
+        public string Name;
+    }
+
+    /// <summary>商店当前页一张卡片的展示状态；Item 为装备库下标（-1 表示空卡）。</summary>
+    public struct ShopCardView
+    {
+        public bool Visible, CannotAfford, Owned;
+        public int Item, Price;
+        public Texture Icon;
+        public string Name;
     }
 
     /// <summary>天赋树一层的展示状态。</summary>

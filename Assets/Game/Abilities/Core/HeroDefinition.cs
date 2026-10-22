@@ -28,11 +28,26 @@ namespace Roguelike.Abilities
         [Min(0), Tooltip("每级增加的最大生命，当前生命同步增加。")] public float healthPerLevel=22;
         [Min(0), Tooltip("每级增加的最大法力。")] public float manaPerLevel=12;
         [Min(0), Tooltip("每级增加的普攻伤害。")] public float attackPerLevel=3;
-        [Min(0), Tooltip("每级增加的攻击速度，小数：0.025 表示 +2.5%。")] public float attackSpeedPerLevel=0.025f;
+        [Min(0), Tooltip("每级增加的攻击速度（百分点）：2.5 表示每级 +2.5%。")] public float attackSpeedPerLevel=2.5f;
         [Min(0), Tooltip("每级增加的移动速度（米/秒）。")] public float moveSpeedPerLevel;
         [Min(0), Tooltip("每级增加的每秒生命回复。")] public float regenPerLevel=0.1f;
         [Tooltip("按英雄等级升序排列的天赋层；每层二选一，不消耗技能点。最多 31 层。")]
         public HeroTalentTier[] talents=HeroTalentTier.Defaults();
+        [Header("额外基础属性")]
+        [Tooltip("直接加到英雄基础属性上的数值，例如 +10 暴击几率、+5 普攻吸血；与上方基础生命、普攻伤害等字段相加。最多 16 条。")]
+        public StatModifier[] baseStats=Array.Empty<StatModifier>();
+
+        /// <summary>英雄基础属性：上方基础字段 + 额外基础属性 + 默认暴击伤害 150%。法力回复基础为每秒 3 点。只读，不修改资源。</summary>
+        public StatSheet BaseSheet(in AutoAttackData attack)
+        {
+            var sheet=new StatSheet {MaxHealth=health,AttackDamage=attackDamage,MoveSpeed=speed,HealthRegen=baseHealthRegen,
+                MaxMana=baseMana,ManaRegen=AbilityEffects.BaseManaRegen,AttackRange=attack.Range,CriticalDamage=HeroStatsLogic.DefaultCriticalDamage};
+            if(baseStats!=null) foreach(var modifier in baseStats) sheet.Add(modifier.stat,modifier.value);
+            return sheet;
+        }
+        /// <summary>每升 1 级直接相加的属性成长。</summary>
+        public StatSheet GrowthSheet()=>new StatSheet {MaxHealth=healthPerLevel,MaxMana=manaPerLevel,AttackDamage=attackPerLevel,
+            AttackSpeed=attackSpeedPerLevel,MoveSpeed=moveSpeedPerLevel,HealthRegen=regenPerLevel};
 
         /// <summary>验证英雄与给定库的引用。返回槽位到库索引的映射，不修改共享资源。</summary>
         public int[] ResolveSkills(SkillCatalog catalog)
@@ -68,6 +83,13 @@ namespace Roguelike.Abilities
             float[] values={baseMana,baseHealthRegen,healthPerLevel,manaPerLevel,attackPerLevel,attackSpeedPerLevel,moveSpeedPerLevel,regenPerLevel};
             foreach(float value in values)
                 if(!Finite(value) || value<0) throw new InvalidOperationException("英雄成长数值必须是有限的非负数："+name);
+            if(baseStats!=null)
+            {
+                if(baseStats.Length>16) throw new InvalidOperationException("额外基础属性最多 16 条："+name);
+                foreach(var modifier in baseStats)
+                    if(!Enum.IsDefined(typeof(StatKind),modifier.stat) || !Finite(modifier.value))
+                        throw new InvalidOperationException("额外基础属性未知或数值非法："+name);
+            }
             var tiers=talents??Array.Empty<HeroTalentTier>();
             if(tiers.Length>31) throw new InvalidOperationException("天赋最多 31 层："+name);
             for(int i=0;i<tiers.Length;i++)
@@ -81,10 +103,10 @@ namespace Roguelike.Abilities
         }
         private void Talent(TalentOption option,int tier)
         {
-            if(!Enum.IsDefined(typeof(TalentStat),option.stat) || !Finite(option.value))
+            if(!Enum.IsDefined(typeof(StatKind),option.stat) || !Finite(option.value))
                 throw new InvalidOperationException("天赋属性未知或数值非法："+name+" / 第 "+(tier+1)+" 层");
-            if(option.stat==TalentStat.CooldownReduction && (option.value<0 || option.value>=1))
-                throw new InvalidOperationException("冷却缩减天赋必须在 0 到 1 之间："+name+" / 第 "+(tier+1)+" 层");
+            if(option.stat==StatKind.CooldownReduction && (option.value<0 || option.value>HeroStatsLogic.MaximumCooldownReduction))
+                throw new InvalidOperationException("冷却缩减天赋必须在 0 到 80（百分点）之间："+name+" / 第 "+(tier+1)+" 层");
         }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }

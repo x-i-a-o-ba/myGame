@@ -10,7 +10,7 @@ namespace Roguelike.Combat
     /// <summary>某一波某一档敌人的实际数值。</summary>
     public struct WaveTierStats
     {
-        public int Count; public float Health,Damage,Speed,Experience,Scale;
+        public int Count; public float Health,Damage,Speed,Experience,Gold,Scale;
     }
 
     /// <summary>按难度曲线在玩家周围刷怪。只在主线程、所有 Job 完成后调用；不读取英雄或技能身份。</summary>
@@ -31,7 +31,8 @@ namespace Roguelike.Combat
             float damage=combat.EnemyAttackDamage*math.pow(settings.DamageGrowth,n);
             float speed=math.min(math.max(settings.MaxSpeed,combat.EnemySpeed),combat.EnemySpeed+settings.SpeedPerWave*n);
             float experience=settings.BaseExperience*math.pow(settings.ExperienceGrowth,n);
-            var stats=new WaveTierStats {Health=health,Damage=damage,Speed=speed,Experience=experience,Scale=NormalScale};
+            float gold=settings.BaseGold*math.pow(math.max(1,settings.GoldGrowth),n);
+            var stats=new WaveTierStats {Health=health,Damage=damage,Speed=speed,Experience=experience,Gold=gold,Scale=NormalScale};
             switch(tier)
             {
                 case EnemyTier.Normal:
@@ -40,12 +41,12 @@ namespace Roguelike.Combat
                 case EnemyTier.Elite:
                     stats.Count=IsEliteWave(settings,wave)?settings.EliteBaseCount+wave/settings.EliteWavesPerExtra:0;
                     stats.Health*=settings.EliteHealth; stats.Damage*=settings.EliteDamage;
-                    stats.Experience*=settings.EliteExperience; stats.Scale*=settings.EliteScale;
+                    stats.Experience*=settings.EliteExperience; stats.Gold*=settings.EliteGold; stats.Scale*=settings.EliteScale;
                     break;
                 case EnemyTier.Boss:
                     stats.Count=IsBossWave(settings,wave)?1:0;
                     stats.Health*=settings.BossHealth; stats.Damage*=settings.BossDamage;
-                    stats.Experience*=settings.BossExperience; stats.Scale*=settings.BossScale; stats.Speed*=settings.BossSpeed;
+                    stats.Experience*=settings.BossExperience; stats.Gold*=settings.BossGold; stats.Scale*=settings.BossScale; stats.Speed*=settings.BossSpeed;
                     break;
             }
             return stats;
@@ -55,7 +56,7 @@ namespace Roguelike.Combat
         public static CombatEnemyKind LegacyKind(in CombatSettings combat)
             =>new CombatEnemyKind {Prefab=combat.EnemyPrefab,ConfigId=GameCombatController.EnemyConfigId,
                 Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss,FirstWave=1,Weight=1,
-                Health=1,Damage=1,Speed=1,Experience=1,Scale=1,Color=new float4(1),EliteColor=new float4(1),BossColor=new float4(1)};
+                Health=1,Damage=1,Speed=1,Experience=1,Gold=1,Scale=1,Color=new float4(1),EliteColor=new float4(1),BossColor=new float4(1)};
 
         public static bool Allows(in CombatEnemyKind kind,EnemyTier tier,int wave)
             =>kind.Prefab!=Entity.Null && kind.Weight>0 && (kind.Tiers&EnemySpawnEntry.Mask(tier))!=0 && wave>=kind.FirstWave && (kind.LastWave<=0 || wave<=kind.LastWave);
@@ -152,7 +153,7 @@ namespace Roguelike.Combat
             if(count<=0 || kind.Prefab==Entity.Null) return 0;
             float inner=math.max(3,combat.SafeSpawnRadius),outer=inner+settings.SpawnRingWidth,limit=math.max(4,combat.ArenaHalfSize-2);
             float scale=stats.Scale*kind.Scale,health=math.max(1,stats.Health*kind.Health),damage=stats.Damage*kind.Damage;
-            float speed=stats.Speed*kind.Speed,experience=stats.Experience*kind.Experience;
+            float speed=stats.Speed*kind.Speed,experience=stats.Experience*kind.Experience,gold=math.max(0,stats.Gold*kind.Gold);
             float4 color=tier==EnemyTier.Boss?kind.BossColor:tier==EnemyTier.Elite?kind.EliteColor:kind.Color;
             bool hasAttack=manager.HasComponent<AutoAttackState>(kind.Prefab) && manager.HasComponent<AutoAttackData>(kind.Prefab);
             bool hasColor=manager.HasComponent<URPMaterialPropertyBaseColor>(kind.Prefab);
@@ -172,7 +173,7 @@ namespace Roguelike.Combat
                     manager.SetComponentData(units[i],LocalTransform.FromPositionRotationScale(position,rotation,scale));
                     manager.SetComponentData(units[i],new AbilityUnit {Team=1,Health=health,MaxHealth=health,
                         BaseSpeed=speed,Speed=speed,BaseAttack=damage,Attack=damage,AttackSpeedMultiplier=1});
-                    manager.SetComponentData(units[i],new CombatEnemy {ConfigId=kind.ConfigId,Kind=kindIndex,Experience=experience,
+                    manager.SetComponentData(units[i],new CombatEnemy {ConfigId=kind.ConfigId,Kind=kindIndex,Experience=experience,Gold=gold,
                         Reach=math.max(0,(scale-NormalScale)*0.5f),Tier=tier,Wave=wave,LastHealth=health,BaseColor=color,
                         ChargeReadyIn=random.NextFloat()*1.5f});
                     if(hasAttack) manager.SetComponentData(units[i],new AutoAttackState {Cooldown=random.NextFloat()*interval});

@@ -10,7 +10,7 @@ namespace Roguelike.Combat
 {
     /// <summary>
     /// Game战斗宿主：Dota 2 式英雄指令（移动/攻击目标/攻击移动/待命/停止）、自动攻击被动模块、多种敌人行为、死亡计数、
-    /// 经验升级与波次刷怪。技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
+    /// 经验升级、金币与装备买卖、波次刷怪。英雄属性由 HeroStatsLogic 统一合成；技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
@@ -58,14 +58,17 @@ namespace Roguelike.Combat
             var runtime=manager.GetComponentData<AbilityRuntime>(session);
             var waveState=manager.GetComponentData<CombatWaveState>(session);
             // 胜利后冻结整局：不推进时间、不刷怪，等待玩家重开。
-            if(waveState.Outcome==CombatOutcome.Victory) { manager.GetBuffer<ProgressionCommand>(session).Clear(); return; }
+            if(waveState.Outcome==CombatOutcome.Victory) { ClearCommands(session); return; }
             float dt=math.min(SystemAPI.Time.DeltaTime,0.1f);
             float now=runtime.Time+dt;
             Dependency=new TickBuffs {Library=runtime.Library,Now=now,Delta=dt}.ScheduleParallel(Dependency);
             Dependency.Complete();
             var hero=manager.GetComponentData<AbilityUnit>(session);
             if(hero.Health<=0) { Die(session,ref player,ref waveState,now,dt); return; }
-            ProcessProgression(session,ref runtime.Library.Value);
+            // 学习技能、天赋与装备买卖串行结算；等级、天赋或装备变化后统一重算属性。
+            bool rebuild=ProcessProgression(session,ref runtime.Library.Value);
+            rebuild|=ProcessEquipment(session);
+            if(rebuild) RebuildHeroStats(session,ref runtime.Library.Value);
             hero=manager.GetComponentData<AbilityUnit>(session);
             player.Elapsed+=dt;
             // 英雄指令、转身、移动与自动攻击节奏；动作锁归技能持有者，施法前后摇期间不移动、不普攻。
@@ -104,9 +107,7 @@ namespace Roguelike.Combat
                     float3 offset=target.Position-transform.Position; float remaining=math.length(offset);
                     if(remaining<=projectile.Speed*dt+0.35f)
                     {
-                        abilities.Apply(session,projectile.Target,-1,new EffectData{Kind=EffectKind.Damage,Amount=projectile.Damage},ref library,now);
-                        if(projectile.CountsAsBasicAttackHit) abilities.RecordBasicAttackHit(session);
-                        player.Hits++;
+                        HeroAttackHit(session,projectile.Target,projectile.Damage,projectile.Critical,projectile.CountsAsBasicAttackHit,ref library,now,ref player);
                         destroy.DestroyEntity(bullet);
                     }
                     else
@@ -119,24 +120,23 @@ namespace Roguelike.Combat
             hero=manager.GetComponentData<AbilityUnit>(session);
             runtime=manager.GetComponentData<AbilityRuntime>(session);
             // 自动攻击出手：弹道攻击发射追踪弹体，近战攻击立即结算；目标已在本帧死亡时本次攻击落空。
+            // 暴击在出手时按会话种子与出手序号确定性判定，弹体携带已乘暴击倍率的伤害。
             if(released && hero.Health>0 && Alive(releaseTarget))
             {
                 player.ShotsFired++;
+                float damage=hero.Attack; bool critical=false;
+                if(manager.HasComponent<HeroStats>(session))
+                    damage*=HeroStatsLogic.CriticalMultiplier(manager.GetComponentData<HeroStats>(session).Total,waveState.Seed,player.ShotsFired,out critical);
                 if(attackData.Delivery==AttackDelivery.Projectile)
                 {
                     Entity bullet=destroy.Instantiate(config.ProjectilePrefab);
-                    destroy.SetComponent(bullet,new CombatProjectile {Target=releaseTarget,Damage=hero.Attack,Speed=attackData.ProjectileSpeed,Lifetime=5,
-                        CountsAsBasicAttackHit=attackData.CountsAsBasicAttackHit});
+                    destroy.SetComponent(bullet,new CombatProjectile {Target=releaseTarget,Damage=damage,Speed=attackData.ProjectileSpeed,Lifetime=5,
+                        CountsAsBasicAttackHit=attackData.CountsAsBasicAttackHit,Critical=critical});
                     destroy.SetComponent(bullet,LocalTransform.FromPositionRotationScale(player.Position+new float3(0,0.5f,0),quaternion.identity,0.27f));
                 }
-                else
-                {
-                    abilities.Apply(session,releaseTarget,-1,new EffectData{Kind=EffectKind.Damage,Amount=hero.Attack},ref runtime.Library.Value,runtime.Time);
-                    if(attackData.CountsAsBasicAttackHit) abilities.RecordBasicAttackHit(session);
-                    player.Hits++;
-                }
+                else HeroAttackHit(session,releaseTarget,damage,critical,attackData.CountsAsBasicAttackHit,ref runtime.Library.Value,runtime.Time,ref player);
             }
-            float experience=0; bool victory=false;
+            float experience=0,gold=0; bool victory=false;
             var waves=manager.GetComponentData<CombatWaveSettings>(session);
             using(var units=enemies.ToEntityArray(Allocator.Temp))
             using(var stats=enemies.ToComponentDataArray<AbilityUnit>(Allocator.Temp))
@@ -145,25 +145,27 @@ namespace Roguelike.Combat
                 {
                     if(stats[i].Health>0) continue;
                     var enemy=records[i];
-                    // 自爆死亡不给经验、不计击杀，也不会触发首领胜利。
+                    // 自爆死亡不给经验和金币、不计击杀，也不会触发首领胜利。
                     if(!enemy.SelfDestructed)
                     {
-                        experience+=enemy.Experience; player.Kills++;
+                        experience+=enemy.Experience; gold+=enemy.Gold; player.Kills++;
                         if(enemy.Tier==EnemyTier.Boss && waves.FinalWave>0 && enemy.Wave==waves.FinalWave) victory=true;
                     }
                     destroy.DestroyEntity(units[i]);
                 }
             destroy.Playback(manager);
-            // 经验与升级在 ECB 回放之后串行结算；属性成长只改基础值，再统一重算 Buff 聚合属性。
+            // 经验、金币与升级在 ECB 回放之后串行结算；升级后统一重算属性（成长直接相加），再叠加 Buff。
+            if(gold>0 && manager.HasComponent<HeroEquipment>(session))
+            {
+                var purse=manager.GetComponentData<HeroEquipment>(session);
+                EquipmentLogic.GainGold(ref purse,gold); manager.SetComponentData(session,purse);
+            }
             var progression=manager.GetComponentData<HeroProgression>(session);
             HeroProgressionLogic.GainExperience(ref progression,experience);
-            hero=manager.GetComponentData<AbilityUnit>(session);
-            if(HeroProgressionLogic.ApplyPendingLevels(ref progression,ref hero)>0)
-            {
-                AbilityEffects.Recalculate(ref hero,manager.GetBuffer<ActiveBuff>(session),ref runtime.Library.Value);
-                manager.SetComponentData(session,hero);
-            }
+            int gained=HeroProgressionLogic.ApplyPendingLevels(ref progression);
             manager.SetComponentData(session,progression);
+            if(gained>0) RebuildHeroStats(session,ref runtime.Library.Value);
+            hero=manager.GetComponentData<AbilityUnit>(session);
             if(victory) waveState.Outcome=CombatOutcome.Victory;
             else if(player.Elapsed>=waveState.NextWaveAt)
             {
@@ -347,33 +349,105 @@ namespace Roguelike.Combat
         }
         private void Defeat(Entity session,ref CombatWaveState state)
         {
-            EntityManager.GetBuffer<ProgressionCommand>(session).Clear();
+            ClearCommands(session);
             if(state.Outcome!=CombatOutcome.Running) return;
             state.Outcome=CombatOutcome.Defeat; EntityManager.SetComponentData(session,state);
         }
-        /// <summary>串行处理输入层提交的学习技能与天赋选择；结果与失败原因写回 HeroProgression。</summary>
-        private void ProcessProgression(Entity session,ref AbilityLibrary library)
+        /// <summary>胜负已定或英雄倒下时丢弃尚未处理的成长与装备指令。</summary>
+        private void ClearCommands(Entity session)
+        {
+            EntityManager.GetBuffer<ProgressionCommand>(session).Clear();
+            if(EntityManager.HasBuffer<EquipmentCommand>(session)) EntityManager.GetBuffer<EquipmentCommand>(session).Clear();
+        }
+        /// <summary>串行处理输入层提交的学习技能与天赋选择；结果与失败原因写回 HeroProgression。返回是否选择了天赋（需要重算属性）。</summary>
+        private bool ProcessProgression(Entity session,ref AbilityLibrary library)
         {
             var commands=EntityManager.GetBuffer<ProgressionCommand>(session);
-            if(commands.Length==0) return;
+            if(commands.Length==0) return false;
             var progression=EntityManager.GetComponentData<HeroProgression>(session);
-            var unit=EntityManager.GetComponentData<AbilityUnit>(session);
-            bool recalculate=false;
+            bool talent=false;
             for(int i=0;i<commands.Length;i++)
             {
                 var command=commands[i]; progression.CommandSerial++;
                 if(command.Kind==ProgressionCommandKind.LearnSkill)
                     HeroProgressionLogic.TryLearn(ref progression,EntityManager.GetBuffer<AbilitySlot>(session),command.Value,ref library);
                 else if(command.Kind==ProgressionCommandKind.ChooseTalent)
-                    recalculate|=HeroProgressionLogic.TryChooseTalent(ref progression,ref unit,command.Value);
+                    talent|=HeroProgressionLogic.TryChooseTalent(ref progression,command.Value);
             }
             EntityManager.GetBuffer<ProgressionCommand>(session).Clear();
-            if(recalculate)
-            {
-                AbilityEffects.Recalculate(ref unit,EntityManager.GetBuffer<ActiveBuff>(session),ref library);
-                EntityManager.SetComponentData(session,unit);
-            }
             EntityManager.SetComponentData(session,progression);
+            return talent;
+        }
+        /// <summary>串行处理购买 / 出售指令；结果与失败原因写回 HeroEquipment。返回装备栏是否变化（需要重算属性）。</summary>
+        private bool ProcessEquipment(Entity session)
+        {
+            var manager=EntityManager;
+            if(!manager.HasBuffer<EquipmentCommand>(session) || !manager.HasComponent<HeroEquipment>(session)) return false;
+            var commands=manager.GetBuffer<EquipmentCommand>(session);
+            if(commands.Length==0) return false;
+            using var pending=commands.ToNativeArray(Allocator.Temp);
+            commands.Clear();
+            var equipment=manager.GetComponentData<HeroEquipment>(session);
+            var slots=manager.GetBuffer<EquipmentSlot>(session);
+            bool changed=false;
+            for(int i=0;i<pending.Length;i++)
+                changed|=pending[i].Kind==EquipmentCommandKind.Buy?EquipmentLogic.TryBuy(ref equipment,slots,pending[i].Value):
+                    EquipmentLogic.TrySell(ref equipment,slots,pending[i].Value);
+            manager.SetComponentData(session,equipment);
+            return changed;
+        }
+        /// <summary>等级、天赋或装备变化后统一重算英雄属性：HeroStatsLogic 合成基础值与攻击距离，再叠加 Buff。</summary>
+        private void RebuildHeroStats(Entity session,ref AbilityLibrary library)
+        {
+            var manager=EntityManager;
+            if(!manager.HasComponent<HeroStats>(session)) return;
+            var stats=manager.GetComponentData<HeroStats>(session);
+            var progression=manager.GetComponentData<HeroProgression>(session);
+            var unit=manager.GetComponentData<AbilityUnit>(session);
+            var attack=manager.GetComponentData<AutoAttackData>(session);
+            var equipment=default(StatSheet);
+            if(manager.HasComponent<HeroEquipment>(session))
+                equipment=EquipmentLogic.Sheet(manager.GetBuffer<EquipmentSlot>(session),manager.GetComponentData<HeroEquipment>(session));
+            HeroStatsLogic.Rebuild(ref stats,equipment,ref progression,ref unit,ref attack);
+            AbilityEffects.Recalculate(ref unit,manager.GetBuffer<ActiveBuff>(session),ref library);
+            manager.SetComponentData(session,stats); manager.SetComponentData(session,progression);
+            manager.SetComponentData(session,unit); manager.SetComponentData(session,attack);
+        }
+        /// <summary>
+        /// 英雄普攻命中：结算伤害（已含暴击倍率），按实际伤害吸血，再依次施加装备栏中装备的普攻命中效果，最后记录普攻命中事件。
+        /// 命中效果的作用对象为“施法者”时作用于英雄自身；目标已死亡时其余效果自动跳过。
+        /// </summary>
+        private void HeroAttackHit(Entity session,Entity target,float damage,bool critical,bool countsAsHit,ref AbilityLibrary library,float now,ref CombatPlayer player)
+        {
+            var manager=EntityManager;
+            var outcome=abilities.Apply(session,target,-1,new EffectData{Kind=EffectKind.Damage,Amount=damage},ref library,now);
+            if(manager.HasComponent<HeroStats>(session))
+            {
+                float heal=HeroStatsLogic.LifeStealHeal(manager.GetComponentData<HeroStats>(session).Total,outcome.ActualDamage);
+                if(heal>0) abilities.Apply(session,session,-1,new EffectData{Kind=EffectKind.Heal,Amount=heal},ref library,now);
+            }
+            if(manager.HasComponent<HeroEquipment>(session))
+            {
+                var equipment=manager.GetComponentData<HeroEquipment>(session);
+                if(equipment.Library.IsCreated)
+                {
+                    ref var items=ref equipment.Library.Value.Items;
+                    var slots=manager.GetBuffer<EquipmentSlot>(session);
+                    for(int i=0;i<slots.Length;i++)
+                    {
+                        int item=slots[i].Item;
+                        if(item<0 || item>=items.Length) continue;
+                        ref var hits=ref items[item].OnHit;
+                        for(int e=0;e<hits.Length;e++)
+                        {
+                            var effect=hits[e];
+                            abilities.Apply(session,effect.Target==EffectTarget.Source?session:target,EquipmentLogic.OnHitOrigin+item,effect,ref library,now);
+                        }
+                    }
+                }
+            }
+            if(countsAsHit) abilities.RecordBasicAttackHit(session);
+            player.Hits++; if(critical) player.CriticalHits++;
         }
         [BurstCompile, WithAll(typeof(CombatOwned))]
         private partial struct TickBuffs : IJobEntity

@@ -319,4 +319,36 @@ for k,(x,h) in enumerate(((60,18),(74,28),(96,44),(118,28),(132,18))):
     crystal(c,[(x-7,52),(x,52-h),(x+7,52)],(0.95,1,1,1),(0.3,0.6,0.95,1),(1,1,1,0.85),1)
 glow(c,96,10,16,(0.7,0.9,1),0.9)
 vignette(c,P,0.55); emit("霜骨巫妖",s)
+# ---------- 2026-10-22 金币与商店 128：装备系统 HUD 使用（放在末尾，避免改变前面图标的随机序列） ----------
+# 金币：透明底，带厚度的金币、内圈、浮雕四角星与高光（金币数字旁 20px 小图标）
+s,c=surface(N,N)
+ell(c,64,72,52,50); c.set_source(lin(12,0,116,0,[(0,hexc('#6a3c06')),(0.5,hexc('#a8700f')),(1,hexc('#4a2a02'))])); c.fill()
+ell(c,64,64,52,50); c.set_source(rad(46,44,4,70,[(0,hexc('#fff6c0')),(0.4,hexc('#f7c84a')),(0.85,hexc('#c98a14')),(1,hexc('#8a5608'))])); c.fill()
+ell(c,64,64,40,38); c.set_line_width(5); c.set_source_rgba(0.55,0.32,0.02,0.7); c.stroke()
+ell(c,64,64,36,34); c.set_line_width(1.6); c.set_source_rgba(1,0.96,0.72,0.65); c.stroke()
+star=[]
+for k in range(8):
+    a=k*math.pi/4-math.pi/2; r=24 if k%2==0 else 8.5; star.append((64+math.cos(a)*r,64+math.sin(a)*r))
+poly(c,[(x+1.5,y+2) for x,y in star]); c.set_source_rgba(0.45,0.25,0.02,0.65); c.fill()
+crystal(c,star,(1,0.97,0.75,1),(0.85,0.55,0.08,1),(1,0.92,0.6,0.9),1.2)
+c.save(); c.arc(64,64,49,math.pi*1.05,math.pi*1.55); c.set_line_width(4); c.set_line_cap(cairo.LINE_CAP_ROUND); c.set_source_rgba(1,1,0.9,0.75); c.stroke(); c.restore()
+glow(c,96,30,14,(1,1,0.85),0.9); poly(c,[(96,18),(98.5,27.5),(108,30),(98.5,32.5),(96,42),(93.5,32.5),(84,30),(93.5,27.5)]); c.set_source_rgba(1,1,0.95,1); c.fill()
+emit("金币",s)
+# 商店：暖色底上的鼓鼓钱袋，袋口金绳、袋身金币纹章，脚下散落金币（与“天赋树”按钮图标同风格）
+s,c=surface(N,N); bg(c,N,hexc('#8a5a1c'),hexc('#1a0e04')); glow(c,64,80,54,(1,0.75,0.3),0.35)
+path(c,[(50,46),(28,58,16,88,26,106),(34,118,48,122,64,122),(80,122,94,118,102,106),(112,88,100,58,78,46)])
+c.set_source(rad(50,78,6,66,[(0,hexc('#e0ac62')),(0.55,hexc('#9e652a')),(1,hexc('#43250a'))])); c.fill_preserve()
+c.set_line_width(2); c.set_source_rgba(0.22,0.1,0.02,0.9); c.stroke()
+path(c,[(50,46),(40,36),(36,22),(48,28),(55,16),(64,26),(73,16),(80,28),(92,22),(88,36),(78,46)])
+c.set_source(lin(0,16,0,46,[(0,hexc('#f0c47e')),(1,hexc('#8a5420'))])); c.fill_preserve(); c.set_line_width(1.6); c.set_source_rgba(0.22,0.1,0.02,0.9); c.stroke()
+rrect(c,44,42,40,9,4.5); c.set_source(lin(0,42,0,51,[(0,hexc('#fff0a8')),(1,hexc('#b87a10'))])); c.fill()
+c.set_line_cap(cairo.LINE_CAP_ROUND); c.move_to(80,50); c.curve_to(90,58,88,66,94,72); c.set_line_width(2.4); c.set_source_rgba(0.95,0.78,0.35,1); c.stroke()
+c.arc(64,88,17,0,2*math.pi); c.set_source(rad(58,82,2,20,[(0,hexc('#fff6c0')),(0.6,hexc('#f2bd3e')),(1,hexc('#9a6208'))])); c.fill()
+c.arc(64,88,12,0,2*math.pi); c.set_line_width(2); c.set_source_rgba(0.55,0.32,0.02,0.8); c.stroke()
+poly(c,[(64,79),(70,88),(64,97),(58,88)]); c.set_source_rgba(0.6,0.36,0.04,0.9); c.fill()
+for x,y,r in ((100,116,11),(22,118,9),(110,104,8)):
+    ell(c,x,y+2,r,r*0.45); c.set_source_rgba(0.42,0.24,0.02,1); c.fill()
+    ell(c,x,y,r,r*0.45); c.set_source(lin(x-r,0,x+r,0,[(0,hexc('#ffe58a')),(1,hexc('#c08214'))])); c.fill()
+glow(c,46,66,10,(1,0.95,0.8),0.55)
+vignette(c,N,0.6); emit("商店",s)
 save_guids(g); json.dump(out,open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'icons.json'),'w'),ensure_ascii=False,indent=1); print(len(out),"icons")

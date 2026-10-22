@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Roguelike.Combat
 {
     /// <summary>
-    /// Game 关卡难度曲线，只保存配置。每隔固定秒数刷一波，数量、生命、伤害、移速和经验按波次增长；
+    /// Game 关卡难度曲线，只保存配置。每隔固定秒数刷一波，数量、生命、伤害、移速、经验和金币按波次增长；
     /// 定期出现精英与首领，击杀最终波首领获胜。运行状态归会话实体的 CombatWaveState。
     /// </summary>
     [CreateAssetMenu(menuName="Roguelike/成长/关卡难度曲线")]
@@ -25,6 +25,8 @@ namespace Roguelike.Combat
         [Min(0), Tooltip("普通敌人移动速度上限（米/秒）。")] public float maxSpeed=6;
         [Min(0), Tooltip("第 1 波普通敌人的击杀经验。")] public float baseExperience=3;
         [Min(1), Tooltip("每波经验倍率（复利）。")] public float experienceGrowth=1.02f;
+        [Min(0), Tooltip("第 1 波普通敌人的击杀金币；敌人种类再乘自身金币倍率。")] public float baseGold=1;
+        [Min(1), Tooltip("每波金币倍率（复利）。")] public float goldGrowth=1.03f;
         [Header("精英")]
         [Min(0), Tooltip("每隔几波出现精英；0 表示不出现。")] public int eliteEvery=5;
         [Min(0), Tooltip("精英基础数量。")] public int eliteBaseCount=3;
@@ -33,32 +35,35 @@ namespace Roguelike.Combat
         [Min(1), Tooltip("精英伤害倍率。")] public float eliteDamage=2.5f;
         [Min(0.1f), Tooltip("精英体型倍率。")] public float eliteScale=1.6f;
         [Min(0), Tooltip("精英经验倍率。")] public float eliteExperience=12;
+        [Min(0), Tooltip("精英金币倍率。")] public float eliteGold=15;
         [Header("首领")]
         [Min(0), Tooltip("每隔几波出现首领；最终波总会出现首领。0 表示只在最终波出现。")] public int bossEvery=10;
         [Min(1), Tooltip("首领生命倍率。")] public float bossHealth=60;
         [Min(1), Tooltip("首领伤害倍率。")] public float bossDamage=5;
         [Min(0.1f), Tooltip("首领体型倍率。")] public float bossScale=2.6f;
         [Min(0), Tooltip("首领经验倍率。")] public float bossExperience=80;
+        [Min(0), Tooltip("首领金币倍率。")] public float bossGold=150;
         [Min(0), Tooltip("首领移动速度倍率。")] public float bossSpeed=0.8f;
 
         /// <summary>校验并生成 ECS 快照。数值非法时抛出 InvalidOperationException。</summary>
         public CombatWaveSettings ToSettings()
         {
             float[] values={waveInterval,firstWaveAt,spawnRingWidth,countGrowthPerWave,healthGrowth,damageGrowth,speedPerWave,maxSpeed,
-                baseExperience,experienceGrowth,eliteHealth,eliteDamage,eliteScale,eliteExperience,bossHealth,bossDamage,bossScale,bossExperience,bossSpeed};
+                baseExperience,experienceGrowth,baseGold,goldGrowth,eliteHealth,eliteDamage,eliteScale,eliteExperience,eliteGold,
+                bossHealth,bossDamage,bossScale,bossExperience,bossGold,bossSpeed};
             foreach(float value in values)
                 if(float.IsNaN(value) || float.IsInfinity(value) || value<0) throw new InvalidOperationException("难度曲线数值必须是有限的非负数："+name);
             if(waveInterval<1 || spawnRingWidth<1) throw new InvalidOperationException("波次间隔和刷怪圆环宽度至少为 1："+name);
-            if(healthGrowth<1 || damageGrowth<1 || experienceGrowth<1) throw new InvalidOperationException("逐波倍率不能小于 1，难度必须随时间上升："+name);
+            if(healthGrowth<1 || damageGrowth<1 || experienceGrowth<1 || goldGrowth<1) throw new InvalidOperationException("逐波倍率不能小于 1，难度必须随时间上升："+name);
             if(baseCount<0 || maxPerWave<1 || finalWave<0 || eliteEvery<0 || eliteBaseCount<0 || eliteWavesPerExtra<1 || bossEvery<0)
                 throw new InvalidOperationException("难度曲线整数参数超出范围："+name);
             return new CombatWaveSettings {WaveInterval=waveInterval,FirstWaveAt=firstWaveAt,SpawnRingWidth=spawnRingWidth,
                 BaseCount=baseCount,CountGrowth=countGrowthPerWave,MaxPerWave=maxPerWave,
                 HealthGrowth=healthGrowth,DamageGrowth=damageGrowth,SpeedPerWave=speedPerWave,MaxSpeed=maxSpeed,
-                BaseExperience=baseExperience,ExperienceGrowth=experienceGrowth,
+                BaseExperience=baseExperience,ExperienceGrowth=experienceGrowth,BaseGold=baseGold,GoldGrowth=goldGrowth,
                 EliteEvery=eliteEvery,EliteBaseCount=eliteBaseCount,EliteWavesPerExtra=eliteWavesPerExtra,
-                EliteHealth=eliteHealth,EliteDamage=eliteDamage,EliteScale=eliteScale,EliteExperience=eliteExperience,
-                BossEvery=bossEvery,BossHealth=bossHealth,BossDamage=bossDamage,BossScale=bossScale,BossExperience=bossExperience,BossSpeed=bossSpeed,
+                EliteHealth=eliteHealth,EliteDamage=eliteDamage,EliteScale=eliteScale,EliteExperience=eliteExperience,EliteGold=eliteGold,
+                BossEvery=bossEvery,BossHealth=bossHealth,BossDamage=bossDamage,BossScale=bossScale,BossExperience=bossExperience,BossGold=bossGold,BossSpeed=bossSpeed,
                 FinalWave=finalWave};
         }
     }

@@ -31,6 +31,8 @@ namespace Roguelike.Editor
             Field("maxSpeed","移速上限（米/秒）");
             Field("baseExperience","第 1 波击杀经验");
             Field("experienceGrowth","每波经验倍率");
+            Field("baseGold","第 1 波击杀金币");
+            Field("goldGrowth","每波金币倍率");
             Section("精英");
             Field("eliteEvery","每隔几波出现");
             Field("eliteBaseCount","基础数量");
@@ -39,12 +41,14 @@ namespace Roguelike.Editor
             Field("eliteDamage","伤害倍率");
             Field("eliteScale","体型倍率");
             Field("eliteExperience","经验倍率");
+            Field("eliteGold","金币倍率");
             Section("首领");
             Field("bossEvery","每隔几波出现");
             Field("bossHealth","生命倍率");
             Field("bossDamage","伤害倍率");
             Field("bossScale","体型倍率");
             Field("bossExperience","经验倍率");
+            Field("bossGold","金币倍率");
             Field("bossSpeed","移速倍率");
             serializedObject.ApplyModifiedProperties();
             Preview((CombatDifficultyDefinition)target);

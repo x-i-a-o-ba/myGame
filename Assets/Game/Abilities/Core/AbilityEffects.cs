@@ -12,6 +12,10 @@ namespace Roguelike.Abilities
     /// <summary>即时效果与 Buff 状态的共同入口。调用者持有目标写权限；几何、投递和来源目标选择由调度层负责。</summary>
     public static class AbilityEffects
     {
+        /// <summary>所有单位的基础法力回复（点/秒）；AbilityUnit.ManaRegenBonus 在此之上相加。</summary>
+        public const float BaseManaRegen=3;
+        /// <summary>伤害减免上限（0.8 = 最多减免 80%）。</summary>
+        public const float MaximumDamageReduction=0.8f;
         public static EffectOutcome Apply(ref AbilityUnit target,DynamicBuffer<ActiveBuff> buffs,
             ref AbilityLibrary library,in EffectRequest request,float now)
         {
@@ -52,13 +56,14 @@ namespace Roguelike.Abilities
             return default;
         }
 
-        /// <summary>普通攻击、技能即时效果及旧周期伤害共用此入口；不广播普攻或技能事件。</summary>
+        /// <summary>普通攻击、技能即时效果及旧周期伤害共用此入口；不广播普攻或技能事件。目标的伤害减免在这里统一生效。</summary>
         public static EffectOutcome Damage(ref AbilityUnit target,DynamicBuffer<ActiveBuff> buffs,
             ref AbilityLibrary library,float amount)
         {
             if(target.Health<=0) return default;
             float before=target.Health;
-            target.Health=math.max(0,before-math.max(0,amount));
+            float taken=math.max(0,amount)*(1-math.clamp(target.DamageReduction,0,MaximumDamageReduction));
+            target.Health=math.max(0,before-taken);
             var result=new EffectOutcome {RequestedDamage=math.max(0,amount),ActualDamage=before-target.Health,Killed=target.Health<=0};
             if(result.Killed) { buffs.Clear(); Recalculate(ref target,buffs,ref library); }
             return result;
@@ -124,7 +129,7 @@ namespace Roguelike.Abilities
             // Empty-buffer initialization preserves compatibility with old callers that leave the new multiplier at 0.
             if(removed || unit.AttackSpeedMultiplier==0) Recalculate(ref unit,buffs,ref library);
             if(unit.Health>0) unit.Health=math.min(unit.MaxHealth,unit.Health+unit.Regen*dt);
-            unit.Mana=math.min(unit.MaxMana,unit.Mana+dt*3);
+            unit.Mana=math.clamp(unit.Mana+dt*(BaseManaRegen+unit.ManaRegenBonus),0,math.max(0,unit.MaxMana));
         }
 
         public static void Dispel(ref AbilityUnit unit,DynamicBuffer<ActiveBuff> buffs,ref AbilityLibrary library)

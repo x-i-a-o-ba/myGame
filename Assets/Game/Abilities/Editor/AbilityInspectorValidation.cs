@@ -20,6 +20,8 @@ namespace Roguelike.Abilities.Editor
             Inspect<ApplyBuffEffect, EffectDefinitionChineseInspector>();
             Inspect<DispelEffect, EffectDefinitionChineseInspector>();
             Inspect<HeroProgressionRules, HeroProgressionRulesChineseInspector>();
+            Inspect<EquipmentDefinition, EquipmentDefinitionChineseInspector>();
+            Inspect<EquipmentCatalog, EquipmentCatalogChineseInspector>();
 
             var skill = ScriptableObject.CreateInstance<SkillDefinition>();
             try
@@ -38,7 +40,8 @@ namespace Roguelike.Abilities.Editor
                     Attribute.GetCustomAttribute(typeof(SkillLevelGrowthChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
                     Attribute.GetCustomAttribute(typeof(SkillLevelRowChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
                     Attribute.GetCustomAttribute(typeof(HeroTalentTierChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
-                    Attribute.GetCustomAttribute(typeof(TalentOptionChineseDrawer), typeof(CustomPropertyDrawer)) == null)
+                    Attribute.GetCustomAttribute(typeof(TalentOptionChineseDrawer), typeof(CustomPropertyDrawer)) == null ||
+                    Attribute.GetCustomAttribute(typeof(StatModifierChineseDrawer), typeof(CustomPropertyDrawer)) == null)
                     throw new InvalidOperationException("嵌套配置的中文绘制器未注册。");
                 var growth = serialized.FindProperty("growth");
                 if (growth != null) growth.isExpanded = true;
@@ -49,7 +52,21 @@ namespace Roguelike.Abilities.Editor
                     throw new InvalidOperationException("技能成长类型枚举没有显示中文名称。");
             }
             finally { UnityEngine.Object.DestroyImmediate(skill); }
-            Debug.Log("ABILITY_INSPECTOR_CHINESE_PASSED: ten inspectors, enum labels, nested drawers.");
+
+            var item = ScriptableObject.CreateInstance<EquipmentDefinition>();
+            try
+            {
+                item.stats = new[] { new StatModifier(StatKind.CriticalChance, 10) };
+                var serialized = new SerializedObject(item);
+                var stat = serialized.FindProperty("stats").GetArrayElementAtIndex(0).FindPropertyRelative("stat");
+                if (stat == null || Array.IndexOf(stat.enumDisplayNames, "暴击几率（%，普攻）") < 0)
+                    throw new InvalidOperationException("属性枚举没有显示中文名称。");
+                var quality = serialized.FindProperty("quality");
+                if (quality == null || Array.IndexOf(quality.enumDisplayNames, "传说") < 0)
+                    throw new InvalidOperationException("装备品质枚举没有显示中文名称。");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(item); }
+            Debug.Log("ABILITY_INSPECTOR_CHINESE_PASSED: twelve inspectors, enum labels, nested drawers.");
         }
 
         private static void Inspect<TAsset, TEditor>() where TAsset : ScriptableObject where TEditor : UnityEditor.Editor

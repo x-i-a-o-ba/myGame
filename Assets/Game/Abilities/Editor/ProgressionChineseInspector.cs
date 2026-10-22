@@ -170,7 +170,7 @@ namespace Roguelike.Abilities.Editor
                 EditorGUI.indentLevel++;
                 AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("displayName"), "显示文字", "留空时按属性和数值自动生成。");
                 AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("stat"), "属性");
-                AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("value"), "数值", "百分比类属性填写小数：0.2 表示 20%。");
+                AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("value"), "数值", "直接加到英雄属性上；百分比类属性填写百分点：20 表示 +20%。");
                 EditorGUI.indentLevel--;
             }
             EditorGUI.EndProperty();

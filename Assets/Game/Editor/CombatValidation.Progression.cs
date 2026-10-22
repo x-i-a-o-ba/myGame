@@ -17,7 +17,7 @@ namespace Roguelike.Editor
         public static void ValidateFromMenu()
         {
             Validate();
-            EditorUtility.DisplayDialog("验证通过","战斗、技能等级、英雄成长与波次难度检查全部通过（共 "+checks+" 项）。详见 Console。","确定");
+            EditorUtility.DisplayDialog("验证通过","战斗、技能等级、英雄成长、属性与装备、波次难度检查全部通过（共 "+checks+" 项）。详见 Console。","确定");
         }
 
         private static void ValidateSkillLevels()
@@ -89,20 +89,34 @@ namespace Roguelike.Editor
                 var library=HeroProgressionLogic.Compile(rules,hero);
                 try
                 {
+                    // 英雄属性由 HeroStatsLogic 统一合成：基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，全部直接相加。
+                    hero.attackDamage=30; hero.speed=10;
+                    var attack=new AutoAttackData{Range=20,AcquisitionRange=25};
+                    var stats=HeroStatsLogic.Create(hero.BaseSheet(attack),library.Value.Growth,attack.AcquisitionRange);
                     var progression=HeroProgressionLogic.Create(library,rules.startingSkillPoints);
-                    var unit=new AbilityUnit{Health=300,MaxHealth=300,Mana=100,MaxMana=100,BaseAttack=30,BaseSpeed=10,AttackSpeedMultiplier=1};
+                    var unit=new AbilityUnit{AttackSpeedMultiplier=1};
+                    HeroStatsLogic.Rebuild(ref stats,default,ref progression,ref unit,ref attack);
+                    unit.Health=unit.MaxHealth; unit.Mana=unit.MaxMana;
+                    Check(unit.MaxHealth==300 && unit.BaseAttack==30 && unit.BaseSpeed==10 && unit.MaxMana==100 && unit.AttackSpeedBonus==0 && unit.ManaRegenBonus==0 &&
+                          stats.Total.CriticalDamage==HeroStatsLogic.DefaultCriticalDamage && attack.Range==20 && attack.AcquisitionRange==25,
+                        "Level 1 stats equal the authored hero base values");
                     HeroProgressionLogic.GainExperience(ref progression,239);
-                    Check(HeroProgressionLogic.ApplyPendingLevels(ref progression,ref unit)==0 && progression.Level==1,"239 experience stays at level 1");
+                    Check(HeroProgressionLogic.ApplyPendingLevels(ref progression)==0 && progression.Level==1,"239 experience stays at level 1");
                     unit.Health=200;
                     HeroProgressionLogic.GainExperience(ref progression,1);
-                    Check(HeroProgressionLogic.ApplyPendingLevels(ref progression,ref unit)==1 && progression.Level==2 && progression.SkillPoints==2,"240 experience reaches level 2 and grants a skill point");
-                    Check(unit.MaxHealth==322 && unit.Health==222 && unit.BaseAttack==33 && Mathf.Approximately(unit.AttackSpeedBonus,0.025f),"Level growth adds to max and current health, attack and attack speed");
+                    Check(HeroProgressionLogic.ApplyPendingLevels(ref progression)==1 && progression.Level==2 && progression.SkillPoints==2 && progression.LevelUpSerial==1,
+                        "240 experience reaches level 2 and grants a skill point");
+                    HeroStatsLogic.Rebuild(ref stats,default,ref progression,ref unit,ref attack);
+                    Check(unit.MaxHealth==322 && unit.Health==222 && unit.BaseAttack==33 && Mathf.Approximately(unit.AttackSpeedBonus,0.025f) && unit.MaxMana==112,
+                        "Level growth adds directly to max and current health, mana, attack and attack speed");
                     HeroProgressionLogic.GainExperience(ref progression,float.NaN);
                     HeroProgressionLogic.GainExperience(ref progression,-50);
                     Check(progression.Experience==240,"Invalid or negative experience is ignored");
                     HeroProgressionLogic.GainExperience(ref progression,100000);
-                    HeroProgressionLogic.ApplyPendingLevels(ref progression,ref unit);
+                    HeroProgressionLogic.ApplyPendingLevels(ref progression);
                     Check(progression.Level==30 && progression.SkillPoints==30 && HeroProgressionLogic.LevelProgress(progression).y==0,"Experience beyond the table caps at max level");
+                    HeroStatsLogic.Rebuild(ref stats,default,ref progression,ref unit,ref attack);
+                    Check(unit.MaxHealth==300+22*29 && unit.BaseAttack==30+3*29 && Mathf.Approximately(unit.AttackSpeedBonus,0.725f),"Max level adds 29 levels of growth without conversion");
                     using(var skills=new Resources())
                     {
                         var basic=skills.Skill("learn_basic",AimMode.Point,new SkillStage{effects=new EffectDefinition[]{skills.Damage(1)}});
@@ -124,23 +138,35 @@ namespace Roguelike.Editor
                             Check(!HeroProgressionLogic.TryLearn(ref learner,slots,5,ref f.Library.Value) && learner.LastFailure==ProgressionFailure.InvalidSlot,"Invalid slot is rejected");
                         }
                     }
+                    // 天赋只记录选择掩码，属性在 Rebuild 时按掩码累加；成长为 0 的属性表便于单独观察天赋贡献。
                     var talented=HeroProgressionLogic.Create(library,1); talented.Level=9;
-                    var stats=new AbilityUnit{Health=100,MaxHealth=100,BaseAttack=10,AttackSpeedMultiplier=1};
-                    Check(HeroProgressionLogic.PendingTalent(talented)<0 && !HeroProgressionLogic.TryChooseTalent(ref talented,ref stats,0),"Talent tier stays locked below level 10");
+                    var talentStats=HeroStatsLogic.Create(new StatSheet{MaxHealth=100,AttackDamage=10},default,0);
+                    var talentUnit=new AbilityUnit{AttackSpeedMultiplier=1}; var talentAttack=new AutoAttackData();
+                    HeroStatsLogic.Rebuild(ref talentStats,default,ref talented,ref talentUnit,ref talentAttack); talentUnit.Health=talentUnit.MaxHealth;
+                    Check(HeroProgressionLogic.PendingTalent(talented)<0 && !HeroProgressionLogic.TryChooseTalent(ref talented,0),"Talent tier stays locked below level 10");
                     talented.Level=15;
                     Check(HeroProgressionLogic.PendingTalent(talented)==0,"Lowest unlocked talent tier is offered first");
-                    Check(HeroProgressionLogic.TryChooseTalent(ref talented,ref stats,1) && Mathf.Approximately(talented.ExperienceMultiplier,1.25f) && stats.BaseAttack==10,
+                    Check(HeroProgressionLogic.TryChooseTalent(ref talented,1) && (talented.TalentChosenMask&1)==1 && (talented.TalentRightMask&1)==1,"Choosing a talent records the tier and side");
+                    HeroStatsLogic.Rebuild(ref talentStats,default,ref talented,ref talentUnit,ref talentAttack);
+                    Check(Mathf.Approximately(talented.ExperienceMultiplier,1.25f) && talentUnit.BaseAttack==10 && talentStats.Talents.ExperienceGain==25,
                         "Right option of tier 10 raises experience gain only");
                     HeroProgressionLogic.GainExperience(ref talented,100);
                     Check(Mathf.Approximately(talented.Experience,125),"Experience gain talent multiplies later experience");
-                    Check(HeroProgressionLogic.TryChooseTalent(ref talented,ref stats,1) && stats.MaxHealth==350 && stats.Health==350 && (talented.TalentRightMask&3)==3,
-                        "Tier 15 right option raises max and current health");
-                    Check(HeroProgressionLogic.PendingTalent(talented)<0 && !HeroProgressionLogic.TryChooseTalent(ref talented,ref stats,0) && talented.LastFailure==ProgressionFailure.NoPendingTalent,
+                    Check(HeroProgressionLogic.TryChooseTalent(ref talented,1) && (talented.TalentRightMask&3)==3,"Tier 15 right option is chosen");
+                    HeroStatsLogic.Rebuild(ref talentStats,default,ref talented,ref talentUnit,ref talentAttack);
+                    Check(talentUnit.MaxHealth==350 && talentUnit.Health==350,"Tier 15 right option raises max and current health");
+                    Check(HeroProgressionLogic.PendingTalent(talented)<0 && !HeroProgressionLogic.TryChooseTalent(ref talented,0) && talented.LastFailure==ProgressionFailure.NoPendingTalent,
                         "Each talent tier can be chosen once");
-                    var cdr=new AbilityUnit();
-                    HeroProgressionLogic.ApplyTalent(ref talented,ref cdr,new TalentData{Stat=TalentStat.CooldownReduction,Value=0.2f});
-                    HeroProgressionLogic.ApplyTalent(ref talented,ref cdr,new TalentData{Stat=TalentStat.CooldownReduction,Value=0.5f});
-                    Check(Mathf.Approximately(cdr.CooldownReduction,0.6f),"Cooldown reduction talents stack multiplicatively");
+                    talented.Level=20;
+                    Check(!HeroProgressionLogic.TryChooseTalent(ref talented,2) && talented.LastFailure==ProgressionFailure.InvalidTalent && (talented.TalentChosenMask&4)==0,
+                        "Invalid talent option is rejected without consuming the tier");
+                    Check(HeroProgressionLogic.TryChooseTalent(ref talented,1),"Tier 20 right option (cooldown reduction) is chosen");
+                    HeroStatsLogic.Rebuild(ref talentStats,new StatSheet{CooldownReduction=50},ref talented,ref talentUnit,ref talentAttack);
+                    Check(Mathf.Approximately(talentUnit.CooldownReduction,0.7f) && talentStats.Talents.CooldownReduction==20 && talentStats.Equipment.CooldownReduction==50,
+                        "Cooldown reduction from talents and equipment adds directly (20 + 50 = 70%)");
+                    HeroStatsLogic.Rebuild(ref talentStats,new StatSheet{CooldownReduction=70},ref talented,ref talentUnit,ref talentAttack);
+                    Check(Mathf.Approximately(talentUnit.CooldownReduction,0.8f) && talentStats.Total.CooldownReduction==90 && talentUnit.MaxHealth==350,
+                        "Cooldown reduction caps at 80% while the total keeps the raw sum");
                     using(var world=new World("ProgressionRecalculate"))
                     {
                         var entity=world.EntityManager.CreateEntity(); var buffs=world.EntityManager.AddBuffer<ActiveBuff>(entity);
@@ -158,8 +184,14 @@ namespace Roguelike.Editor
                 rules.experienceToNextLevel=HeroProgressionRules.DotaExperienceTable();
                 hero.talents=new[]{new HeroTalentTier(15,default,default),new HeroTalentTier(10,default,default)};
                 RejectProgression(rules,hero,"Talent tiers out of level order rejected");
-                hero.talents=new[]{new HeroTalentTier(10,new TalentOption("",(TalentStat)99,1),default)};
+                hero.talents=new[]{new HeroTalentTier(10,new TalentOption("",(StatKind)99,1),default)};
                 RejectProgression(rules,hero,"Unknown talent stat rejected");
+                hero.talents=new[]{new HeroTalentTier(10,new TalentOption("",StatKind.CooldownReduction,90),default)};
+                RejectProgression(rules,hero,"Cooldown reduction talent above 80 rejected");
+                hero.talents=HeroTalentTier.Defaults(); hero.baseStats=new[]{new StatModifier((StatKind)99,1)};
+                RejectProgression(rules,hero,"Unknown extra base stat rejected");
+                hero.baseStats=new[]{new StatModifier(StatKind.CriticalChance,float.PositiveInfinity)};
+                RejectProgression(rules,hero,"Infinite extra base stat rejected");
             }
         }
 

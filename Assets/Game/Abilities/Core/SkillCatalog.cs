@@ -249,6 +249,20 @@ namespace Roguelike.Abilities
             }
         }
 
+        /// <summary>
+        /// 编译技能库以外引用的效果模块（例如装备的普攻命中效果）：施加 Buff 的模块所引用的 Buff 必须登记在本库，
+        /// 返回的 Buff 下标与 <see cref="Compile"/> 生成的库一致。校验失败抛出 InvalidOperationException。
+        /// </summary>
+        public EffectData CompileExternalEffect(EffectDefinition definition,string context)
+        {
+            if(!definition) throw new InvalidOperationException("效果模块引用为空："+context);
+            if(buffs==null) throw new InvalidOperationException("Buff 数组不能为 null。");
+            var effect=definition.Compile();
+            if(effect.Kind==EffectKind.ApplyBuff)
+                effect.Buff=definition.ReferencedBuff?Array.IndexOf(buffs,definition.ReferencedBuff):-1;
+            ValidateEffect(effect,context+" / "+definition.name);
+            return effect;
+        }
         private static void ValidateEffect(EffectData e,string context)
         {
             EnumValue(e.Kind,context+" 效果类型"); EnumValue(e.Target,context+" 效果目标");

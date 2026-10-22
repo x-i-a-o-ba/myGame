@@ -62,6 +62,7 @@ MonoBehaviour:
   damageMultiplier: 1.2
   speedMultiplier: 0.9
   experienceMultiplier: 1.5
+  goldMultiplier: 1.5
   bodyScale: 1.2
   preferredDistance: 0.85
   retreatDistance: 5

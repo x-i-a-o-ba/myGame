@@ -33,6 +33,7 @@ namespace Roguelike.Combat
         [Min(0)] public float damageMultiplier=1;
         [Min(0)] public float speedMultiplier=1;
         [Min(0)] public float experienceMultiplier=1;
+        [Min(0), Tooltip("击杀金币倍率。")] public float goldMultiplier=1;
         [Min(0.1f), Tooltip("体型倍率：影响模型缩放与额外攻击距离。")] public float bodyScale=1;
         [Header("远程游击")]
         [Range(0.2f,1), Tooltip("停在攻击距离 × 该比例处射击。")] public float preferredDistance=0.85f;
@@ -72,7 +73,7 @@ namespace Roguelike.Combat
             attackData=attack.Compile();
             if(behavior==EnemyBehavior.Ranged && attackData.Delivery!=AttackDelivery.Projectile)
                 throw new InvalidOperationException("远程游击怪物必须使用弹道自动攻击："+name);
-            float[] values={healthMultiplier,damageMultiplier,speedMultiplier,experienceMultiplier,bodyScale,preferredDistance,retreatDistance,
+            float[] values={healthMultiplier,damageMultiplier,speedMultiplier,experienceMultiplier,goldMultiplier,bodyScale,preferredDistance,retreatDistance,
                 chargeTriggerRange,chargeSpeedMultiplier,chargeDuration,chargeCooldown,chargeDamageMultiplier,explosionRadius,explosionDamageMultiplier};
             foreach(float value in values)
                 if(float.IsNaN(value) || float.IsInfinity(value) || value<0) throw new InvalidOperationException("怪物数值必须是有限的非负数："+name);

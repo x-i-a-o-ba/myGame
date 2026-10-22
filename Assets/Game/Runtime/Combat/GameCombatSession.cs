@@ -11,13 +11,18 @@ using UnityEngine.Rendering;
 
 namespace Roguelike.Combat
 {
-    /// <summary>拥有Game实体、技能/成长配置Blob与重开生命周期。场景视图归场景所有。</summary>
+    /// <summary>拥有Game实体、技能/成长/装备配置Blob与重开生命周期。场景视图归场景所有。</summary>
     public sealed class GameCombatSession : IDisposable
     {
         public Entity Entity {get; private set;}
         public World World {get;}
         private BlobAssetReference<AbilityLibrary> originalLibrary;
         private BlobAssetReference<ProgressionLibrary> progressionLibrary;
+        private BlobAssetReference<EquipmentLibrary> equipmentLibrary;
+        /// <summary>本局商店出售的装备定义（只读展示用），下标与 EquipmentSlot.Item / 装备库 Blob 一致。</summary>
+        public EquipmentDefinition[] Items {get; private set;}=Array.Empty<EquipmentDefinition>();
+        /// <summary>本局出售返还比例（展示用；各装备的权威出售价已编译进装备库）。</summary>
+        public float SellRatio {get; private set;}=0.5f;
         public BlobAssetReference<AbilityLibrary> Library => World!=null && World.IsCreated && World.EntityManager.Exists(Entity) && World.EntityManager.HasComponent<AbilityRuntime>(Entity)
             ? World.EntityManager.GetComponentData<AbilityRuntime>(Entity).Library : originalLibrary;
         public string[] SkillNames {get; private set;}
@@ -64,10 +69,18 @@ namespace Roguelike.Combat
             BlobAssetReference<AbilityLibrary> nextLibrary;
             try { nextLibrary=config.skillCatalog.Compile(); }
             catch { nextProgression.Dispose(); throw; }
+            BlobAssetReference<EquipmentLibrary> nextEquipment;
+            try { nextEquipment=CompileEquipment(config.equipmentCatalog,config.skillCatalog); }
+            catch { nextLibrary.Dispose(); nextProgression.Dispose(); throw; }
             for(int i=0;i<loadout.Length;i++)
                 if(nextLibrary.Value.Skills[loadout[i]].Stages.Length==0)
-                { nextLibrary.Dispose(); nextProgression.Dispose(); throw new InvalidOperationException("Game英雄必须使用组合阶段配置，旧示例配置需显式迁移。"); }
-            Clear(); originalLibrary=nextLibrary; progressionLibrary=nextProgression; HeroAttack=heroAttack;
+                {
+                    nextEquipment.Dispose(); nextLibrary.Dispose(); nextProgression.Dispose();
+                    throw new InvalidOperationException("Game英雄必须使用组合阶段配置，旧示例配置需显式迁移。");
+                }
+            Clear(); originalLibrary=nextLibrary; progressionLibrary=nextProgression; equipmentLibrary=nextEquipment; HeroAttack=heroAttack;
+            Items=config.equipmentCatalog && config.equipmentCatalog.items!=null?(EquipmentDefinition[])config.equipmentCatalog.items.Clone():Array.Empty<EquipmentDefinition>();
+            SellRatio=config.equipmentCatalog?Mathf.Clamp01(config.equipmentCatalog.sellRatio):0.5f;
             activeSkills=new SkillDefinition[config.skillCatalog.skills.Length];
             for(int i=0;i<activeSkills.Length;i++) activeSkills[i]=UnityEngine.Object.Instantiate(config.skillCatalog.skills[i]);
             activeBuffs=config.skillCatalog.buffs;
@@ -104,7 +117,7 @@ namespace Roguelike.Combat
                 Color baseColor=MaterialColor(plan.Material);
                 kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstWave=entry.firstWave,LastWave=entry.lastWave,
                     Weight=entry.weight,Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
-                    Experience=archetype.experienceMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
+                    Experience=archetype.experienceMultiplier,Gold=archetype.goldMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
                     EliteColor=Linear(Color.Lerp(baseColor,rosterAsset.eliteTint,rosterAsset.eliteTintStrength)),
                     BossColor=Linear(Color.Lerp(baseColor,rosterAsset.bossTint,rosterAsset.bossTintStrength))});
                 names.Add(archetype.Label); archetypes.Add(archetype);
@@ -112,7 +125,7 @@ namespace Roguelike.Combat
             if(kinds.Count==0)
             {
                 kinds.Add(new CombatEnemyKind {Prefab=enemy,ConfigId=GameCombatController.EnemyConfigId,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss,
-                    FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1,Color=legacyColor,EliteColor=legacyColor,BossColor=legacyColor});
+                    FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Gold=1,Scale=1,Color=legacyColor,EliteColor=legacyColor,BossColor=legacyColor});
                 names.Add("普通怪物"); archetypes.Add(null);
             }
             EnemyNames=names.ToArray(); EnemyArchetypes=archetypes.ToArray();
@@ -131,20 +144,40 @@ namespace Roguelike.Combat
             foreach(int index in loadout) slots.Add(new AbilitySlot{Definition=index,Level=0,Charges=originalLibrary.Value.Skills[index].MaxCharges});
             manager.SetComponentData(Entity,new AbilityRuntime{Library=originalLibrary});
             var hero=config.hero;
-            manager.SetComponentData(Entity,new AbilityUnit {Team=0,Health=hero.health,MaxHealth=hero.health,Mana=hero.baseMana,MaxMana=hero.baseMana,
-                BaseSpeed=hero.speed,Speed=hero.speed,BaseAttack=hero.attackDamage,Attack=hero.attackDamage,AttackSpeedMultiplier=1,
-                BaseRegen=hero.baseHealthRegen,Regen=hero.baseHealthRegen});
-            manager.AddComponentData(Entity,HeroProgressionLogic.Create(progressionLibrary,rules.startingSkillPoints));
+            // 英雄属性统一由 HeroStatsLogic 合成：基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，开局满生命、满法力。
+            var progression=HeroProgressionLogic.Create(progressionLibrary,rules.startingSkillPoints);
+            var heroStats=HeroStatsLogic.Create(hero.BaseSheet(heroAttack),progressionLibrary.Value.Growth,heroAttack.AcquisitionRange);
+            var heroUnit=new AbilityUnit {Team=0,AttackSpeedMultiplier=1};
+            var liveAttack=heroAttack;
+            HeroStatsLogic.Rebuild(ref heroStats,default,ref progression,ref heroUnit,ref liveAttack);
+            heroUnit.Health=heroUnit.MaxHealth; heroUnit.Mana=heroUnit.MaxMana;
+            AbilityEffects.Recalculate(ref heroUnit,manager.GetBuffer<ActiveBuff>(Entity),ref originalLibrary.Value);
+            manager.SetComponentData(Entity,heroUnit);
+            manager.SetComponentData(Entity,liveAttack);
+            manager.AddComponentData(Entity,progression);
+            manager.AddComponentData(Entity,heroStats);
+            var equipment=EquipmentLogic.Create(equipmentLibrary);
+            manager.AddComponentData(Entity,equipment);
+            EquipmentLogic.InitializeSlots(manager.AddBuffer<EquipmentSlot>(Entity),equipment);
+            manager.AddBuffer<EquipmentCommand>(Entity);
             manager.AddComponentData(Entity,waves);
             manager.AddComponentData(Entity,new CombatWaveState {NextWaveAt=waves.FirstWaveAt,Outcome=CombatOutcome.Running,
                 Seed=(uint)Environment.TickCount|1u});
             float3 origin=new float3(0,0.55f,0);
             manager.SetComponentData(Entity,LocalTransform.FromPosition(origin));
-            manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=hero.health,MaximumHealth=hero.health});
+            manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=heroUnit.Health,MaximumHealth=heroUnit.MaxHealth});
             manager.SetComponentData(Entity,new CombatSettings{ProjectilePrefab=bullet,HostileProjectilePrefab=hostile,PlayerSpeed=hero.speed,
                 TurnRate=math.radians(hero.turnRate),AttackWhileMoving=hero.attackWhileMoving,
                 EnemyAttackRange=config.enemyAttackRange,EnemyAttackDamage=config.enemyAttackDamage,EnemyAttackInterval=config.enemyAttackInterval,ArenaHalfSize=config.arenaHalfSize,
                 EnemyPrefab=enemy,EnemyHealth=config.enemyHealth,EnemySpeed=config.enemySpeed,SafeSpawnRadius=safe,MaxAlive=maxAlive});
+        }
+        /// <summary>编译装备库；未配置时使用空装备库（商店为空，装备栏 6 格）。调用方唯一拥有返回值。</summary>
+        private static BlobAssetReference<EquipmentLibrary> CompileEquipment(EquipmentCatalog catalog,SkillCatalog skills)
+        {
+            if(catalog) return catalog.Compile(skills);
+            var empty=ScriptableObject.CreateInstance<EquipmentCatalog>();
+            try { empty.name="空装备库"; return empty.Compile(skills); }
+            finally { if(Application.isPlaying) UnityEngine.Object.Destroy(empty); else UnityEngine.Object.DestroyImmediate(empty); }
         }
         /// <summary>校验名册全部条目并生成快照；名册为空引用时返回空列表（使用兼容原型）。</summary>
         private static List<RosterPlan> PlanRoster(EnemyRoster roster)
@@ -232,10 +265,11 @@ namespace Roguelike.Combat
             World.EntityManager.DestroyEntity(owned);
             if(originalLibrary.IsCreated) originalLibrary.Dispose();
             if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
+            if(equipmentLibrary.IsCreated) equipmentLibrary.Dispose();
             if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
             activeSkills=null; activeBuffs=null;
-            EnemyNames=Array.Empty<string>(); EnemyArchetypes=Array.Empty<EnemyArchetype>();
-            originalLibrary=default; progressionLibrary=default; Entity=Entity.Null;
+            EnemyNames=Array.Empty<string>(); EnemyArchetypes=Array.Empty<EnemyArchetype>(); Items=Array.Empty<EquipmentDefinition>();
+            originalLibrary=default; progressionLibrary=default; equipmentLibrary=default; Entity=Entity.Null;
         }
         public void Dispose()
         {
@@ -244,6 +278,7 @@ namespace Roguelike.Combat
             {
                 if(originalLibrary.IsCreated) originalLibrary.Dispose();
                 if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
+                if(equipmentLibrary.IsCreated) equipmentLibrary.Dispose();
                 if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
                 activeSkills=null; activeBuffs=null;
                 ReleaseMeshes();

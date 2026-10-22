@@ -6,7 +6,7 @@ HERE=os.path.dirname(os.path.abspath(__file__)); ROOT=os.path.abspath(os.path.jo
 IMG="fe87c0e1cc204ed48ad3b37840f39efc"; TXT="5f7201a12d95ffc409449d95f23cf332"; BTN="4e29b1a8efbd4b44bb3f3716e73f07ff"
 RAW="1344c3c82d62a2a41a3576d8abb8e3ea"; SHD="cfabb0440166ab443bba8876756fdfa9"; OUT="e19747de3f5aca642ab2be37e372fb86"
 ACT="44e671ea4d15e5a4daaeaa73ccca3f35"; PNL="8fd3e243fd60e234fbe71139379cfa0e"
-HOV="f7a1cd7eec5746c2b30856b6ee994c01"; TIP="30ff4094440a49f184efbf220926c74e"
+HOV="f7a1cd7eec5746c2b30856b6ee994c01"; TIP="30ff4094440a49f184efbf220926c74e"; PTR="d36dd1d5900d42b19cb2aa78dddee80b"
 FONT="{fileID: 12800000, guid: ab0786ada57caea46b95753ec47d65c0, type: 3}"
 SPR=json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'sprites.json'))); ICO=json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'icons.json')))
 SPRITE_DIR=ROOT+"/Assets/Game/UI/Sprites"; ICON_DIR=ROOT+"/Assets/Game/UI/Icons"
@@ -80,6 +80,11 @@ def hover(n,command,value):
     cid=sfid("hover:%d:%s:%d"%(n.go,command,value))
     n.comps.append((cid,"114",mono(n.go,HOV,"Roguelike.Foundation::Roguelike.Foundation.UI.UIHoverAction","  command: %s\n  value: %d\n"%(command,value))))
     return cid
+def pointer(n,command,value,button=1):
+    """鼠标键点击意图 UIPointerAction（button：0 左键、1 右键、2 中键），例如右键出售；组件 ID 由节点与命令哈希得到。"""
+    cid=sfid("pointer:%d:%s:%d"%(n.go,command,value))
+    n.comps.append((cid,"114",mono(n.go,PTR,"Roguelike.Foundation::Roguelike.Foundation.UI.UIPointerAction","  command: %s\n  value: %d\n  button: %d\n"%(command,value,button))))
+    return cid
 def tooltip(n,sections,padding=14,spacing=8,gap=12,margin=8):
     """提示框排版组件 UITooltip：sections 按显示顺序列出直接子节点。"""
     items="".join("\n  - {fileID: %d}"%x.rt for x in sections) if sections else " []"
@@ -124,7 +129,8 @@ if not os.path.exists(FONT_R): FONT_R=FONT_B="/usr/share/fonts/google-noto-cjk/N
 _cache={}
 def load(name):
     if name in _cache: return _cache[name]
-    p="%s/%s.png"%(SPRITE_DIR,name) if name in SPR else "%s/%s.png"%(ICON_DIR,name)
+    # 含 “/” 的名称按仓库根目录的相对路径加载（例如装备图标 Assets/Game/Equipment/Icons/铁剑.png）。
+    p=os.path.join(ROOT,name) if "/" in name else "%s/%s.png"%(SPRITE_DIR,name) if name in SPR else "%s/%s.png"%(ICON_DIR,name)
     im=Image.open(p).convert("RGBA"); _cache[name]=im; return im
 def tint(im,c):
     r,g,b,a=im.split()

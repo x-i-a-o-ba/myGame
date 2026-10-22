@@ -97,6 +97,11 @@
             "kind": "resource"
         },
         {
+            "id": "UI.Game.Shop",
+            "path": "UI/Panels/UI.Game.Shop",
+            "kind": "resource"
+        },
+        {
             "id": "UI.Game.Talent",
             "path": "UI/Panels/UI.Game.Talent",
             "kind": "resource"
@@ -204,6 +209,11 @@
         {
             "id": "UI/Panels/UI.Game.Progression",
             "path": "UI/Panels/UI.Game.Progression",
+            "kind": "resource"
+        },
+        {
+            "id": "UI/Panels/UI.Game.Shop",
+            "path": "UI/Panels/UI.Game.Shop",
             "kind": "resource"
         },
         {

@@ -14,8 +14,8 @@
 | 技能点 | 1 级 1 点，每升 1 级 +1 点；开局四个技能均未学习 | 同上 |
 | 普通技能（Q/W/E） | 最高 4 级，学习等级门槛 1/3/5/7；每级伤害 +90%、Buff 强度 +15%、冷却 -8%、消耗 +10%（相对 1 级） | SkillDefinition 的“技能等级成长” |
 | 终极技能（R 冰晶巨箭） | 最高 3 级，门槛 6/12/18；每级伤害 +75%、Buff +15%、冷却 -15% | `冰晶巨箭.asset` 的成长档设为“终极” |
-| 属性成长（寒冰射手） | 每级 +22 最大生命（当前生命同步增加）、+12 法力、+3 攻击、+2.5% 攻速、+0.1 生命回复；开局法力 100、回复 1.5/秒 | `寒冰射手.asset` 的“等级成长” |
-| 天赋树 | 10 级：+20 攻击 / +25% 经验；15 级：+25% 攻速 / +250 生命；20 级：+30% 技能伤害 / -20% 冷却；25 级：+60 攻击 / +10 回复。每层二选一，不耗技能点 | `寒冰射手.asset` 的“天赋树” |
+| 属性成长（寒冰射手） | 每级 +22 最大生命（当前生命同步增加）、+12 法力、+3 攻击、+2.5% 攻速、+0.1 生命回复；开局法力 100、生命回复 1.5/秒。2026-10-22 起所有来源直接相加，百分比填百分点（攻速成长 2.5 = 每级 +2.5%），见 [equipment-and-stats.md](equipment-and-stats.md) | `寒冰射手.asset` 的“等级成长” |
+| 天赋树 | 10 级：+20 攻击 / +25% 经验；15 级：+25% 攻速 / +250 生命；20 级：+30% 技能伤害 / -20% 冷却；25 级：+60 攻击 / +10 回复。每层二选一，不耗技能点。2026-10-22 起天赋与装备共用 15 种属性（`StatKind`），数值直接相加，百分比填百分点（原小数 0.25 已迁移为 25） | `寒冰射手.asset` 的“天赋树” |
 | 波次 | 开局第 1 波，之后每 20 秒一波，共 30 波（约 9.7 分钟出最终首领） | `Assets/Game/Progression/关卡难度曲线.asset` |
 | 普通敌人增长 | 数量 80 × (1 + 0.15 × (波次-1))；生命 ×1.07^(波次-1)、伤害 ×1.05^(波次-1)、移速每波 +0.03（上限 6）、经验 3 × 1.02^(波次-1) | 同上 |
 | 精英 | 每 5 波出现，3 只起、每 5 波 +1；同波普通敌人的生命 ×10、伤害 ×2.5、体型 ×1.6、经验 ×12 | 同上 |
@@ -37,13 +37,13 @@
 
 - **配置**：`HeroProgressionRules`（经验表、技能点）、`HeroDefinition`（属性成长、天赋）、`SkillDefinition.growth`（技能等级档）、`CombatDifficultyDefinition`（波次曲线）都只存配置，不保存运行状态。运行中修改需重开生效。
 - **编译**：重开时 `SkillCatalog` 把技能等级编译进只读技能 Blob（`SkillData.Levels`）；`HeroProgressionLogic.Compile` 把经验表和天赋编译成 `ProgressionLibrary` Blob，随会话释放。非法配置（经验表不足、门槛递减、NaN、天赋层乱序、未知属性）在编译时报错。
-- **运行状态**：英雄等级、经验、技能点、已选天赋在会话实体的 `HeroProgression`；每个技能的等级在拥有者的 `AbilitySlot.Level`；波次进度与胜负在 `CombatWaveState`。生命和所有属性仍以 `AbilityUnit` 为唯一权威，升级和天赋只修改基础值，再由 `AbilityEffects.Recalculate` 统一合成 Buff。
+- **运行状态**：英雄等级、经验、技能点、已选天赋在会话实体的 `HeroProgression`；每个技能的等级在拥有者的 `AbilitySlot.Level`；波次进度与胜负在 `CombatWaveState`。生命和所有属性仍以 `AbilityUnit` 为唯一权威。2026-10-22 起属性来源拆分在 `HeroStats`：等级、天赋或装备变化后 `HeroStatsLogic.Rebuild` 按“基础 + 成长 ×（等级 - 1）+ 天赋 + 装备”重算合计并写入单位基础值与经验倍率，再由 `AbilityEffects.Recalculate` 统一合成 Buff（不再逐项增量修改），见 [equipment-and-stats.md](equipment-and-stats.md)。
 - **输入**：Controller 只把“学习第 N 个槽”“选第 N 个天赋”写入 `ProgressionCommand` 缓冲；`CombatSimulationSystem` 在主线程串行处理，失败原因写回 `HeroProgression.LastFailure`。
 - **技能强度**：技能等级不按 QWER 或英雄分支。伤害效果 × 等级伤害倍率 × (1 + 技能增强)，治疗 × 等级倍率，Buff 修饰/周期效果 × Buff 倍率；冷却和充能恢复 × 等级冷却倍率 × (1 - 冷却缩减)，冷却缩减属性上限 80%；普攻保持原值。施放时等级写入已排程阶段和飞行物，飞行中升级不会改变已发出的技能。
 
 ## 更新顺序
 
-在原 [Game 战斗更新顺序](architecture.md) 基础上：Buff 更新 → 英雄阵亡判定 → **处理成长命令** → 移动 / 敌人追逐 / 普攻 / 技能 → 汇总死亡与经验 → ECB 回放 → **结算经验与升级并重算属性** → **按时间刷下一波（每帧最多一波）** → HUD 快照。胜利后整局冻结；阵亡记为失败。
+在原 [Game 战斗更新顺序](architecture.md) 基础上：Buff 更新 → 英雄阵亡判定 → **处理成长命令与装备指令（2026-10-22）** → 移动 / 敌人追逐 / 普攻 / 技能 → 汇总死亡、经验与金币 → ECB 回放 → **结算金币、经验与升级并重算属性** → **按时间刷下一波（每帧最多一波）** → HUD 快照。胜利后整局冻结；阵亡记为失败。
 
 ## 实现文件
 
@@ -55,11 +55,13 @@
 | `Runtime/Combat`（修改） | 会话建立成长与波次状态；系统结算经验、升级与胜负；Controller 输入；HUD 成长/天赋面板与结算 |
 | `Resources/UI/Panels/UI.Game.Progression`、`UI.Game.Talent` | 成长面板、天赋面板（按需加载，已登记资源目录） |
 | `Abilities/Editor/ProgressionChineseInspector.cs`、`Editor/CombatDifficultyChineseInspector.cs` | 中文 Inspector 和绘制器，难度曲线带波次预览 |
-| `Editor/CombatValidation.Progression.cs` | 编辑器验证：技能等级、英雄成长、天赋、波次 |
+| `Editor/CombatValidation.Progression.cs` | 编辑器验证：技能等级、英雄成长、天赋、波次（2026-10-22 改用 `HeroStatsLogic` 新属性 API） |
+| `Abilities/Core/Stats/`（2026-10-22） | 15 种属性、`HeroStats` 与 `HeroStatsLogic`（属性合成），见 [equipment-and-stats.md](equipment-and-stats.md) |
 
 ## 验证
 
 - 菜单 **Tools/Roguelike/验证/战斗与成长（不构建）**：运行原战斗检查和新增的技能等级、经验表、升级属性、天赋、难度曲线、刷波检查。
+- 2026-10-22 起成长检查改用新属性 API（1/2/30 级属性、天赋与装备合并、冷却缩减上限、非法天赋与额外基础属性被拒），并新增装备与商店检查，**未在 Unity 中运行**，见 [equipment-and-stats.md](equipment-and-stats.md)。
 - Player 冒烟：带 `--game-smoke [--game-output 目录]` 启动，`GameCombatProbe` 检查首波刷出、初始 1 级 1 技能点、未学习不能瞄准、升到 7 级、按钮学习四个技能、大招门槛、10 级天赋、第 2 波、换英雄、重开重置、阵亡结算；结果写入 `result.json`（新增 wave、level 字段）。
 
 合并前复验（2026-10-21）：在独立 Git 工作区使用 Unity 6000.3.18f1 完成资源导入、脚本编译、89 项 Editor 战斗/成长规则检查、Windows Player 构建与 31 项 Player 集成检查，全部通过；成长面板和技能指示器离屏截图已检查。修复新增验证脚本的 CS1612、重复施法测试未补足充能，以及旧直线弹体测试未推进释放后时间的问题。Inspector 实际外观、天赋面板布局、完整 30 波实玩与数值手感仍未验收；未进行万敌完整战斗性能测量。证据见 [合并验证记录](validation-hero-progression-2026-10-21.md)。

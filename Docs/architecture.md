@@ -5,6 +5,15 @@
 用户要求组合地基优先，已移除Game固定QWER实现，当前契约见 [ability-foundation.md](ability-foundation.md)。`HeroDefinition → SkillDefinition → Stage[] → EffectDefinition[]`，Buff独立；Core无UI依赖，Game采用AbilityUnit唯一属性权威。GameCombatSession负责实体与Blob生命周期，Controller只装配输入/展示，CombatSimulationSystem处理战斗宿主行为，技能由AbilityExecution调度。现有行为差异、未实现内容与本轮验证统一见新文档。下文关于四份专用配置和旧验证的段落为历史记录。
 
 
+## 2026-10-22 属性与装备
+
+- `Abilities/Core/Stats`：`StatKind`（15 种属性）与 `StatSheet`（按属性存值、可相加）。`HeroStats` 组件在英雄实体上保存基础、每级成长、天赋、装备与合计；`HeroStatsLogic.Rebuild` 是唯一合成规则（合计 = 基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，直接相加），把合计写入 `AbilityUnit` 基础值、`HeroProgression.ExperienceMultiplier` 和 `AutoAttackData` 距离，再由 `AbilityEffects.Recalculate` 叠加 Buff。等级、天赋、装备任一变化都整体重算，不做增量加减。
+- `Abilities/Core/Equipment`：`EquipmentDefinition`/`EquipmentCatalog`（ScriptableObject，只存配置）在重开时编译为会话拥有的 `EquipmentLibrary` Blob（命中效果用本局技能库解析 Buff）。运行状态 `HeroEquipment`（金币、指令序号、失败原因）与 `EquipmentSlot` 缓冲归英雄实体；`EquipmentLogic` 是购买、出售、金币与装备属性合计的纯规则，不识别具体装备。
+- 输入层只写 `EquipmentCommand`；`CombatSimulationSystem` 在成长命令之后串行处理，变化时重算属性。普攻出手时用会话种子与出手序号判定暴击，命中时依次结算伤害、吸血、装备命中效果（来源编号 3000 + 装备下标）和普攻命中事件；击杀金币与经验一起在 ECB 回放后结算。伤害减免在共享伤害入口 `AbilityEffects.Damage` 统一生效。
+- UI：Foundation 新增 `UIPointerAction`（右键等非左键点击命令），`UITooltip` 上方放不下时放左侧。`CombatHud` 新增商店面板 `UI.Game.Shop` 的开关与翻页（纯展示状态），控制器把装备栏、商店卡片和装备/属性提示只读组装进快照。
+
+详见 [equipment-and-stats.md](equipment-and-stats.md)。Unity 编译与运行**未验证**。
+
 ## 2026-10-21 自动攻击模块、Dota 2 式指令与敌人种类
 
 - `Abilities/Core/AutoAttack`：`AutoAttackDefinition`（ScriptableObject，只存配置）编译为 `AutoAttackData` 组件；`AutoAttackLogic.Step` 是纯函数，推进 `AutoAttackState`（目标、阶段、计时、冷却），返回开始/出手/取消事件，英雄（主线程 `StepHero`）和敌人（Burst `EnemyJob`）共用。伤害结算仍由宿主负责：英雄弹道走共享效果入口并触发普攻命中事件，敌人近战/弹道/冲锋/自爆写入英雄伤害队列。
@@ -62,7 +71,7 @@
 
 ## Game 战斗更新顺序
 
-2026-10-21 起在下述顺序中加入成长与波次：英雄存活时先串行处理 `ProgressionCommand`（学习技能、选天赋），ECB 回放后累计击杀经验、结算升级并重算属性，再按 `CombatWaveState.NextWaveAt` 每帧最多刷一波；胜利后整局冻结，阵亡记为失败。详见 [hero-progression.md](hero-progression.md)。
+2026-10-22 起成长命令之后串行处理装备指令（购买/出售，变化时重算属性），击杀金币与经验一起在 ECB 回放后结算，见 [equipment-and-stats.md](equipment-and-stats.md)。2026-10-21 起在下述顺序中加入成长与波次：英雄存活时先串行处理 `ProgressionCommand`（学习技能、选天赋），ECB 回放后累计击杀经验、结算升级并重算属性，再按 `CombatWaveState.NextWaveAt` 每帧最多刷一波；胜利后整局冻结，阵亡记为失败。详见 [hero-progression.md](hero-progression.md)。
 
 （2026-10-21 起：输入桥接写入 HeroOrder → StepHero 转身/移动/自动攻击 → Burst 并行敌人行为与敌方弹体 → 汇总英雄伤害；下面为旧顺序。）输入桥接写入 CombatPlayer.Destination → 玩家移动 → Burst 并行敌人追逐/近战伤害队列 → 汇总玩家伤害与死亡 → 在途弹体追踪/命中 → 到开火间隔时搜索最近存活敌人并生成弹体 → ECB 批量播放结构变化 → TransformSystemGroup 更新渲染变换 → MonoBehaviour LateUpdate 同步玩家外观、镜头和 HUD。
 

@@ -31,6 +31,9 @@ namespace Roguelike.Combat
         public CombatDifficultyDefinition difficulty;
         [Tooltip("敌人名册：引用敌人预制体并配置出场波次、权重与档位。为空时只刷场景统一敌人（近战，使用下方攻击距离与间隔）。")]
         public EnemyRoster enemyRoster;
+        [Header("装备与商店（重开生效）")]
+        [Tooltip("装备库：商店出售的装备、装备栏格数、开局金币与出售返还比例。为空时商店为空（装备栏仍为 6 格）并输出警告。")]
+        public EquipmentCatalog equipmentCatalog;
         [Header("场地与敌人基础数值（重开生效）")]
         [Range(1,30000), Tooltip("同屏存活敌人上限；波次刷怪超过上限的部分会被跳过（首领除外）。")] public int enemyCount=10000;
         [Min(30)] public float arenaHalfSize=125;
@@ -65,7 +68,7 @@ namespace Roguelike.Combat
         private CombatDifficultyDefinition fallbackDifficulty;
         private string notice;
         private float noticeUntil;
-        private int observedLevelUps,observedCommands;
+        private int observedLevelUps,observedCommands,observedEquipment;
         private Renderer markerRenderer;
         private MaterialPropertyBlock markerProperties;
         private readonly CombatHudSnapshot snapshot=new CombatHudSnapshot();
@@ -74,8 +77,8 @@ namespace Roguelike.Combat
         private static readonly Color MoveColor=new Color(0.35f,1f,0.45f,1),AttackColor=new Color(1f,0.32f,0.25f,1),HoverColor=new Color(1f,0.25f,0.2f,1),TargetColor=new Color(1f,0.62f,0.2f,1),
             SelectionColor=new Color(1f,0.86f,0.35f,1);
         private static readonly int BaseColorId=Shader.PropertyToID("_BaseColor"),ColorId=Shader.PropertyToID("_Color");
-        /// <summary>当前英雄自动攻击的攻击距离（米）；会话未就绪时读英雄旧字段。</summary>
-        public float attackRange=>IsReady?session.HeroAttack.Range:hero?hero.range:0;
+        /// <summary>当前英雄自动攻击的攻击距离（米，已计入攻击距离加成）；会话未就绪时读英雄旧字段。</summary>
+        public float attackRange=>IsReady?LiveAttack.Range:hero?hero.range:0;
         public float playerHealth=>hero?hero.health:0;
         public bool IsReady=>session!=null && session.World.IsCreated && session.World.EntityManager.Exists(session.Entity);
         public CombatPlayer State=>IsReady?session.World.EntityManager.GetComponentData<CombatPlayer>(session.Entity):default;
@@ -87,6 +90,23 @@ namespace Roguelike.Combat
         public HeroOrder Order=>IsReady?session.World.EntityManager.GetComponentData<HeroOrder>(session.Entity):default;
         /// <summary>英雄自动攻击运行状态：当前目标、前后摇阶段与冷却。</summary>
         public AutoAttackState Attack=>IsReady?session.World.EntityManager.GetComponentData<AutoAttackState>(session.Entity):default;
+        /// <summary>英雄当前自动攻击数据：攻击距离与索敌距离已计入属性加成（会话的 HeroAttack 是未加成的配置快照）。</summary>
+        public AutoAttackData LiveAttack=>IsReady?session.World.EntityManager.GetComponentData<AutoAttackData>(session.Entity):default;
+        /// <summary>英雄属性的来源拆分与合计：基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，全部直接相加。</summary>
+        public HeroStats Stats=>IsReady?session.World.EntityManager.GetComponentData<HeroStats>(session.Entity):default;
+        /// <summary>金币与最近一次购买 / 出售的结果。</summary>
+        public HeroEquipment Equipment=>IsReady?session.World.EntityManager.GetComponentData<HeroEquipment>(session.Entity):default;
+        /// <summary>本局商店出售的装备；下标即购买编号，也是装备栏记录的装备下标。</summary>
+        public EquipmentDefinition[] ShopItems=>IsReady?session.Items:Array.Empty<EquipmentDefinition>();
+        /// <summary>装备栏第 slot 格的装备下标；空格或格不存在时为 -1。</summary>
+        public int EquippedAt(int slot)
+        {
+            if(!IsReady) return -1;
+            var slots=session.World.EntityManager.GetBuffer<EquipmentSlot>(session.Entity);
+            return slot>=0 && slot<slots.Length?slots[slot].Item:-1;
+        }
+        /// <summary>商店面板是否打开（B 键或 HUD 商店按钮切换）。</summary>
+        public bool ShopOpen=>hud && hud.ShopOpen;
         /// <summary>本局名册中的敌人种类名称，下标与 CombatEnemy.Kind 一致。</summary>
         public string[] EnemyKinds=>IsReady?session.EnemyNames:Array.Empty<string>();
         /// <summary>左键选中的敌人（左上角显示信息面板）；未选中为 Entity.Null。只用于展示，不影响指令与模拟。</summary>
@@ -120,6 +140,7 @@ namespace Roguelike.Combat
                     Debug.LogWarning("Game 未指定关卡难度曲线，使用默认曲线。",this);
                 }
                 if(!enemyRoster) Debug.LogWarning("Game 未指定敌人名册，只刷出统一敌人。",this);
+                if(!equipmentCatalog) Debug.LogWarning("Game 未指定装备库，商店为空。",this);
                 markerRenderer=destinationMarker.GetComponentInChildren<Renderer>(true);
                 session=new GameCombatSession(world);
                 enemyQuery=world.EntityManager.CreateEntityQuery(ComponentType.ReadOnly<CombatEnemy>(),ComponentType.ReadOnly<LocalTransform>(),ComponentType.ReadOnly<AbilityUnit>());
@@ -127,6 +148,7 @@ namespace Roguelike.Combat
                 hud.RestartRequested+=RestartRun; hud.AbilityRequested+=CastAbility;
                 hud.LearnRequested+=LearnSkill; hud.TalentRequested+=ChooseTalentEncoded; hud.OrderRequested+=OnOrderButton;
                 hud.TargetCloseRequested+=ClearSelection; hud.HoverChanged+=OnHoverChanged;
+                hud.BuyRequested+=BuyItem; hud.SellRequested+=SellItem; hud.ShopChanged+=OnHoverChanged;
                 RestartRun();
             }
             catch(Exception error) { Debug.LogException(error,this); enabled=false; }
@@ -135,12 +157,12 @@ namespace Roguelike.Combat
         {
             if(session==null) return;
             abilityIndicator.Cancel(); suppressRightUntilRelease=false; rightDragMoving=false; AttackArmed=false; hovered=Entity.Null; selected=Entity.Null;
-            abilityIndicator.HideSelection();
+            abilityIndicator.HideSelection(); hud.CloseShop();
             session.Reset(this,ActiveRules,ActiveDifficulty,enemyMesh,projectileMesh);
             destinationMarker.gameObject.SetActive(false); nextHudUpdate=0;
-            observedLevelUps=0; observedCommands=0;
-            ShowNotice("按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习第一个技能",6);
-            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; finalWave={ActiveDifficulty.finalWave}");
+            observedLevelUps=0; observedCommands=0; observedEquipment=0;
+            ShowNotice("按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习第一个技能；按 B 打开商店购买装备",6);
+            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; finalWave={ActiveDifficulty.finalWave}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
         }
         /// <summary>选择英雄配置并重新开局；不改变共享配置。选人界面可调用此边界。</summary>
         public void SelectHero(HeroDefinition selected)
@@ -232,17 +254,18 @@ namespace Roguelike.Combat
                 if(Input.GetKeyDown(KeyCode.A)) ArmAttack();
                 if(Input.GetKeyDown(KeyCode.S)) Stop();
                 if(Input.GetKeyDown(KeyCode.H)) Hold();
+                if(Input.GetKeyDown(KeyCode.B)) ToggleShop();
             }
             if(HeroProgressionLogic.PendingTalent(Progression)>=0)
             {
                 if(Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) ChooseTalent(0);
                 else if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) ChooseTalent(1);
             }
-            // Esc：先取消技能/攻击瞄准；没有瞄准时取消选中目标。
+            // Esc：先取消技能/攻击瞄准；没有瞄准时关闭商店；商店也没打开时取消选中目标。
             if(Input.GetKeyDown(KeyCode.Escape))
             {
-                if(!abilityIndicator.IsAiming && !AttackArmed) ClearSelection();
-                abilityIndicator.Cancel(); AttackArmed=false;
+                if(abilityIndicator.IsAiming || AttackArmed) { abilityIndicator.Cancel(); AttackArmed=false; }
+                else if(!hud.CloseShop()) ClearSelection();
             }
             if(Input.GetMouseButtonDown(1) && (abilityIndicator.IsAiming || AttackArmed))
             { abilityIndicator.Cancel(); AttackArmed=false; suppressRightUntilRelease=true; return; }
@@ -372,6 +395,40 @@ namespace Roguelike.Combat
             else if(progression.Level<hero.talents[tier].heroLevel) ShowNotice($"需要英雄等级 {hero.talents[tier].heroLevel} 才能选择该层天赋",2.5f);
             else if(pending>=0) ShowNotice($"请先选择 {hero.talents[pending].heroLevel} 级天赋",2.5f);
         }
+        // ---------- 商店与装备 ----------
+        /// <summary>打开或关闭商店（B 键、HUD 商店按钮）；只在战斗进行中可以打开。</summary>
+        public void ToggleShop() { if(IsReady) hud.ToggleShop(); }
+        /// <summary>购买装备库第 item 件装备。规则在模拟系统中权威结算，这里预检：明显失败时只提示、不提交指令。</summary>
+        public void BuyItem(int item)
+        {
+            if(!Running) return;
+            var manager=session.World.EntityManager;
+            var equipment=manager.GetComponentData<HeroEquipment>(session.Entity);
+            var failure=EquipmentLogic.CanBuy(equipment,manager.GetBuffer<EquipmentSlot>(session.Entity),item);
+            if(failure==EquipmentFailure.InvalidItem) return;
+            if(failure==EquipmentFailure.NotEnoughGold)
+            {
+                int missing=Mathf.CeilToInt(equipment.Library.Value.Items[item].Price-equipment.Gold-0.0001f);
+                ShowNotice($"{ItemName(item)}：金币不足，还差 {Mathf.Max(1,missing)} 金币",2.5f); return;
+            }
+            if(failure!=EquipmentFailure.None) { ShowNotice($"{ItemName(item)}：{EquipmentLogic.Describe(failure)}",2.5f); return; }
+            manager.GetBuffer<EquipmentCommand>(session.Entity).Add(new EquipmentCommand{Kind=EquipmentCommandKind.Buy,Value=item});
+        }
+        /// <summary>出售装备栏第 slot 格的装备。需要先打开商店，避免右键移动时误卖；空格忽略。</summary>
+        public void SellItem(int slot)
+        {
+            if(!Running) return;
+            var manager=session.World.EntityManager;
+            var slots=manager.GetBuffer<EquipmentSlot>(session.Entity);
+            if(slot<0 || slot>=slots.Length || slots[slot].Item<0) return;
+            if(!ShopOpen) { ShowNotice("打开商店（B）后右键装备即可出售",2.5f); return; }
+            manager.GetBuffer<EquipmentCommand>(session.Entity).Add(new EquipmentCommand{Kind=EquipmentCommandKind.Sell,Value=slot});
+        }
+        private string ItemName(int item)
+        {
+            var items=session.Items;
+            return item>=0 && item<items.Length && items[item]?items[item].Label:"装备";
+        }
         private void ShowNotice(string text,float seconds) { notice=text; noticeUntil=Time.unscaledTime+seconds; }
         private void Queue(int slot,Vector3 point,Vector3 direction)
         {
@@ -487,13 +544,19 @@ namespace Roguelike.Combat
             var unit=manager.GetComponentData<AbilityUnit>(session.Entity);
             var runtime=manager.GetComponentData<AbilityRuntime>(session.Entity);
             var attackState=manager.GetComponentData<AutoAttackState>(session.Entity);
-            var attackData=session.HeroAttack;
+            var attackData=manager.GetComponentData<AutoAttackData>(session.Entity);
+            var heroStats=manager.GetComponentData<HeroStats>(session.Entity);
+            var equipment=manager.GetComponentData<HeroEquipment>(session.Entity);
+            var equipped=manager.GetBuffer<EquipmentSlot>(session.Entity);
             s.Outcome=state.Health<=0?CombatOutcome.Defeat:wave.Outcome;
             s.HeroName=string.IsNullOrWhiteSpace(hero.displayName)?hero.name:hero.displayName; s.Portrait=hero.portrait;
             s.Level=progression.Level; s.SkillPoints=progression.SkillPoints;
             s.Health=state.Health; s.MaximumHealth=state.MaximumHealth; s.Regen=unit.Regen; s.Mana=unit.Mana; s.MaximumMana=unit.MaxMana;
             s.AttackDamage=unit.Attack; s.AttacksPerSecond=AutoAttackLogic.AttacksPerSecond(attackData,unit.AttackSpeedMultiplier);
             s.AttackRange=attackData.Range; s.MoveSpeed=unit.Speed;
+            s.SkillAmplify=unit.SkillAmplify*100; s.CooldownReduction=unit.CooldownReduction*100; s.DamageReduction=unit.DamageReduction*100;
+            s.CriticalChance=Mathf.Clamp(heroStats.Total.CriticalChance,0,100);
+            BuildEquipment(s,equipment,equipped);
             s.Elapsed=state.Elapsed; s.Kills=state.Kills; s.Alive=state.AliveEnemies; s.Projectiles=state.ActiveProjectiles;
             s.Fps=smoothFrameTime>0?1/smoothFrameTime:0; s.Wave=wave.Wave;
             s.Order=OrderLabel(order.Kind); s.AttackArmed=AttackArmed; s.Aiming=abilityIndicator.IsAiming;
@@ -567,7 +630,16 @@ namespace Roguelike.Combat
                 observedCommands=progression.CommandSerial;
                 if(progression.LastFailure!=ProgressionFailure.None) ShowNotice(HeroProgressionLogic.Describe(progression.LastFailure),2.5f);
             }
-            BuildTooltip(s.Tooltip,slots,unit,runtime,attackState,progression,busy);
+            if(equipment.CommandSerial!=observedEquipment)
+            {
+                observedEquipment=equipment.CommandSerial;
+                string item=ItemName(equipment.LastItem);
+                if(equipment.LastFailure!=EquipmentFailure.None) ShowNotice((equipment.LastItem>=0?item+"：":"")+EquipmentLogic.Describe(equipment.LastFailure),2.5f);
+                else if(equipment.LastCommand==EquipmentCommandKind.Buy) ShowNotice($"已购买 {item}",2.5f);
+                else if(equipment.Library.IsCreated && equipment.LastItem>=0 && equipment.LastItem<equipment.Library.Value.Items.Length)
+                    ShowNotice($"已出售 {item}，返还 {equipment.Library.Value.Items[equipment.LastItem].SellPrice} 金币",2.5f);
+            }
+            BuildTooltip(s,slots,unit,runtime,attackState,attackData,heroStats,equipment,equipped,progression,busy);
             var targetContext=new TargetInfoContext{KindNames=session.EnemyNames,KindArchetypes=session.EnemyArchetypes,Buffs=session.Buffs,
                 HeroPosition=state.Position,HeroAttackRange=attackData.Range,Now=runtime.Time};
             if(!TargetInfoBuilder.Build(manager,selected,targetContext,s.Target)) selected=Entity.Null;
@@ -575,17 +647,70 @@ namespace Roguelike.Combat
                 s.PendingTalent>=0?"有可选天赋：按 1 / 2 或打开天赋树选择":progression.SkillPoints>0?"有可用技能点：Ctrl+Q/W/E/R 或点击技能上方的“+”":"";
             return s;
         }
-        /// <summary>悬停的技能槽变化时立即刷新 HUD，避免提示框等待下一个 0.1 秒刷新周期。</summary>
-        private void OnHoverChanged()=>nextHudUpdate=0;
-        /// <summary>按 HUD 悬停槽位组装 Dota 2 式提示：0–3 为技能槽（技能库编译数据 + 槽位状态），4 为自动攻击被动；只读 ECS 权威状态。</summary>
-        private void BuildTooltip(AbilityTooltipView view,DynamicBuffer<AbilitySlot> slots,in AbilityUnit unit,in AbilityRuntime runtime,
-            in AutoAttackState attackState,in HeroProgression progression,bool busy)
+        /// <summary>金币、装备栏与商店卡片（当前页）的展示数据；商店是否打开由 HUD 决定。</summary>
+        private void BuildEquipment(CombatHudSnapshot s,in HeroEquipment equipment,DynamicBuffer<EquipmentSlot> equipped)
         {
+            var items=session.Items;
+            s.Gold=equipment.Gold;
+            for(int i=0;i<s.Equipment.Length;i++)
+            {
+                ref var view=ref s.Equipment[i];
+                view=default; view.Exists=i<equipped.Length;
+                int item=view.Exists?equipped[i].Item:-1;
+                var definition=item>=0 && item<items.Length?items[item]:null;
+                if(!definition) continue;
+                view.Filled=true; view.Icon=definition.icon; view.Name=definition.Label;
+            }
+            int pages=Mathf.Max(1,(items.Length+CombatHud.ShopCards-1)/CombatHud.ShopCards);
+            int page=Mathf.Clamp(hud.ShopPage,0,pages-1);
+            s.ShopPage=page; s.ShopPages=pages; s.ShopItemCount=items.Length;
+            bool compiled=equipment.Library.IsCreated;
+            for(int c=0;c<s.Shop.Length;c++)
+            {
+                ref var card=ref s.Shop[c];
+                card=default; card.Item=-1;
+                int item=page*CombatHud.ShopCards+c;
+                if(!compiled || item>=items.Length || item>=equipment.Library.Value.Items.Length || !items[item]) continue;
+                ref var data=ref equipment.Library.Value.Items[item];
+                card.Visible=true; card.Item=item; card.Icon=items[item].icon; card.Name=items[item].Label; card.Price=data.Price;
+                card.CannotAfford=equipment.Gold+0.0001f<data.Price;
+                card.Owned=data.Unique && EquipmentLogic.Owns(equipped,item);
+            }
+            s.ShopHint=items.Length==0?"商店暂无装备：在 Game 场景的控制器上指定装备库":
+                $"左键购买  ·  右键装备栏出售（返还 {session.SellRatio*100:0}%）  ·  B / Esc 关闭";
+        }
+        /// <summary>悬停的 HUD 槽或商店页变化时立即刷新 HUD，避免提示框与商店等待下一个 0.1 秒刷新周期。</summary>
+        private void OnHoverChanged()=>nextHudUpdate=0;
+        /// <summary>
+        /// 按 HUD 悬停源组装 Dota 2 式提示：0–3 技能槽、4 自动攻击被动、10–15 装备栏、20 属性面板、100–111 商店卡片；只读 ECS 权威状态。
+        /// </summary>
+        private void BuildTooltip(CombatHudSnapshot s,DynamicBuffer<AbilitySlot> slots,in AbilityUnit unit,in AbilityRuntime runtime,
+            in AutoAttackState attackState,in AutoAttackData attackData,in HeroStats heroStats,in HeroEquipment equipment,DynamicBuffer<EquipmentSlot> equipped,
+            in HeroProgression progression,bool busy)
+        {
+            var view=s.Tooltip;
             view.Visible=false;
             int index=hud.HoveredSlot;
             if(index==CombatHud.PassiveSlot)
             {
-                AbilityTooltipBuilder.BuildAttack(session.HeroAttack,attackState,unit,hero.basicAttack,hero.attackWhileMoving,Alive(attackState.Target),view);
+                AbilityTooltipBuilder.BuildAttack(attackData,attackState,unit,hero.basicAttack,hero.attackWhileMoving,Alive(attackState.Target),view);
+                return;
+            }
+            if(index==CombatHud.StatsHover)
+            {
+                AbilityTooltipBuilder.BuildStats(heroStats,unit,attackData,progression.Level,s.HeroName,hero.portrait,view);
+                return;
+            }
+            bool fromShop=index>=CombatHud.ShopHoverBase && index<CombatHud.ShopHoverBase+CombatHud.ShopCards;
+            if(fromShop || (index>=CombatHud.EquipmentHoverBase && index<CombatHud.EquipmentHoverBase+CombatHud.EquipmentSlots))
+            {
+                int slotIndex=index-CombatHud.EquipmentHoverBase;
+                int item=fromShop?s.Shop[index-CombatHud.ShopHoverBase].Item:slotIndex<equipped.Length?equipped[slotIndex].Item:-1;
+                var items=session.Items;
+                if(item<0 || item>=items.Length || !items[item] || !equipment.Library.IsCreated || item>=equipment.Library.Value.Items.Length) return;
+                var itemContext=new ItemTooltipContext{Definition=items[item],Buffs=session.Buffs,Gold=equipment.Gold,FromShop=fromShop,ShopOpen=hud.ShopOpen,
+                    BuyFailure=fromShop?EquipmentLogic.CanBuy(equipment,equipped,item):EquipmentFailure.None};
+                AbilityTooltipBuilder.BuildItem(ref session.Library.Value,ref equipment.Library.Value.Items[item],itemContext,view);
                 return;
             }
             if(index<0 || index>=slots.Length || index>=slotKeys.Length) return;
@@ -601,7 +726,8 @@ namespace Roguelike.Combat
         }
         private void OnDestroy()
         {
-            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; hud.HoverChanged-=OnHoverChanged; }
+            if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; hud.HoverChanged-=OnHoverChanged;
+                hud.BuyRequested-=BuyItem; hud.SellRequested-=SellItem; hud.ShopChanged-=OnHoverChanged; }
             if(abilityIndicator) { abilityIndicator.Cancel(); abilityIndicator.HideSelection(); }
             if(hasEnemyQuery && session!=null && session.World.IsCreated) { try { enemyQuery.Dispose(); } catch(Exception) { } }
             hasEnemyQuery=false;

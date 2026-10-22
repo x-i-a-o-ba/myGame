@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56e54fc344be4a05a6443f96e0f98886, type: 3}
+  m_Name: "\u8D24\u8005\u4E4B\u4E66"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.EquipmentDefinition
+  configId: 6009
+  stableId: item.sage_tome
+  displayName: "\u8D24\u8005\u4E4B\u4E66"
+  icon: {fileID: 2800000, guid: 3d246d55906342608824f5e061019753, type: 3}
+  quality: 1
+  price: 500
+  unique: 1
+  description: "\u5199\u6EE1\u524D\u4EBA\u5FC3\u5F97\u7684\u53E4\u4E66\uFF0C\u83B7\u5F97\u7684\u7ECF\u9A8C\u66F4\u591A\u3002\u540C\u540D\u88C5\u5907\u53EA\u80FD\u6301\u6709\u4E00\u4EF6\u3002"
+  stats:
+  - stat: 7
+    value: 25
+  onHitEffects: []
