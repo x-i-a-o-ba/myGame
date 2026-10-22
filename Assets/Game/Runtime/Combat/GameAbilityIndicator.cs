@@ -8,7 +8,7 @@ namespace Roguelike.Combat
     /// <summary>
     /// 读取装备技能第一段几何的瞄准预览。只决定输入目标，不结算效果。
     /// 不在技能瞄准时，同一组圆圈复用为 Dota 2 式指令预览：A 键攻击瞄准的攻击距离圈、悬停敌人与攻击目标圈。
-    /// 左键选中敌人的选中圈由目标圈在运行时克隆出独立实例，与瞄准/指令预览互不干扰。
+    /// 左键选中敌人的选中圈由目标圈在运行时克隆出独立实例，与瞄准/指令预览互不干扰；地上装备与商店范围圈同样通过 <see cref="CreateCircle"/> 克隆。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class GameAbilityIndicator : MonoBehaviour
@@ -110,6 +110,14 @@ namespace Roguelike.Combat
             selectionCircle.Show(new Vector3(center.x,SelectionHeight,center.z),Mathf.Max(0.2f,radius),color,0.9f);
         }
         public void HideSelection() { if(selectionCircle) selectionCircle.Hide(); }
+        /// <summary>克隆一个与目标圈外观相同的独立圆圈（地上装备、商店范围等），初始隐藏；调用方拥有并负责销毁。未绑定时返回 null。</summary>
+        public CircleIndicatorView CreateCircle(string circleName)
+        {
+            if(!areaCircle) return null;
+            var circle=Instantiate(areaCircle,areaCircle.transform.parent);
+            circle.name=circleName; circle.Hide();
+            return circle;
+        }
         private void ShowOutline()
         {
             if(outline.positionCount!=outlinePoints.Count) outline.positionCount=outlinePoints.Count;

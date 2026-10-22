@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
 
 namespace Roguelike.Combat
 {
-    /// <summary>拥有Game实体、技能/成长/装备配置Blob与重开生命周期。场景视图归场景所有。</summary>
+    /// <summary>拥有Game实体、技能/成长/装备配置Blob与重开生命周期（含地上的装备与商店位置）。场景视图归场景所有。</summary>
     public sealed class GameCombatSession : IDisposable
     {
         public Entity Entity {get; private set;}
@@ -160,6 +160,10 @@ namespace Roguelike.Combat
             manager.AddComponentData(Entity,equipment);
             EquipmentLogic.InitializeSlots(manager.AddBuffer<EquipmentSlot>(Entity),equipment);
             manager.AddBuffer<EquipmentCommand>(Entity);
+            // 地上的装备随会话实体重建（重开清空）；商店位置来自场景的 GameShop，没有配置时不限距离。
+            manager.AddBuffer<GroundItem>(Entity);
+            var shop=config.shop;
+            manager.AddComponentData(Entity,shop?new ShopSite{Position=shop.Position,Radius=shop.Radius,Limited=true}:new ShopSite{Limited=false});
             manager.AddComponentData(Entity,waves);
             manager.AddComponentData(Entity,new CombatWaveState {NextWaveAt=waves.FirstWaveAt,Outcome=CombatOutcome.Running,
                 Seed=(uint)Environment.TickCount|1u});

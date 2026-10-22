@@ -68,6 +68,9 @@ namespace Roguelike.Abilities.Editor
             Field("startingGold", "开局金币");
             Field("sellRatio", "出售返还比例", "0.5 表示返还购买价格的 50%（向下取整）。");
             Field("slotCount", "装备栏格数", "HUD 最多显示 6 格。");
+            Section("丢弃与拾取（重开后生效）");
+            Field("dropRange", "丢弃距离（米）", "把装备拖到地面后，英雄走到落点这个距离内才放下；Dota 2 为 100 码，约 3.3 米。");
+            Field("pickupRange", "拾取距离（米）", "右键地上的装备后，英雄走到这个距离内才拾取；Dota 2 为 150 码，约 5 米。");
             Array("items", "出售的装备", "装备", "按此顺序显示在商店中（每页 12 件）。新增装备：新建“装备定义”资源后加入这里。");
             End();
             if (targets.Length == 1)

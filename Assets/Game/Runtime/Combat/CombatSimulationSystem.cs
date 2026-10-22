@@ -9,8 +9,8 @@ using Unity.Transforms;
 namespace Roguelike.Combat
 {
     /// <summary>
-    /// Game战斗宿主：Dota 2 式英雄指令（移动/攻击目标/攻击移动/待命/停止）、自动攻击被动模块、多种敌人行为、死亡计数、
-    /// 经验升级、金币与装备买卖、波次刷怪。英雄属性由 HeroStatsLogic 统一合成；技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
+    /// Game战斗宿主：Dota 2 式英雄指令（移动/攻击目标/攻击移动/待命/停止/拾取/丢弃）、自动攻击被动模块、多种敌人行为、死亡计数、
+    /// 经验升级、金币、商店范围内的装备买卖、装备换位 / 丢弃 / 拾取、波次刷怪。英雄属性由 HeroStatsLogic 统一合成；技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
@@ -65,9 +65,11 @@ namespace Roguelike.Combat
             Dependency.Complete();
             var hero=manager.GetComponentData<AbilityUnit>(session);
             if(hero.Health<=0) { Die(session,ref player,ref waveState,now,dt); return; }
-            // 学习技能、天赋与装备买卖串行结算；等级、天赋或装备变化后统一重算属性。
+            // 拾取 / 丢弃指令进入距离后转成装备指令，与学习技能、天赋、装备买卖一起串行结算；等级、天赋或装备变化后统一重算属性。
+            var itemOrder=manager.GetComponentData<HeroOrder>(session);
+            if(StepItemOrder(session,ref itemOrder,player.Position)) manager.SetComponentData(session,itemOrder);
             bool rebuild=ProcessProgression(session,ref runtime.Library.Value);
-            rebuild|=ProcessEquipment(session);
+            rebuild|=ProcessEquipment(session,player.Position);
             if(rebuild) RebuildHeroStats(session,ref runtime.Library.Value);
             hero=manager.GetComponentData<AbilityUnit>(session);
             player.Elapsed+=dt;
@@ -229,17 +231,18 @@ namespace Roguelike.Combat
                 player.HandledOrder=order.Serial;
                 Entity ordered=order.Kind==HeroOrderKind.AttackTarget?order.Target:Entity.Null;
                 // 任何新指令都会打断攻击前摇与后摇（冷却保留）；重复右键同一目标不打断正在进行的攻击。
-                // 移动中攻击开启时，移动/攻击移动只更换目的地：保留当前目标与进行中的攻击，按住右键拖动也能持续出手。
+                // 移动中攻击开启时，移动/攻击移动（含拾取、丢弃）只更换目的地：保留当前目标与进行中的攻击，按住右键拖动也能持续出手。
                 bool keep=(order.Kind==HeroOrderKind.AttackTarget && ordered==attack.Target) ||
-                          (strafe && (order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove));
+                          (strafe && (MoveLike(order.Kind) || order.Kind==HeroOrderKind.AttackMove));
                 if(!keep) { AutoAttackLogic.Interrupt(ref attack); attack.Target=ordered; }
                 attack.AcquireDelay=0;
             }
             float3 position=player.Position;
-            // 移动中攻击：移动指令只攻击攻击距离内的敌人（含前摇缓冲），不追击、不停下。
-            bool moveFires=strafe && order.Kind==HeroOrderKind.Move;
+            // 移动中攻击：移动指令（含走去拾取、丢弃）只攻击攻击距离内的敌人（含前摇缓冲），不追击、不停下。
+            bool moveOrder=MoveLike(order.Kind);
+            bool moveFires=strafe && moveOrder;
             bool local=order.Kind==HeroOrderKind.Hold || moveFires;
-            Entity target=order.Kind==HeroOrderKind.Move && !moveFires?Entity.Null:attack.Target;
+            Entity target=moveOrder && !moveFires?Entity.Null:attack.Target;
             float3 targetPosition=default; float targetDistance=0,targetRadius=0;
             if(target!=Entity.Null && !TryTarget(target,position,out targetPosition,out targetDistance,out targetRadius)) target=Entity.Null;
             if(target==Entity.Null && order.Kind==HeroOrderKind.AttackTarget) { order.Kind=HeroOrderKind.Idle; order.Target=Entity.Null; }
@@ -259,7 +262,7 @@ namespace Roguelike.Combat
                 { target=Entity.Null; attack.AcquireDelay=AcquireRetry; }
             }
             attack.Target=target;
-            bool moving=order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove;
+            bool moving=moveOrder || order.Kind==HeroOrderKind.AttackMove;
             // 有目标时：攻击移动/攻击目标/待机先处理目标（追击或站定攻击）；移动中攻击则继续走向目的地。
             bool travel=moving && (target==Entity.Null || moveFires);
             if(travel && math.distance(position.xz,order.Point.xz)<=0.05f) { order.Kind=HeroOrderKind.Idle; travel=false; moving=false; }
@@ -268,6 +271,9 @@ namespace Roguelike.Combat
                 Chase=target!=Entity.Null && !local,Travel=travel,Destination=order.Point};
             return StepMotion(ref player,ref attack,data,hero,motion,strafe,config.TurnRate,config.ArenaHalfSize,busy,dt)==AutoAttackEvent.Released;
         }
+        /// <summary>移动、拾取与丢弃指令途中的行为相同：走向 Point，不追击。</summary>
+        public static bool MoveLike(HeroOrderKind kind)
+            =>kind==HeroOrderKind.Move || kind==HeroOrderKind.PickUp || kind==HeroOrderKind.DropItem;
         /// <summary>
         /// 纯函数：按动作意图推进一帧转身、攻击节奏与位移（英雄专用，编辑器校验直接调用）。
         /// 传统模式（strafe 为假）：前摇中站定，移动前需大致转向，移动会打断后摇。
@@ -353,7 +359,7 @@ namespace Roguelike.Combat
             if(state.Outcome!=CombatOutcome.Running) return;
             state.Outcome=CombatOutcome.Defeat; EntityManager.SetComponentData(session,state);
         }
-        /// <summary>胜负已定或英雄倒下时丢弃尚未处理的成长与装备指令。</summary>
+        /// <summary>胜负已定或英雄倒下时丢弃尚未处理的成长与装备指令（地上的装备保留到重开）。</summary>
         private void ClearCommands(Entity session)
         {
             EntityManager.GetBuffer<ProgressionCommand>(session).Clear();
@@ -378,8 +384,48 @@ namespace Roguelike.Combat
             EntityManager.SetComponentData(session,progression);
             return talent;
         }
-        /// <summary>串行处理购买 / 出售指令；结果与失败原因写回 HeroEquipment。返回装备栏是否变化（需要重算属性）。</summary>
-        private bool ProcessEquipment(Entity session)
+        /// <summary>拾取 / 丢弃指令推进（见 <see cref="AdvanceItemOrder"/>）；会话缺少装备数据时转为待机。返回指令是否被修改。</summary>
+        private bool StepItemOrder(Entity session,ref HeroOrder order,float3 position)
+        {
+            if(order.Kind!=HeroOrderKind.PickUp && order.Kind!=HeroOrderKind.DropItem) return false;
+            var manager=EntityManager;
+            if(!manager.HasComponent<HeroEquipment>(session) || !manager.HasBuffer<EquipmentCommand>(session) || !manager.HasBuffer<GroundItem>(session))
+            { order.Kind=HeroOrderKind.Idle; return true; }
+            return AdvanceItemOrder(ref order,manager.GetComponentData<HeroEquipment>(session),manager.GetBuffer<GroundItem>(session),
+                manager.GetBuffer<EquipmentCommand>(session),position);
+        }
+        /// <summary>
+        /// 纯函数（编辑器校验直接调用）：拾取 / 丢弃指令（Dota 2 式）在英雄进入拾取 / 丢弃距离后写入一条装备指令并转为待机，
+        /// 同一帧由 <see cref="ApplyEquipmentCommand"/> 结算；拾取时目标点跟随地上的装备，装备已不存在时直接转为待机。
+        /// 其他指令不处理。返回指令是否被修改。
+        /// </summary>
+        public static bool AdvanceItemOrder(ref HeroOrder order,in HeroEquipment equipment,DynamicBuffer<GroundItem> ground,DynamicBuffer<EquipmentCommand> commands,float3 position)
+        {
+            if(order.Kind!=HeroOrderKind.PickUp && order.Kind!=HeroOrderKind.DropItem) return false;
+            if(!equipment.Library.IsCreated) { order.Kind=HeroOrderKind.Idle; return true; }
+            var command=new EquipmentCommand{Value=order.Value};
+            if(order.Kind==HeroOrderKind.PickUp)
+            {
+                int index=EquipmentLogic.FindGround(ground,order.Value);
+                if(index<0) { order.Kind=HeroOrderKind.Idle; return true; }
+                float3 item=ground[index].Position;
+                order.Point=new float3(item.x,order.Point.y,item.z);
+                if(!EquipmentLogic.Within(position,item,equipment.Library.Value.PickupRange)) return true;
+                command.Kind=EquipmentCommandKind.PickUp;
+            }
+            else
+            {
+                if(!EquipmentLogic.Within(position,order.Point,equipment.Library.Value.DropRange)) return false;
+                command.Kind=EquipmentCommandKind.Drop; command.Argument=order.Item; command.Point=order.Point;
+            }
+            commands.Add(command);
+            order.Kind=HeroOrderKind.Idle; order.Point=new float3(position.x,order.Point.y,position.z);
+            return true;
+        }
+        /// <summary>
+        /// 串行处理装备指令（逐条见 <see cref="ApplyEquipmentCommand"/>），结果与失败原因写回 HeroEquipment。返回装备栏是否变化（需要重算属性）。
+        /// </summary>
+        private bool ProcessEquipment(Entity session,float3 position)
         {
             var manager=EntityManager;
             if(!manager.HasBuffer<EquipmentCommand>(session) || !manager.HasComponent<HeroEquipment>(session)) return false;
@@ -389,12 +435,41 @@ namespace Roguelike.Combat
             commands.Clear();
             var equipment=manager.GetComponentData<HeroEquipment>(session);
             var slots=manager.GetBuffer<EquipmentSlot>(session);
+            var shop=manager.HasComponent<ShopSite>(session)?manager.GetComponentData<ShopSite>(session):default;
+            bool hasGround=manager.HasBuffer<GroundItem>(session);
+            var ground=hasGround?manager.GetBuffer<GroundItem>(session):default;
             bool changed=false;
             for(int i=0;i<pending.Length;i++)
-                changed|=pending[i].Kind==EquipmentCommandKind.Buy?EquipmentLogic.TryBuy(ref equipment,slots,pending[i].Value):
-                    EquipmentLogic.TrySell(ref equipment,slots,pending[i].Value);
+            {
+                var command=pending[i];
+                if(!hasGround && (command.Kind==EquipmentCommandKind.Drop || command.Kind==EquipmentCommandKind.PickUp)) continue;
+                changed|=ApplyEquipmentCommand(ref equipment,slots,ground,shop,command,position);
+            }
             manager.SetComponentData(session,equipment);
             return changed;
+        }
+        /// <summary>
+        /// 纯函数（编辑器校验直接调用）：结算一条装备指令。购买与出售要求英雄在商店范围内（<see cref="ShopSite"/>），否则记为 NotInShop；
+        /// 换位、丢弃与拾取随时可用（丢弃 / 拾取另有距离限制）。返回装备栏是否变化。
+        /// </summary>
+        public static bool ApplyEquipmentCommand(ref HeroEquipment equipment,DynamicBuffer<EquipmentSlot> slots,DynamicBuffer<GroundItem> ground,in ShopSite shop,
+            in EquipmentCommand command,float3 position)
+        {
+            switch(command.Kind)
+            {
+                case EquipmentCommandKind.Buy:
+                    if(EquipmentLogic.InShop(shop,position)) return EquipmentLogic.TryBuy(ref equipment,slots,command.Value);
+                    EquipmentLogic.Reject(ref equipment,command.Kind,command.Value,EquipmentFailure.NotInShop);
+                    return false;
+                case EquipmentCommandKind.Sell:
+                    if(EquipmentLogic.InShop(shop,position)) return EquipmentLogic.TrySell(ref equipment,slots,command.Value);
+                    EquipmentLogic.Reject(ref equipment,command.Kind,command.Value>=0 && command.Value<slots.Length?slots[command.Value].Item:-1,EquipmentFailure.NotInShop);
+                    return false;
+                case EquipmentCommandKind.Move: return EquipmentLogic.TryMove(ref equipment,slots,command.Value,command.Argument);
+                case EquipmentCommandKind.Drop: return EquipmentLogic.TryDrop(ref equipment,slots,ground,command.Value,command.Argument,command.Point,position);
+                case EquipmentCommandKind.PickUp: return EquipmentLogic.TryPickUp(ref equipment,slots,ground,command.Value,position);
+                default: return false;
+            }
         }
         /// <summary>等级、天赋或装备变化后统一重算英雄属性：HeroStatsLogic 合成基础值与攻击距离，再叠加 Buff。</summary>
         private void RebuildHeroStats(Entity session,ref AbilityLibrary library)

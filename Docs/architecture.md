@@ -5,6 +5,15 @@
 用户要求组合地基优先，已移除Game固定QWER实现，当前契约见 [ability-foundation.md](ability-foundation.md)。`HeroDefinition → SkillDefinition → Stage[] → EffectDefinition[]`，Buff独立；Core无UI依赖，Game采用AbilityUnit唯一属性权威。GameCombatSession负责实体与Blob生命周期，Controller只装配输入/展示，CombatSimulationSystem处理战斗宿主行为，技能由AbilityExecution调度。现有行为差异、未实现内容与本轮验证统一见新文档。下文关于四份专用配置和旧验证的段落为历史记录。
 
 
+## 2026-10-22 装备丢弃、拾取与固定商店（PR #6）
+
+- 数据所有权：地上的装备是会话实体上的 `GroundItem` 缓冲（本局唯一编号、装备下标、落点），商店位置是 `ShopSite` 组件（重开时从场景 `GameShop` 读入）；两者都归会话，重开时重建。`HeroEquipment` 只增加最近一次地上装备编号与编号计数。配置只增加装备库的丢弃 / 拾取距离与 `GameShop` 的半径。
+- 规则：`EquipmentLogic` 新增 `TryMove`（换位 / 交换）、`TryDrop`（按装备核对后放到落点）、`CanPickUp`/`TryPickUp`（空格、唯一、距离）与 `InShop`/`Within`/`Reject`。`HeroOrder` 新增 `PickUp`、`DropItem`（`Value`/`Item` 字段），与移动共用走动逻辑（`MoveLike`）。
+- 模拟顺序：`CombatSimulationSystem` 在阵亡判定之后调用纯函数 `AdvanceItemOrder`，英雄进入拾取 / 丢弃距离时把指令转成 `EquipmentCommand` 并待机；随后 `ApplyEquipmentCommand` 逐条结算全部装备指令（买卖先检查商店范围，范围外记 `NotInShop`），装备栏变化时与成长一起重算属性。两个函数都是公开静态函数，编辑器校验直接调用。
+- 输入与展示：Foundation 新增 `UIDragAction` / `UIDropAction`，`UiCommand` 可附带指针屏幕坐标；`CombatHud` 只把拖放结果转成换位 / 出售 / 丢弃请求。控制器负责点选与下令（地上装备与敌人取更接近光标者）、商店范围圈与离开范围关店；`GroundItemViews` 只读 `GroundItem` 显示地面圈与图标牌。UI 与展示对象都不成为规则依据。
+
+详见 [equipment-and-stats.md](equipment-and-stats.md) 第 2.6、2.7、3、4 节。Unity 编译与运行**未验证**。
+
 ## 2026-10-22 属性与装备
 
 - `Abilities/Core/Stats`：`StatKind`（15 种属性）与 `StatSheet`（按属性存值、可相加）。`HeroStats` 组件在英雄实体上保存基础、每级成长、天赋、装备与合计；`HeroStatsLogic.Rebuild` 是唯一合成规则（合计 = 基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，直接相加），把合计写入 `AbilityUnit` 基础值、`HeroProgression.ExperienceMultiplier` 和 `AutoAttackData` 距离，再由 `AbilityEffects.Recalculate` 叠加 Buff。等级、天赋、装备任一变化都整体重算，不做增量加减。
@@ -12,7 +21,7 @@
 - 输入层只写 `EquipmentCommand`；`CombatSimulationSystem` 在成长命令之后串行处理，变化时重算属性。普攻出手时用会话种子与出手序号判定暴击，命中时依次结算伤害、吸血、装备命中效果（来源编号 3000 + 装备下标）和普攻命中事件；击杀金币与经验一起在 ECB 回放后结算。伤害减免在共享伤害入口 `AbilityEffects.Damage` 统一生效。
 - UI：Foundation 新增 `UIPointerAction`（右键等非左键点击命令），`UITooltip` 上方放不下时放左侧。`CombatHud` 新增商店面板 `UI.Game.Shop` 的开关与翻页（纯展示状态），控制器把装备栏、商店卡片和装备/属性提示只读组装进快照。
 
-详见 [equipment-and-stats.md](equipment-and-stats.md)。Unity 编译与运行**未验证**。
+详见 [equipment-and-stats.md](equipment-and-stats.md)。PR #5 合并前已通过 Unity 编译、251 项 Editor 检查、Windows 构建与 74 项 Player 检查，见 [验证记录](validation-stats-equipment-2026-10-22.md)。
 
 ## 2026-10-21 自动攻击模块、Dota 2 式指令与敌人种类
 

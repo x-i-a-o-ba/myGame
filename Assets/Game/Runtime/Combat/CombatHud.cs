@@ -7,7 +7,8 @@ namespace Roguelike.Combat
 {
     /// <summary>
     /// Game HUD 展示桥：把 <see cref="CombatHudSnapshot"/> 发布为 UI 键值（只发布变化的值），
-    /// 并把重开、施放、学习、天赋、指令、商店购买与装备出售意图转发给控制器。面板布局与样式全部在 Prefab 中制作。
+    /// 并把重开、施放、学习、天赋、指令、开商店、购买、出售与装备拖动（换位、丢弃到地面、拖到商店出售）意图转发给控制器。
+    /// 面板布局与样式全部在 Prefab 中制作；地上装备的提示框锚点由本组件在画布下创建。
     /// </summary>
     public sealed class CombatHud : MonoBehaviour
     {
@@ -24,10 +25,16 @@ namespace Roguelike.Combat
         public event Action HoverChanged;
         /// <summary>商店卡片左键购买：值 = 装备库下标（当前页 × <see cref="ShopCards"/> + 卡片序号）。</summary>
         public event Action<int> BuyRequested;
-        /// <summary>装备栏右键出售：值 = 装备栏格（0–5）。</summary>
+        /// <summary>装备栏右键出售或把装备拖到商店面板：值 = 装备栏格（0–5）。</summary>
         public event Action<int> SellRequested;
         /// <summary>商店打开、关闭或翻页；控制器据此立即刷新 HUD。</summary>
         public event Action ShopChanged;
+        /// <summary>商店按钮在商店关闭时被点击：由控制器判断英雄是否在商店范围内再调用 <see cref="ToggleShop"/>；没有订阅者时直接打开。</summary>
+        public event Action ShopRequested;
+        /// <summary>把装备拖到装备栏另一格松开：值 = (起始格, 目标格)；目标格有装备时两格交换。</summary>
+        public event Action<int,int> MoveRequested;
+        /// <summary>把装备拖出 HUD 松开（Dota 2 式丢弃到地面）：值 = (装备栏格, 松开时的屏幕坐标)。</summary>
+        public event Action<int,Vector2> DropRequested;
         public const string ProgressionPanel="UI.Game.Progression", TalentPanel="UI.Game.Talent", DeathPanel="UI.Game.DeathOverlay";
         /// <summary>左键选中敌人后在左上角显示的目标信息面板。</summary>
         public const string TargetPanel="UI.Game.TargetInfo";
@@ -43,6 +50,11 @@ namespace Roguelike.Combat
         public const int PassiveSlot=4;
         /// <summary>商店与装备命令：商店开关、购买（值 = 当前页卡片序号）、翻页（0 上一页、1 下一页）、出售（值 = 装备栏格，右键）。</summary>
         public const string ShopCommand="combat.shop", BuyCommand="combat.shop.buy", PageCommand="combat.shop.page", SellCommand="combat.equip.sell";
+        /// <summary>
+        /// 装备拖动命令：开始拖动（值 = 格）、松开（值 = 格，附带屏幕坐标）、放到装备栏某格（值 = 目标格）、放到商店面板（出售）。
+        /// 放置命令先于松开命令到达；松开时没有被放置目标接住且不在 HUD 上，就是丢弃到地面。
+        /// </summary>
+        public const string DragCommand="combat.equip.drag", DragEndCommand="combat.equip.dragEnd", DropOnCommand="combat.equip.dropOn", ShopDropCommand="combat.shop.drop";
         /// <summary>HUD 预制体提供的装备栏格数与商店每页卡片数；装备栏、属性面板与商店卡片的悬停值。</summary>
         public const int EquipmentSlots=6, ShopCards=12, EquipmentHoverBase=10, StatsHover=20, ShopHoverBase=100;
         /// <summary>HUD 预制体提供的技能槽、每槽等级点与天赋层数量。</summary>
@@ -57,6 +69,14 @@ namespace Roguelike.Combat
         public bool ShopOpen {get; private set;}
         /// <summary>商店当前页（从 0 开始），按快照的总页数夹紧。</summary>
         public int ShopPage {get; private set;}
+        /// <summary>正在拖动的装备栏格；没有拖动时为 -1。拖动期间隐藏提示框。</summary>
+        public int DraggingSlot {get; private set;}=-1;
+        /// <summary>是否正在显示地上装备的提示框（由控制器每帧定位锚点）。</summary>
+        public bool GroundTooltipActive {get; private set;}
+        /// <summary>地上装备提示框的锚点（画布下的空矩形）；尚未显示过时为 null。</summary>
+        public RectTransform GroundAnchor => groundAnchor;
+        private RectTransform groundAnchor;
+        private bool dropHandled;
         // 0 未知、1 显示、2 隐藏；只在状态变化时调用 Show/Hide，避免每次刷新都触发面板打开事件。
         private int progressionVisible, talentVisible, deathVisible, targetVisible, tooltipVisible, shopVisible;
         private int shopPages = 1;
@@ -85,12 +105,16 @@ namespace Roguelike.Combat
                 OrderRequested?.Invoke(command.Value);
             else if (command.Id == TargetKeys.CloseCommand) TargetCloseRequested?.Invoke();
             else if (command.Id == HoverCommand) Hover(command.Value);
-            else if (command.Id == ShopCommand) ToggleShop();
+            else if (command.Id == ShopCommand) { if (ShopOpen || ShopRequested == null) ToggleShop(); else ShopRequested.Invoke(); }
             else if (command.Id == BuyCommand && command.Value >= 0 && command.Value < ShopCards)
                 BuyRequested?.Invoke(ShopPage * ShopCards + command.Value);
             else if (command.Id == PageCommand) TurnPage(command.Value == 0 ? -1 : 1);
             else if (command.Id == SellCommand && command.Value >= 0 && command.Value < EquipmentSlots)
                 SellRequested?.Invoke(command.Value);
+            else if (command.Id == DragCommand && command.Value >= 0 && command.Value < EquipmentSlots) BeginDrag(command.Value);
+            else if (command.Id == DropOnCommand && command.Value >= 0 && command.Value < EquipmentSlots) DropOnSlot(command.Value);
+            else if (command.Id == ShopDropCommand) DropOnShop();
+            else if (command.Id == DragEndCommand) EndDrag(command.Value, command.Pointer);
             else if (command.Id == "combat.talentTree")
             { TalentTreeOpen = !TalentTreeOpen; UpdateTalentPanel(); }
         }
@@ -133,8 +157,79 @@ namespace Roguelike.Combat
             if (next == HoveredSlot) return;
             HoveredSlot = next;
             // 离开时立即隐藏；进入时等控制器下一次刷新填好内容再显示，避免闪出上一个技能的文字。
-            if (next < 0) SetPanel(TooltipPanel, false, ref tooltipVisible);
+            // 正在查看地上的装备时，离开 HUD 槽后把提示框锚点交还给地上的装备。
+            if (next < 0)
+            {
+                SetPanel(TooltipPanel, false, ref tooltipVisible);
+                if (GroundTooltipActive && groundAnchor) UI.SetHover(groundAnchor, true);
+            }
             HoverChanged?.Invoke();
+        }
+        // ---------- 装备拖动（Dota 2 式：拖到其他格换位、拖到地面丢弃、拖到商店出售） ----------
+        private void BeginDrag(int slot)
+        {
+            DraggingSlot = slot; dropHandled = false;
+            SetPanel(TooltipPanel, false, ref tooltipVisible);
+            HoverChanged?.Invoke();
+        }
+        private void DropOnSlot(int target)
+        {
+            if (DraggingSlot < 0 || dropHandled) return;
+            dropHandled = true;
+            if (target != DraggingSlot) MoveRequested?.Invoke(DraggingSlot, target);
+        }
+        private void DropOnShop()
+        {
+            if (DraggingSlot < 0 || dropHandled) return;
+            dropHandled = true;
+            if (ShopOpen) SellRequested?.Invoke(DraggingSlot);
+        }
+        private void EndDrag(int slot, Vector2 pointer)
+        {
+            int from = DraggingSlot; bool handled = dropHandled;
+            DraggingSlot = -1; dropHandled = false;
+            if (from < 0 || from != slot) return;
+            // 落在 HUD 其他位置（没有放置目标）时取消；落在场景中时丢弃到松开位置。
+            if (!handled && running && !BlocksPointer(pointer)) DropRequested?.Invoke(from, pointer);
+            HoverChanged?.Invoke();
+        }
+        // ---------- 地上装备的提示框 ----------
+        /// <summary>
+        /// 把地上装备的提示框锚点放到屏幕位置 screen（像素，图标牌中心），size 为图标牌在屏幕上的边长（像素）。
+        /// 提示框内容来自快照的 Tooltip（没有悬停 HUD 槽时）；悬停 HUD 槽时让位给 HUD 槽，离开后自动恢复。
+        /// </summary>
+        public void ShowGroundTooltip(Vector2 screen, float size)
+        {
+            var anchor = EnsureGroundAnchor();
+            if (!anchor) return;
+            var canvas = UI.GetComponent<Canvas>();
+            var camera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            if (RectTransformUtility.ScreenPointToWorldPointInRectangle((RectTransform)UI.transform, screen, camera, out var world)) anchor.position = world;
+            float scale = canvas ? Mathf.Max(0.01f, canvas.scaleFactor) : 1;
+            anchor.sizeDelta = Vector2.one * Mathf.Max(8, size / scale);
+            bool changed = !GroundTooltipActive;
+            GroundTooltipActive = true;
+            if (HoveredSlot < 0) UI.SetHover(anchor, true);
+            if (changed) HoverChanged?.Invoke();
+        }
+        /// <summary>隐藏地上装备的提示框（取消查看、装备被拾取或不在屏幕内）。</summary>
+        public void HideGroundTooltip()
+        {
+            if (!GroundTooltipActive) return;
+            GroundTooltipActive = false;
+            if (groundAnchor) UI.SetHover(groundAnchor, false);
+            if (HoveredSlot < 0) SetPanel(TooltipPanel, false, ref tooltipVisible);
+            HoverChanged?.Invoke();
+        }
+        private RectTransform EnsureGroundAnchor()
+        {
+            if (groundAnchor) return groundAnchor;
+            if (!UI) return null;
+            var anchor = new GameObject("Ground Tooltip Anchor", typeof(RectTransform));
+            groundAnchor = (RectTransform)anchor.transform;
+            groundAnchor.SetParent(UI.transform, false);
+            groundAnchor.anchorMin = groundAnchor.anchorMax = groundAnchor.pivot = new Vector2(0.5f, 0.5f);
+            return groundAnchor;
         }
 
         /// <summary>按快照刷新全部 HUD 键值；数值未变化的键不会重复发布。</summary>
@@ -174,10 +269,15 @@ namespace Roguelike.Combat
             Text(StatsKeys.Cooldown, Percent(s.CooldownReduction));
             Text(StatsKeys.Reduction, Percent(s.DamageReduction));
             Text(StatsKeys.Critical, Percent(s.CriticalChance));
-            // 金币、装备栏与商店
+            // 金币、装备栏与商店（商店按钮在商店范围外变暗并显示距离）
             Text(EquipmentKeys.Gold, $"{Mathf.FloorToInt(Mathf.Max(0, s.Gold)):N0}");
             for (int i = 0; i < EquipmentSlots && i < s.Equipment.Length; i++) Equip(i, s.Equipment[i]);
             if (!running && ShopOpen) CloseShop();
+            if (!running) HideGroundTooltip();
+            if (DraggingSlot >= 0 && !UIDragAction.Current) { DraggingSlot = -1; dropHandled = false; }
+            bool far = running && s.ShopLimited && !s.ShopInRange;
+            Toggle(ShopKeys.Far, far);
+            Text(ShopKeys.Distance, far ? $"{Mathf.CeilToInt(s.ShopDistance)} 米" : "");
             Shop(s);
             // 自动攻击被动模块
             Picture("passive.icon", s.PassiveIcon);
@@ -210,7 +310,7 @@ namespace Roguelike.Combat
             bool showTarget = running && s.Target.Visible;
             SetPanel(TargetPanel, showTarget, ref targetVisible);
             if (showTarget) Target(s.Target);
-            bool showTooltip = running && HoveredSlot >= 0 && s.Tooltip.Visible;
+            bool showTooltip = running && DraggingSlot < 0 && (HoveredSlot >= 0 || GroundTooltipActive) && s.Tooltip.Visible;
             if (showTooltip) Tooltip(s.Tooltip);
             SetPanel(TooltipPanel, showTooltip, ref tooltipVisible);
             if (showTooltip)
@@ -224,6 +324,8 @@ namespace Roguelike.Combat
         private void Equip(int slot, in EquipmentSlotView view)
         {
             Toggle(EquipmentKeys.Locked[slot], !view.Exists);
+            // 拖动装备经过另一格时高亮该格（松开即换位）。
+            Toggle(EquipmentKeys.Drop[slot], DraggingSlot >= 0 && slot != DraggingSlot && view.Exists && HoveredSlot == EquipmentHoverBase + slot);
             Toggle(EquipmentKeys.Filled[slot], view.Filled);
             Picture(EquipmentKeys.Icons[slot], view.Filled ? view.Icon : null);
             Toggle(EquipmentKeys.HasIcon[slot], view.Filled && view.Icon != null);
@@ -443,15 +545,18 @@ namespace Roguelike.Combat
             public const string Gold = "hero.gold";
             public static readonly string[] Icons = Numbered("equip.s", ".icon", EquipmentSlots), Filled = Numbered("equip.s", ".filled", EquipmentSlots),
                 HasIcon = Numbered("equip.s", ".hasIcon", EquipmentSlots), Names = Numbered("equip.s", ".name", EquipmentSlots),
-                Locked = Numbered("equip.s", ".locked", EquipmentSlots);
+                Locked = Numbered("equip.s", ".locked", EquipmentSlots), Drop = Numbered("equip.s", ".drop", EquipmentSlots);
             public static readonly string[] Texts = TargetKeys.Join(new[] { Gold }, Names);
             public static readonly string[] Images = Icons;
-            public static readonly string[] Toggles = TargetKeys.Join(TargetKeys.Join(Filled, HasIcon), Locked);
+            public static readonly string[] Toggles = TargetKeys.Join(TargetKeys.Join(TargetKeys.Join(Filled, HasIcon), Locked), Drop);
         }
-        /// <summary>商店面板 UI.Game.Shop 的绑定键；第 c 张卡片的键前缀为 shop.c{c}.。<see cref="Open"/> 绑定在 BottomHUD 的商店按钮上。</summary>
+        /// <summary>
+        /// 商店面板 UI.Game.Shop 的绑定键；第 c 张卡片的键前缀为 shop.c{c}.。
+        /// <see cref="Open"/>、<see cref="Far"/>（不在商店范围内时变暗）与 <see cref="Distance"/>（到商店的距离）绑定在 BottomHUD 的商店按钮上。
+        /// </summary>
         public static class ShopKeys
         {
-            public const string Open = "shop.open", Page = "shop.page", Paged = "shop.paged", Hint = "shop.hint";
+            public const string Open = "shop.open", Page = "shop.page", Paged = "shop.paged", Hint = "shop.hint", Far = "shop.far", Distance = "shop.distance";
             public static readonly string[] Visible = Numbered("shop.c", ".visible", ShopCards), Icons = Numbered("shop.c", ".icon", ShopCards),
                 Names = Numbered("shop.c", ".name", ShopCards), Prices = Numbered("shop.c", ".price", ShopCards),
                 Poor = Numbered("shop.c", ".poor", ShopCards), Owned = Numbered("shop.c", ".owned", ShopCards),
@@ -517,6 +622,9 @@ namespace Roguelike.Combat
         public readonly ShopCardView[] Shop = new ShopCardView[CombatHud.ShopCards];
         public int ShopPage, ShopPages = 1, ShopItemCount;
         public string ShopHint;
+        /// <summary>商店位置：ShopLimited 为真时只有在商店范围内（ShopInRange）才能打开商店；ShopDistance 为英雄到商店范围边缘的距离（米）。</summary>
+        public bool ShopLimited, ShopInRange;
+        public float ShopDistance;
         public string PassiveName, PassiveStatus; public Texture PassiveIcon;
         public readonly AbilityView[] Abilities = new AbilityView[CombatHud.AbilitySlots];
         public string Order; public bool AttackArmed, Aiming;
@@ -530,7 +638,7 @@ namespace Roguelike.Combat
         public readonly TalentRowView[] Talents = new TalentRowView[CombatHud.TalentRows];
         /// <summary>左键选中的敌人；Visible 为假时隐藏目标面板。</summary>
         public readonly TargetInfoView Target = new TargetInfoView();
-        /// <summary>悬停技能 / 被动图标时的详细提示；Visible 为假时隐藏提示框。</summary>
+        /// <summary>悬停技能 / 被动图标、装备、属性面板或查看地上的装备时的详细提示；Visible 为假时隐藏提示框。</summary>
         public readonly AbilityTooltipView Tooltip = new AbilityTooltipView();
     }
 
