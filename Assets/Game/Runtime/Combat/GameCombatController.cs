@@ -1,5 +1,6 @@
 using System;
 using Roguelike.Abilities;
+using Roguelike.SkillIndicators;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,7 +11,8 @@ namespace Roguelike.Combat
 {
     /// <summary>
     /// 场景组合根与输入桥。英雄/技能/敌人规则来自配置，实体生命周期交给会话。
-    /// 输入只写 Dota 2 式指令意图（移动、攻击目标、攻击移动、停止、待命），由模拟系统结算。
+    /// 输入只写 Dota 2 式指令意图（移动、攻击目标、攻击移动、停止、待命、拾取、丢弃）与装备指令，由模拟系统结算；
+    /// 地上的装备与商店范围圈只做展示。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class GameCombatController : MonoBehaviour
@@ -32,8 +34,10 @@ namespace Roguelike.Combat
         [Tooltip("敌人名册：引用敌人预制体并配置出场波次、权重与档位。为空时只刷场景统一敌人（近战，使用下方攻击距离与间隔）。")]
         public EnemyRoster enemyRoster;
         [Header("装备与商店（重开生效）")]
-        [Tooltip("装备库：商店出售的装备、装备栏格数、开局金币与出售返还比例。为空时商店为空（装备栏仍为 6 格）并输出警告。")]
+        [Tooltip("装备库：商店出售的装备、装备栏格数、开局金币、出售返还比例与丢弃 / 拾取距离。为空时商店为空（装备栏仍为 6 格）并输出警告。")]
         public EquipmentCatalog equipmentCatalog;
+        [Tooltip("场景中的商店（GameShop）：英雄走进它的范围（地面金色圆圈）后才能打开商店购买与出售。为空时任何位置都能打开商店并输出警告。")]
+        public GameShop shop;
         [Header("场地与敌人基础数值（重开生效）")]
         [Range(1,30000), Tooltip("同屏存活敌人上限；波次刷怪超过上限的部分会被跳过（首领除外）。")] public int enemyCount=10000;
         [Min(30)] public float arenaHalfSize=125;
@@ -71,11 +75,14 @@ namespace Roguelike.Combat
         private int observedLevelUps,observedCommands,observedEquipment;
         private Renderer markerRenderer;
         private MaterialPropertyBlock markerProperties;
+        private GroundItemViews groundViews;
+        private CircleIndicatorView shopCircle;
+        private int hoveredGround,inspectedGround;
         private readonly CombatHudSnapshot snapshot=new CombatHudSnapshot();
         /// <summary>鼠标点选敌人时在体型半径外额外放宽的距离（米）。</summary>
         public const float PickPadding=0.45f;
         private static readonly Color MoveColor=new Color(0.35f,1f,0.45f,1),AttackColor=new Color(1f,0.32f,0.25f,1),HoverColor=new Color(1f,0.25f,0.2f,1),TargetColor=new Color(1f,0.62f,0.2f,1),
-            SelectionColor=new Color(1f,0.86f,0.35f,1);
+            SelectionColor=new Color(1f,0.86f,0.35f,1),ShopColor=new Color(1f,0.8f,0.3f,1);
         private static readonly int BaseColorId=Shader.PropertyToID("_BaseColor"),ColorId=Shader.PropertyToID("_Color");
         /// <summary>当前英雄自动攻击的攻击距离（米，已计入攻击距离加成）；会话未就绪时读英雄旧字段。</summary>
         public float attackRange=>IsReady?LiveAttack.Range:hero?hero.range:0;
@@ -107,6 +114,48 @@ namespace Roguelike.Combat
         }
         /// <summary>商店面板是否打开（B 键或 HUD 商店按钮切换）。</summary>
         public bool ShopOpen=>hud && hud.ShopOpen;
+        /// <summary>本局商店位置与范围（来自场景的 GameShop）；Limited 为假表示不限距离。</summary>
+        public ShopSite Shop=>IsReady && session.World.EntityManager.HasComponent<ShopSite>(session.Entity)?session.World.EntityManager.GetComponentData<ShopSite>(session.Entity):default;
+        /// <summary>英雄是否在商店范围内（地面金色圆圈）；只有在范围内才能打开商店、购买与出售。</summary>
+        public bool InShopRange=>IsReady && EquipmentLogic.InShop(Shop,State.Position);
+        /// <summary>英雄还要走多远才能进入商店范围（米）；已在范围内或不限距离时为 0。</summary>
+        public float ShopDistance
+        {
+            get
+            {
+                var site=Shop;
+                return IsReady && site.Limited?Mathf.Max(0,math.distance(site.Position.xz,State.Position.xz)-site.Radius):0;
+            }
+        }
+        /// <summary>地上装备的数量；第 index 件见 <see cref="GroundAt"/>。</summary>
+        public int GroundCount=>IsReady && session.World.EntityManager.HasBuffer<GroundItem>(session.Entity)?session.World.EntityManager.GetBuffer<GroundItem>(session.Entity).Length:0;
+        public GroundItem GroundAt(int index)
+        {
+            if(index<0 || index>=GroundCount) return new GroundItem{Item=-1};
+            return session.World.EntityManager.GetBuffer<GroundItem>(session.Entity)[index];
+        }
+        /// <summary>按编号查找地上的装备。</summary>
+        public bool TryGetGroundItem(int id,out GroundItem item)
+        {
+            item=new GroundItem{Item=-1};
+            if(GroundCount==0) return false;
+            var ground=session.World.EntityManager.GetBuffer<GroundItem>(session.Entity);
+            int index=EquipmentLogic.FindGround(ground,id);
+            if(index<0) return false;
+            item=ground[index]; return true;
+        }
+        /// <summary>正在查看（显示提示框）的地上装备编号；0 表示没有。</summary>
+        public int InspectedGround=>inspectedGround;
+        /// <summary>鼠标悬停的地上装备编号（地面圈高亮）；0 表示没有。</summary>
+        public int HoveredGround=>hoveredGround;
+        /// <summary>地上装备图标牌中心在屏幕上的位置（像素），供点选与检查；不存在或不在相机前方时返回 false。</summary>
+        public bool TryGetGroundScreen(int id,out Vector2 screen)
+        {
+            screen=default;
+            if(groundViews==null || !gameCamera || !groundViews.TryGetCard(id,out Vector3 card)) return false;
+            Vector3 point=gameCamera.WorldToScreenPoint(card);
+            screen=point; return point.z>0;
+        }
         /// <summary>本局名册中的敌人种类名称，下标与 CombatEnemy.Kind 一致。</summary>
         public string[] EnemyKinds=>IsReady?session.EnemyNames:Array.Empty<string>();
         /// <summary>左键选中的敌人（左上角显示信息面板）；未选中为 Entity.Null。只用于展示，不影响指令与模拟。</summary>
@@ -141,7 +190,10 @@ namespace Roguelike.Combat
                 }
                 if(!enemyRoster) Debug.LogWarning("Game 未指定敌人名册，只刷出统一敌人。",this);
                 if(!equipmentCatalog) Debug.LogWarning("Game 未指定装备库，商店为空。",this);
+                if(!shop) Debug.LogWarning("Game 未指定商店位置（GameShop），任何位置都能打开商店。",this);
                 markerRenderer=destinationMarker.GetComponentInChildren<Renderer>(true);
+                groundViews=new GroundItemViews(abilityIndicator,markerMaterial,null);
+                shopCircle=abilityIndicator.CreateCircle("Shop Range Circle");
                 session=new GameCombatSession(world);
                 enemyQuery=world.EntityManager.CreateEntityQuery(ComponentType.ReadOnly<CombatEnemy>(),ComponentType.ReadOnly<LocalTransform>(),ComponentType.ReadOnly<AbilityUnit>());
                 hasEnemyQuery=true;
@@ -149,6 +201,7 @@ namespace Roguelike.Combat
                 hud.LearnRequested+=LearnSkill; hud.TalentRequested+=ChooseTalentEncoded; hud.OrderRequested+=OnOrderButton;
                 hud.TargetCloseRequested+=ClearSelection; hud.HoverChanged+=OnHoverChanged;
                 hud.BuyRequested+=BuyItem; hud.SellRequested+=SellItem; hud.ShopChanged+=OnHoverChanged;
+                hud.ShopRequested+=ToggleShop; hud.MoveRequested+=MoveItem; hud.DropRequested+=OnDropRequested;
                 RestartRun();
             }
             catch(Exception error) { Debug.LogException(error,this); enabled=false; }
@@ -158,10 +211,12 @@ namespace Roguelike.Combat
             if(session==null) return;
             abilityIndicator.Cancel(); suppressRightUntilRelease=false; rightDragMoving=false; AttackArmed=false; hovered=Entity.Null; selected=Entity.Null;
             abilityIndicator.HideSelection(); hud.CloseShop();
+            hoveredGround=0; inspectedGround=0; hud.HideGroundTooltip(); groundViews?.Clear();
             session.Reset(this,ActiveRules,ActiveDifficulty,enemyMesh,projectileMesh);
             destinationMarker.gameObject.SetActive(false); nextHudUpdate=0;
             observedLevelUps=0; observedCommands=0; observedEquipment=0;
-            ShowNotice("按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习第一个技能；按 B 打开商店购买装备",6);
+            ShowNotice(shop?"按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习技能；商店在上方的金色圆圈里，走进去按 B 购买装备":
+                "按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习第一个技能；按 B 打开商店购买装备",6);
             Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; finalWave={ActiveDifficulty.finalWave}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
         }
         /// <summary>选择英雄配置并重新开局；不改变共享配置。选人界面可调用此边界。</summary>
@@ -186,20 +241,23 @@ namespace Roguelike.Combat
         public void Stop()=>IssueOrder(HeroOrderKind.Idle,IsReady?(Vector3)State.Position:Vector3.zero,Entity.Null);
         /// <summary>原地待命（H）：不移动，只攻击攻击距离内的敌人。</summary>
         public void Hold()=>IssueOrder(HeroOrderKind.Hold,IsReady?(Vector3)State.Position:Vector3.zero,Entity.Null);
-        private void IssueOrder(HeroOrderKind kind,Vector3 point,Entity target)
+        /// <summary>写入一条英雄指令；value / item 为拾取（地上装备编号）与丢弃（装备栏格、下令时的装备下标）的参数。</summary>
+        private void IssueOrder(HeroOrderKind kind,Vector3 point,Entity target,int value=0,int item=-1)
         {
             if(!IsReady || State.Health<=0) return;
             var manager=session.World.EntityManager;
             var order=manager.GetComponentData<HeroOrder>(session.Entity);
             float y=State.Position.y;
-            order.Kind=kind; order.Target=target; order.Serial++;
+            order.Kind=kind; order.Target=target; order.Value=value; order.Item=item; order.Serial++;
             order.Point=new float3(Mathf.Clamp(point.x,-arenaHalfSize+2,arenaHalfSize-2),y,Mathf.Clamp(point.z,-arenaHalfSize+2,arenaHalfSize-2));
             manager.SetComponentData(session.Entity,order);
             AttackArmed=false;
-            bool marked=kind==HeroOrderKind.Move || kind==HeroOrderKind.AttackMove;
+            bool marked=Marked(kind);
             destinationMarker.gameObject.SetActive(marked);
-            if(marked) { destinationMarker.position=(Vector3)order.Point; TintMarker(kind==HeroOrderKind.Move?MoveColor:AttackColor); }
+            if(marked) { destinationMarker.position=(Vector3)order.Point; TintMarker(kind==HeroOrderKind.AttackMove?AttackColor:MoveColor); }
         }
+        /// <summary>显示目的地标记的指令：移动、攻击移动与丢弃（落点）；拾取由地上装备自身高亮。</summary>
+        private static bool Marked(HeroOrderKind kind)=>kind==HeroOrderKind.Move || kind==HeroOrderKind.AttackMove || kind==HeroOrderKind.DropItem;
         /// <summary>左键选中敌人：左上角显示该敌人的信息面板并在脚下显示选中圈。只读展示，不下达指令。</summary>
         public bool SelectEnemy(Entity target)
         {
@@ -244,7 +302,7 @@ namespace Roguelike.Combat
             if(!IsReady) return;
             if(!Input.GetMouseButton(1)) { suppressRightUntilRelease=false; rightDragMoving=false; }
             if(Input.GetKeyDown(KeyCode.F5)) { RestartRun(); return; }
-            if(!Running) { abilityIndicator.Cancel(); AttackArmed=false; hovered=Entity.Null; selected=Entity.Null; return; }
+            if(!Running) { abilityIndicator.Cancel(); AttackArmed=false; hovered=Entity.Null; selected=Entity.Null; hoveredGround=0; CloseGroundInspection(); return; }
             // Dota 2 默认操作：Ctrl+技能键学习/升级技能，单按技能键施放；A 攻击、S 停止、H 待命。
             bool learn=Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
             for(int i=0;i<keys.Length;i++)
@@ -261,11 +319,13 @@ namespace Roguelike.Combat
                 if(Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) ChooseTalent(0);
                 else if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) ChooseTalent(1);
             }
-            // Esc：先取消技能/攻击瞄准；没有瞄准时关闭商店；商店也没打开时取消选中目标。
+            // Esc：先取消技能/攻击瞄准；没有瞄准时关闭商店；再关闭地上装备的提示框；最后取消选中目标。
             if(Input.GetKeyDown(KeyCode.Escape))
             {
                 if(abilityIndicator.IsAiming || AttackArmed) { abilityIndicator.Cancel(); AttackArmed=false; }
-                else if(!hud.CloseShop()) ClearSelection();
+                else if(hud.CloseShop()) { }
+                else if(inspectedGround!=0) CloseGroundInspection();
+                else ClearSelection();
             }
             if(Input.GetMouseButtonDown(1) && (abilityIndicator.IsAiming || AttackArmed))
             { abilityIndicator.Cancel(); AttackArmed=false; suppressRightUntilRelease=true; return; }
@@ -275,36 +335,46 @@ namespace Roguelike.Combat
             bool ground=!overHud && TryGround(Input.mousePosition,out point);
             if(abilityIndicator.IsAiming)
             {
-                hovered=Entity.Null;
+                hovered=Entity.Null; hoveredGround=0;
                 abilityIndicator.UpdateAim((Vector3)State.Position,point,ground,arenaHalfSize);
                 if(Input.GetMouseButtonDown(0) && abilityIndicator.CanConfirm) TryConfirmAbilityAt(point);
                 return;
             }
             bool click=Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1);
-            // 悬停点选每 0.05 秒刷新一次；点击时立即重新点选，保证指令目标与光标一致。
-            if(!ground) hovered=Entity.Null;
-            else if(click || Time.unscaledTime>=nextHover) { hovered=PickEnemy(Input.mousePosition); nextHover=Time.unscaledTime+0.05f; }
+            // 悬停点选每 0.05 秒刷新一次；点击时立即重新点选，保证指令目标与光标一致。敌人与地上的装备取更接近光标的一个。
+            if(!ground) { hovered=Entity.Null; hoveredGround=0; }
+            else if(click || Time.unscaledTime>=nextHover) { PickUnderCursor(Input.mousePosition); nextHover=Time.unscaledTime+0.05f; }
             if(!ground) return;
             if(AttackArmed)
             {
                 if(Input.GetMouseButtonDown(0)) { if(hovered!=Entity.Null) IssueAttack(hovered); else IssueAttackMove(point); }
                 return;
             }
-            // 左键敌人：选中并查看信息；左键空地：取消选中。
-            if(Input.GetMouseButtonDown(0)) { if(hovered!=Entity.Null) SelectEnemy(hovered); else ClearSelection(); }
+            // 左键敌人：选中并查看信息；左键地上的装备：只查看信息（不拾取）；左键空地：取消选中并关闭地上装备的提示框。
+            if(Input.GetMouseButtonDown(0))
+            {
+                if(hoveredGround!=0) InspectGroundItem(hoveredGround);
+                else if(hovered!=Entity.Null) { SelectEnemy(hovered); CloseGroundInspection(); }
+                else { ClearSelection(); CloseGroundInspection(); }
+            }
             if(suppressRightUntilRelease) return;
+            // 右键地上的装备：显示信息并走过去拾取（Dota 2 式）；右键敌人：攻击；右键地面：移动（同时关闭地上装备的提示框）。
             if(Input.GetMouseButtonDown(1))
             {
-                if(hovered!=Entity.Null) { IssueAttack(hovered); rightDragMoving=false; }
-                else { SetDestination(point); rightDragMoving=true; lastMovePoint=point; }
+                if(hoveredGround!=0) { InspectGroundItem(hoveredGround); PickUpGroundItem(hoveredGround); rightDragMoving=false; }
+                else if(hovered!=Entity.Null) { IssueAttack(hovered); rightDragMoving=false; CloseGroundInspection(); }
+                else { SetDestination(point); rightDragMoving=true; lastMovePoint=point; CloseGroundInspection(); }
             }
             // 按住右键拖动时持续更新移动目标（Dota 2 的“按住右键移动”）。
             else if(rightDragMoving && Input.GetMouseButton(1) && (point-lastMovePoint).sqrMagnitude>0.36f)
             { SetDestination(point); lastMovePoint=point; }
         }
         /// <summary>按屏幕射线点选存活敌人：计算射线到敌人中心的垂直距离，取相对体型最近者。</summary>
-        public Entity PickEnemy(Vector2 screen)
+        public Entity PickEnemy(Vector2 screen)=>PickEnemy(screen,out _);
+        /// <summary>同 <see cref="PickEnemy(Vector2)"/>，并输出相对距离 score（越小越接近光标，小于 1 才算点中）。</summary>
+        public Entity PickEnemy(Vector2 screen,out float score)
         {
+            score=1;
             if(!IsReady || !hasEnemyQuery || !gameCamera) return Entity.Null;
             var ray=gameCamera.ScreenPointToRay(screen);
             float3 origin=ray.origin,direction=math.normalizesafe((float3)ray.direction);
@@ -319,10 +389,53 @@ namespace Roguelike.Combat
                 float along=math.dot(offset,direction);
                 if(along<=0) continue;
                 float pick=CombatSimulationSystem.BodyRadius*transforms[i].Scale+PickPadding;
-                float score=math.lengthsq(offset-direction*along)/(pick*pick);
-                if(score<bestScore) { bestScore=score; best=units[i]; }
+                float relative=math.lengthsq(offset-direction*along)/(pick*pick);
+                if(relative<bestScore) { bestScore=relative; best=units[i]; }
+            }
+            score=bestScore;
+            return best;
+        }
+        /// <summary>
+        /// 按屏幕位置点选地上的装备：射线到图标牌中心的垂直距离，或射线落点到地面圈中心的距离，取相对大小最近者。
+        /// 返回地上装备编号，没有时返回 0；score 越小越接近光标（小于 1 才算点中）。
+        /// </summary>
+        public int PickGroundItem(Vector2 screen,out float score)
+        {
+            score=1;
+            if(GroundCount==0 || !gameCamera || groundViews==null) return 0;
+            var ground=session.World.EntityManager.GetBuffer<GroundItem>(session.Entity);
+            var ray=gameCamera.ScreenPointToRay(screen);
+            float3 origin=ray.origin,direction=math.normalizesafe((float3)ray.direction);
+            bool floor=new Plane(Vector3.up,Vector3.zero).Raycast(ray,out float enter);
+            float3 hit=floor?(float3)ray.GetPoint(enter):default;
+            float card=groundViews.Size*0.62f,circle=groundViews.Size*0.6f;
+            int best=0;
+            for(int i=0;i<ground.Length;i++)
+            {
+                var item=ground[i];
+                if(groundViews.TryGetCard(item.Id,out Vector3 center))
+                {
+                    float3 offset=(float3)center-origin;
+                    float along=math.dot(offset,direction);
+                    float value=along>0?math.lengthsq(offset-direction*along)/(card*card):float.MaxValue;
+                    if(value<score) { score=value; best=item.Id; }
+                }
+                if(floor)
+                {
+                    float value=math.distancesq(hit.xz,item.Position.xz)/(circle*circle);
+                    if(value<score) { score=value; best=item.Id; }
+                }
             }
             return best;
+        }
+        public int PickGroundItem(Vector2 screen)=>PickGroundItem(screen,out _);
+        /// <summary>悬停点选：敌人与地上的装备取更接近光标的一个（同样接近时地上的装备优先）。</summary>
+        private void PickUnderCursor(Vector2 screen)
+        {
+            Entity enemy=PickEnemy(screen,out float enemyScore);
+            int item=PickGroundItem(screen,out float itemScore);
+            if(item!=0 && (enemy==Entity.Null || itemScore<=enemyScore)) { hoveredGround=item; hovered=Entity.Null; }
+            else { hoveredGround=0; hovered=enemy; }
         }
         /// <summary>离指定地面点最近（平面距离不超过 maxDistance）的存活敌人。</summary>
         private Entity NearestEnemy(Vector3 point,float maxDistance)
@@ -396,8 +509,17 @@ namespace Roguelike.Combat
             else if(pending>=0) ShowNotice($"请先选择 {hero.talents[pending].heroLevel} 级天赋",2.5f);
         }
         // ---------- 商店与装备 ----------
-        /// <summary>打开或关闭商店（B 键、HUD 商店按钮）；只在战斗进行中可以打开。</summary>
-        public void ToggleShop() { if(IsReady) hud.ToggleShop(); }
+        /// <summary>打开或关闭商店（B 键、HUD 商店按钮）；只在战斗进行中、英雄在商店范围内（地面金色圆圈）时可以打开。</summary>
+        public void ToggleShop()
+        {
+            if(!IsReady) return;
+            if(!ShopOpen && Running && !InShopRange)
+            {
+                ShowNotice($"离商店太远（还有 {Mathf.CeilToInt(ShopDistance)} 米）：走进商店范围（地面金色圆圈）后再按 B",3);
+                nextHudUpdate=0; return;
+            }
+            hud.ToggleShop();
+        }
         /// <summary>购买装备库第 item 件装备。规则在模拟系统中权威结算，这里预检：明显失败时只提示、不提交指令。</summary>
         public void BuyItem(int item)
         {
@@ -406,6 +528,7 @@ namespace Roguelike.Combat
             var equipment=manager.GetComponentData<HeroEquipment>(session.Entity);
             var failure=EquipmentLogic.CanBuy(equipment,manager.GetBuffer<EquipmentSlot>(session.Entity),item);
             if(failure==EquipmentFailure.InvalidItem) return;
+            if(!InShopRange) { ShowNotice($"{ItemName(item)}：{EquipmentLogic.Describe(EquipmentFailure.NotInShop)}，走进地面金色圆圈后再购买",2.5f); return; }
             if(failure==EquipmentFailure.NotEnoughGold)
             {
                 int missing=Mathf.CeilToInt(equipment.Library.Value.Items[item].Price-equipment.Gold-0.0001f);
@@ -414,15 +537,79 @@ namespace Roguelike.Combat
             if(failure!=EquipmentFailure.None) { ShowNotice($"{ItemName(item)}：{EquipmentLogic.Describe(failure)}",2.5f); return; }
             manager.GetBuffer<EquipmentCommand>(session.Entity).Add(new EquipmentCommand{Kind=EquipmentCommandKind.Buy,Value=item});
         }
-        /// <summary>出售装备栏第 slot 格的装备。需要先打开商店，避免右键移动时误卖；空格忽略。</summary>
+        /// <summary>出售装备栏第 slot 格的装备。需要先在商店范围内打开商店，避免右键移动时误卖；空格忽略。</summary>
         public void SellItem(int slot)
         {
             if(!Running) return;
             var manager=session.World.EntityManager;
             var slots=manager.GetBuffer<EquipmentSlot>(session.Entity);
             if(slot<0 || slot>=slots.Length || slots[slot].Item<0) return;
-            if(!ShopOpen) { ShowNotice("打开商店（B）后右键装备即可出售",2.5f); return; }
+            if(!ShopOpen)
+            {
+                ShowNotice(InShopRange?"打开商店（B）后右键装备即可出售":"走进商店范围（地面金色圆圈）并按 B 打开商店后才能出售",2.5f);
+                return;
+            }
             manager.GetBuffer<EquipmentCommand>(session.Entity).Add(new EquipmentCommand{Kind=EquipmentCommandKind.Sell,Value=slot});
+        }
+        /// <summary>换位（拖动装备到另一格）：目标格为空时移过去，有装备时两格交换。随时可用，不需要商店。</summary>
+        public void MoveItem(int from,int to)
+        {
+            if(!Running || from==to || EquippedAt(from)<0) return;
+            var manager=session.World.EntityManager;
+            if(to<0 || to>=manager.GetBuffer<EquipmentSlot>(session.Entity).Length) return;
+            manager.GetBuffer<EquipmentCommand>(session.Entity).Add(new EquipmentCommand{Kind=EquipmentCommandKind.Move,Value=from,Argument=to});
+        }
+        /// <summary>
+        /// 丢弃指令（Dota 2 式拖动装备到地面）：英雄走到落点的丢弃距离内后，把第 slot 格的装备放到地上。空格忽略。
+        /// 地上的装备可以右键捡回；属性在装备离开装备栏时立即重算。
+        /// </summary>
+        public bool DropItem(int slot,Vector3 point)
+        {
+            if(!Running) return false;
+            int item=EquippedAt(slot);
+            if(item<0) return false;
+            abilityIndicator.Cancel();
+            IssueOrder(HeroOrderKind.DropItem,point,Entity.Null,slot,item);
+            return true;
+        }
+        /// <summary>按屏幕位置丢弃（HUD 拖动松开）；落在 HUD 上或落点无效时返回 false。</summary>
+        public bool DropItemAtScreen(int slot,Vector2 screen)
+        {
+            if(!Running || hud.BlocksPointer(screen) || !TryGround(screen,out Vector3 point)) return false;
+            return DropItem(slot,point);
+        }
+        private void OnDropRequested(int slot,Vector2 screen)=>DropItemAtScreen(slot,screen);
+        /// <summary>
+        /// 拾取指令（Dota 2 式右键地上的装备）：英雄走到拾取距离内后把它放进第一个空格。
+        /// 装备栏已满或唯一装备已拥有时只提示、不下令。
+        /// </summary>
+        public bool PickUpGroundItem(int id)
+        {
+            if(!Running || !TryGetGroundItem(id,out var item)) return false;
+            var manager=session.World.EntityManager;
+            var failure=EquipmentLogic.CanPickUp(Equipment,manager.GetBuffer<EquipmentSlot>(session.Entity),manager.GetBuffer<GroundItem>(session.Entity),id,State.Position,false);
+            if(failure!=EquipmentFailure.None)
+            {
+                ShowNotice($"{ItemName(item.Item)}：{EquipmentLogic.Describe(failure)}"+(failure==EquipmentFailure.InventoryFull?"，先出售或丢弃一件装备":""),2.5f);
+                return false;
+            }
+            abilityIndicator.Cancel();
+            IssueOrder(HeroOrderKind.PickUp,(Vector3)item.Position,Entity.Null,id,item.Item);
+            return true;
+        }
+        /// <summary>查看地上的装备（左键或右键点击）：在它上方显示 Dota 2 式装备提示框，并取消敌人选中。</summary>
+        public bool InspectGroundItem(int id)
+        {
+            if(!Running || !TryGetGroundItem(id,out _)) return false;
+            inspectedGround=id; ClearSelection(); nextHudUpdate=0;
+            return true;
+        }
+        /// <summary>关闭地上装备的提示框（点击空地、Esc、装备被拾取或重开）。</summary>
+        public void CloseGroundInspection()
+        {
+            if(inspectedGround==0 && (!hud || !hud.GroundTooltipActive)) return;
+            inspectedGround=0; nextHudUpdate=0;
+            if(hud) hud.HideGroundTooltip();
         }
         private string ItemName(int item)
         {
@@ -466,13 +653,14 @@ namespace Roguelike.Combat
             var order=manager.GetComponentData<HeroOrder>(session.Entity);
             playerView.position=new Vector3(state.Position.x,0.95f,state.Position.z);
             if(math.lengthsq(state.Facing)>0.001f) playerView.rotation=Quaternion.LookRotation((Vector3)state.Facing);
-            bool marked=order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove;
-            if(!marked || math.distancesq(state.Position.xz,order.Point.xz)<0.1f) destinationMarker.gameObject.SetActive(false);
+            if(!Marked(order.Kind) || math.distancesq(state.Position.xz,order.Point.xz)<0.1f) destinationMarker.gameObject.SetActive(false);
             gameCamera.orthographicSize=cameraZoom;
             var rotation=Quaternion.Euler(58,0,0);
             gameCamera.transform.SetPositionAndRotation((Vector3)state.Position+rotation*new Vector3(0,-cameraZoom*0.13f,-300),rotation);
             UpdateOrderPreview(state,order);
             UpdateSelection();
+            UpdateShop(state);
+            UpdateGroundItems(manager);
             var flights=manager.GetBuffer<SkillFlight>(session.Entity);
             for(int i=0;i<flights.Length;i++)
             {
@@ -510,6 +698,34 @@ namespace Roguelike.Combat
             }
             abilityIndicator.ShowOrderPreview((Vector3)state.Position,attackRange,AttackArmed,center,radius,ring!=Entity.Null,color);
         }
+        /// <summary>商店范围圈（在范围内更亮）；英雄离开商店范围时自动关闭商店。</summary>
+        private void UpdateShop(in CombatPlayer state)
+        {
+            var site=Shop;
+            bool inside=EquipmentLogic.InShop(site,state.Position);
+            if(shopCircle)
+            {
+                if(site.Limited && Running) shopCircle.Show(new Vector3(site.Position.x,0.035f,site.Position.z),site.Radius,ShopColor,inside?0.95f:0.5f);
+                else shopCircle.Hide();
+            }
+            if(ShopOpen && Running && !inside) { hud.CloseShop(); ShowNotice("离开商店范围，商店已关闭",2.5f); nextHudUpdate=0; }
+        }
+        /// <summary>同步地上装备的展示与查看中的提示框锚点；查看的装备被拾取或不在屏幕内时关闭 / 隐藏提示框。</summary>
+        private void UpdateGroundItems(EntityManager manager)
+        {
+            if(groundViews==null || !manager.HasBuffer<GroundItem>(session.Entity)) return;
+            if(inspectedGround!=0 && !TryGetGroundItem(inspectedGround,out _)) CloseGroundInspection();
+            if(hoveredGround!=0 && !TryGetGroundItem(hoveredGround,out _)) hoveredGround=0;
+            groundViews.Sync(manager.GetBuffer<GroundItem>(session.Entity),session.Items,gameCamera,hoveredGround,inspectedGround);
+            if(inspectedGround!=0 && Running && groundViews.TryGetCard(inspectedGround,out Vector3 card))
+            {
+                Vector3 screen=gameCamera.WorldToScreenPoint(card);
+                bool visible=screen.z>0 && screen.x>=0 && screen.y>=0 && screen.x<=Screen.width && screen.y<=Screen.height;
+                float pixels=gameCamera.orthographic?groundViews.Size/(2*Mathf.Max(0.01f,gameCamera.orthographicSize))*Screen.height:48;
+                if(visible) hud.ShowGroundTooltip(screen,pixels); else hud.HideGroundTooltip();
+            }
+            else hud.HideGroundTooltip();
+        }
         /// <summary>选中圈跟随目标；目标死亡或被销毁时自动取消选中。不受技能瞄准影响。</summary>
         private void UpdateSelection()
         {
@@ -533,6 +749,8 @@ namespace Roguelike.Combat
                 case HeroOrderKind.AttackTarget: return "攻击目标";
                 case HeroOrderKind.AttackMove: return "攻击移动";
                 case HeroOrderKind.Hold: return "原地待命";
+                case HeroOrderKind.PickUp: return "拾取装备";
+                case HeroOrderKind.DropItem: return "丢弃装备";
                 default: return "待机";
             }
         }
@@ -636,7 +854,9 @@ namespace Roguelike.Combat
                 string item=ItemName(equipment.LastItem);
                 if(equipment.LastFailure!=EquipmentFailure.None) ShowNotice((equipment.LastItem>=0?item+"：":"")+EquipmentLogic.Describe(equipment.LastFailure),2.5f);
                 else if(equipment.LastCommand==EquipmentCommandKind.Buy) ShowNotice($"已购买 {item}",2.5f);
-                else if(equipment.Library.IsCreated && equipment.LastItem>=0 && equipment.LastItem<equipment.Library.Value.Items.Length)
+                else if(equipment.LastCommand==EquipmentCommandKind.Drop) ShowNotice($"已丢弃 {item}：右键地上的装备可以捡回",2.5f);
+                else if(equipment.LastCommand==EquipmentCommandKind.PickUp) ShowNotice($"已拾取 {item}",2.5f);
+                else if(equipment.LastCommand==EquipmentCommandKind.Sell && equipment.Library.IsCreated && equipment.LastItem>=0 && equipment.LastItem<equipment.Library.Value.Items.Length)
                     ShowNotice($"已出售 {item}，返还 {equipment.Library.Value.Items[equipment.LastItem].SellPrice} 金币",2.5f);
             }
             BuildTooltip(s,slots,unit,runtime,attackState,attackData,heroStats,equipment,equipped,progression,busy);
@@ -644,7 +864,8 @@ namespace Roguelike.Combat
                 HeroPosition=state.Position,HeroAttackRange=attackData.Range,Now=runtime.Time};
             if(!TargetInfoBuilder.Build(manager,selected,targetContext,s.Target)) selected=Entity.Null;
             s.Hint=Time.unscaledTime<noticeUntil?notice:AttackArmed?"攻击：左键敌人攻击目标，左键地面攻击移动；右键或 Esc 取消":
-                s.PendingTalent>=0?"有可选天赋：按 1 / 2 或打开天赋树选择":progression.SkillPoints>0?"有可用技能点：Ctrl+Q/W/E/R 或点击技能上方的“+”":"";
+                s.PendingTalent>=0?"有可选天赋：按 1 / 2 或打开天赋树选择":progression.SkillPoints>0?"有可用技能点：Ctrl+Q/W/E/R 或点击技能上方的“+”":
+                s.ShopLimited && s.ShopInRange && !hud.ShopOpen?"在商店范围内：按 B 打开商店":"";
             return s;
         }
         /// <summary>金币、装备栏与商店卡片（当前页）的展示数据；商店是否打开由 HUD 决定。</summary>
@@ -652,6 +873,7 @@ namespace Roguelike.Combat
         {
             var items=session.Items;
             s.Gold=equipment.Gold;
+            s.ShopLimited=Shop.Limited; s.ShopInRange=InShopRange; s.ShopDistance=ShopDistance;
             for(int i=0;i<s.Equipment.Length;i++)
             {
                 ref var view=ref s.Equipment[i];
@@ -677,12 +899,13 @@ namespace Roguelike.Combat
                 card.Owned=data.Unique && EquipmentLogic.Owns(equipped,item);
             }
             s.ShopHint=items.Length==0?"商店暂无装备：在 Game 场景的控制器上指定装备库":
-                $"左键购买  ·  右键装备栏出售（返还 {session.SellRatio*100:0}%）  ·  B / Esc 关闭";
+                $"左键购买  ·  右键装备或把装备拖到这里出售（返还 {session.SellRatio*100:0}%）  ·  B / Esc 关闭";
         }
         /// <summary>悬停的 HUD 槽或商店页变化时立即刷新 HUD，避免提示框与商店等待下一个 0.1 秒刷新周期。</summary>
         private void OnHoverChanged()=>nextHudUpdate=0;
         /// <summary>
-        /// 按 HUD 悬停源组装 Dota 2 式提示：0–3 技能槽、4 自动攻击被动、10–15 装备栏、20 属性面板、100–111 商店卡片；只读 ECS 权威状态。
+        /// 按 HUD 悬停源组装 Dota 2 式提示：0–3 技能槽、4 自动攻击被动、10–15 装备栏、20 属性面板、100–111 商店卡片；
+        /// 没有悬停 HUD 槽时显示正在查看的地上装备。只读 ECS 权威状态。
         /// </summary>
         private void BuildTooltip(CombatHudSnapshot s,DynamicBuffer<AbilitySlot> slots,in AbilityUnit unit,in AbilityRuntime runtime,
             in AutoAttackState attackState,in AutoAttackData attackData,in HeroStats heroStats,in HeroEquipment equipment,DynamicBuffer<EquipmentSlot> equipped,
@@ -713,6 +936,20 @@ namespace Roguelike.Combat
                 AbilityTooltipBuilder.BuildItem(ref session.Library.Value,ref equipment.Library.Value.Items[item],itemContext,view);
                 return;
             }
+            if(index<0 && inspectedGround!=0 && TryGetGroundItem(inspectedGround,out var lying))
+            {
+                var items=session.Items;
+                int item=lying.Item;
+                if(item<0 || item>=items.Length || !items[item] || !equipment.Library.IsCreated || item>=equipment.Library.Value.Items.Length) return;
+                var manager=session.World.EntityManager;
+                var order=Order; var state=State;
+                var groundContext=new ItemTooltipContext{Definition=items[item],Buffs=session.Buffs,Gold=equipment.Gold,FromGround=true,ShopOpen=hud.ShopOpen,
+                    PickingUp=order.Kind==HeroOrderKind.PickUp && order.Value==inspectedGround,
+                    Distance=math.distance(state.Position.xz,lying.Position.xz),
+                    PickupFailure=EquipmentLogic.CanPickUp(equipment,equipped,manager.GetBuffer<GroundItem>(session.Entity),inspectedGround,state.Position,false)};
+                AbilityTooltipBuilder.BuildItem(ref session.Library.Value,ref equipment.Library.Value.Items[item],groundContext,view);
+                return;
+            }
             if(index<0 || index>=slots.Length || index>=slotKeys.Length) return;
             var slot=slots[index]; var original=SkillAt(index); var active=session.ActiveSkill(slot.Definition);
             string description=active && !string.IsNullOrWhiteSpace(active.description)?active.description:original?original.description:"";
@@ -727,7 +964,10 @@ namespace Roguelike.Combat
         private void OnDestroy()
         {
             if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; hud.HoverChanged-=OnHoverChanged;
-                hud.BuyRequested-=BuyItem; hud.SellRequested-=SellItem; hud.ShopChanged-=OnHoverChanged; }
+                hud.BuyRequested-=BuyItem; hud.SellRequested-=SellItem; hud.ShopChanged-=OnHoverChanged;
+                hud.ShopRequested-=ToggleShop; hud.MoveRequested-=MoveItem; hud.DropRequested-=OnDropRequested; }
+            groundViews?.Dispose(); groundViews=null;
+            if(shopCircle) Destroy(shopCircle.gameObject);
             if(abilityIndicator) { abilityIndicator.Cancel(); abilityIndicator.HideSelection(); }
             if(hasEnemyQuery && session!=null && session.World.IsCreated) { try { enemyQuery.Dispose(); } catch(Exception) { } }
             hasEnemyQuery=false;

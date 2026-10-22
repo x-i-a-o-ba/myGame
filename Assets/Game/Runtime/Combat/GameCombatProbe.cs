@@ -14,6 +14,7 @@ namespace Roguelike.Combat
     /// <summary>显式命令行启用的Player集成检查；正常游戏不执行。</summary>
     public sealed class GameCombatProbe : MonoBehaviour
     {
+        private const string BottomPanel="UI.Game.BottomHUD";
         private bool failed;
         private string output;
         private IEnumerator Start()
@@ -109,9 +110,9 @@ namespace Roguelike.Combat
             indicator.Cancel(); controller.SelectHero(originalHero); Destroy(alternate); yield return null;
             Check(controller.State.Kills==0 && manager.GetBuffer<SkillFlight>(controller.SessionEntity).Length==0,"Restart clears combat and flights");
             Check(controller.Progression.Level==1 && manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[0].Level==0,"Restart resets level and learned skills");
-            Check(controller.EquippedAt(0)==-1 && controller.Stats.Equipment.AttackDamage==0 &&
+            Check(controller.EquippedAt(0)==-1 && controller.Stats.Equipment.AttackDamage==0 && controller.GroundCount==0 &&
                   NearGold(controller.Equipment.Gold-controller.Equipment.GoldEarned,controller.equipmentCatalog?controller.equipmentCatalog.startingGold:0),
-                "Restart clears equipment and restores starting gold");
+                "Restart clears equipment, ground items and restores starting gold");
             var unit=manager.GetComponentData<AbilityUnit>(controller.SessionEntity); unit.Health=0; manager.SetComponentData(controller.SessionEntity,unit);
             yield return null; yield return null;
             Check(controller.State.Health==0,"Death snapshot comes from authoritative unit");
@@ -151,7 +152,11 @@ namespace Roguelike.Combat
             yield return MoveAttackChecks(controller,manager);
             yield return EquipmentChecks(controller,manager);
         }
-        /// <summary>商店与装备：HUD 按钮打开商店，商店卡片购买，装备属性直接相加，打开商店后右键装备格出售并返还金币。</summary>
+        /// <summary>
+        /// 商店与装备（Dota 2 式）：商店在场景中有固定位置，范围外商店按钮变暗并显示距离、按钮打不开商店、模拟层拒绝买卖；
+        /// 走进范围后按钮打开商店，卡片购买、装备属性直接相加、右键装备格出售；拖动装备到另一格换位、拖到商店出售、拖到地面丢弃；
+        /// 离开范围自动关店；地上的装备可以鼠标点选查看提示框，右键拾取后放回第一个空格。
+        /// </summary>
         private IEnumerator EquipmentChecks(GameCombatController controller,EntityManager manager)
         {
             var items=controller.ShopItems;
@@ -159,17 +164,44 @@ namespace Roguelike.Combat
             for(int i=0;i<items.Length && i<CombatHud.ShopCards;i++) if(items[i] && items[i].stableId=="item.iron_sword") { sword=i; break; }
             Check(items.Length>=CombatHud.ShopCards && sword>=0,"Shop lists the project equipment catalog on its first page");
             if(sword<0) yield break;
+            var site=controller.Shop;
+            Check(controller.shop && site.Limited && site.Radius>0,"Scene places the shop at a fixed site with a range");
+            var ui=UnityEngine.Object.FindFirstObjectByType<UIManager>();
+            var hud=UnityEngine.Object.FindFirstObjectByType<CombatHud>();
+            Check(ui && hud,"Scene has the HUD for shop and equipment checks");
+            if(!site.Limited || !ui || !hud) yield break;
+            Vector3 outside=(Vector3)(site.Position-new float3(0,0,site.Radius+4)),inside=(Vector3)(site.Position-new float3(0,0,site.Radius-2.5f));
             // 直接给足金币，验证购买链路而不是等待击杀；期间击杀获得的金币用 GoldEarned 扣除。
             var purse=manager.GetComponentData<HeroEquipment>(controller.SessionEntity); purse.Gold=5000; manager.SetComponentData(controller.SessionEntity,purse);
-            float earned=purse.GoldEarned;
+            // 商店范围外：按钮变暗并显示距离，点击不打开商店；直接写入的购买指令也被模拟层拒绝。
+            yield return WalkTo(controller,manager,outside);
+            Check(!controller.InShopRange && controller.ShopDistance>0,"Hero stands outside the shop range");
             yield return WaitForAction(CombatHud.ShopCommand,0);
+            ClickAction(CombatHud.ShopCommand,0); yield return null;
+            Check(!controller.ShopOpen,"Shop button does not open the shop outside its range");
+            yield return WaitFor(controller,manager,()=>PanelToggle(ui,BottomPanel,CombatHud.ShopKeys.Far),1);
+            Check(PanelToggle(ui,BottomPanel,CombatHud.ShopKeys.Far) && !string.IsNullOrEmpty(PanelText(ui,BottomPanel,CombatHud.ShopKeys.Distance)),
+                "Shop button dims and shows the distance outside the shop range");
+            int serial=controller.Equipment.CommandSerial;
+            manager.GetBuffer<EquipmentCommand>(controller.SessionEntity).Add(new EquipmentCommand{Kind=EquipmentCommandKind.Buy,Value=sword});
+            yield return null; yield return null;
+            var equipment=controller.Equipment;
+            Check(equipment.CommandSerial>serial && equipment.LastFailure==EquipmentFailure.NotInShop && controller.EquippedAt(0)==-1,
+                "Simulation rejects buying outside the shop range");
+            // 走进商店范围：按钮可以打开商店。
+            yield return WalkTo(controller,manager,inside);
+            Check(controller.InShopRange,"Hero walks into the shop range");
+            yield return WaitFor(controller,manager,()=>!PanelToggle(ui,BottomPanel,CombatHud.ShopKeys.Far),1);
+            Check(!PanelToggle(ui,BottomPanel,CombatHud.ShopKeys.Far),"Shop button lights up inside the shop range");
             ClickAction(CombatHud.ShopCommand,0);
             yield return WaitForAction(CombatHud.BuyCommand,sword);
-            Check(controller.ShopOpen,"HUD shop button opens the shop");
+            Check(controller.ShopOpen,"HUD shop button opens the shop inside its range");
+            purse=manager.GetComponentData<HeroEquipment>(controller.SessionEntity); purse.Gold=5000; manager.SetComponentData(controller.SessionEntity,purse);
+            float earned=purse.GoldEarned;
             int level=controller.Progression.Level;
             float attackBefore=manager.GetComponentData<AbilityUnit>(controller.SessionEntity).BaseAttack;
             ClickAction(CombatHud.BuyCommand,sword); yield return null; yield return null;
-            var equipment=controller.Equipment;
+            equipment=controller.Equipment;
             Check(controller.EquippedAt(0)==sword && NearGold(equipment.Gold,5000-items[sword].price+equipment.GoldEarned-earned),
                 "Shop card buys the item into the first slot and spends gold");
             float attackAfter=manager.GetComponentData<AbilityUnit>(controller.SessionEntity).BaseAttack;
@@ -179,9 +211,7 @@ namespace Roguelike.Combat
             Check(controller.EquippedAt(1)==sword && controller.Stats.Equipment.AttackDamage==24,"Non-unique items can be bought twice and stack");
             equipment=controller.Equipment;
             float gold=equipment.Gold; earned=equipment.GoldEarned;
-            UIPointerAction sell=null;
-            foreach(var action in UnityEngine.Object.FindObjectsByType<UIPointerAction>(FindObjectsInactive.Exclude,FindObjectsSortMode.None))
-                if(action.command==CombatHud.SellCommand && action.value==1) sell=action;
+            var sell=FindAction<UIPointerAction>(a=>a.command==CombatHud.SellCommand && a.value==1);
             Check(sell,"Equipment slot has a right-click sell source");
             if(sell) sell.OnPointerClick(new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current)
                 {button=UnityEngine.EventSystems.PointerEventData.InputButton.Right});
@@ -190,11 +220,150 @@ namespace Roguelike.Combat
             Check(controller.EquippedAt(1)==-1 && NearGold(equipment.Gold,gold+controller.equipmentCatalog.SellPrice(items[sword])+equipment.GoldEarned-earned),
                 "Right-clicking an equipped item in the open shop sells it for the refund price");
             Check(controller.Stats.Equipment.AttackDamage==12,"Selling removes the item's stats");
+            // 拖到另一格换位：拖动时显示跟随指针的图标，经过的格子金色高亮，松开后图标消失。
+            yield return WaitFor(controller,manager,()=>PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Filled[0]),1);
+            var drag=FindDrag(0);
+            var hover=FindAction<UIHoverAction>(a=>a.command==CombatHud.HoverCommand && a.value==CombatHud.EquipmentHoverBase+2);
+            var drop=FindAction<UIDropAction>(a=>a.command==CombatHud.DropOnCommand && a.value==2);
+            Check(drag && hover && drop,"Equipment slots have drag sources and drop targets");
+            if(drag && hover && drop)
+            {
+                Vector2 target=ScreenOf(drop);
+                drag.OnBeginDrag(Pointer(ScreenOf(drag)));
+                Check(UIDragAction.Current==drag && drag.Ghost,"Dragging an equipped item shows a drag ghost");
+                drag.OnDrag(Pointer(target));
+                hover.OnPointerEnter(Pointer(target));
+                yield return WaitFor(controller,manager,()=>PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Drop[2]),1);
+                Check(PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Drop[2]),"Dragging over another slot highlights it as the drop target");
+                drop.OnDrop(Pointer(target));
+                drag.OnEndDrag(Pointer(target));
+                hover.OnPointerExit(Pointer(target));
+                yield return null; yield return null;
+                Check(controller.EquippedAt(0)==-1 && controller.EquippedAt(2)==sword && controller.Stats.Equipment.AttackDamage==12,
+                    "Dropping an item on another slot moves it there");
+                Check(!UIDragAction.Current && !drag.Ghost,"Releasing the drag removes the drag ghost");
+                yield return WaitFor(controller,manager,()=>!PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Drop[2]),1);
+                Check(!PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Drop[2]),"Drop highlight clears after the drag");
+            }
+            // 拖到打开的商店面板上出售。
+            controller.BuyItem(sword); yield return null; yield return null;
+            Check(controller.EquippedAt(0)==sword,"A new purchase fills the first free slot");
+            yield return WaitFor(controller,manager,()=>PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Filled[0]),1);
+            equipment=controller.Equipment; gold=equipment.Gold; earned=equipment.GoldEarned;
+            drag=FindDrag(0);
+            var shopDrop=FindAction<UIDropAction>(a=>a.command==CombatHud.ShopDropCommand);
+            Check(drag && shopDrop,"Open shop panel is a drop target");
+            if(drag && shopDrop)
+            {
+                Vector2 point=ScreenOf(shopDrop);
+                drag.OnBeginDrag(Pointer(ScreenOf(drag)));
+                shopDrop.OnDrop(Pointer(point));
+                drag.OnEndDrag(Pointer(point));
+                yield return null; yield return null;
+                equipment=controller.Equipment;
+                Check(controller.EquippedAt(0)==-1 && controller.EquippedAt(2)==sword &&
+                      NearGold(equipment.Gold,gold+controller.equipmentCatalog.SellPrice(items[sword])+equipment.GoldEarned-earned),
+                    "Dragging an item onto the open shop sells it");
+            }
             yield return Capture("shop.png");
-            controller.ToggleShop(); yield return null;
-            Check(!controller.ShopOpen,"Shop closes again");
+            // 拖到地面丢弃：英雄走到丢弃距离内，把装备放在松开的位置，属性立即移除。
+            yield return WaitFor(controller,manager,()=>PanelToggle(ui,BottomPanel,CombatHud.EquipmentKeys.Filled[2]),1);
+            drag=FindDrag(2);
+            Vector3 spot=(Vector3)controller.State.Position+new Vector3(-5.5f,0,-3); spot.y=0;
+            Vector2 screen=controller.gameCamera.WorldToScreenPoint(spot);
+            Check(drag && !hud.BlocksPointer(screen),"Ground drop point is on screen outside the HUD");
+            if(drag)
+            {
+                drag.OnBeginDrag(Pointer(ScreenOf(drag)));
+                drag.OnDrag(Pointer(screen));
+                drag.OnEndDrag(Pointer(screen));
+            }
+            Check(controller.Order.Kind==HeroOrderKind.DropItem && controller.Order.Value==2,"Dragging an item onto the ground issues a drop order");
+            yield return WaitFor(controller,manager,()=>controller.GroundCount==1,6);
+            var lying=controller.GroundAt(0);
+            Check(controller.GroundCount==1 && lying.Item==sword && math.distance(lying.Position.xz,((float3)spot).xz)<0.3f,
+                "Hero walks into drop range and leaves the item where the drag was released");
+            Check(math.distance(controller.State.Position.xz,lying.Position.xz)<=controller.equipmentCatalog.dropRange+0.5f &&
+                  controller.EquippedAt(2)==-1 && controller.Stats.Equipment.AttackDamage==0,"Dropping happens within drop range and removes the item's stats");
+            // 离开商店范围自动关店。
+            yield return WalkTo(controller,manager,outside);
+            Check(!controller.InShopRange && !controller.ShopOpen,"Leaving the shop range closes the shop");
+            // 地上的装备：鼠标点选查看 Dota 2 式装备提示框（名称、右键拾取提示与距离）。
+            int id=lying.Id;
+            Check(controller.TryGetGroundScreen(id,out Vector2 card) && controller.PickGroundItem(card)==id,"Mouse ray picks the item lying on the ground");
+            Check(controller.InspectGroundItem(id),"Clicking a ground item inspects it");
+            yield return WaitFor(controller,manager,()=>ui.IsVisible(CombatHud.TooltipPanel),5);
+            yield return null;
+            string status=PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Status);
+            Check(ui.IsVisible(CombatHud.TooltipPanel) && PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Name)==items[sword].Label &&
+                  status!=null && status.Contains("右键拾取"),"Ground item tooltip shows the item name and the right-click pickup hint");
+            yield return Capture("ground-item.png");
+            // 右键拾取：英雄走到拾取距离内，把装备放回第一个空格，提示框随之关闭。
+            Check(controller.PickUpGroundItem(id) && controller.Order.Kind==HeroOrderKind.PickUp && controller.Order.Value==id,
+                "Right-clicking a ground item issues a pickup order");
+            yield return WaitFor(controller,manager,()=>controller.GroundCount==0,8);
+            yield return null;
+            Check(controller.GroundCount==0 && controller.EquippedAt(0)==sword && controller.Stats.Equipment.AttackDamage==12,
+                "Hero walks into pickup range and puts the item into the first free slot");
+            yield return WaitFor(controller,manager,()=>controller.InspectedGround==0 && !ui.IsVisible(CombatHud.TooltipPanel),1);
+            Check(controller.InspectedGround==0 && !ui.IsVisible(CombatHud.TooltipPanel),"Picking the item up closes its tooltip");
+            // 商店范围外不能出售、不能打开商店。
+            yield return WalkTo(controller,manager,outside);
             controller.SellItem(0); yield return null; yield return null;
             Check(controller.EquippedAt(0)==sword,"Selling requires the shop to be open");
+            controller.ToggleShop(); yield return null;
+            Check(!controller.ShopOpen,"Shop cannot be opened outside its range");
+            // 留一件装备在地上，验证重开会清空地上的装备。
+            Check(controller.DropItem(0,(Vector3)controller.State.Position+Vector3.right),"Drop order accepts a point next to the hero");
+            yield return WaitFor(controller,manager,()=>controller.GroundCount==1,3);
+            Check(controller.GroundCount==1 && controller.EquippedAt(0)==-1,"Dropping next to the hero leaves the item on the ground");
+        }
+        /// <summary>等待条件成立（最多 seconds 秒）；期间保持英雄满血，避免较长的走动流程中英雄被击杀而结束战斗。</summary>
+        private static IEnumerator WaitFor(GameCombatController controller,EntityManager manager,Func<bool> condition,float seconds)
+        {
+            float until=Time.realtimeSinceStartup+seconds;
+            while(Time.realtimeSinceStartup<until && !condition()) { KeepAlive(controller,manager); yield return null; }
+            KeepAlive(controller,manager);
+        }
+        /// <summary>右键地面走到 point（平面距离 0.3 米内，最多 timeout 秒），到达后原地待命，避免自动索敌追击离开指定位置。</summary>
+        private static IEnumerator WalkTo(GameCombatController controller,EntityManager manager,Vector3 point,float timeout=12)
+        {
+            controller.SetDestination(point);
+            float2 goal=((float3)point).xz;
+            yield return WaitFor(controller,manager,()=>math.distance(controller.State.Position.xz,goal)<=0.3f,timeout);
+            controller.Hold(); yield return null;
+        }
+        private static void KeepAlive(GameCombatController controller,EntityManager manager)
+        {
+            if(!controller.IsReady) return;
+            var unit=manager.GetComponentData<AbilityUnit>(controller.SessionEntity);
+            if(unit.Health>0 && unit.Health<unit.MaxHealth) { unit.Health=unit.MaxHealth; manager.SetComponentData(controller.SessionEntity,unit); }
+        }
+        private static UIDragAction FindDrag(int slot)=>FindAction<UIDragAction>(a=>a.beginCommand==CombatHud.DragCommand && a.value==slot);
+        private static T FindAction<T>(Func<T,bool> match) where T:MonoBehaviour
+        {
+            foreach(var action in UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Exclude,FindObjectsSortMode.None)) if(match(action)) return action;
+            return null;
+        }
+        /// <summary>模拟鼠标左键指针事件（拖动与放置）。</summary>
+        private static UnityEngine.EventSystems.PointerEventData Pointer(Vector2 screen)
+            =>new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current)
+                {button=UnityEngine.EventSystems.PointerEventData.InputButton.Left,position=screen};
+        /// <summary>界面元素中心的屏幕坐标（像素）。</summary>
+        private static Vector2 ScreenOf(Component component)
+        {
+            var rect=(RectTransform)component.transform;
+            var canvas=component.GetComponentInParent<Canvas>();
+            var root=canvas?canvas.rootCanvas:null;
+            var camera=root && root.renderMode!=RenderMode.ScreenSpaceOverlay?root.worldCamera:null;
+            return RectTransformUtility.WorldToScreenPoint(camera,rect.TransformPoint(rect.rect.center));
+        }
+        private static bool PanelToggle(UIManager ui,string panelId,string key)
+        {
+            var panel=ui?ui.FindPanel(panelId):null;
+            if(!panel || panel.toggles==null) return false;
+            foreach(var binding in panel.toggles) if(binding.key==key && binding.target) return binding.target.activeSelf!=binding.invert;
+            return false;
         }
         /// <summary>悬停技能 / 被动图标：显示 Dota 2 式详细提示（名称、逐级数值），位于图标上方；指针离开后隐藏。</summary>
         private IEnumerator TooltipChecks(GameCombatController controller)

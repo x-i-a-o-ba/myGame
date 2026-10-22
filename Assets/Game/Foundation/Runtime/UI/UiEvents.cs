@@ -4,12 +4,15 @@ using UnityEngine;
 
 namespace Roguelike.Foundation.UI
 {
-    /// <summary>UI 命令只有意图和数值，不携带面板、控制器或 ECS 引用。</summary>
+    /// <summary>UI 命令只有意图、数值与可选的指针屏幕坐标，不携带面板、控制器或 ECS 引用。</summary>
     public readonly struct UiCommand
     {
         public readonly string Id;
         public readonly int Value;
-        public UiCommand(string id, int value = 0) { Id = id; Value = value; }
+        /// <summary>指针命令（例如拖动松开）附带的屏幕坐标（像素）；其他命令为零。</summary>
+        public readonly Vector2 Pointer;
+        public UiCommand(string id, int value = 0) { Id = id; Value = value; Pointer = default; }
+        public UiCommand(string id, int value, Vector2 pointer) { Id = id; Value = value; Pointer = pointer; }
     }
 
     /// <summary>展示消息。Key 在面板本地绑定；纹理所有权仍属于提供者。</summary>

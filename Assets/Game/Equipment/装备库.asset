@@ -34,3 +34,5 @@ MonoBehaviour:
   slotCount: 6
   startingGold: 300
   sellRatio: 0.5
+  dropRange: 3.3
+  pickupRange: 5

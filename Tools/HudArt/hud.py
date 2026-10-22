@@ -94,23 +94,30 @@ rg=at(center,"Regen",400,158,148,24); b.text("hero.regen",text(rg,"",12,(0.75,1,
 pv[center.children[-2].children[-1].go]="1027 / 1252"
 bar(center,b,"Mana",26,184,528,18,MP,"hero.mana","hero.manaText",13,amount=1.0)
 pv[center.children[-1].children[-1].go]="172 / 172"
-# ---- 装备栏：金币 + 6 格（悬停看属性，商店打开时右键出售）；键名与 CombatHud.EquipmentKeys 一一对应 ----
+# ---- 装备栏（Dota 2 式）：上方 3 × 2 共 6 格，下方金币；悬停看属性，拖到其他格换位、拖到地面丢弃、拖到商店或右键出售（商店打开时）。
+# 键名与 CombatHud.EquipmentKeys 一一对应；拖动命令与 CombatHud.DragCommand / DragEndCommand / DropOnCommand 一致。
 EQUIP_SAMPLE=["铁剑","迅捷手套","速度之靴","回复戒指"]
 with extra("hud.equipment"):
     eq=at(root,"Equipment",1028,44,206,158); image(eq,"hud_plate",kind="sliced",raycast=1)
-    text(at(eq,"Title",12,6,90,22),"装备",14,GOLD,"ML",bold=True)
-    image(at(eq,"Gold Icon",112,7,20,20),"金币")
-    gd=at(eq,"Gold",136,6,62,22); b.text("hero.gold",text(gd,"",15,(1,0.86,0.4,1),"MR",bold=True)); pv[gd.go]="820"
+    text(at(eq,"Title",12,134,90,22),"装备",13,GOLD,"ML",bold=True)
+    image(at(eq,"Gold Icon",112,135,20,20),"金币")
+    gd=at(eq,"Gold",136,134,62,22); b.text("hero.gold",text(gd,"",15,(1,0.86,0.4,1),"MR",bold=True)); pv[gd.go]="820"
     for i in range(6):
-        es=at(eq,"Slot %d"%i,10+(i%3)*64,34+(i//3)*62,58,58); image(es,"slot_back",raycast=1)
+        es=at(eq,"Slot %d"%i,10+(i%3)*64,8+(i//3)*63,60,60); image(es,"slot_back",raycast=1)
         hover(es,"combat.hover",10+i)            # CombatHud.EquipmentHoverBase + 格子序号
         pointer(es,"combat.equip.sell",i)         # 右键出售（商店打开时）
         it=on(b.toggle("equip.s%d.filled"%i,fill(es,"Item",active=0)),i<len(EQUIP_SAMPLE))
         ic=on(b.toggle("equip.s%d.hasIcon"%i,fill(it,"Icon",5,5,5,5,active=0)),True)
-        b.image("equip.s%d.icon"%i,raw(ic,preview=EQUIP%EQUIP_SAMPLE[i] if i<len(EQUIP_SAMPLE) else None))
+        icon_=b.image("equip.s%d.icon"%i,raw(ic,preview=EQUIP%EQUIP_SAMPLE[i] if i<len(EQUIP_SAMPLE) else None))
         nm=on(b.toggle("equip.s%d.hasIcon"%i,fill(it,"Name",5,5,5,5),invert=1),False); b.text("equip.s%d.name"%i,text(nm,"",11,LIGHT,"MC",wrap=True))
         lk=on(b.toggle("equip.s%d.locked"%i,fill(es,"Locked",5,5,5,5,active=0)),False); image(lk,"white",(0.02,0.03,0.04,0.72))
         image(fill(es,"Frame"),"slot_frame",kind="sliced")
+        # 拖动源（格子里有装备时才能拖，拖动图标复制装备图标）与放置目标（换位）；拖到其他格上时该格显示金色高亮。
+        drag(es,"combat.equip.drag","combat.equip.dragEnd",i,require=it,ghost=icon_)
+        drop(es,"combat.equip.dropOn",i)
+        with extra("hud.equipment.drop%d"%i):
+            dt_=on(b.toggle("equip.s%d.drop"%i,fill(es,"Drop Target",-3,-3,-3,-3,active=0)),i==1)
+            image(dt_,"highlight",(1,0.82,0.35,1),kind="sliced")
 # ---- 右侧：指令、天赋树、商店 ----
 rp=at(root,"Orders",1244,44,306,158); image(rp,"hud_plate",kind="sliced")
 for i,(label,hot) in enumerate((("攻击","A"),("停止","S"),("待命","H"))):
@@ -132,7 +139,12 @@ with extra("hud.orders.shop"):
     image(at(sh,"Icon",6,4,36,36),"商店")
     text(at(sh,"Label",46,0,60,44),"商店",15,GOLD,"ML",bold=True)
     hk=at(sh,"Hotkey",108,11,22,22); image(hk,"hotkey",kind="sliced"); text(fill(hk,"Key"),"B",12,GOLD,"MC",bold=True,shadow=False)
-text(at(rp,"Help",12,128,282,24),"右键 移动/攻击 · A 攻击 · S 停止 · H 待命 · B 商店",11,MUTED,"ML")
+with extra("hud.orders.shop.far"):
+    # 不在商店范围内：按钮变暗，右上角显示到商店范围的距离（CombatHud.ShopKeys.Far / Distance）。
+    far=on(b.toggle("shop.far",fill(sh,"Far",active=0)),True); image(far,"white",(0.02,0.03,0.05,0.5))
+    dc=at(far,"Distance",84,-12,56,20); image(dc,"chip",(0.95,0.72,0.3,1),kind="sliced")
+    dtx=fill(dc,"Text"); b.text("shop.distance",text(dtx,"",11,WHITE,"MC",bold=True)); pv[dtx.go]="6 米"
+text(at(rp,"Help",12,128,282,24),"右键 移动/攻击/拾取 · 拖装备到地面丢弃 · B 商店",11,MUTED,"ML")
 panel(root,"UI.Game.BottomHUD",b)
 bottom=root; write("UI.Game.BottomHUD",root)
 # ================= 顶栏 =================
@@ -317,6 +329,7 @@ with extra("panel.shop"):
     SW,SH=520,500
     root=Node("UI.Game.Shop",None,(1,0),(1,0),(-16,226),(SW,SH),(1,0),active=0)
     image(fill(root,"Back"),"hud_body",kind="sliced",raycast=1)
+    drop(root,"combat.shop.drop",0)  # 把装备栏中的装备拖到商店面板上出售（CombatHud.ShopDropCommand）
     image(at(root,"Icon",16,12,36,36),"商店")
     text(at(root,"Title",60,12,120,36),"商店",18,GOLD,"ML",bold=True)
     image(at(root,"Gold Icon",292,19,22,22),"金币")
@@ -342,7 +355,7 @@ with extra("panel.shop"):
         bt=at(pg,nm_,x_,0,84,30); g_=image(bt,"button",kind="sliced",raycast=1); button(bt,g_,"combat.shop.page",val_)
         text(fill(bt,"Label"),"上一页" if val_==0 else "下一页",13,LIGHT,"MC",bold=True)
     pn=at(pg,"Page",84,0,SW-32-168,30); b.text("shop.page",text(pn,"",14,LIGHT,"MC",bold=True)); pv[pn.go]="1 / 2"
-    hn=at(root,"Hint",16,470,SW-32,22); b.text("shop.hint",text(hn,"",12,MUTED,"ML")); pv[hn.go]="左键购买 · 打开商店时右键装备栏中的装备出售（返还 50%） · B / Esc 关闭"
+    hn=at(root,"Hint",16,470,SW-32,22); b.text("shop.hint",text(hn,"",12,MUTED,"ML")); pv[hn.go]="左键购买  ·  右键装备或把装备拖到这里出售（返还 50%）  ·  B / Esc 关闭"
     panel(root,"UI.Game.Shop",b)
     shop=root; write("UI.Game.Shop",root)
 # ================= 预览 =================

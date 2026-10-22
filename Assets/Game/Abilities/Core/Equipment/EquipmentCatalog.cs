@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Roguelike.Abilities
 {
     /// <summary>
-    /// 商店与装备栏配置：出售的装备列表、装备栏格数、开局金币与出售返还比例。
+    /// 商店与装备栏配置：出售的装备列表、装备栏格数、开局金币、出售返还比例与丢弃 / 拾取距离。商店的位置与范围由场景中的商店对象决定。
     /// 编译成会话拥有的只读 <see cref="EquipmentLibrary"/>；不保存任何运行状态。
     /// </summary>
     [CreateAssetMenu(menuName="Roguelike/装备/装备库")]
@@ -19,6 +19,11 @@ namespace Roguelike.Abilities
         [Range(1,MaximumSlots), Tooltip("装备栏格数（HUD 最多显示 6 格）。")] public int slotCount=MaximumSlots;
         [Min(0), Tooltip("开局金币。")] public int startingGold=300;
         [Range(0,1), Tooltip("出售返还比例：0.5 表示返还购买价格的 50%（向下取整）。")] public float sellRatio=0.5f;
+        [Range(MinimumRange,MaximumRange), Tooltip("丢弃距离（米）：把装备拖到地面后，英雄走到落点这个距离内才放下（Dota 2 为 100 码，约 3.3 米）。")]
+        public float dropRange=3.3f;
+        [Range(MinimumRange,MaximumRange), Tooltip("拾取距离（米）：右键地上的装备后，英雄走到这个距离内才拾取（Dota 2 为 150 码，约 5 米）。")]
+        public float pickupRange=5f;
+        public const float MinimumRange=0.5f,MaximumRange=30f;
 
         public int SellPrice(EquipmentDefinition item)=>item?Mathf.FloorToInt(item.price*Mathf.Clamp01(sellRatio)+0.0001f):0;
 
@@ -30,6 +35,8 @@ namespace Roguelike.Abilities
             if(slotCount<1 || slotCount>MaximumSlots) return "装备栏格数必须为 1–"+MaximumSlots+"："+name;
             if(startingGold<0 || startingGold>1000000) return "开局金币必须在 0–1000000："+name;
             if(float.IsNaN(sellRatio) || sellRatio<0 || sellRatio>1) return "出售返还比例必须在 0–1："+name;
+            if(!(dropRange>=MinimumRange && dropRange<=MaximumRange)) return "丢弃距离必须在 "+MinimumRange+"–"+MaximumRange+" 米："+name;
+            if(!(pickupRange>=MinimumRange && pickupRange<=MaximumRange)) return "拾取距离必须在 "+MinimumRange+"–"+MaximumRange+" 米："+name;
             var seen=new HashSet<EquipmentDefinition>(); var ids=new HashSet<int>(); var keys=new HashSet<string>();
             for(int i=0;i<items.Length;i++)
             {
@@ -63,7 +70,7 @@ namespace Roguelike.Abilities
             using(var builder=new BlobBuilder(Allocator.Temp))
             {
                 ref var root=ref builder.ConstructRoot<EquipmentLibrary>();
-                root.SlotCount=slotCount; root.StartingGold=startingGold;
+                root.SlotCount=slotCount; root.StartingGold=startingGold; root.DropRange=dropRange; root.PickupRange=pickupRange;
                 var output=builder.Allocate(ref root.Items,items.Length);
                 for(int i=0;i<items.Length;i++)
                 {

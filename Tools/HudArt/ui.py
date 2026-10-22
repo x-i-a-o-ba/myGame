@@ -7,6 +7,7 @@ IMG="fe87c0e1cc204ed48ad3b37840f39efc"; TXT="5f7201a12d95ffc409449d95f23cf332"; 
 RAW="1344c3c82d62a2a41a3576d8abb8e3ea"; SHD="cfabb0440166ab443bba8876756fdfa9"; OUT="e19747de3f5aca642ab2be37e372fb86"
 ACT="44e671ea4d15e5a4daaeaa73ccca3f35"; PNL="8fd3e243fd60e234fbe71139379cfa0e"
 HOV="f7a1cd7eec5746c2b30856b6ee994c01"; TIP="30ff4094440a49f184efbf220926c74e"; PTR="d36dd1d5900d42b19cb2aa78dddee80b"
+DRG="dadb85b2e3bb41b4a6185c7895f4df21"; DRP="c1cb3bf8b30b46979a21e910728be4c4"
 FONT="{fileID: 12800000, guid: ab0786ada57caea46b95753ec47d65c0, type: 3}"
 SPR=json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'sprites.json'))); ICO=json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'icons.json')))
 SPRITE_DIR=ROOT+"/Assets/Game/UI/Sprites"; ICON_DIR=ROOT+"/Assets/Game/UI/Icons"
@@ -84,6 +85,19 @@ def pointer(n,command,value,button=1):
     """鼠标键点击意图 UIPointerAction（button：0 左键、1 右键、2 中键），例如右键出售；组件 ID 由节点与命令哈希得到。"""
     cid=sfid("pointer:%d:%s:%d"%(n.go,command,value))
     n.comps.append((cid,"114",mono(n.go,PTR,"Roguelike.Foundation::Roguelike.Foundation.UI.UIPointerAction","  command: %s\n  value: %d\n  button: %d\n"%(command,value,button))))
+    return cid
+def drag(n,begin,end,value,require=None,ghost=0,dimmed=0.35):
+    """拖动源 UIDragAction（左键拖动）：开始时发送 begin，松开时发送 end（附带屏幕坐标）；require 节点显示时才能拖动，
+    ghost 为跟随指针的 RawImage 组件 ID。组件 ID 由节点与命令哈希得到，不影响同面板其他对象的 ID。"""
+    cid=sfid("drag:%d:%s:%d"%(n.go,begin,value))
+    n.comps.append((cid,"114",mono(n.go,DRG,"Roguelike.Foundation::Roguelike.Foundation.UI.UIDragAction",
+      "  beginCommand: %s\n  endCommand: %s\n  value: %d\n  requireActive: {fileID: %d}\n  ghost: {fileID: %d}\n  dimmed: %s\n"%(
+        begin,end,value,require.go if require else 0,ghost,dimmed))))
+    return cid
+def drop(n,command,value):
+    """放置目标 UIDropAction：拖动在本节点（或没有放置目标的子节点）上松开时发送 (command, value)；组件 ID 由节点与命令哈希得到。"""
+    cid=sfid("drop:%d:%s:%d"%(n.go,command,value))
+    n.comps.append((cid,"114",mono(n.go,DRP,"Roguelike.Foundation::Roguelike.Foundation.UI.UIDropAction","  command: %s\n  value: %d\n"%(command,value))))
     return cid
 def tooltip(n,sections,padding=14,spacing=8,gap=12,margin=8):
     """提示框排版组件 UITooltip：sections 按显示顺序列出直接子节点。"""

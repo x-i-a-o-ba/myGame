@@ -115,13 +115,21 @@ namespace Roguelike.Combat
         /// <summary>攻击移动：走向目标点，途中自动攻击索敌距离内的敌人，击杀后继续前进。</summary>
         AttackMove,
         /// <summary>原地待命：不移动，只攻击攻击距离内的敌人。</summary>
-        Hold
+        Hold,
+        /// <summary>拾取（右键地上的装备）：走向 Value 编号的地上装备，进入拾取距离后拾取并转为待机；途中行为与移动相同。</summary>
+        PickUp,
+        /// <summary>丢弃（拖动装备到地面）：走向落点 Point，进入丢弃距离后把第 Value 格的装备（下令时为 Item）放到地上并转为待机；途中行为与移动相同。</summary>
+        DropItem
     }
     public struct HeroOrder : IComponentData
     {
         public HeroOrderKind Kind; public float3 Point; public Entity Target;
         /// <summary>每次输入层下达新指令时递增，用于取消前摇（移动中攻击开启时移动类指令不取消）。</summary>
         public int Serial;
+        /// <summary>拾取：地上装备编号；丢弃：装备栏格。</summary>
+        public int Value;
+        /// <summary>丢弃：下令时该格的装备下标（期间换位时按装备查找）。</summary>
+        public int Item;
     }
     /// <summary>一帧英雄动作意图：由模拟系统按指令与索敌生成，交给纯函数 CombatSimulationSystem.StepMotion 推进。</summary>
     public struct HeroMotion

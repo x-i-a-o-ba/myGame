@@ -45,6 +45,8 @@ namespace Roguelike.Foundation.UI
         }
         protected virtual void OnDisable() { if (manager) manager.Events.Changed -= Receive; }
         public void Send(string id, int value) { if (manager) manager.Events.Send(new UiCommand(id, value)); }
+        /// <summary>发送附带指针屏幕坐标的命令（拖动松开、放置等）。</summary>
+        public void Send(string id, int value, Vector2 pointer) { if (manager) manager.Events.Send(new UiCommand(id, value, pointer)); }
         private void BuildIndex()
         {
             Index(textIndex, texts, item => item.key);

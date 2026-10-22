@@ -36,16 +36,22 @@ namespace Roguelike.Combat
         public bool CastWindup, CastRecovery;
     }
 
-    /// <summary>组装一件装备提示所需的只读上下文：装备定义（名称、图标、说明）、Buff 名称、当前金币与购买预检结果。</summary>
+    /// <summary>组装一件装备提示所需的只读上下文：装备定义（名称、图标、说明）、Buff 名称、当前金币、购买与拾取预检结果。</summary>
     public struct ItemTooltipContext
     {
         public EquipmentDefinition Definition;
         public BuffDefinition[] Buffs;
         public float Gold;
-        /// <summary>悬停的是商店卡片（否则为装备栏格）；ShopOpen 表示商店面板已打开（可以右键出售）。</summary>
+        /// <summary>悬停的是商店卡片（否则为装备栏格或地上的装备）；ShopOpen 表示商店面板已打开（可以出售）。</summary>
         public bool FromShop, ShopOpen;
         /// <summary>商店卡片的购买预检结果（装备栏格不使用）。</summary>
         public EquipmentFailure BuyFailure;
+        /// <summary>查看的是地上的装备；PickingUp 表示英雄正在走过去拾取它。</summary>
+        public bool FromGround, PickingUp;
+        /// <summary>地上的装备：英雄到它的平面距离（米）。</summary>
+        public float Distance;
+        /// <summary>地上的装备：不计距离的拾取预检结果（装备栏已满、唯一装备已拥有等）。</summary>
+        public EquipmentFailure PickupFailure;
     }
 
     /// <summary>
@@ -205,7 +211,7 @@ namespace Roguelike.Combat
         }
 
         // ---------------- 装备 ----------------
-        /// <summary>装备提示：品质与价格、属性加成（直接相加）、说明、普攻命中效果、唯一与出售价，以及购买 / 出售操作提示。</summary>
+        /// <summary>装备提示：品质与价格、属性加成（直接相加）、说明、普攻命中效果、唯一与出售价，以及购买 / 出售 / 丢弃 / 拾取操作提示。</summary>
         public static void BuildItem(ref AbilityLibrary library, ref EquipmentItemData item, in ItemTooltipContext c, AbilityTooltipView view)
         {
             var definition = c.Definition;
@@ -247,11 +253,25 @@ namespace Roguelike.Combat
                     case EquipmentFailure.NotEnoughGold:
                         view.Status = $"<color={Warn}>金币不足：还差 {math.max(1, (int)math.ceil(item.Price - c.Gold - 0.0001f)):N0} 金币</color>"; break;
                     case EquipmentFailure.AlreadyOwned: view.Status = $"<color={Label}>已拥有（唯一装备）</color>"; break;
-                    case EquipmentFailure.InventoryFull: view.Status = $"<color={Warn}>装备栏已满：先右键出售一件装备</color>"; break;
+                    case EquipmentFailure.InventoryFull: view.Status = $"<color={Warn}>装备栏已满：先出售或丢弃一件装备</color>"; break;
                     default: view.Status = $"<color={Warn}>{EquipmentLogic.Describe(c.BuyFailure)}</color>"; break;
                 }
             }
-            else view.Status = c.ShopOpen ? $"<color={Gold}>右键出售：返还 {item.SellPrice:N0} 金币</color>" : $"<color={Label}>按 B 打开商店后，右键这件装备出售</color>";
+            else if (c.FromGround)
+            {
+                string action;
+                switch (c.PickupFailure)
+                {
+                    case EquipmentFailure.None: action = c.PickingUp ? $"<color={Good}>正在走过去拾取……</color>" : $"<color={Good}>右键拾取（走到附近自动捡起）</color>"; break;
+                    case EquipmentFailure.InventoryFull: action = $"<color={Warn}>装备栏已满：先出售或丢弃一件装备再拾取</color>"; break;
+                    case EquipmentFailure.AlreadyOwned: action = $"<color={Label}>已拥有（唯一装备）：不能再拾取一件</color>"; break;
+                    default: action = $"<color={Warn}>{EquipmentLogic.Describe(c.PickupFailure)}</color>"; break;
+                }
+                view.Status = $"{action}\n<color={Label}>地上的装备 · 距离 {c.Distance:0.#} 米 · 点击空地或 Esc 关闭</color>";
+            }
+            else view.Status = (c.ShopOpen ? $"<color={Gold}>右键出售（或拖到商店）：返还 {item.SellPrice:N0} 金币</color>"
+                    : $"<color={Label}>走进商店范围（地面金色圆圈）按 B 打开商店后，右键出售</color>") +
+                $"\n<color={Label}>拖到地面丢弃 · 拖到其他格换位</color>";
         }
         public static string QualityLabel(EquipmentQuality quality)
         {
