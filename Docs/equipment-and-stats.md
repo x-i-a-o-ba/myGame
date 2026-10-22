@@ -1,6 +1,6 @@
 # 属性与装备
 
-更新：2026-10-22。本文说明英雄属性的合成规则、装备与商店、金币来源，以及如何新增装备。**代码、资源、面板与校验用例均未在 Unity 中编译、运行或查看画面（未验证）**；数值未经试玩调平。等级与天赋见 [hero-progression.md](hero-progression.md)，操作与 HUD 见 [enemies-and-controls.md](enemies-and-controls.md)。
+更新：2026-10-22。本文说明英雄属性的合成规则、装备与商店、金币来源，以及如何新增装备。合并前 Unity 6000.3.18f1 编译、251 项 Editor 检查、Windows 构建及 74 项 Player 检查通过，无失败、无跳过项，商店实际截图已检查；数值未经试玩调平。见 [验证记录](validation-stats-equipment-2026-10-22.md)。等级与天赋见 [hero-progression.md](hero-progression.md)，操作与 HUD 见 [enemies-and-controls.md](enemies-and-controls.md)。
 
 ## 用户要求与 AI 决定
 
