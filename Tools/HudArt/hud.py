@@ -6,6 +6,14 @@ from ui import *
 GOLD=(0.97,0.83,0.52,1); LIGHT=(0.9,0.93,0.95,1); MUTED=(0.6,0.66,0.7,1); CYAN=(0.62,0.9,1,1); WHITE=(1,1,1,1)
 HP=(0.27,0.8,0.24,1); MP=(0.22,0.48,0.98,1); RED=(0.88,0.2,0.14,1)
 pv=ui.previews; tg={}; ui.fill_preview.clear()
+import contextlib, random as _random
+@contextlib.contextmanager
+def extra(key):
+    """新增节点用独立随机序列分配 fileID（按 key 播种），插入新对象时不改变已有对象的 ID，预制体差异最小。"""
+    saved=ui.rng; ui.rng=_random.Random(key)
+    try: yield
+    finally: ui.rng=saved
+EQUIP="Assets/Game/Equipment/Icons/%s.png"
 def on(node,value=True): tg[node.go]=value; return node
 def bar(parent,b,name,x,y,w,h,color,fillkey,textkey,textsize,regenkey=None,amount=1.0):
     back=at(parent,name,x,y,w,h); image(back,"bar_back",kind="sliced")
@@ -15,25 +23,32 @@ def bar(parent,b,name,x,y,w,h,color,fillkey,textkey,textsize,regenkey=None,amoun
     t=fill(back,"Value"); b.text(textkey,text(t,"",textsize,WHITE,"MC",bold=True)); return back,t
 # ================= 底部 HUD =================
 b=Bindings()
-root=Node("UI.Game.BottomHUD",None,(0.5,0),(0.5,0),(0,0),(1240,214),(0.5,0),go=7807990809045325555,rt=7026121659916554133)
-body=at(root,"Body",0,32,1240,182); image(body,"hud_body",kind="sliced",raycast=1)
-center=at(root,"Ability Section",330,2,580,212); image(center,"hud_body",kind="sliced",raycast=1)
+root=Node("UI.Game.BottomHUD",None,(0.5,0),(0.5,0),(0,0),(1564,214),(0.5,0),go=7807990809045325555,rt=7026121659916554133)
+body=at(root,"Body",0,32,1564,182); image(body,"hud_body",kind="sliced",raycast=1)
+center=at(root,"Ability Section",438,2,580,212); image(center,"hud_body",kind="sliced",raycast=1)
 # ---- 左侧：头像、等级、属性 ----
 plate=at(root,"Portrait",14,44,168,158); image(plate,"hud_plate",kind="sliced")
 por=fill(plate,"Image",3,3,3,3); b.image("hero.portrait",raw(por,preview="寒冰射手"))
 shade=at(plate,"Name Shade",3,112,162,43); image(shade,"shade_bottom",kind="simple")
 nm=at(plate,"HeroName",4,124,160,28); b.text("hero.name",text(nm,"寒冰射手",17,WHITE,"MC",bold=True)); pv[nm.go]="寒冰射手"
 xpt=at(plate,"Experience",58,6,104,18); b.text("hero.xpText",text(xpt,"",12,LIGHT,"MR")); pv[xpt.go]="经验 120 / 240"
-stats=at(root,"Stats",192,44,128,158); image(stats,"hud_plate",kind="sliced")
+stats=at(root,"Stats",192,44,236,158); image(stats,"hud_plate",kind="sliced",raycast=1)
+hover(stats,"combat.hover",20)  # 悬停显示全部属性与来源（CombatHud.StatsHover）
 for i,(label,key,sample) in enumerate((("攻击","stats.attack","51"),("攻速","stats.attackSpeed","9.4/秒"),("射程","stats.range","20"),("移速","stats.move","10"))):
     row=at(stats,"Stat "+label,8,8+i*28,112,26)
     text(at(row,"Label",0,0,44,26),label,13,MUTED,"ML")
-    v=at(row,"Value",40,0,72,26); b.text(key,text(v,"",15,LIGHT,"MR",bold=True)); pv[v.go]=sample
+    v=at(row,"Value",40,0,64,26); b.text(key,text(v,"",15,LIGHT,"MR",bold=True)); pv[v.go]=sample
+with extra("hud.stats.right"):
+    image(at(stats,"Column Divider",117,12,2,104),"white",(1,1,1,0.08))
+    for i,(label,key,sample) in enumerate((("技伤","stats.amplify","30%"),("冷缩","stats.cooldown","20%"),("减伤","stats.reduction","10%"),("暴击","stats.critical","15%"))):
+        row=at(stats,"Stat "+label,124,8+i*28,104,26)
+        text(at(row,"Label",0,0,44,26),label,13,MUTED,"ML")
+        v=at(row,"Value",40,0,64,26); b.text(key,text(v,"",15,LIGHT,"MR",bold=True)); pv[v.go]=sample
 badge=at(root,"Level Badge",2,26,62,62); image(badge,"level_badge")
 ringb=fill(badge,"Ring Back",-3,-3,-3,-3); image(ringb,"ring",(0,0,0,0.65))
 ring=fill(badge,"Ring",-3,-3,-3,-3); b.fill("hero.xp",image(ring,"ring",(1,0.8,0.28,1),kind="filled",amount=0.0,origin=0),2); ui.fill_preview[ring.go]=0.5
 lv=fill(badge,"Level"); b.text("hero.level",text(lv,"1",24,GOLD,"MC",bold=True,outline=True)); pv[lv.go]="7"
-pts=on(b.toggle("hero.pointsVisible",at(stats,"Skill Points",4,122,120,30,active=0)))
+pts=on(b.toggle("hero.pointsVisible",at(stats,"Skill Points",58,122,120,30,active=0)))
 image(at(pts,"Glow",-6,-6,132,42),"glow",(1,0.78,0.25,0.55)); image(fill(pts,"Back"),"hud_plate",kind="sliced")
 pt=fill(pts,"Text"); b.text("hero.points",text(pt,"",14,(1,0.86,0.4,1),"MC",bold=True)); pv[pt.go]="技能点 ×2"
 # ---- 中央：被动 + QWER ----
@@ -79,20 +94,45 @@ rg=at(center,"Regen",400,158,148,24); b.text("hero.regen",text(rg,"",12,(0.75,1,
 pv[center.children[-2].children[-1].go]="1027 / 1252"
 bar(center,b,"Mana",26,184,528,18,MP,"hero.mana","hero.manaText",13,amount=1.0)
 pv[center.children[-1].children[-1].go]="172 / 172"
-# ---- 右侧：指令、天赋树 ----
-rp=at(root,"Orders",920,44,306,158); image(rp,"hud_plate",kind="sliced")
+# ---- 装备栏：金币 + 6 格（悬停看属性，商店打开时右键出售）；键名与 CombatHud.EquipmentKeys 一一对应 ----
+EQUIP_SAMPLE=["铁剑","迅捷手套","速度之靴","回复戒指"]
+with extra("hud.equipment"):
+    eq=at(root,"Equipment",1028,44,206,158); image(eq,"hud_plate",kind="sliced",raycast=1)
+    text(at(eq,"Title",12,6,90,22),"装备",14,GOLD,"ML",bold=True)
+    image(at(eq,"Gold Icon",112,7,20,20),"金币")
+    gd=at(eq,"Gold",136,6,62,22); b.text("hero.gold",text(gd,"",15,(1,0.86,0.4,1),"MR",bold=True)); pv[gd.go]="820"
+    for i in range(6):
+        es=at(eq,"Slot %d"%i,10+(i%3)*64,34+(i//3)*62,58,58); image(es,"slot_back",raycast=1)
+        hover(es,"combat.hover",10+i)            # CombatHud.EquipmentHoverBase + 格子序号
+        pointer(es,"combat.equip.sell",i)         # 右键出售（商店打开时）
+        it=on(b.toggle("equip.s%d.filled"%i,fill(es,"Item",active=0)),i<len(EQUIP_SAMPLE))
+        ic=on(b.toggle("equip.s%d.hasIcon"%i,fill(it,"Icon",5,5,5,5,active=0)),True)
+        b.image("equip.s%d.icon"%i,raw(ic,preview=EQUIP%EQUIP_SAMPLE[i] if i<len(EQUIP_SAMPLE) else None))
+        nm=on(b.toggle("equip.s%d.hasIcon"%i,fill(it,"Name",5,5,5,5),invert=1),False); b.text("equip.s%d.name"%i,text(nm,"",11,LIGHT,"MC",wrap=True))
+        lk=on(b.toggle("equip.s%d.locked"%i,fill(es,"Locked",5,5,5,5,active=0)),False); image(lk,"white",(0.02,0.03,0.04,0.72))
+        image(fill(es,"Frame"),"slot_frame",kind="sliced")
+# ---- 右侧：指令、天赋树、商店 ----
+rp=at(root,"Orders",1244,44,306,158); image(rp,"hud_plate",kind="sliced")
 for i,(label,hot) in enumerate((("攻击","A"),("停止","S"),("待命","H"))):
     bt=at(rp,"Order "+hot,10+i*98,10,92,40); g=image(bt,"button",kind="sliced",raycast=1); button(bt,g,"combat.order",i)
     if i==0: armed=on(b.toggle("order.attackArmed",fill(bt,"Armed",-4,-4,-4,-4,active=0)),True); image(armed,"highlight",(1,0.45,0.3,1),kind="sliced")
     text(at(bt,"Label",8,0,56,40),label,15,LIGHT,"MC",bold=True)
     hk=at(bt,"Hotkey",62,10,22,20); image(hk,"hotkey",kind="sliced"); text(fill(hk,"Key"),hot,12,GOLD,"MC",bold=True,shadow=False)
 oc=at(rp,"Current Order",12,54,282,22); b.text("order.current",text(oc,"",13,MUTED,"ML")); pv[oc.go]="指令：攻击移动"
-tt=at(rp,"Talent Tree",10,80,286,44); tg_img=image(tt,"button",kind="sliced",raycast=1); button(tt,tg_img,"combat.talentTree",0)
+tt=at(rp,"Talent Tree",10,80,140,44); tg_img=image(tt,"button",kind="sliced",raycast=1); button(tt,tg_img,"combat.talentTree",0)
 pend=on(b.toggle("hud.talentPending",fill(tt,"Pending Glow",-6,-6,-6,-6,active=0)),True); image(pend,"highlight",(1,0.8,0.3,1),kind="sliced")
 image(at(tt,"Icon",6,4,36,36),"天赋树")
-text(at(tt,"Label",48,0,150,44),"天赋树",16,GOLD,"ML",bold=True)
-pl=on(b.toggle("hud.talentPending",at(tt,"Pending",190,0,90,44,active=0)),True); text(fill(pl,"Text"),"可选择！",13,(1,0.86,0.4,1),"MR",bold=True)
-text(at(rp,"Help",12,128,282,24),"右键 移动/攻击  ·  A 攻击移动  ·  S 停止  ·  H 待命",11,MUTED,"ML")
+text(at(tt,"Label",46,0,90,44),"天赋树",15,GOLD,"ML",bold=True)
+pl=on(b.toggle("hud.talentPending",at(tt,"Pending",114,-8,30,22,active=0)),True)
+with extra("hud.talent.pendingBadge"): image(pl,"badge",(0.95,0.55,0.15,1),kind="sliced")
+text(fill(pl,"Text"),"!",15,WHITE,"MC",bold=True)
+with extra("hud.orders.shop"):
+    sh=at(rp,"Shop",156,80,140,44); sg=image(sh,"button",kind="sliced",raycast=1); button(sh,sg,"combat.shop",0)
+    so=on(b.toggle("shop.open",fill(sh,"Open",-4,-4,-4,-4,active=0)),False); image(so,"highlight",(0.55,0.85,1,1),kind="sliced")
+    image(at(sh,"Icon",6,4,36,36),"商店")
+    text(at(sh,"Label",46,0,60,44),"商店",15,GOLD,"ML",bold=True)
+    hk=at(sh,"Hotkey",108,11,22,22); image(hk,"hotkey",kind="sliced"); text(fill(hk,"Key"),"B",12,GOLD,"MC",bold=True,shadow=False)
+text(at(rp,"Help",12,128,282,24),"右键 移动/攻击 · A 攻击 · S 停止 · H 待命 · B 商店",11,MUTED,"ML")
 panel(root,"UI.Game.BottomHUD",b)
 bottom=root; write("UI.Game.BottomHUD",root)
 # ================= 顶栏 =================
@@ -268,6 +308,43 @@ def stack(root,sections,state,pad,spacing):
     root.rect=(root.rect[0],root.rect[1],root.rect[2],(W_,max(2*pad,y+pad)),root.rect[4])
 stack(root,ksections,tg,KP,8)
 tip=root; write("UI.Game.AbilityTooltip",root)
+# ================= 商店（动态，右下角；B 键或“商店”按钮开关） =================
+# 键名与 CombatHud.ShopKeys 一一对应：左键卡片购买，悬停卡片显示装备提示（CombatHud.ShopHoverBase + 卡片序号），12 张一页。
+ITEM_NAMES=["铁剑","迅捷手套","皮甲背心","速度之靴","法力宝石","回复戒指","侦察镜","吸血獠牙","幸运匕首","贤者之书","守护铠甲","专注护符"]
+ITEM_PRICES=[350,400,350,450,400,350,500,600,650,500,900,800]
+with extra("panel.shop"):
+    b=Bindings()
+    SW,SH=520,500
+    root=Node("UI.Game.Shop",None,(1,0),(1,0),(-16,226),(SW,SH),(1,0),active=0)
+    image(fill(root,"Back"),"hud_body",kind="sliced",raycast=1)
+    image(at(root,"Icon",16,12,36,36),"商店")
+    text(at(root,"Title",60,12,120,36),"商店",18,GOLD,"ML",bold=True)
+    image(at(root,"Gold Icon",292,19,22,22),"金币")
+    sgd=at(root,"Gold",320,12,130,36); b.text("hero.gold",text(sgd,"",18,(1,0.86,0.4,1),"ML",bold=True)); pv[sgd.go]="820"
+    cl=at(root,"Close",SW-52,12,36,36); cg=image(cl,"button",kind="sliced",raycast=1); button(cl,cg,"combat.shop",0); text(fill(cl,"X"),"×",22,LIGHT,"MC",bold=True)
+    image(at(root,"Divider",16,56,SW-32,4),"divider",kind="sliced")
+    for c in range(12):
+        name_,price_=ITEM_NAMES[c],ITEM_PRICES[c]; poor_=price_>820; owned_=name_=="速度之靴"
+        card=on(b.toggle("shop.c%d.visible"%c,at(root,"Card %d"%c,16+(c%4)*124,70+(c//4)*120,116,112,active=0)),True)
+        bg_=image(card,"hud_plate",kind="sliced",raycast=1); button(card,bg_,"combat.shop.buy",c); hover(card,"combat.hover",100+c)
+        og=on(b.toggle("shop.c%d.owned"%c,fill(card,"Owned Glow",-3,-3,-3,-3,active=0)),owned_); image(og,"highlight",(0.55,0.85,1,1),kind="sliced")
+        isl_=at(card,"Icon Slot",28,6,60,60); image(isl_,"slot_back")
+        ic=on(b.toggle("shop.c%d.hasIcon"%c,fill(isl_,"Icon",4,4,4,4,active=0)),True); b.image("shop.c%d.icon"%c,raw(ic,preview=EQUIP%name_))
+        image(fill(isl_,"Frame"),"slot_frame",kind="sliced")
+        cn=at(card,"Name",4,68,108,20); b.text("shop.c%d.name"%c,text(cn,"",13,LIGHT,"MC",bold=True)); pv[cn.go]=name_
+        ok=on(b.toggle("shop.c%d.poor"%c,at(card,"Price",0,88,116,20),invert=1),not poor_)
+        image(at(ok,"Coin",30,2,16,16),"金币"); pt_=at(ok,"Text",48,0,64,20); b.text("shop.c%d.price"%c,text(pt_,"",13,(1,0.86,0.4,1),"ML",bold=True)); pv[pt_.go]="{:,}".format(price_)
+        bad=on(b.toggle("shop.c%d.poor"%c,at(card,"Price Poor",0,88,116,20,active=0)),poor_)
+        image(at(bad,"Coin",30,2,16,16),"金币",(1,1,1,0.45)); pp_=at(bad,"Text",48,0,64,20); b.text("shop.c%d.price"%c,text(pp_,"",13,(1,0.45,0.38,1),"ML",bold=True)); pv[pp_.go]="{:,}".format(price_)
+        ob=on(b.toggle("shop.c%d.owned"%c,at(card,"Owned",60,4,52,18,active=0)),owned_); image(ob,"chip",(0.5,0.78,1,1),kind="sliced"); text(fill(ob,"Text"),"已拥有",11,WHITE,"MC",bold=True)
+    pg=on(b.toggle("shop.paged",at(root,"Pager",16,432,SW-32,30,active=0)),True)
+    for nm_,x_,val_ in (("Previous",0,0),("Next",SW-32-84,1)):
+        bt=at(pg,nm_,x_,0,84,30); g_=image(bt,"button",kind="sliced",raycast=1); button(bt,g_,"combat.shop.page",val_)
+        text(fill(bt,"Label"),"上一页" if val_==0 else "下一页",13,LIGHT,"MC",bold=True)
+    pn=at(pg,"Page",84,0,SW-32-168,30); b.text("shop.page",text(pn,"",14,LIGHT,"MC",bold=True)); pv[pn.go]="1 / 2"
+    hn=at(root,"Hint",16,470,SW-32,22); b.text("shop.hint",text(hn,"",12,MUTED,"ML")); pv[hn.go]="左键购买 · 打开商店时右键装备栏中的装备出售（返还 50%） · B / Esc 关闭"
+    panel(root,"UI.Game.Shop",b)
+    shop=root; write("UI.Game.Shop",root)
 # ================= 预览 =================
 from PIL import Image as I, ImageDraw as D
 W,H=1920,1080
@@ -294,7 +371,7 @@ def place_tip(slot_center_x,slot_top_y):
     w_,h_=tip.rect[3]; x_=min(max(slot_center_x,8+w_/2),W-8-w_/2); y_=min(slot_top_y+KG,H-8-h_)
     tip.rect=((0.5,0.5),(0.5,0.5),(x_-W/2,y_-H/2),(w_,h_),(0.5,0))
 tip.active=1; tg3=dict(tg2)
-place_tip(W/2-620+330+116+102+46,214-2-44)
+place_tip(W/2-782+438+116+102+46,214-2-44)
 composite(P('tooltip_preview.png'),[bottom,title,controls,hint,tip],tg3)
 # 被动提示预览：隐藏热键与等级，显示“被动”徽章。
 for key_,val_ in ((khk,False),(klv,False),(kps,True),(kmn,False),(kco,False),(kcd,False)): tg3[key_.go]=val_
@@ -306,6 +383,37 @@ pv[kvt.go]=("<color={L}>攻击力：</color><color=#FFFFFF><b>51</b></color>\n<c
 pv[knt.go]="移动中攻击：右键移动途中自动攻击攻击距离内的敌人，前摇不定身。\n攻击间隔、前摇与后摇都随攻击速度缩短。"
 pv[kst.go]="<color=#7CFF6B>攻击中</color>"
 ui.previews.update(pv); stack(tip,ksections,tg3,KP,8)
-place_tip(W/2-620+330+26+38,214-2-52)
+place_tip(W/2-782+438+26+38,214-2-52)
 composite(P('tooltip_preview_passive.png'),[bottom,title,controls,hint,tip],tg3)
+# 商店 + 装备提示预览：悬停第 4 张卡片（速度之靴，已拥有）。上方放不下时与 UITooltip.Place 相同改放左侧。
+def place_side(card_left_x,card_center_y):
+    w_,h_=tip.rect[3]; x_=card_left_x-8-w_/2; y_=min(max(card_center_y-h_/2,8),H-8-h_)
+    tip.rect=((0.5,0.5),(0.5,0.5),(x_-W/2,y_-H/2),(w_,h_),(0.5,0))
+tg4=dict(tg3); shop.active=1
+for key_,val_ in ((khk,False),(klv,False),(kps,False),(kmn,False),(kco,False),(kcd,False),(kvl,False)): tg4[key_.go]=val_
+pv[kn.go]="速度之靴"; pv[kk.go]="<color=#C8D0D8>普通装备</color> · <color=#F7D485>450 金币</color>"; kic.draw=[("raw",EQUIP%"速度之靴",(1,1,1,1))]
+pv[kpr.go]="<color=#7CFF6B>+1.5 移动速度</color>"
+pv[kds.go]="轻快的长靴，提高移动速度。同名装备只能持有一件。"
+pv[knt.go]="唯一：同一件装备最多持有一件。\n出售返还 225 金币。"
+pv[kst.go]="<color=#9AA7B4>已拥有（唯一装备）</color>"
+ui.previews.update(pv); stack(tip,ksections,tg4,KP,8)
+card_x=W-16-SW+16+3*124; card_top=SH-70+226  # 第 4 张卡片左边缘与上边缘（自下而上坐标）
+if card_top+KG+tip.rect[3][1]>H-8: place_side(card_x,card_top-56)
+else: place_tip(card_x+58,card_top)
+composite(P('shop_preview.png'),[bottom,title,controls,shop,tip],tg4)
+# 属性提示预览：悬停属性面板。
+tg5=dict(tg3)
+for key_,val_ in ((khk,False),(klv,False),(kps,False),(kmn,False),(kco,False),(kcd,False),(kvl,True),(kds,False)): tg5[key_.go]=val_
+pv[kn.go]="英雄属性"; pv[kk.go]="寒冰射手 · 等级 7"; kic.draw=[("raw","寒冰射手",(1,1,1,1))]
+pv[kpr.go]="<color={L}>合计：</color>基础 + 成长 ×（等级 - 1）+ 天赋 + 装备\n<color={L}>规则：</color>所有来源直接相加，不做任何换算".format(L=LABEL)
+def row_(name,val,src): return "<color={L}>{n}：</color><color=#FFFFFF><b>{v}</b></color><color={L}><size=12>（{s}）</size></color>".format(L=LABEL,n=name,v=val,s=src) if src else "<color={L}>{n}：</color><color=#FFFFFF><b>{v}</b></color>".format(L=LABEL,n=name,v=val)
+pv[kvt.go]="\n".join([row_("最大生命","582","基础 300 · 成长 +132 · 装备 +150"),row_("生命回复","6.6/秒","基础 2 · 成长 +0.6 · 装备 +4"),row_("最大法力","172","基础 100 · 成长 +72"),
+  row_("法力回复","1.5/秒",""),row_("攻击力","60","基础 30 · 成长 +18 · 装备 +12"),row_("攻击速度","30%","成长 +15% · 装备 +15%"),row_("攻击距离","20 米",""),
+  row_("暴击几率","0%",""),row_("暴击伤害","150%",""),row_("普攻吸血","0%",""),row_("技能伤害","0%",""),row_("冷却缩减","0%",""),row_("伤害减免","0%",""),
+  row_("移动速度","11.5 米/秒","基础 10 · 装备 +1.5"),row_("经验获取","0%","")])
+pv[knt.go]="百分比类属性按百分点直接相加，例如 +20% 与 +30% 攻击速度合计 +50%。\n冷却缩减与伤害减免最高 80%；暴击只作用于普攻，暴击伤害是暴击时的伤害倍率。\n技能伤害只加成技能；普攻吸血按普攻实际造成的伤害回复生命。"
+pv[kst.go]="<color={L}>当前（含状态效果）：</color>攻击力 <color=#FFFFFF><b>60</b></color> · 每秒攻击 <color=#FFFFFF><b>10.8</b></color> 次 · 移速 <color=#FFFFFF><b>11.5</b></color>".format(L=LABEL)
+ui.previews.update(pv); stack(tip,ksections,tg5,KP,8)
+place_tip(W/2-782+192+118,214-44)
+composite(P('stats_preview.png'),[bottom,title,controls,hint,tip],tg5)
 print("ok")

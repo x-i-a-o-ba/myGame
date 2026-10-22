@@ -186,10 +186,12 @@ namespace Roguelike.Abilities.Editor
             Field("healthPerLevel", "每级最大生命", "升级时当前生命同步增加。");
             Field("manaPerLevel", "每级最大法力");
             Field("attackPerLevel", "每级普攻伤害");
-            Field("attackSpeedPerLevel", "每级攻击速度（小数）", "0.025 表示每级 +2.5% 攻速。");
+            Field("attackSpeedPerLevel", "每级攻击速度（%）", "百分点：2.5 表示每级 +2.5% 攻击速度，与天赋、装备的攻击速度直接相加。");
             Field("moveSpeedPerLevel", "每级移动速度（米/秒）");
             Field("regenPerLevel", "每级生命回复（点/秒）");
             Array("talents", "天赋树", "天赋层", "按英雄等级升序排列；到达等级后二选一，不消耗技能点。最多 31 层。");
+            Section("额外基础属性（重开后生效）");
+            Array("baseStats", "额外基础属性", "属性", "直接加到英雄基础属性上（不换算），例如 +10 暴击几率、+5 普攻吸血；百分比类属性填写百分点（25 = +25%）。最多 16 条。");
             End();
         }
     }

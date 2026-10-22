@@ -1,0 +1,185 @@
+{
+ "catalog": "c90d0951a451453599c00c7c8895f5bc",
+ "items": [
+  {
+   "id": 6000,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.iron_sword",
+   "path": "Assets/Game/Equipment/Items/铁剑.asset",
+   "name": "铁剑",
+   "retired": false,
+   "guid": "11a81445ec594d8c91e5de34804e61e0"
+  },
+  {
+   "id": 6001,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.swift_gloves",
+   "path": "Assets/Game/Equipment/Items/迅捷手套.asset",
+   "name": "迅捷手套",
+   "retired": false,
+   "guid": "19203632d92a4e8d8ac851964cc8bd91"
+  },
+  {
+   "id": 6002,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.leather_vest",
+   "path": "Assets/Game/Equipment/Items/皮甲背心.asset",
+   "name": "皮甲背心",
+   "retired": false,
+   "guid": "e0436b5a059044979f78e97477c95a1a"
+  },
+  {
+   "id": 6003,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.boots_of_speed",
+   "path": "Assets/Game/Equipment/Items/速度之靴.asset",
+   "name": "速度之靴",
+   "retired": false,
+   "guid": "26ac4f78fc3c41b498d6c6baf78a9b1a"
+  },
+  {
+   "id": 6004,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.mana_gem",
+   "path": "Assets/Game/Equipment/Items/法力宝石.asset",
+   "name": "法力宝石",
+   "retired": false,
+   "guid": "cfe48742477b471e8127dd1426a08a73"
+  },
+  {
+   "id": 6005,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.ring_of_regen",
+   "path": "Assets/Game/Equipment/Items/回复戒指.asset",
+   "name": "回复戒指",
+   "retired": false,
+   "guid": "0c81c1c4cd474f1bb4262b8172b150f5"
+  },
+  {
+   "id": 6006,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.scout_scope",
+   "path": "Assets/Game/Equipment/Items/侦察镜.asset",
+   "name": "侦察镜",
+   "retired": false,
+   "guid": "9bbd1af495124e779fce839afb380546"
+  },
+  {
+   "id": 6007,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.vampire_fang",
+   "path": "Assets/Game/Equipment/Items/吸血獠牙.asset",
+   "name": "吸血獠牙",
+   "retired": false,
+   "guid": "21c6ea1b18ec4849b3ad5457fd3487ee"
+  },
+  {
+   "id": 6008,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.lucky_dagger",
+   "path": "Assets/Game/Equipment/Items/幸运匕首.asset",
+   "name": "幸运匕首",
+   "retired": false,
+   "guid": "9cc0346b6e4d4e50baefec3b6cd36985"
+  },
+  {
+   "id": 6009,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.sage_tome",
+   "path": "Assets/Game/Equipment/Items/贤者之书.asset",
+   "name": "贤者之书",
+   "retired": false,
+   "guid": "2223275f2344480ca737362684ee8227"
+  },
+  {
+   "id": 6010,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.guardian_armor",
+   "path": "Assets/Game/Equipment/Items/守护铠甲.asset",
+   "name": "守护铠甲",
+   "retired": false,
+   "guid": "f1002eab27ff44bfb59b5dcce426977c"
+  },
+  {
+   "id": 6011,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.focus_amulet",
+   "path": "Assets/Game/Equipment/Items/专注护符.asset",
+   "name": "专注护符",
+   "retired": false,
+   "guid": "9936b09cf327407dab35a6f52ac19a03"
+  },
+  {
+   "id": 6012,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.frostwhisper_bow",
+   "path": "Assets/Game/Equipment/Items/霜语长弓.asset",
+   "name": "霜语长弓",
+   "retired": false,
+   "guid": "d3843131114347b5b397f1220408e200"
+  },
+  {
+   "id": 6013,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.arcane_staff",
+   "path": "Assets/Game/Equipment/Items/奥术法杖.asset",
+   "name": "奥术法杖",
+   "retired": false,
+   "guid": "2b2b4229200442a0a289d72bc9fcf462"
+  },
+  {
+   "id": 6014,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.berserker_axe",
+   "path": "Assets/Game/Equipment/Items/狂战巨斧.asset",
+   "name": "狂战巨斧",
+   "retired": false,
+   "guid": "9819c402da8c4afb995da95c7dd69cfb"
+  },
+  {
+   "id": 6015,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.titan_heart",
+   "path": "Assets/Game/Equipment/Items/泰坦之心.asset",
+   "name": "泰坦之心",
+   "retired": false,
+   "guid": "a09504f4c1544eb3866918d642a8807d"
+  },
+  {
+   "id": 6016,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.bloodthirst_blade",
+   "path": "Assets/Game/Equipment/Items/嗜血之刃.asset",
+   "name": "嗜血之刃",
+   "retired": false,
+   "guid": "0de58d0543e944b18c91bc8152ac6a98"
+  },
+  {
+   "id": 6017,
+   "category": "item",
+   "assetKey": "guid:11400000",
+   "stableId": "item.storm_crown",
+   "path": "Assets/Game/Equipment/Items/风暴王冠.asset",
+   "name": "风暴王冠",
+   "retired": false,
+   "guid": "e1bac581022242d29cea59e5fc79e561"
+  }
+ ]
+}

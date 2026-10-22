@@ -5,7 +5,8 @@ namespace Roguelike.Foundation.UI
 {
     /// <summary>
     /// 悬停提示框的排版与定位：按顺序竖向堆叠启用的分段（带自动换行 Text 的分段按文字首选高度伸缩），
-    /// 再把整个提示框放到当前悬停源（<see cref="UIManager.HoverSource"/>）上方并限制在画布内。只负责位置，不读业务数据。
+    /// 再把整个提示框放到当前悬停源（<see cref="UIManager.HoverSource"/>）上方并限制在画布内；上方放不下时（例如悬停屏幕上半部的商店卡片）
+    /// 改放到悬停源左侧（左侧也放不下则右侧），避免盖住悬停源本身。只负责位置，不读业务数据。
     /// 根节点与分段的锚点要求：根节点锚点居中、轴心在底边中点；分段锚点为顶边横向拉伸。
     /// 带背景或图标的分段可把自动换行 Text 放在纵向拉伸的子节点上，分段高度随文字伸缩并保留上下内边距。
     /// </summary>
@@ -22,7 +23,8 @@ namespace Roguelike.Foundation.UI
         private readonly Vector3[] corners = new Vector3[4];
         /// <summary>最近一次排版得到的总高度（画布单位），供检查使用。</summary>
         public float Height { get; private set; }
-        private void OnEnable() { manager = GetComponentInParent<UIManager>(true); Refresh(); }
+        // 提示框总是画在其它动态面板（例如稍后才加载的商店）之上。
+        private void OnEnable() { manager = GetComponentInParent<UIManager>(true); transform.SetAsLastSibling(); Refresh(); }
         private void LateUpdate() => Refresh();
 
         /// <summary>立即重新排版并定位；数据刚写入时可手动调用，避免等到 LateUpdate。</summary>
@@ -91,9 +93,21 @@ namespace Roguelike.Foundation.UI
             Vector2 top = parent.InverseTransformPoint((corners[1] + corners[2]) * 0.5f);
             Rect area = parent.rect;
             Vector2 size = root.rect.size;
-            float x = Mathf.Clamp(top.x, area.xMin + margin + size.x * 0.5f, Mathf.Max(area.xMin + margin + size.x * 0.5f, area.xMax - margin - size.x * 0.5f));
-            float y = Mathf.Min(top.y + gap, area.yMax - margin - size.y);
-            y = Mathf.Max(y, area.yMin + margin);
+            float minX = area.xMin + margin + size.x * 0.5f, maxX = Mathf.Max(minX, area.xMax - margin - size.x * 0.5f);
+            float x = Mathf.Clamp(top.x, minX, maxX);
+            float y = top.y + gap;
+            if (y + size.y > area.yMax - margin)
+            {
+                // 上方放不下：放到悬停源侧面并与其垂直居中。左侧放不下时改放右侧。
+                Vector2 left = parent.InverseTransformPoint((corners[0] + corners[1]) * 0.5f);
+                Vector2 right = parent.InverseTransformPoint((corners[2] + corners[3]) * 0.5f);
+                float side = Mathf.Max(margin, 8);
+                x = left.x - side - size.x * 0.5f;
+                if (x < minX) x = right.x + side + size.x * 0.5f;
+                x = Mathf.Clamp(x, minX, maxX);
+                y = left.y - size.y * 0.5f;
+            }
+            y = Mathf.Clamp(y, area.yMin + margin, Mathf.Max(area.yMin + margin, area.yMax - margin - size.y));
             root.anchorMin = root.anchorMax = new Vector2(0.5f, 0.5f);
             root.pivot = new Vector2(0.5f, 0);
             root.anchoredPosition = new Vector2(x, y) - area.center;

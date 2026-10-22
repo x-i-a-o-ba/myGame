@@ -6,10 +6,12 @@ using UnityEngine;
 
 namespace Roguelike.Combat
 {
-    /// <summary>技能 / 自动攻击被动的悬停提示框快照（Dota 2 式详细信息）；由控制器在 HUD 刷新时填充并复用，只含文字与纹理。</summary>
+    /// <summary>技能 / 自动攻击被动 / 装备 / 英雄属性的悬停提示框快照（Dota 2 式详细信息）；由控制器在 HUD 刷新时填充并复用，只含文字与纹理。</summary>
     public sealed class AbilityTooltipView
     {
         public bool Visible, Passive;
+        /// <summary>不显示等级行与等级点（装备、属性提示）。</summary>
+        public bool NoLevel;
         public Texture Icon;
         /// <summary>名称、热键、类别（普通/终极/被动）、等级文字。</summary>
         public string Name, Hotkey, Kind, LevelText;
@@ -32,6 +34,18 @@ namespace Roguelike.Combat
         public float Now;
         /// <summary>该槽正处于施法前摇 / 后摇。</summary>
         public bool CastWindup, CastRecovery;
+    }
+
+    /// <summary>组装一件装备提示所需的只读上下文：装备定义（名称、图标、说明）、Buff 名称、当前金币与购买预检结果。</summary>
+    public struct ItemTooltipContext
+    {
+        public EquipmentDefinition Definition;
+        public BuffDefinition[] Buffs;
+        public float Gold;
+        /// <summary>悬停的是商店卡片（否则为装备栏格）；ShopOpen 表示商店面板已打开（可以右键出售）。</summary>
+        public bool FromShop, ShopOpen;
+        /// <summary>商店卡片的购买预检结果（装备栏格不使用）。</summary>
+        public EquipmentFailure BuyFailure;
     }
 
     /// <summary>
@@ -57,7 +71,7 @@ namespace Roguelike.Combat
             float amplify = math.max(0, c.Owner.SkillAmplify);
             float reduction = math.clamp(c.Owner.CooldownReduction, 0, SkillLevels.MaximumCooldownReduction);
 
-            view.Visible = true; view.Passive = false;
+            view.Visible = true; view.Passive = false; view.NoLevel = false;
             view.Icon = c.Icon; view.Name = string.IsNullOrWhiteSpace(c.Name) ? "技能" : c.Name; view.Hotkey = c.Hotkey ?? "";
             view.Level = level; view.MaxLevel = max;
             view.Kind = (c.Track == SkillLevelTrack.Ultimate ? "终极技能" : c.Track == SkillLevelTrack.Basic ? "普通技能" : "技能") +
@@ -152,7 +166,7 @@ namespace Roguelike.Combat
         {
             float speed = unit.AttackSpeedMultiplier > 0 ? unit.AttackSpeedMultiplier : 1;
             float interval = AutoAttackLogic.Interval(data, speed), perSecond = AutoAttackLogic.AttacksPerSecond(data, speed);
-            view.Visible = true; view.Passive = true;
+            view.Visible = true; view.Passive = true; view.NoLevel = false;
             view.Icon = module ? module.icon : null;
             view.Name = module ? module.Label : "普通攻击";
             view.Hotkey = ""; view.Kind = "被动 · 自动攻击"; view.LevelText = ""; view.Level = 0; view.MaxLevel = 0;
@@ -188,6 +202,157 @@ namespace Roguelike.Combat
             else if (state.Phase == AttackPhase.Backswing) view.Status = $"<color={Frost}>攻击后摇</color>";
             else if (targetAlive) view.Status = $"<color={Good}>攻击中</color>";
             else view.Status = $"<color={Label}>索敌中</color>";
+        }
+
+        // ---------------- 装备 ----------------
+        /// <summary>装备提示：品质与价格、属性加成（直接相加）、说明、普攻命中效果、唯一与出售价，以及购买 / 出售操作提示。</summary>
+        public static void BuildItem(ref AbilityLibrary library, ref EquipmentItemData item, in ItemTooltipContext c, AbilityTooltipView view)
+        {
+            var definition = c.Definition;
+            view.Visible = true; view.Passive = false; view.NoLevel = true;
+            view.Icon = definition ? definition.icon : null;
+            view.Name = definition ? definition.Label : "装备";
+            view.Hotkey = ""; view.LevelText = ""; view.Level = 0; view.MaxLevel = 0; view.Cooldown = ""; view.Mana = "";
+            view.Kind = $"<color={QualityColor(item.Quality)}>{QualityLabel(item.Quality)}装备</color> · <color={Gold}>{item.Price:N0} 金币</color>";
+            view.Description = definition && !string.IsNullOrWhiteSpace(definition.description) ? definition.description.Trim() : "";
+
+            // 属性加成：正数绿色、负数橙色，按属性面板顺序排列；单位见属性面板提示，这里只写“+1.5 移动速度”。
+            block.Clear();
+            foreach (var stat in StatText.DisplayOrder)
+            {
+                float value = item.Stats[stat];
+                if (math.abs(value) < 0.0005f) continue;
+                Line($"<color={(value > 0 ? Good : Warn)}>{StatText.Format(stat, value)}</color>");
+            }
+            if (block.Length == 0) Line($"{Key("属性")}无（只有命中效果）");
+            view.Properties = Trim(block);
+
+            // 普攻命中效果：复用技能效果的文字，强度固定为 1，不受技能伤害加成影响。
+            block.Clear();
+            var rows = new[] { SkillLevels.Identity };
+            for (int e = 0; e < item.OnHit.Length; e++) Effect(ref library, item.OnHit[e], rows, 1, 0, 0, $"<color={Gold}>普攻命中</color> · ", c.Buffs);
+            view.Values = Trim(block);
+
+            block.Clear();
+            if (item.Unique) Line("唯一：同一件装备最多持有一件。");
+            if (item.OnHit.Length > 0) Line("命中效果在每次普攻命中时触发，不受技能伤害加成影响。");
+            Line($"出售返还 {item.SellPrice:N0} 金币。");
+            view.Notes = Trim(block);
+
+            if (c.FromShop)
+            {
+                switch (c.BuyFailure)
+                {
+                    case EquipmentFailure.None: view.Status = $"<color={Good}>左键购买</color>"; break;
+                    case EquipmentFailure.NotEnoughGold:
+                        view.Status = $"<color={Warn}>金币不足：还差 {math.max(1, (int)math.ceil(item.Price - c.Gold - 0.0001f)):N0} 金币</color>"; break;
+                    case EquipmentFailure.AlreadyOwned: view.Status = $"<color={Label}>已拥有（唯一装备）</color>"; break;
+                    case EquipmentFailure.InventoryFull: view.Status = $"<color={Warn}>装备栏已满：先右键出售一件装备</color>"; break;
+                    default: view.Status = $"<color={Warn}>{EquipmentLogic.Describe(c.BuyFailure)}</color>"; break;
+                }
+            }
+            else view.Status = c.ShopOpen ? $"<color={Gold}>右键出售：返还 {item.SellPrice:N0} 金币</color>" : $"<color={Label}>按 B 打开商店后，右键这件装备出售</color>";
+        }
+        public static string QualityLabel(EquipmentQuality quality)
+        {
+            switch (quality)
+            {
+                case EquipmentQuality.Uncommon: return "精良";
+                case EquipmentQuality.Rare: return "稀有";
+                case EquipmentQuality.Epic: return "史诗";
+                case EquipmentQuality.Legendary: return "传说";
+                default: return "普通";
+            }
+        }
+        /// <summary>品质颜色，与 Tools/HudArt/items.py 生成的图标边框一致。</summary>
+        public static string QualityColor(EquipmentQuality quality)
+        {
+            switch (quality)
+            {
+                case EquipmentQuality.Uncommon: return "#6BE07A";
+                case EquipmentQuality.Rare: return "#4FA8FF";
+                case EquipmentQuality.Epic: return "#C77DFF";
+                case EquipmentQuality.Legendary: return "#FFB347";
+                default: return "#C8D0D8";
+            }
+        }
+
+        // ---------------- 英雄属性 ----------------
+        /// <summary>
+        /// 属性面板提示：全部属性的合计与来源（基础、等级成长、天赋、装备，直接相加），上限说明，以及含状态效果的当前攻击、攻速与移速。
+        /// </summary>
+        public static void BuildStats(in HeroStats stats, in AbilityUnit unit, in AutoAttackData attack, int level, string heroName, Texture icon, AbilityTooltipView view)
+        {
+            view.Visible = true; view.Passive = false; view.NoLevel = true;
+            view.Icon = icon; view.Name = "英雄属性"; view.Hotkey = ""; view.LevelText = ""; view.Level = 0; view.MaxLevel = 0;
+            view.Kind = $"{(string.IsNullOrWhiteSpace(heroName) ? "英雄" : heroName)} · 等级 {math.max(1, level)}";
+            view.Description = ""; view.Cooldown = ""; view.Mana = "";
+
+            block.Clear();
+            Property("合计", "基础 + 成长 ×（等级 - 1）+ 天赋 + 装备");
+            Property("规则", "所有来源直接相加，不做任何换算");
+            view.Properties = Trim(block);
+
+            int levels = math.max(0, level - 1);
+            block.Clear();
+            foreach (var stat in StatText.DisplayOrder)
+            {
+                float total = stats.Total[stat], baseline = stats.Base[stat], growth = stats.PerLevel[stat] * levels,
+                    talent = stats.Talents[stat], equipment = stats.Equipment[stat];
+                line.Clear();
+                line.Append(Key(StatText.Name(stat))).Append(V(StatText.Value(stat, total))).Append(Unit(stat));
+                line.Append(Cap(stat, total));
+                int sources = 0;
+                var detail = new StringBuilder(64);
+                Source(detail, ref sources, "成长", stat, growth);
+                Source(detail, ref sources, "天赋", stat, talent);
+                Source(detail, ref sources, "装备", stat, equipment);
+                if (sources > 0) line.Append($"<color={Label}><size=12>（基础 {StatText.Value(stat, baseline)}{detail}）</size></color>");
+                Line(line.ToString());
+            }
+            view.Values = Trim(block);
+
+            block.Clear();
+            Line("百分比类属性按百分点直接相加，例如 +20% 与 +30% 攻击速度合计 +50%。");
+            Line($"冷却缩减与伤害减免最高 {N(HeroStatsLogic.MaximumCooldownReduction)}%；暴击只作用于普攻，暴击伤害是暴击时的伤害倍率。");
+            Line("技能伤害只加成技能；普攻吸血按普攻实际造成的伤害回复生命。");
+            view.Notes = Trim(block);
+
+            float speed = unit.AttackSpeedMultiplier > 0 ? unit.AttackSpeedMultiplier : 1;
+            view.Status = $"{Key("当前（含状态效果）")}攻击力 {V(N(unit.Attack))} · 每秒攻击 {V(AutoAttackLogic.AttacksPerSecond(attack, speed).ToString("0.0"))} 次 · 移速 {V(N(unit.Speed))}";
+        }
+        private static void Source(StringBuilder detail, ref int sources, string label, StatKind stat, float value)
+        {
+            if (math.abs(value) < 0.0005f) return;
+            detail.Append(" · ").Append(label).Append(value < 0 ? " -" : " +").Append(StatText.Value(stat, math.abs(value)));
+            sources++;
+        }
+        /// <summary>属性的单位后缀：回复为“/秒”，攻击距离为“米”，移动速度为“米/秒”；其余没有单位（百分比已带 %）。</summary>
+        private static string Unit(StatKind stat)
+        {
+            switch (stat)
+            {
+                case StatKind.HealthRegen: case StatKind.ManaRegen: return "/秒";
+                case StatKind.AttackRange: return " 米";
+                case StatKind.MoveSpeed: return " 米/秒";
+                default: return "";
+            }
+        }
+        /// <summary>超出结算上下限时的提示（结算使用夹紧后的值）。</summary>
+        private static string Cap(StatKind stat, float total)
+        {
+            switch (stat)
+            {
+                case StatKind.CooldownReduction:
+                    return total > HeroStatsLogic.MaximumCooldownReduction ? $" <color={Warn}>（上限 {N(HeroStatsLogic.MaximumCooldownReduction)}%）</color>" : "";
+                case StatKind.DamageReduction:
+                    return total > HeroStatsLogic.MaximumDamageReduction ? $" <color={Warn}>（上限 {N(HeroStatsLogic.MaximumDamageReduction)}%）</color>" : "";
+                case StatKind.CriticalChance:
+                    return total > 100 ? $" <color={Warn}>（上限 100%）</color>" : "";
+                case StatKind.AttackSpeed:
+                    return total < HeroStatsLogic.MinimumAttackSpeed ? $" <color={Warn}>（下限 {N(HeroStatsLogic.MinimumAttackSpeed)}%）</color>" : "";
+                default: return "";
+            }
         }
 
         // ---------------- 组成部分 ----------------

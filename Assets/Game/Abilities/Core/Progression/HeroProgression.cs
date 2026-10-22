@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 namespace Roguelike.Abilities
 {
-    public struct TalentData { public TalentStat Stat; public float Value; }
+    public struct TalentData { public StatKind Stat; public float Value; }
     public struct TalentTierData { public int HeroLevel; public TalentData Left,Right; }
 
     /// <summary>会话装配时编译的只读成长表：累计经验、每级属性成长与天赋层。由会话拥有并释放。</summary>
@@ -14,17 +14,19 @@ namespace Roguelike.Abilities
         public int MaxLevel,SkillPointsPerLevel;
         /// <summary>索引 level-1 为到达该等级所需累计经验。</summary>
         public BlobArray<int> CumulativeExperience;
-        public float HealthPerLevel,ManaPerLevel,AttackPerLevel,AttackSpeedPerLevel,MoveSpeedPerLevel,RegenPerLevel;
+        /// <summary>每升 1 级直接相加的属性成长（攻击速度为百分点）。</summary>
+        public StatSheet Growth;
         public BlobArray<TalentTierData> Talents;
     }
 
-    /// <summary>英雄局内成长的运行状态，归英雄实体所有；属性增量直接写入 AbilityUnit 的基础值。</summary>
+    /// <summary>英雄局内成长的运行状态，归英雄实体所有。等级与天赋带来的属性由 HeroStatsLogic.Rebuild 统一写入 AbilityUnit。</summary>
     public struct HeroProgression : IComponentData
     {
         public BlobAssetReference<ProgressionLibrary> Library;
         public int Level,SkillPoints;
         /// <summary>本局累计经验（已乘经验倍率）。</summary>
         public float Experience;
+        /// <summary>经验倍率 = 1 + 经验获取 / 100，由属性重算写入。</summary>
         public float ExperienceMultiplier;
         /// <summary>第 i 位表示第 i 层天赋已选择；TalentRightMask 第 i 位表示选择了右侧。</summary>
         public int TalentChosenMask,TalentRightMask;
@@ -60,9 +62,7 @@ namespace Roguelike.Abilities
             {
                 ref var root=ref builder.ConstructRoot<ProgressionLibrary>();
                 root.MaxLevel=rules.maxLevel; root.SkillPointsPerLevel=rules.skillPointsPerLevel;
-                root.HealthPerLevel=hero.healthPerLevel; root.ManaPerLevel=hero.manaPerLevel;
-                root.AttackPerLevel=hero.attackPerLevel; root.AttackSpeedPerLevel=hero.attackSpeedPerLevel;
-                root.MoveSpeedPerLevel=hero.moveSpeedPerLevel; root.RegenPerLevel=hero.regenPerLevel;
+                root.Growth=hero.GrowthSheet();
                 var experience=builder.Allocate(ref root.CumulativeExperience,cumulative.Length);
                 for(int i=0;i<cumulative.Length;i++) experience[i]=cumulative[i];
                 var tiers=builder.Allocate(ref root.Talents,talents.Length);
@@ -84,28 +84,21 @@ namespace Roguelike.Abilities
             progression.Experience+=amount*math.max(0,progression.ExperienceMultiplier);
         }
 
-        /// <summary>把累计经验兑换成等级：每级加技能点并写入属性成长。返回本次升级数；调用方随后重算 Buff 聚合属性。</summary>
-        public static int ApplyPendingLevels(ref HeroProgression progression,ref AbilityUnit unit)
+        /// <summary>
+        /// 把累计经验兑换成等级：每级加技能点。返回本次升级数；大于 0 时调用方用 HeroStatsLogic.Rebuild 重算属性
+        /// （成长 ×（等级 - 1）直接相加，最大生命增加时当前生命同步增加），再重算 Buff 聚合属性。
+        /// </summary>
+        public static int ApplyPendingLevels(ref HeroProgression progression)
         {
             if(!progression.Library.IsCreated) return 0;
             ref var library=ref progression.Library.Value;
             int gained=0;
             while(progression.Level<library.MaxLevel && progression.Experience>=library.CumulativeExperience[progression.Level])
             {
-                progression.Level++; progression.SkillPoints+=library.SkillPointsPerLevel;
-                ApplyLevelGrowth(ref unit,ref library); gained++;
+                progression.Level++; progression.SkillPoints+=library.SkillPointsPerLevel; gained++;
             }
             progression.LevelUpSerial+=gained;
             return gained;
-        }
-
-        /// <summary>升 1 级的属性成长。最大生命和当前生命同时增加（Dota 2 规则：升级不丢失已损失的生命）。</summary>
-        public static void ApplyLevelGrowth(ref AbilityUnit unit,ref ProgressionLibrary library)
-        {
-            unit.MaxHealth+=library.HealthPerLevel; if(unit.Health>0) unit.Health+=library.HealthPerLevel;
-            unit.MaxMana+=library.ManaPerLevel; unit.Mana=math.min(unit.MaxMana,unit.Mana+library.ManaPerLevel);
-            unit.BaseAttack+=library.AttackPerLevel; unit.AttackSpeedBonus+=library.AttackSpeedPerLevel;
-            unit.BaseSpeed+=library.MoveSpeedPerLevel; unit.BaseRegen+=library.RegenPerLevel;
         }
 
         /// <summary>当前等级的经验进度：已获得/本级所需；满级返回 (0,0)。</summary>
@@ -149,34 +142,19 @@ namespace Roguelike.Abilities
             return -1;
         }
 
-        public static bool TryChooseTalent(ref HeroProgression progression,ref AbilityUnit unit,int option)
+        /// <summary>
+        /// 选择当前待选天赋层的左（0）或右（1）选项，只记录选择掩码；成功后调用方用 HeroStatsLogic.Rebuild 重算属性。
+        /// 天赋属性与装备、等级成长一样直接相加（冷却缩减也直接相加，上限 80%）。
+        /// </summary>
+        public static bool TryChooseTalent(ref HeroProgression progression,int option)
         {
             int tier=PendingTalent(progression);
             if(tier<0) { progression.LastFailure=ProgressionFailure.NoPendingTalent; return false; }
             if(option!=0 && option!=1) { progression.LastFailure=ProgressionFailure.InvalidTalent; return false; }
-            ref var data=ref progression.Library.Value.Talents[tier];
-            ApplyTalent(ref progression,ref unit,option==0?data.Left:data.Right);
             progression.TalentChosenMask|=1<<tier;
             if(option==1) progression.TalentRightMask|=1<<tier;
             progression.LastFailure=ProgressionFailure.None;
             return true;
-        }
-
-        /// <summary>天赋写入基础属性；冷却缩减按 Dota 2 方式相乘叠加，执行时再限制上限。</summary>
-        public static void ApplyTalent(ref HeroProgression progression,ref AbilityUnit unit,TalentData talent)
-        {
-            float value=talent.Value;
-            switch(talent.Stat)
-            {
-                case TalentStat.MaxHealth: unit.MaxHealth+=value; if(unit.Health>0) unit.Health=math.max(1,unit.Health+value); break;
-                case TalentStat.AttackDamage: unit.BaseAttack+=value; break;
-                case TalentStat.AttackSpeed: unit.AttackSpeedBonus+=value; break;
-                case TalentStat.MoveSpeed: unit.BaseSpeed+=value; break;
-                case TalentStat.HealthRegen: unit.BaseRegen+=value; break;
-                case TalentStat.SkillAmplify: unit.SkillAmplify+=value; break;
-                case TalentStat.CooldownReduction: unit.CooldownReduction=1-(1-unit.CooldownReduction)*(1-math.clamp(value,0,1)); break;
-                case TalentStat.ExperienceGain: progression.ExperienceMultiplier+=value; break;
-            }
         }
 
         public static string Describe(ProgressionFailure failure)

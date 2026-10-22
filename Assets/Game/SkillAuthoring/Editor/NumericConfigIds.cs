@@ -133,7 +133,7 @@ namespace Roguelike.SkillAuthoring.Editor
             var ids = new HashSet<int>(); var keys = new HashSet<string>(StringComparer.Ordinal);
             foreach (var entry in ledger.entries)
             {
-                int start = entry?.category == "skill" ? 1000 : entry?.category == "hero" ? 2000 : entry?.category == "monster" ? 3000 : entry?.category == "effect" ? 4000 : entry?.category == "buff" ? 5000 : 0;
+                int start = entry?.category == "skill" ? 1000 : entry?.category == "hero" ? 2000 : entry?.category == "monster" ? 3000 : entry?.category == "effect" ? 4000 : entry?.category == "buff" ? 5000 : entry?.category == "item" ? 6000 : 0;
                 if (entry == null || start == 0 || entry.id < start || entry.id >= start + 1000 || !ids.Add(entry.id) || string.IsNullOrWhiteSpace(entry.assetKey) || !keys.Add(entry.assetKey))
                     throw new InvalidOperationException("编号登记含重复、越界或无所有者条目：" + LedgerPath);
             }
@@ -173,7 +173,8 @@ namespace Roguelike.SkillAuthoring.Editor
             // 在内存登记所有已有编号，避免分配新编号时与尚未入账的旧资源冲突。
             foreach (var definition in definitions.Where(d => d.Id != 0)) Register(definition, ledger);
             var liveKeys = new HashSet<string>(definitions.Select(d => d.Key));
-            foreach (var entry in ledger.entries.Where(e => e.category != "monster")) entry.retired = !liveKeys.Contains(entry.assetKey);
+            // 怪物（3000 段）与装备（6000 段）不在本工具的扫描范围内，由各自的校验维护登记，这里不改它们的历史状态。
+            foreach (var entry in ledger.entries.Where(e => e.category != "monster" && e.category != "item")) entry.retired = !liveKeys.Contains(entry.assetKey);
         }
 
         private static void Assign(Definition definition, Ledger ledger)

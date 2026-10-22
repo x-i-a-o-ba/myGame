@@ -1728,6 +1728,7 @@ MonoBehaviour:
   progressionRules: {fileID: 11400000, guid: 3ce276e01428475c9caa287b3cbc51df, type: 2}
   difficulty: {fileID: 11400000, guid: fcd4cda1ade141bcbe637cfce6b43d87, type: 2}
   enemyRoster: {fileID: 11400000, guid: 91435bcec21046efb74915127f3dbd2c, type: 2}
+  equipmentCatalog: {fileID: 11400000, guid: c90d0951a451453599c00c7c8895f5bc, type: 2}
   enemyCount: 3000
   arenaHalfSize: 125
   safeSpawnRadius: 30
@@ -2452,7 +2453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7026121659916554133, guid: 7ed0cc13d3d08f04bbcd8e3a6f3b4845, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1240
+      value: 1564
       objectReference: {fileID: 0}
     - target: {fileID: 7026121659916554133, guid: 7ed0cc13d3d08f04bbcd8e3a6f3b4845, type: 3}
       propertyPath: m_SizeDelta.y

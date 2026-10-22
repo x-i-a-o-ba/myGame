@@ -215,9 +215,10 @@ MeshFilter:
   m_Mesh: {{fileID: {MESH[shape]}, guid: 0000000000000000e000000000000000, type: 0}}
 """)
         blocks.append(renderer(go,mr,mat))
-    s=dict(healthMultiplier=1,damageMultiplier=1,speedMultiplier=1,experienceMultiplier=1,bodyScale=1,preferredDistance=0.85,retreatDistance=5,
+    s=dict(healthMultiplier=1,damageMultiplier=1,speedMultiplier=1,experienceMultiplier=1,goldMultiplier=1,bodyScale=1,preferredDistance=0.85,retreatDistance=5,
            chargeTriggerRange=10,chargeSpeedMultiplier=4,chargeDuration=0.7,chargeCooldown=5,chargeDamageMultiplier=2.5,explosionRadius=3.5,explosionDamageMultiplier=5)
     s.update(stats)
+    if "goldMultiplier" not in stats: s["goldMultiplier"]=s["experienceMultiplier"]  # 击杀金币倍率默认与经验倍率一致
     fields="".join("  %s: %s\n"%(k,num(v)) for k,v in s.items())
     head=gameobject(root_go,[root_tf,root_mb],file)+transform(root_tf,root_go,(0,0,0),(0,0,0),(1,1,1),child_tfs,0)
     mb=f"""--- !u!114 &{root_mb}

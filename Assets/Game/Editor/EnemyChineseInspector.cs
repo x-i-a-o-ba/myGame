@@ -31,6 +31,7 @@ namespace Roguelike.Editor
             Field("damageMultiplier","攻击力倍率");
             Field("speedMultiplier","移动速度倍率");
             Field("experienceMultiplier","击杀经验倍率");
+            Field("goldMultiplier","击杀金币倍率");
             Field("bodyScale","体型倍率","影响模型缩放、碰撞半径与点选范围。");
             var behavior=serializedObject.FindProperty("behavior");
             bool mixed=behavior==null || behavior.hasMultipleDifferentValues;

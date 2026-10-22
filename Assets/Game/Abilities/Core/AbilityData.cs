@@ -64,8 +64,10 @@ namespace Roguelike.Abilities
         public ControlFlags Controls;
         // 英雄成长写入的基础值，默认 0 时与旧行为一致：攻速基础为 1+AttackSpeedBonus，回复为 BaseRegen+Buff。
         public float BaseRegen,AttackSpeedBonus;
-        // 技能伤害增强（0.3=+30%）与冷却缩减（0.2=-20%），执行器按来源读取。
+        // 技能伤害增强（0.3=+30%）与冷却缩减（0.2=-20%），执行器按来源读取。英雄由 HeroStatsLogic 从属性百分点换算写入。
         public float SkillAmplify,CooldownReduction;
+        // 额外法力回复（点/秒，叠加在基础每秒 3 点上）与受到伤害的减免比例（0.2=-20%，上限 0.8）；默认 0 与旧行为一致。
+        public float ManaRegenBonus,DamageReduction;
     }
     [InternalBufferCapacity(2)]
     public struct ActiveBuff : IBufferElementData

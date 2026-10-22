@@ -20,12 +20,12 @@ namespace Roguelike.Combat
     {
         /// <summary>数字配置 ID（3000–3999）与本局名册中的种类下标。</summary>
         public int ConfigId,Kind;
-        /// <summary>击杀奖励经验；Reach 为体型带来的额外攻击距离（米）。</summary>
-        public float Experience,Reach;
+        /// <summary>击杀奖励经验与金币；Reach 为体型带来的额外攻击距离（米）。</summary>
+        public float Experience,Gold,Reach;
         public EnemyTier Tier; public int Wave;
         /// <summary>冲锋运行状态：方向、剩余冲锋时间、冲锋冷却与本次冲锋是否已经撞到英雄。</summary>
         public float3 ChargeDirection; public float ChargeTimer,ChargeReadyIn; public bool ChargeHit;
-        /// <summary>自爆死亡不给经验、不计击杀。</summary>
+        /// <summary>自爆死亡不给经验和金币、不计击杀。</summary>
         public bool SelfDestructed;
         /// <summary>受击闪白：上一帧生命、剩余闪白时间与本档位的基础颜色。</summary>
         public float LastHealth,Flash; public float4 BaseColor;
@@ -45,16 +45,16 @@ namespace Roguelike.Combat
     {
         public Entity Prefab; public int ConfigId;
         public EnemyTierMask Tiers; public int FirstWave,LastWave; public float Weight;
-        public float Health,Damage,Speed,Experience,Scale;
+        public float Health,Damage,Speed,Experience,Gold,Scale;
         /// <summary>普通、精英、首领三档的基础颜色（已混入档位色调）。</summary>
         public float4 Color,EliteColor,BossColor;
     }
-    /// <summary>英雄弹道普攻：追踪目标实体，命中后由宿主结算伤害与普攻命中事件。</summary>
+    /// <summary>英雄弹道普攻：追踪目标实体，命中后由宿主结算伤害、吸血、装备命中效果与普攻命中事件。Damage 已包含暴击倍率。</summary>
     public struct CombatProjectile : IComponentData
     {
         public Entity Target;
         public float Damage, Speed, Lifetime;
-        public bool CountsAsBasicAttackHit;
+        public bool CountsAsBasicAttackHit, Critical;
     }
     /// <summary>敌方弹道：追踪英雄位置，由 Burst 任务移动并把伤害写入待结算队列。</summary>
     public struct HostileProjectile : IComponentData
@@ -85,11 +85,11 @@ namespace Roguelike.Combat
         public float WaveInterval, FirstWaveAt, SpawnRingWidth;
         public int BaseCount, MaxPerWave; public float CountGrowth;
         public float HealthGrowth, DamageGrowth, SpeedPerWave, MaxSpeed;
-        public float BaseExperience, ExperienceGrowth;
+        public float BaseExperience, ExperienceGrowth, BaseGold, GoldGrowth;
         public int EliteEvery, EliteBaseCount, EliteWavesPerExtra;
-        public float EliteHealth, EliteDamage, EliteScale, EliteExperience;
+        public float EliteHealth, EliteDamage, EliteScale, EliteExperience, EliteGold;
         public int BossEvery;
-        public float BossHealth, BossDamage, BossScale, BossExperience, BossSpeed;
+        public float BossHealth, BossDamage, BossScale, BossExperience, BossGold, BossSpeed;
         public int FinalWave;
     }
     public enum CombatOutcome { Running, Victory, Defeat }
@@ -137,7 +137,7 @@ namespace Roguelike.Combat
     {
         public float3 Position, Destination, Facing;
         public float Health, MaximumHealth, Elapsed;
-        public int AliveEnemies, Kills, ActiveProjectiles, ShotsFired, Hits;
+        public int AliveEnemies, Kills, ActiveProjectiles, ShotsFired, Hits, CriticalHits;
         /// <summary>模拟系统最后处理的指令序号；与 HeroOrder.Serial 不同表示有新指令。</summary>
         public int HandledOrder;
     }

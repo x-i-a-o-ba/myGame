@@ -109,6 +109,9 @@ namespace Roguelike.Combat
             indicator.Cancel(); controller.SelectHero(originalHero); Destroy(alternate); yield return null;
             Check(controller.State.Kills==0 && manager.GetBuffer<SkillFlight>(controller.SessionEntity).Length==0,"Restart clears combat and flights");
             Check(controller.Progression.Level==1 && manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[0].Level==0,"Restart resets level and learned skills");
+            Check(controller.EquippedAt(0)==-1 && controller.Stats.Equipment.AttackDamage==0 &&
+                  NearGold(controller.Equipment.Gold-controller.Equipment.GoldEarned,controller.equipmentCatalog?controller.equipmentCatalog.startingGold:0),
+                "Restart clears equipment and restores starting gold");
             var unit=manager.GetComponentData<AbilityUnit>(controller.SessionEntity); unit.Health=0; manager.SetComponentData(controller.SessionEntity,unit);
             yield return null; yield return null;
             Check(controller.State.Health==0,"Death snapshot comes from authoritative unit");
@@ -146,6 +149,52 @@ namespace Roguelike.Combat
             yield return TargetInfoChecks(controller,manager);
             yield return TooltipChecks(controller);
             yield return MoveAttackChecks(controller,manager);
+            yield return EquipmentChecks(controller,manager);
+        }
+        /// <summary>商店与装备：HUD 按钮打开商店，商店卡片购买，装备属性直接相加，打开商店后右键装备格出售并返还金币。</summary>
+        private IEnumerator EquipmentChecks(GameCombatController controller,EntityManager manager)
+        {
+            var items=controller.ShopItems;
+            int sword=-1;
+            for(int i=0;i<items.Length && i<CombatHud.ShopCards;i++) if(items[i] && items[i].stableId=="item.iron_sword") { sword=i; break; }
+            Check(items.Length>=CombatHud.ShopCards && sword>=0,"Shop lists the project equipment catalog on its first page");
+            if(sword<0) yield break;
+            // 直接给足金币，验证购买链路而不是等待击杀；期间击杀获得的金币用 GoldEarned 扣除。
+            var purse=manager.GetComponentData<HeroEquipment>(controller.SessionEntity); purse.Gold=5000; manager.SetComponentData(controller.SessionEntity,purse);
+            float earned=purse.GoldEarned;
+            yield return WaitForAction(CombatHud.ShopCommand,0);
+            ClickAction(CombatHud.ShopCommand,0);
+            yield return WaitForAction(CombatHud.BuyCommand,sword);
+            Check(controller.ShopOpen,"HUD shop button opens the shop");
+            int level=controller.Progression.Level;
+            float attackBefore=manager.GetComponentData<AbilityUnit>(controller.SessionEntity).BaseAttack;
+            ClickAction(CombatHud.BuyCommand,sword); yield return null; yield return null;
+            var equipment=controller.Equipment;
+            Check(controller.EquippedAt(0)==sword && NearGold(equipment.Gold,5000-items[sword].price+equipment.GoldEarned-earned),
+                "Shop card buys the item into the first slot and spends gold");
+            float attackAfter=manager.GetComponentData<AbilityUnit>(controller.SessionEntity).BaseAttack;
+            Check(controller.Stats.Equipment.AttackDamage==12 && Mathf.Approximately(attackAfter,controller.Stats.Total.AttackDamage) &&
+                  (controller.Progression.Level!=level || Mathf.Approximately(attackAfter,attackBefore+12)),"Equipment attack adds directly to hero attack");
+            controller.BuyItem(sword); yield return null; yield return null;
+            Check(controller.EquippedAt(1)==sword && controller.Stats.Equipment.AttackDamage==24,"Non-unique items can be bought twice and stack");
+            equipment=controller.Equipment;
+            float gold=equipment.Gold; earned=equipment.GoldEarned;
+            UIPointerAction sell=null;
+            foreach(var action in UnityEngine.Object.FindObjectsByType<UIPointerAction>(FindObjectsInactive.Exclude,FindObjectsSortMode.None))
+                if(action.command==CombatHud.SellCommand && action.value==1) sell=action;
+            Check(sell,"Equipment slot has a right-click sell source");
+            if(sell) sell.OnPointerClick(new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current)
+                {button=UnityEngine.EventSystems.PointerEventData.InputButton.Right});
+            yield return null; yield return null;
+            equipment=controller.Equipment;
+            Check(controller.EquippedAt(1)==-1 && NearGold(equipment.Gold,gold+controller.equipmentCatalog.SellPrice(items[sword])+equipment.GoldEarned-earned),
+                "Right-clicking an equipped item in the open shop sells it for the refund price");
+            Check(controller.Stats.Equipment.AttackDamage==12,"Selling removes the item's stats");
+            yield return Capture("shop.png");
+            controller.ToggleShop(); yield return null;
+            Check(!controller.ShopOpen,"Shop closes again");
+            controller.SellItem(0); yield return null; yield return null;
+            Check(controller.EquippedAt(0)==sword,"Selling requires the shop to be open");
         }
         /// <summary>悬停技能 / 被动图标：显示 Dota 2 式详细提示（名称、逐级数值），位于图标上方；指针离开后隐藏。</summary>
         private IEnumerator TooltipChecks(GameCombatController controller)
@@ -320,6 +369,8 @@ namespace Roguelike.Combat
                 { action.GetComponent<UnityEngine.UI.Button>().onClick.Invoke(); return; }
             Check(false,"Missing authored skill button "+slot);
         }
+        /// <summary>金币比较：击杀金币是小数，金币与累计金币分别累加会有浮点舍入差，按 0.05 容差比较。</summary>
+        private static bool NearGold(float actual,float expected)=>Mathf.Abs(actual-expected)<0.05f;
         private void Check(bool condition,string message)
         { if(!condition) { failed=true; Debug.LogError("GAME_CHECK_FAILED: "+message); } else Debug.Log("GAME_CHECK_PASSED: "+message); }
         private IEnumerator Capture(string name, Action beforeRender = null)

@@ -1,6 +1,6 @@
 # 敌人种类、Dota 2 式操作与 HUD
 
-更新：2026-10-22。本文是敌人预制体、敌人名册、自动攻击被动模块、Dota 2 式指令、移动中攻击和新版 HUD（含技能悬停提示）的说明。成长与波次规则见 [hero-progression.md](hero-progression.md)，技能组合见 [ability-foundation.md](ability-foundation.md)。
+更新：2026-10-22。本文是敌人预制体、敌人名册、自动攻击被动模块、Dota 2 式指令、移动中攻击和新版 HUD（含技能悬停提示、装备栏与商店）的说明。属性与装备规则见 [equipment-and-stats.md](equipment-and-stats.md)。成长与波次规则见 [hero-progression.md](hero-progression.md)，技能组合见 [ability-foundation.md](ability-foundation.md)。
 
 > 合并前验证（2026-10-21）：Unity 6000.3.18f1 资源导入、脚本编译、121 项 Editor 规则、Windows 构建及 42 项 Player 检查通过。修复运行代码和验证代码中 NativeArray 只读 using 变量的写入编译错误；已检查新版 HUD 与敌人离屏画面。原始键鼠手感、中文 Inspector 外观、全部特殊敌人实战与万敌性能尚未验收，详见 [验证记录](validation-enemies-dota-hud-2026-10-21.md)。
 
@@ -20,6 +20,10 @@
 | Q/W/E/R | 施放技能槽 0–3；需要瞄准的技能左键确认，右键或 Esc 取消。 |
 | 鼠标悬停技能 / 被动图标 | 在图标上方显示 Dota 2 式详细提示：名称、热键、类型、等级、施法属性、说明、逐级数值、冷却与法力、当前状态（见 4.2）。移开即隐藏。 |
 | Ctrl+Q/W/E/R | 学习或升级技能（也可以点技能图标上方的“+”）。 |
+| B | 开关商店（也可以点 HUD 右侧的“商店”按钮）；没有瞄准时 Esc 也会关闭商店（2026-10-22 新增）。 |
+| 左键商店卡片 | 购买装备；金币不足、装备栏已满或唯一装备已拥有时提示原因，不扣金币。 |
+| 右键装备栏格子 | 商店打开时出售该装备，返还 50%；商店关闭时只提示先按 B 打开商店，避免误卖。 |
+| 鼠标悬停装备 / 商店卡片 / 属性区 | 显示装备提示（品质、价格、属性、命中效果、出售价、购买状态）或全部属性的合计与来源（见 4.3）。 |
 | 1 / 2 | 选择当前待选天赋的左/右项（也可以在天赋树里点）。 |
 | 鼠标滚轮 | 缩放镜头。 |
 | F5 | 重开。 |
@@ -94,16 +98,17 @@ HUD 由 `CombatHud` 发布快照、`UIPanel` 绑定控件，面板是 `Assets/Re
 
 | 面板 | 位置 | 内容 |
 | --- | --- | --- |
-| UI.Game.BottomHUD | 底部居中 1240×214 | 头像（等级徽章 + 经验环）、名称、攻击/攻速/射程/移速、未用技能点；被动栏（自动攻击模块）；Q/W/E/R 技能槽（图标、热键、冷却径向遮罩与秒数、法力不足、未学习变暗、学习“+”、等级点）；生命条和法力条（含回复）；攻击/停止/待命按钮与当前指令；天赋树按钮。 |
+| UI.Game.BottomHUD | 底部居中 1564×214（2026-10-22 由 1240 加宽） | 头像（等级徽章 + 经验环）、名称、未用技能点；属性区两列：攻击 / 攻速（次/秒）/ 射程 / 移速，技伤 / 冷缩 / 减伤 / 暴击；被动栏（自动攻击模块）；Q/W/E/R 技能槽（图标、热键、冷却径向遮罩与秒数、法力不足、未学习变暗、学习“+”、等级点）；生命条和法力条（含回复）；装备区（金币 + 6 格装备栏，无图标时显示名称，超出装备库格数的格子变暗）；攻击/停止/待命按钮与当前指令；天赋树按钮与商店按钮（B）。 |
 | UI.Game.Title | 顶部居中 720×96 | 游戏时间、波次、下一波倒计时、击杀、存活、FPS、弹体数；首领出场时显示首领名称和血条。 |
 | UI.Game.Controls | 右上角 | 操作提示。 |
 | UI.Game.Progression | 技能栏上方 | 升级/技能点/天赋提示条，不阻挡鼠标。 |
 | UI.Game.Talent | 技能栏上方 | Dota 2 式天赋树（10/15/20/25 级四层，左右二选一，已选项高亮、待选层提示、未解锁层变暗）；有待选天赋时自动打开，也可点天赋树按钮或 HUD 命令开关。 |
 | UI.Game.TargetInfo | 左上角 440×444 | 左键选中敌人后显示的目标信息面板，见 4.1。 |
-| UI.Game.AbilityTooltip | 悬停图标上方，宽 420，高度随内容 | 鼠标悬停 Q/W/E/R 或被动图标时显示的 Dota 2 式技能提示，见 4.2。不阻挡鼠标。 |
+| UI.Game.AbilityTooltip | 悬停图标上方（放不下时放左侧），宽 420，高度随内容 | 鼠标悬停 Q/W/E/R、被动图标、装备格、商店卡片或属性区时显示的提示，见 4.2、4.3。不阻挡鼠标。 |
+| UI.Game.Shop | 右下角技能栏上方 520×500 | 商店（2026-10-22 新增，按需加载）：标题、金币、关闭按钮；每页 12 张装备卡片（图标、名称、价格，买不起时价格变红，唯一且已拥有时显示“已拥有”）；超过 12 件时翻页；底部操作提示。见 4.3。 |
 | UI.Game.DeathOverlay | 全屏 | 阵亡/胜利结算，未改动。 |
 
-美术资源：`Assets/Game/UI/Sprites/`（22 张九宫格框体、底板、条、按钮、高光等程序生成的 PNG）和 `Assets/Game/UI/Icons/`（14 张技能、被动、头像与敌人攻击图标），均为本项目用 `Tools/HudArt` 下的 Python 脚本生成，无第三方版权（脚本说明见该目录 README，重跑会覆盖 Unity 中的手工修改）。技能资源 `SkillDefinition` 新增“HUD 技能栏图标”，自动攻击模块与英雄分别有图标和头像；为空时显示纯色底。HUD 命令：`combat.ability`（施放）、`combat.learnSkill`（学习）、`combat.talent`（值 = 层 × 2 + 选项）、`combat.order`（0 攻击、1 停止、2 待命）、`combat.talentTree`（开关天赋树）、`combat.restart`。
+美术资源：`Assets/Game/UI/Sprites/`（22 张九宫格框体、底板、条、按钮、高光等程序生成的 PNG）和 `Assets/Game/UI/Icons/`（14 张技能、被动、头像与敌人攻击图标），均为本项目用 `Tools/HudArt` 下的 Python 脚本生成，无第三方版权（脚本说明见该目录 README，重跑会覆盖 Unity 中的手工修改）。技能资源 `SkillDefinition` 新增“HUD 技能栏图标”，自动攻击模块与英雄分别有图标和头像；为空时显示纯色底。HUD 命令：`combat.ability`（施放）、`combat.learnSkill`（学习）、`combat.talent`（值 = 层 × 2 + 选项）、`combat.order`（0 攻击、1 停止、2 待命）、`combat.talentTree`（开关天赋树）、`combat.restart`；2026-10-22 新增 `combat.shop`（开关商店）、`combat.shop.buy`（值 = 当前页卡片 0–11）、`combat.shop.page`（0 上一页、1 下一页）、`combat.equip.sell`（值 = 装备栏格 0–5，由右键发送）。悬停值：0–3 技能、4 被动、10–15 装备格、20 属性区、100–111 商店卡片。装备图标在 `Assets/Game/Equipment/Icons/`，金币与商店图标在 `Assets/Game/UI/Icons/`。
 
 ### 4.1 选中目标信息面板
 
@@ -137,10 +142,23 @@ HUD 由 `CombatHud` 发布快照、`UIPanel` 绑定控件，面板是 `Assets/Re
 
 实现：`UIHoverAction`（Foundation，指针进入发 `combat.hover` 值 0–3 为技能、4 为被动，离开发 `-1 - 值`，并把自身矩形登记为 `UIManager.HoverSource`）、`UITooltip`（Foundation，按顺序竖向堆叠启用的分段，自动换行文字决定高度，放在悬停源上方并限制在画布内）、`AbilityTooltipBuilder`（`CombatAbilityTooltip.cs`，组装 `AbilityTooltipView`）、`CombatHud.TooltipKeys`（全部绑定键）和 `GameCombatController.BuildTooltip`。悬停变化立即刷新，之后随 HUD 每 0.1 秒刷新（冷却秒数等实时变化）。新增 5 张精灵：`tooltip_frame`、`tooltip_header`、`tooltip_block`、`tt_cooldown`、`tt_mana`。
 
+### 4.3 装备栏、商店与属性提示（2026-10-22）
+
+规则、首批 18 件装备和新增装备步骤见 [equipment-and-stats.md](equipment-and-stats.md)。界面只读 ECS 权威状态：
+
+| 悬停源 | 提示内容 |
+| --- | --- |
+| 装备格（10–15） | 图标、名称、品质（颜色）与价格、说明、属性加成（正数绿色、负数橙色）、普攻命中效果（复用技能效果文字）、唯一与出售返还；状态为“右键出售：返还 N 金币”（商店打开）或“按 B 打开商店后，右键这件装备出售”。 |
+| 商店卡片（100–111） | 同上；状态为“左键购买”“金币不足：还差 N 金币”“已拥有（唯一装备）”或“装备栏已满：先右键出售一件装备”。 |
+| 属性区（20） | 全部 15 项属性的合计；有成长、天赋或装备贡献时附“（基础 x + 成长 y + 天赋 z + 装备 w）”；超出上限时标注上限。 |
+
+实现：`UIPointerAction`（Foundation，新增，指定鼠标键点击时发 HUD 命令，装备格用右键发 `combat.equip.sell`）、`UITooltip.Place`（上方放不下时放左侧）、`AbilityTooltipBuilder.BuildItem/BuildStats`、`CombatHud.StatsKeys/EquipmentKeys/ShopKeys`（绑定键）、`GameCombatController.BuildEquipment/BuyItem/SellItem`。购买和出售只写 `EquipmentCommand`，结果由模拟系统写回后在提示条显示“已购买 / 已出售 / 失败原因”。
+
 ## 5. 验证入口
 
 - 编辑器校验 `CombatValidation.Validate()` 新增 `ValidateAutoAttack`（前摇/出手/冷却、攻速缩放、帧率无关、前摇取消不进冷却、后摇打断保留冷却、转身速度、非法配置拒绝、英雄资源已挂模块）和 `ValidateEnemyRoster`（名册校验规则、中文 Inspector、预制体网格合并、按波次与权重抽取、首领档、一波混合多种类且倍率生效、项目名册 8 种覆盖 4 种行为）。
 - Player 探针 `GameCombatProbe`（`--game-smoke`）新增：名册多种类、攻击移动、鼠标点选敌人、右键攻击指定敌人、待命不移动、HUD 停止/攻击按钮、第 2 波混合多种敌人。
 - 选中目标面板（2026-10-21 新增）：`ValidateTargetInfo` 检查项目 8 种敌人都有头像、面板预制体 ID/遮挡/初始隐藏、全部绑定键与关闭按钮、资源清单登记，并用临时 World 构造敌人验证名称、档位、波次、血量、攻速缩放的攻击间隔、减速百分比、体型攻击距离、射程判定、前摇状态、Buff 层数与剩余时间、死亡/销毁后隐藏；Player 探针新增左键选中显示面板与种类名称、截图 `target-info.png`、× 按钮取消选中并隐藏面板。这些检查已在合并前运行：137 项 Editor 检查、Windows 构建和 49 项 Player 检查通过，目标面板截图已检查，见 [验证记录](validation-enemy-info-panel-2026-10-21.md)。
 - 技能悬停提示与移动中攻击（2026-10-22 新增）：`ValidateMoveAttack` 直接调用英雄步进纯函数 `CombatSimulationSystem.StepMotion`，检查边走边出手、前摇中继续移动并朝向目标、定身时仍攻击、施法中不动不打、移动指令不追击攻击距离外目标、关闭开关时移动取消前摇、项目英雄已开启；`ValidateAbilityTooltip` 检查逐级伤害 40/76/112/148 的白/绿/灰标注、扇形几何、减速与眩晕行、冷却与法力、就绪/可升级/冷却中/可学习状态、技能增强与冷却缩减、被动提示的攻击间隔与移动中攻击说明、提示框预制体 ID/不遮挡/初始隐藏/全部绑定键/无射线目标/分段、按文字换行伸缩、资源清单登记、底部 HUD 的 5 个悬停源、项目技能都有说明。Player 探针新增悬停 W 显示提示（名称、数值、位于图标上方、截图 `ability-tooltip.png`）、移开隐藏、悬停被动，以及攻击距离内有敌人时右键横向移动途中出手。合并前已通过 171 项 Editor 检查、Windows 构建及 62 项 Player 检查（无跳过项），提示框截图已检查；移动中攻击用例改用临时耐久目标保证执行并在结束后销毁，见 [验证记录](validation-ability-tooltip-2026-10-22.md)。
+- 属性与装备（2026-10-22 新增）：`ValidateEquipment`、`ValidateEquipmentHud`、`ValidateProjectEquipment` 检查装备规则、底部 HUD 与商店面板绑定、项目装备资源；Player 探针新增商店按钮开店、购买铁剑攻击 +12 并叠加到 +24、商店打开时右键出售返还金币、截图 `shop.png`、关店后右键不出售、重开清空装备与金币。详见 [equipment-and-stats.md](equipment-and-stats.md) 第 6 节。这些新增检查**未在 Unity 中运行**。
 - 上面的 ValidateAutoAttack、ValidateEnemyRoster 与 Player 检查已在 PR #2 合并前验证通过（见文首）。
