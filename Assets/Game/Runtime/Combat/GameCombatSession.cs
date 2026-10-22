@@ -29,6 +29,8 @@ namespace Roguelike.Combat
         public BuffDefinition[] Buffs=>activeBuffs??Array.Empty<BuffDefinition>();
         /// <summary>本局英雄自动攻击快照（展示用；权威值在会话实体的 AutoAttackData）。</summary>
         public AutoAttackData HeroAttack {get; private set;}
+        /// <summary>本局技能定义副本（下标 = 技能库索引 = AbilitySlot.Definition）；配方换装后返回新定义。只读展示用，越界返回 null。</summary>
+        public SkillDefinition ActiveSkill(int definition)=>activeSkills!=null && definition>=0 && definition<activeSkills.Length?activeSkills[definition]:null;
         // 由预制体子网格合并出的网格归会话对象所有：重开时复用（渲染系统可能仍持有上一局的注册），会话销毁时释放。
         private readonly Dictionary<EnemyArchetype,Mesh> meshCache=new Dictionary<EnemyArchetype,Mesh>();
         private SkillDefinition[] activeSkills;
@@ -140,7 +142,7 @@ namespace Roguelike.Combat
             manager.SetComponentData(Entity,LocalTransform.FromPosition(origin));
             manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=hero.health,MaximumHealth=hero.health});
             manager.SetComponentData(Entity,new CombatSettings{ProjectilePrefab=bullet,HostileProjectilePrefab=hostile,PlayerSpeed=hero.speed,
-                TurnRate=math.radians(hero.turnRate),
+                TurnRate=math.radians(hero.turnRate),AttackWhileMoving=hero.attackWhileMoving,
                 EnemyAttackRange=config.enemyAttackRange,EnemyAttackDamage=config.enemyAttackDamage,EnemyAttackInterval=config.enemyAttackInterval,ArenaHalfSize=config.arenaHalfSize,
                 EnemyPrefab=enemy,EnemyHealth=config.enemyHealth,EnemySpeed=config.enemySpeed,SafeSpawnRadius=safe,MaxAlive=maxAlive});
         }
@@ -203,6 +205,9 @@ namespace Roguelike.Combat
                 candidate.configId=activeSkills[index].configId; candidate.stableId=activeSkills[index].stableId;
                 // 配方 JSON 只描述组合步骤；等级成长沿用原技能，避免换装后丢失学习门槛。
                 candidate.growth=activeSkills[index].growth?.Clone()??new SkillLevelGrowth();
+                // 说明与图标属于展示配置，配方 JSON 不携带时沿用原技能。
+                if(string.IsNullOrWhiteSpace(candidate.description)) candidate.description=activeSkills[index].description;
+                if(!candidate.icon) candidate.icon=activeSkills[index].icon;
                 catalog=ScriptableObject.CreateInstance<SkillCatalog>();
                 catalog.skills=(SkillDefinition[])activeSkills.Clone(); catalog.skills[index]=candidate; catalog.buffs=activeBuffs;
                 replacement=catalog.Compile();

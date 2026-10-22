@@ -215,77 +215,109 @@ namespace Roguelike.Combat
             return best;
         }
         /// <summary>
-        /// Dota 2 式英雄步进：处理新指令、目标有效性与牵引、自动索敌、转身、移动与攻击节奏。
+        /// Dota 2 式英雄步进：处理新指令、目标有效性与牵引、自动索敌，再交给 <see cref="StepMotion"/> 推进转身、移动与攻击节奏。
         /// 返回 true 表示本帧攻击出手，目标为 attack.Target。
         /// </summary>
         private bool StepHero(ref CombatPlayer player,ref HeroOrder order,ref AutoAttackState attack,in AutoAttackData data,in AbilityUnit hero,
             in CombatSettings config,bool busy,float dt)
         {
+            bool strafe=config.AttackWhileMoving;
             if(order.Serial!=player.HandledOrder)
             {
                 player.HandledOrder=order.Serial;
                 Entity ordered=order.Kind==HeroOrderKind.AttackTarget?order.Target:Entity.Null;
                 // 任何新指令都会打断攻击前摇与后摇（冷却保留）；重复右键同一目标不打断正在进行的攻击。
-                if(!(order.Kind==HeroOrderKind.AttackTarget && ordered==attack.Target)) AutoAttackLogic.Interrupt(ref attack);
-                attack.Target=ordered; attack.AcquireDelay=0;
+                // 移动中攻击开启时，移动/攻击移动只更换目的地：保留当前目标与进行中的攻击，按住右键拖动也能持续出手。
+                bool keep=(order.Kind==HeroOrderKind.AttackTarget && ordered==attack.Target) ||
+                          (strafe && (order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove));
+                if(!keep) { AutoAttackLogic.Interrupt(ref attack); attack.Target=ordered; }
+                attack.AcquireDelay=0;
             }
             float3 position=player.Position;
-            Entity target=order.Kind==HeroOrderKind.Move?Entity.Null:attack.Target;
+            // 移动中攻击：移动指令只攻击攻击距离内的敌人（含前摇缓冲），不追击、不停下。
+            bool moveFires=strafe && order.Kind==HeroOrderKind.Move;
+            bool local=order.Kind==HeroOrderKind.Hold || moveFires;
+            Entity target=order.Kind==HeroOrderKind.Move && !moveFires?Entity.Null:attack.Target;
             float3 targetPosition=default; float targetDistance=0,targetRadius=0;
             if(target!=Entity.Null && !TryTarget(target,position,out targetPosition,out targetDistance,out targetRadius)) target=Entity.Null;
             if(target==Entity.Null && order.Kind==HeroOrderKind.AttackTarget) { order.Kind=HeroOrderKind.Idle; order.Target=Entity.Null; }
-            // 自动索敌得到的目标有牵引距离：超出后放弃，待命时只攻击攻击距离内的目标。
+            // 自动索敌得到的目标有牵引距离：超出后放弃；待命只攻击攻击距离内的目标，移动中攻击离开攻击距离即换目标。
             if(target!=Entity.Null && order.Kind!=HeroOrderKind.AttackTarget)
             {
-                float leash=order.Kind==HeroOrderKind.Hold?data.Range+targetRadius+data.RangeBuffer:data.AcquisitionRange+LeashExtra;
+                float leash=order.Kind==HeroOrderKind.Hold?data.Range+targetRadius+data.RangeBuffer:
+                    moveFires?data.Range+targetRadius+(attack.Phase==AttackPhase.Windup?data.RangeBuffer:0):data.AcquisitionRange+LeashExtra;
                 if(targetDistance>leash) target=Entity.Null;
             }
             attack.AcquireDelay=math.max(0,attack.AcquireDelay-dt);
-            bool acquires=data.AutoAcquire && (order.Kind==HeroOrderKind.Idle || order.Kind==HeroOrderKind.AttackMove || order.Kind==HeroOrderKind.Hold);
+            bool acquires=data.AutoAcquire && (order.Kind==HeroOrderKind.Idle || order.Kind==HeroOrderKind.AttackMove || order.Kind==HeroOrderKind.Hold || moveFires);
             if(target==Entity.Null && acquires && attack.AcquireDelay<=0)
             {
-                target=Nearest(position,order.Kind==HeroOrderKind.Hold?data.Range:data.AcquisitionRange);
+                target=Nearest(position,local?data.Range:data.AcquisitionRange);
                 if(target==Entity.Null || !TryTarget(target,position,out targetPosition,out targetDistance,out targetRadius))
                 { target=Entity.Null; attack.AcquireDelay=AcquireRetry; }
             }
             attack.Target=target;
+            bool moving=order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove;
+            // 有目标时：攻击移动/攻击目标/待机先处理目标（追击或站定攻击）；移动中攻击则继续走向目的地。
+            bool travel=moving && (target==Entity.Null || moveFires);
+            if(travel && math.distance(position.xz,order.Point.xz)<=0.05f) { order.Kind=HeroOrderKind.Idle; travel=false; moving=false; }
+            player.Destination=moving?order.Point:position;
+            var motion=new HeroMotion{HasTarget=target!=Entity.Null,TargetPosition=targetPosition,TargetRadius=targetRadius,
+                Chase=target!=Entity.Null && !local,Travel=travel,Destination=order.Point};
+            return StepMotion(ref player,ref attack,data,hero,motion,strafe,config.TurnRate,config.ArenaHalfSize,busy,dt)==AutoAttackEvent.Released;
+        }
+        /// <summary>
+        /// 纯函数：按动作意图推进一帧转身、攻击节奏与位移（英雄专用，编辑器校验直接调用）。
+        /// 传统模式（strafe 为假）：前摇中站定，移动前需大致转向，移动会打断后摇。
+        /// 移动中攻击（strafe 为真）：前摇不定身；有目标时朝向目标、沿移动方向位移，移动不等待转身。
+        /// </summary>
+        public static AutoAttackEvent StepMotion(ref CombatPlayer player,ref AutoAttackState attack,in AutoAttackData data,in AbilityUnit hero,in HeroMotion motion,
+            bool strafe,float turnRate,float arenaHalfSize,bool busy,float dt)
+        {
+            float3 position=player.Position;
             float3 desired=math.normalizesafe(new float3(player.Facing.x,0,player.Facing.z),new float3(0,0,1));
-            float3 goal=position; bool wantMove=false,inRange=false; float stopDistance=0;
-            if(target!=Entity.Null)
+            float3 heading=desired,goal=position; bool wantMove=false,inRange=false; float stopDistance=0;
+            if(motion.HasTarget)
             {
-                float reach=data.Range+targetRadius;
-                inRange=targetDistance<=reach+(attack.Phase==AttackPhase.Windup?data.RangeBuffer:0);
-                float3 toTarget=targetPosition-position; toTarget.y=0;
-                if(math.lengthsq(toTarget)>0.000001f) desired=math.normalize(toTarget);
-                if(!inRange && order.Kind!=HeroOrderKind.Hold) { goal=targetPosition; wantMove=true; stopDistance=reach*0.95f; }
+                float3 toTarget=motion.TargetPosition-position; toTarget.y=0;
+                float distance=math.length(toTarget);
+                float reach=data.Range+motion.TargetRadius;
+                inRange=distance<=reach+(attack.Phase==AttackPhase.Windup?data.RangeBuffer:0);
+                if(distance>0.000001f) desired=toTarget/distance;
+                if(!inRange && motion.Chase) { goal=motion.TargetPosition; wantMove=true; stopDistance=reach*0.95f; heading=desired; }
             }
-            else if(order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove)
+            if(!wantMove && motion.Travel)
             {
-                float3 offset=order.Point-position; offset.y=0;
-                if(math.length(offset)>0.05f) { goal=order.Point; wantMove=true; desired=math.normalize(offset); }
-                else order.Kind=HeroOrderKind.Idle;
+                float3 offset=motion.Destination-position; offset.y=0;
+                float length=math.length(offset);
+                if(length>0.05f)
+                {
+                    goal=motion.Destination; wantMove=true; heading=offset/length;
+                    if(!motion.HasTarget) desired=heading;
+                }
             }
-            player.Destination=order.Kind==HeroOrderKind.Move || order.Kind==HeroOrderKind.AttackMove?order.Point:position;
-            if(!busy) player.Facing=Turn(player.Facing,desired,config.TurnRate*dt);
+            if(!busy) player.Facing=Turn(player.Facing,desired,turnRate*dt);
             float facing=math.dot(player.Facing,desired);
             bool attackAllowed=!busy && (hero.Controls&ControlFlags.AttackBlocked)==0;
-            bool engage=target!=Entity.Null && inRange && attackAllowed && (attack.Phase==AttackPhase.Windup || facing>=AutoAttackLogic.FacingTolerance);
+            // 传统模式下移动会打断后摇（engage 为假）；移动中攻击时边走边打，后摇照常结束。
+            bool engage=motion.HasTarget && inRange && attackAllowed && (strafe || !wantMove) &&
+                        (attack.Phase==AttackPhase.Windup || facing>=AutoAttackLogic.FacingTolerance);
             var result=AutoAttackLogic.Step(ref attack,data,hero.AttackSpeedMultiplier,engage,dt);
-            // 前摇中站定；后摇和待机可以移动（移动本身会让 engage 为假从而打断后摇）。
-            bool canMove=!busy && (hero.Controls&ControlFlags.MovementBlocked)==0 && attack.Phase!=AttackPhase.Windup;
-            if(wantMove && canMove && facing>=MoveFacing)
+            bool canMove=!busy && (hero.Controls&ControlFlags.MovementBlocked)==0 && (strafe || attack.Phase!=AttackPhase.Windup);
+            bool aligned=strafe || math.dot(player.Facing,heading)>=MoveFacing;
+            if(wantMove && canMove && aligned)
             {
                 float3 offset=goal-position; offset.y=0;
                 float travel=math.min(math.length(offset)-stopDistance,hero.Speed*dt);
                 if(travel>0)
                 {
-                    float limit=math.max(1,config.ArenaHalfSize-2);
-                    position+=desired*travel;
+                    float limit=math.max(1,arenaHalfSize-2);
+                    position+=heading*travel;
                     position.x=math.clamp(position.x,-limit,limit); position.z=math.clamp(position.z,-limit,limit);
                     player.Position=position;
                 }
             }
-            return result==AutoAttackEvent.Released;
+            return result;
         }
         /// <summary>按最大角速度把朝向转向目标方向（绕 Y 轴）；maxRadians 为 0 时瞬间转向。</summary>
         public static float3 Turn(float3 current,float3 desired,float maxRadians)

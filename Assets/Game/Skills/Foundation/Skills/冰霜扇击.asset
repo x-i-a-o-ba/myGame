@@ -16,6 +16,7 @@ MonoBehaviour:
   stableId: ability.volley
   displayName: "\u51B0\u971C\u6247\u51FB"
   icon: {fileID: 2800000, guid: 082752b2bdca45e0a95d6ce30d9d59f4, type: 3}
+  description: "\u5411\u6307\u5B9A\u65B9\u5411\u5C04\u51FA\u6247\u5F62\u51B0\u971C\u7BAD\u96E8\uFF0C\u5BF9\u6247\u5F62\u5185\u7684\u6240\u6709\u654C\u4EBA\u9020\u6210\u4F24\u5BB3\u5E76\u65BD\u52A0\u6247\u51FB\u51CF\u901F\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1

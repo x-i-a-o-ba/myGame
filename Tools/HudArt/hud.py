@@ -43,6 +43,7 @@ def slot(parent,name,x,y,size,key=None):
     icon=fill(s,"Icon",7,7,7,7)
     return s,back,icon
 ps,pback,picon=slot(center,"Passive",26,52,76)
+hover(ps,"combat.hover",4)  # 悬停显示自动攻击被动提示（CombatHud.PassiveSlot）
 b.image("passive.icon",raw(picon,preview="冰箭普攻"))
 psh=at(ps,"Name Shade",7,46,62,23); image(psh,"shade_bottom")
 pn=at(ps,"Name",7,48,62,20); b.text("passive.name",text(pn,"",11,LIGHT,"MC")); pv[pn.go]="冰箭普攻"
@@ -53,7 +54,7 @@ samples={"q":("冰霜专注",3,4,"","2/4 层",0),"w":("冰霜扇击",2,4,"4.2","
 for i,k in enumerate("qwer"):
     x=116+i*102; name,level,mx,cdt,status,cd=samples[k]
     s,back,icon=slot(center,"Skill "+k.upper(),x,44,92)
-    button(s,back,"combat.ability",i)
+    button(s,back,"combat.ability",i); hover(s,"combat.hover",i)
     b.image("ability.%s.icon"%k,raw(icon,preview=name))
     nm_sh=at(s,"Name Shade",7,60,78,25); image(nm_sh,"shade_bottom")
     n2=at(s,"Name",7,63,78,20); b.text("ability.%s.name"%k,text(n2,"",12,LIGHT,"MC")); pv[n2.go]=name
@@ -199,6 +200,74 @@ ds=at(root,"Description",18,398,TW-36,22); b.text("target.description",text(ds,"
 text(at(root,"Footer",18,TH-24,TW-36,18),"左键空地 / Esc 取消选择  ·  右键攻击",11,(0.5,0.55,0.6,1),"MR")
 panel(root,"UI.Game.TargetInfo",b)
 target=root; write("UI.Game.TargetInfo",root)
+# ================= 技能悬停提示（动态，Dota 2 式） =================
+# 悬停 QWER 或被动图标时显示；键名与 CombatHud.TooltipKeys 一一对应。UITooltip 按顺序堆叠启用的分段并定位到悬停图标上方。
+b=Bindings()
+KW,KP,KG=420,14,48; KI=KW-2*KP; FROSTK=(0.62,0.86,1,1); LABEL="#9AA7B4"
+root=Node("UI.Game.AbilityTooltip",None,(0.5,0.5),(0.5,0.5),(0,0),(KW,560),(0.5,0),active=0)
+image(fill(root,"Back"),"tooltip_frame",kind="sliced")
+image(Node("Header Band",root,(0,1),(1,1),(0,0),(0,108),(0.5,1)),"tooltip_header")
+def sec(name,h,active=1): return Node(name,root,(0,1),(1,1),(0,0),(-2*KP,h),(0.5,1),active)
+head=sec("Header",72)
+isl=at(head,"Icon Slot",0,0,72,72); image(isl,"slot_back")
+kic=fill(isl,"Icon",5,5,5,5); b.image("tooltip.icon",raw(kic,preview="冰霜扇击")); image(fill(isl,"Frame"),"slot_frame",kind="sliced")
+kn=at(head,"Name",84,0,KI-84-44,34); b.text("tooltip.name",text(kn,"",22,WHITE,"ML",bold=True)); pv[kn.go]="冰霜扇击"
+khk=on(b.toggle("tooltip.hasHotkey",Node("Hotkey",head,(1,1),(1,1),(0,-3),(34,28),(1,1),active=0)))
+image(khk,"hotkey",kind="sliced"); kht=fill(khk,"Key"); b.text("tooltip.hotkey",text(kht,"",15,GOLD,"MC",bold=True,shadow=False)); pv[kht.go]="W"
+kk=at(head,"Kind",84,34,KI-84,20); b.text("tooltip.kind",text(kk,"",13,FROSTK,"ML",bold=True)); pv[kk.go]="普通技能"
+klv=on(b.toggle("tooltip.hasLevel",at(head,"Level",84,54,KI-84,18,active=0)))
+kl=at(klv,"Text",0,0,KI-84-96,18); b.text("tooltip.level",text(kl,"",12,MUTED,"ML")); pv[kl.go]="等级 2 / 4"
+kpips=Node("Pips",klv,(1,0.5),(1,0.5),(0,0),(88,9),(1,0.5))
+for p_ in range(4):
+    sl=on(b.toggle("tooltip.pipSlot%d"%p_,at(kpips,"Slot %d"%p_,p_*22,0,20,9,active=1)),True); image(sl,"pip_off")
+    lit=on(b.toggle("tooltip.pip%d"%p_,at(sl,"Lit",0,0,20,9,active=0)),p_<2); image(lit,"pip_on")
+kps=on(b.toggle("tooltip.passive",at(head,"Passive",84,54,84,20,active=0)),False); image(kps,"badge",(0.62,0.46,0.16,1),kind="sliced")
+text(fill(kps,"Text"),"被动技能",12,WHITE,"MC",bold=True)
+kdv=sec("Divider",4); image(kdv,"divider",kind="sliced")
+kpr=sec("Properties",20); b.text("tooltip.properties",text(kpr,"",14,LIGHT,"UL",wrap=True,shadow=False))
+pv[kpr.go]="<color=%s>技能：</color>指向方向\n<color=%s>影响：</color>敌方单位\n<color=%s>效果：</color>伤害、减速\n<color=%s>施法距离：</color>22 米"%((LABEL,)*4)
+kds=on(b.toggle("tooltip.hasDescription",sec("Description",20,active=0)))
+b.text("tooltip.description",text(kds,"",15,(0.87,0.9,0.93,1),"UL",wrap=True,spacing=1.05)); pv[kds.go]="向指定方向射出扇形冰霜箭雨，对扇形内的所有敌人造成伤害并施加扇击减速。"
+kvl=on(b.toggle("tooltip.hasValues",sec("Values",40,active=0))); image(kvl,"tooltip_block",kind="sliced")
+kvt=fill(kvl,"Text",14,9,10,9); b.text("tooltip.values",text(kvt,"",14,LIGHT,"UL",wrap=True,shadow=False))
+pv[kvt.go]=("<color={L}>扇形：</color>长 <color=#FFFFFF><b>22</b></color> 米 · 角度 <color=#FFFFFF><b>70</b></color>°\n"
+  "<color={L}>伤害：</color><color=#7D8892>40</color><color=#7D8892> / </color><color=#FFFFFF><b>76</b></color><color=#7D8892> / </color><color=#7CFF6B>112</color><color=#7D8892> / </color><color=#7D8892>148</color>\n"
+  "<color={L}>扇击减速：</color>移动速度 -<color=#7D8892>35</color><color=#7D8892> / </color><color=#FFFFFF><b>42</b></color><color=#7D8892> / </color><color=#7CFF6B>49</color><color=#7D8892> / </color><color=#7D8892>56</color>% · 持续 <color=#FFFFFF><b>2.5</b></color> 秒").format(L=LABEL)
+knt=on(b.toggle("tooltip.hasNotes",sec("Notes",20,active=0))); b.text("tooltip.notes",text(knt,"",12,(0.6,0.66,0.72,1),"UL",wrap=True,shadow=False))
+pv[knt.go]="<color=%s>学习门槛：</color>英雄等级 <color=#7D8892>1</color><color=#7D8892> / </color><color=#FFFFFF><b>3</b></color><color=#7D8892> / </color><color=#7CFF6B>5</color><color=#7D8892> / </color><color=#7D8892>7</color>"%LABEL
+kcd=on(b.toggle("tooltip.hasCost",sec("Cost Divider",4,active=0))); image(kcd,"divider",kind="sliced")
+def cost(name,key,toggle,icon,sample):
+    n_=on(b.toggle(toggle,sec(name,24,active=0))); image(at(n_,"Icon",0,0,22,22),icon)
+    t_=fill(n_,"Text",30,1,0,1); b.text(key,text(t_,"",14,LIGHT,"UL",wrap=True,shadow=False)); pv[t_.go]=sample; return n_
+kco=cost("Cooldown","tooltip.cooldown","tooltip.hasCooldown","tt_cooldown",
+  "<color=%s>冷却：</color><color=#7D8892>5</color><color=#7D8892> / </color><color=#FFFFFF><b>4.6</b></color><color=#7D8892> / </color><color=#7CFF6B>4.2</color><color=#7D8892> / </color><color=#7D8892>3.8</color> 秒"%LABEL)
+kmn=cost("Mana","tooltip.mana","tooltip.hasMana","tt_mana",
+  "<color=%s>法力：</color><color=#7D8892>25</color><color=#7D8892> / </color><color=#FFFFFF><b>30</b></color><color=#7D8892> / </color><color=#7CFF6B>35</color><color=#7D8892> / </color><color=#7D8892>40</color>"%LABEL)
+kst=on(b.toggle("tooltip.hasStatus",sec("Status",20,active=0))); b.text("tooltip.status",text(kst,"",13,LIGHT,"UL",wrap=True,shadow=False))
+pv[kst.go]="<color=#7CFF6B>就绪：按 W 瞄准，左键确认，右键 / Esc 取消</color>\n<color=#7CFF6B>可升级：按 Ctrl+W 升到 3 级</color>"
+ksections=[head,kdv,kpr,kds,kvl,knt,kcd,kco,kmn,kst]
+tooltip(root,ksections,padding=KP,spacing=8,gap=KG,margin=8)  # gap 留出技能上方“+”学习按钮的位置
+panel(root,"UI.Game.AbilityTooltip",b,blocks=0)
+def stack(root,sections,state,pad,spacing):
+    """预览用：与 UITooltip.Layout 相同的堆叠规则，按示例文字估算分段与根节点高度。"""
+    y=pad; first=True; W_=root.rect[3][0]
+    def shown(n): return (n.active or state.get(n.go,False)) and not (n.go in state and not state[n.go])
+    for n in sections:
+        if not shown(n): continue
+        if not first: y+=spacing
+        first=False
+        h=n.rect[3][1]
+        wraps=[d for d in n.draw if d[0]=="text" and len(d)>7 and d[7]]
+        if wraps: h=math.ceil(ui.text_height(n,W_-2*pad))
+        else:
+            for ch in n.children:
+                amin,amax,pos,size,_p=ch.rect
+                if amin[1]==0 and amax[1]==1 and any(d[0]=="text" and len(d)>7 and d[7] for d in ch.draw):
+                    h=math.ceil(ui.text_height(ch,W_-2*pad+size[0]))-size[1]; break
+        n.rect=((0,1),(1,1),(0,-y),(-2*pad,h),(0.5,1)); y+=h
+    root.rect=(root.rect[0],root.rect[1],root.rect[2],(W_,max(2*pad,y+pad)),root.rect[4])
+stack(root,ksections,tg,KP,8)
+tip=root; write("UI.Game.AbilityTooltip",root)
 # ================= 预览 =================
 from PIL import Image as I, ImageDraw as D
 W,H=1920,1080
@@ -220,4 +289,23 @@ for n in (hint,talent,target): n.active=1
 composite(P('hud_preview.png'),[bottom,title,controls,hint,talent,target],state)
 talent.active=0; tg2=dict(tg)
 composite(P('hud_preview2.png'),[bottom,title,controls,hint,target],tg2)
+# 技能提示预览：悬停 W（2/4 级，有技能点，下一级以绿色标出）。位置与 UITooltip.Place 相同：图标上边缘中点上方 gap。
+def place_tip(slot_center_x,slot_top_y):
+    w_,h_=tip.rect[3]; x_=min(max(slot_center_x,8+w_/2),W-8-w_/2); y_=min(slot_top_y+KG,H-8-h_)
+    tip.rect=((0.5,0.5),(0.5,0.5),(x_-W/2,y_-H/2),(w_,h_),(0.5,0))
+tip.active=1; tg3=dict(tg2)
+place_tip(W/2-620+330+116+102+46,214-2-44)
+composite(P('tooltip_preview.png'),[bottom,title,controls,hint,tip],tg3)
+# 被动提示预览：隐藏热键与等级，显示“被动”徽章。
+for key_,val_ in ((khk,False),(klv,False),(kps,True),(kmn,False),(kco,False),(kcd,False)): tg3[key_.go]=val_
+pv[kn.go]="冰箭普攻"; pv[kk.go]="被动 · 自动攻击"; kic.draw=[("raw","冰箭普攻",(1,1,1,1))]
+pv[kpr.go]="<color=%s>技能：</color>被动（自动施放）\n<color=%s>影响：</color>敌方单位\n<color=%s>结算：</color>弹道追踪 · 60 米/秒"%((LABEL,)*3)
+pv[kds.go]="被动：自动向攻击距离内的敌人射出追踪冰箭。命中计入普攻命中，可为冰霜专注叠层。"
+pv[kvt.go]=("<color={L}>攻击力：</color><color=#FFFFFF><b>51</b></color>\n<color={L}>攻击间隔：</color><color=#FFFFFF><b>0.10</b></color> 秒（基础 0.12 秒 ÷ 攻速 ×1.25）\n"
+  "<color={L}>每秒攻击：</color><color=#FFFFFF><b>10.4</b></color> 次 · 理论每秒伤害 <color=#FFFFFF><b>530</b></color>\n<color={L}>攻击距离：</color><color=#FFFFFF><b>20</b></color> 米（另加目标体型）").format(L=LABEL)
+pv[knt.go]="移动中攻击：右键移动途中自动攻击攻击距离内的敌人，前摇不定身。\n攻击间隔、前摇与后摇都随攻击速度缩短。"
+pv[kst.go]="<color=#7CFF6B>攻击中</color>"
+ui.previews.update(pv); stack(tip,ksections,tg3,KP,8)
+place_tip(W/2-620+330+26+38,214-2-52)
+composite(P('tooltip_preview_passive.png'),[bottom,title,controls,hint,tip],tg3)
 print("ok")

@@ -479,6 +479,7 @@ GameObject:
   - component: {fileID: 3994811802098094423}
   - component: {fileID: 2846137872104291349}
   - component: {fileID: 418791008854939669}
+  - component: {fileID: 2529693946652044006}
   m_Layer: 5
   m_Name: Passive
   m_TagString: Untagged
@@ -548,6 +549,20 @@ MonoBehaviour:
   m_FillOrigin: 2
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2529693946652044006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2793649649092789256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a1cd7eec5746c2b30856b6ee994c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIHoverAction
+  command: combat.hover
+  value: 4
 --- !u!1 &1573979281647540715
 GameObject:
   m_ObjectHideFlags: 0
@@ -1068,6 +1083,7 @@ GameObject:
   - component: {fileID: 1637048549849966509}
   - component: {fileID: 2372467268967274749}
   - component: {fileID: 2275282605597187641}
+  - component: {fileID: 1019617386764533874}
   m_Layer: 5
   m_Name: Skill Q
   m_TagString: Untagged
@@ -1202,6 +1218,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIAction
   command: combat.ability
+  value: 0
+--- !u!114 &1019617386764533874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4538835315275071615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a1cd7eec5746c2b30856b6ee994c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIHoverAction
+  command: combat.hover
   value: 0
 --- !u!1 &3370671796042598464
 GameObject:
@@ -2976,6 +3006,7 @@ GameObject:
   - component: {fileID: 2761698881051608443}
   - component: {fileID: 45473438792867879}
   - component: {fileID: 1954672472988496560}
+  - component: {fileID: 1452279566352968053}
   m_Layer: 5
   m_Name: Skill W
   m_TagString: Untagged
@@ -3110,6 +3141,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIAction
   command: combat.ability
+  value: 1
+--- !u!114 &1452279566352968053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698094843581491228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a1cd7eec5746c2b30856b6ee994c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIHoverAction
+  command: combat.hover
   value: 1
 --- !u!1 &3001523369512117781
 GameObject:
@@ -4884,6 +4929,7 @@ GameObject:
   - component: {fileID: 4182408351169445047}
   - component: {fileID: 2713022853936230326}
   - component: {fileID: 2701030183314061461}
+  - component: {fileID: 690340672126238075}
   m_Layer: 5
   m_Name: Skill E
   m_TagString: Untagged
@@ -5018,6 +5064,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIAction
   command: combat.ability
+  value: 2
+--- !u!114 &690340672126238075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4512501524357226170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a1cd7eec5746c2b30856b6ee994c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIHoverAction
+  command: combat.hover
   value: 2
 --- !u!1 &3930671539107444684
 GameObject:
@@ -6792,6 +6852,7 @@ GameObject:
   - component: {fileID: 1019606413261299777}
   - component: {fileID: 2500421688275002783}
   - component: {fileID: 453945260446427215}
+  - component: {fileID: 4212547032052041976}
   m_Layer: 5
   m_Name: Skill R
   m_TagString: Untagged
@@ -6926,6 +6987,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIAction
   command: combat.ability
+  value: 3
+--- !u!114 &4212547032052041976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386569957184841376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a1cd7eec5746c2b30856b6ee994c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.UIHoverAction
+  command: combat.hover
   value: 3
 --- !u!1 &999907842636670113
 GameObject:

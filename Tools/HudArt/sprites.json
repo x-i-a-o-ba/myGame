@@ -32,5 +32,10 @@
  "stat_range": "5ef237b570f444ca9261b1b6a479961d",
  "stat_speed": "6dbc3bb0ba394c2f9502560034f81362",
  "stat_xp": "15e18e861c874443846f856006f57cc5",
- "stat_distance": "da0d69c9fbd4482393c0a9d9ca52d614"
+ "stat_distance": "da0d69c9fbd4482393c0a9d9ca52d614",
+ "tooltip_frame": "04ce95be05cb4af29a5fec8c085004de",
+ "tooltip_header": "d3a2ada9d96a46a0bc6e2828e6e83ea9",
+ "tooltip_block": "1c0808677e904869b486614a266bc93b",
+ "tt_cooldown": "ad48b8cc7cd94566812240c5db6ff2a0",
+ "tt_mana": "3002cb8f446b4726bba2849fa8ab076b"
 }

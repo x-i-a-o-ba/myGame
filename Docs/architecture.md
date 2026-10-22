@@ -11,6 +11,8 @@
 - 输入层只写 `HeroOrder`（Idle/Move/AttackTarget/AttackMove/Hold + 目标点 + 目标实体 + 序号），`StepHero` 处理新指令（打断前后摇，保留冷却）、目标有效性与牵引、自动索敌、按 `CombatSettings.TurnRate` 转身、移动与攻击节奏。鼠标点选敌人在 `GameCombatController.PickEnemy`（射线到敌人中心的距离，按体型放宽）。
 - 敌人：`Runtime/Combat/Enemies` 的 `EnemyArchetype`（预制体配置组件）与 `EnemyRoster`（名册）。`GameCombatSession.Reset` 先校验整份名册再清空旧会话；每个种类合并预制体网格后建一个 ECS 原型（`CombatEnemy` + `AutoAttackData/State` + `EnemyBehaviorData` + 实例颜色），种类表存为会话实体上的 `CombatEnemyKind` 缓冲；`CombatWaveDirector` 每波按档位、波次、权重抽种类，再乘种类倍率实例化。敌方弹体是 `HostileProjectile` 实体，由并行任务追踪英雄。
 - HUD：`CombatHud` 把 `CombatHudSnapshot` 转成面板键值，只在值变化时发布；`UIPanel` 新增填充方向（横向/纵向/径向）与显隐开关绑定。UI 不读取 ECS。
+- 移动中攻击（2026-10-22）：`CombatSettings.AttackWhileMoving` 来自英雄配置。`StepHero` 只决定意图（目标、是否追击、是否走向目的地）写成 `HeroMotion`，转身、攻击节奏与位移交给纯函数 `CombatSimulationSystem.StepMotion`；开启时前摇不定身、移动不等转身，移动指令只攻击攻击距离内的目标且不追击。
+- 技能悬停提示（2026-10-22）：Foundation 新增 `UIHoverAction`（悬停命令 + 悬停源登记到 `UIManager.HoverSource`）与 `UITooltip`（分段堆叠与定位，不读业务数据）。`CombatHud` 记录悬停槽位，控制器按槽位用 `AbilityTooltipBuilder` 从技能库 Blob、`AbilitySlot`、`AbilityUnit`、`HeroProgression` 只读组装 `AbilityTooltipView`，经 `CombatHud.TooltipKeys` 发布到 `UI.Game.AbilityTooltip`。说明文字是 `SkillDefinition.description`，只存展示配置。
 - 选中目标（2026-10-21）：控制器只记录左键选中的实体（展示状态，不进入指令或模拟）；HUD 刷新时 `TargetInfoBuilder` 只读该敌人的 `AbilityUnit`、`CombatEnemy`、自动攻击、行为与 Buff，结合会话的种类预制体（`GameCombatSession.EnemyArchetypes`）和 Buff 定义生成 `TargetInfoView`，再由 `CombatHud` 发布到 `UI.Game.TargetInfo`。目标失效时自动取消选中。
 
 详见 [enemies-and-controls.md](enemies-and-controls.md)。Unity 编译与运行**未验证**。

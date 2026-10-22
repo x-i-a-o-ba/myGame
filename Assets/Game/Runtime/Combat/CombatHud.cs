@@ -20,17 +20,26 @@ namespace Roguelike.Combat
         public event Action<int> OrderRequested;
         /// <summary>选中目标面板的关闭按钮（×）。</summary>
         public event Action TargetCloseRequested;
+        /// <summary>悬停的 HUD 槽变化（进入或离开技能 / 被动图标）；控制器据此立即刷新提示框。</summary>
+        public event Action HoverChanged;
         public const string ProgressionPanel="UI.Game.Progression", TalentPanel="UI.Game.Talent", DeathPanel="UI.Game.DeathOverlay";
         /// <summary>左键选中敌人后在左上角显示的目标信息面板。</summary>
         public const string TargetPanel="UI.Game.TargetInfo";
+        /// <summary>鼠标悬停技能或被动图标时显示的 Dota 2 式详细提示框。</summary>
+        public const string TooltipPanel="UI.Game.AbilityTooltip";
+        /// <summary>悬停命令：值 0–3 为 Q/W/E/R，<see cref="PassiveSlot"/> 为自动攻击被动；离开时为 -1 - 值。</summary>
+        public const string HoverCommand="combat.hover";
+        public const int PassiveSlot=4;
         /// <summary>HUD 预制体提供的技能槽、每槽等级点与天赋层数量。</summary>
         public const int AbilitySlots=4, LevelPips=4, TalentRows=4;
         /// <summary>目标面板的状态效果标签数量。</summary>
         public const int TargetStatusSlots=4;
         /// <summary>天赋树面板是否被玩家手动打开（有待选天赋时总是显示）。</summary>
         public bool TalentTreeOpen {get; private set;}
+        /// <summary>当前悬停的 HUD 槽：0–3 为技能，<see cref="PassiveSlot"/> 为被动，-1 表示没有悬停。</summary>
+        public int HoveredSlot {get; private set;}=-1;
         // 0 未知、1 显示、2 隐藏；只在状态变化时调用 Show/Hide，避免每次刷新都触发面板打开事件。
-        private int progressionVisible, talentVisible, deathVisible, targetVisible;
+        private int progressionVisible, talentVisible, deathVisible, targetVisible, tooltipVisible;
         private bool running, talentPending;
         private UIManager manager;
         private readonly Dictionary<string,string> lastText=new Dictionary<string,string>();
@@ -55,10 +64,22 @@ namespace Roguelike.Combat
             else if (command.Id == "combat.order" && command.Value >= 0 && command.Value <= 2)
                 OrderRequested?.Invoke(command.Value);
             else if (command.Id == TargetKeys.CloseCommand) TargetCloseRequested?.Invoke();
+            else if (command.Id == HoverCommand) Hover(command.Value);
             else if (command.Id == "combat.talentTree")
             { TalentTreeOpen = !TalentTreeOpen; UpdateTalentPanel(); }
         }
         public bool BlocksPointer(Vector2 position) => UI.Blocks(position);
+        private void Hover(int value)
+        {
+            int next = HoveredSlot;
+            if (value >= 0 && value <= PassiveSlot) next = value;
+            else if (value < 0 && UIHoverAction.ExitValue(HoveredSlot) == value) next = -1;
+            if (next == HoveredSlot) return;
+            HoveredSlot = next;
+            // 离开时立即隐藏；进入时等控制器下一次刷新填好内容再显示，避免闪出上一个技能的文字。
+            if (next < 0) SetPanel(TooltipPanel, false, ref tooltipVisible);
+            HoverChanged?.Invoke();
+        }
 
         /// <summary>按快照刷新全部 HUD 键值；数值未变化的键不会重复发布。</summary>
         public void Refresh(CombatHudSnapshot s)
@@ -124,6 +145,46 @@ namespace Roguelike.Combat
             bool showTarget = running && s.Target.Visible;
             SetPanel(TargetPanel, showTarget, ref targetVisible);
             if (showTarget) Target(s.Target);
+            bool showTooltip = running && HoveredSlot >= 0 && s.Tooltip.Visible;
+            if (showTooltip) Tooltip(s.Tooltip);
+            SetPanel(TooltipPanel, showTooltip, ref tooltipVisible);
+            if (showTooltip)
+            {
+                // 文字刚写入，立即重新排版与定位，避免显示上一帧的高度。
+                var panel = UI.FindPanel(TooltipPanel);
+                var layout = panel ? panel.GetComponent<UITooltip>() : null;
+                if (layout) layout.Refresh();
+            }
+        }
+        private void Tooltip(AbilityTooltipView t)
+        {
+            Picture(TooltipKeys.Icon, t.Icon);
+            Text(TooltipKeys.Name, t.Name);
+            Text(TooltipKeys.Hotkey, t.Hotkey);
+            Toggle(TooltipKeys.HasHotkey, !string.IsNullOrEmpty(t.Hotkey));
+            Text(TooltipKeys.Kind, t.Kind);
+            Text(TooltipKeys.Level, t.LevelText);
+            Toggle(TooltipKeys.HasLevel, !t.Passive);
+            Toggle(TooltipKeys.Passive, t.Passive);
+            Text(TooltipKeys.Properties, t.Properties);
+            Section(TooltipKeys.Description, TooltipKeys.HasDescription, t.Description);
+            Section(TooltipKeys.Values, TooltipKeys.HasValues, t.Values);
+            Section(TooltipKeys.Notes, TooltipKeys.HasNotes, t.Notes);
+            Section(TooltipKeys.Status, TooltipKeys.HasStatus, t.Status);
+            Section(TooltipKeys.Cooldown, TooltipKeys.HasCooldown, t.Cooldown);
+            Section(TooltipKeys.Mana, TooltipKeys.HasMana, t.Mana);
+            Toggle(TooltipKeys.HasCost, !string.IsNullOrEmpty(t.Cooldown) || !string.IsNullOrEmpty(t.Mana));
+            for (int p = 0; p < LevelPips; p++)
+            {
+                Toggle(TooltipKeys.PipSlots[p], !t.Passive && p < t.MaxLevel);
+                Toggle(TooltipKeys.Pips[p], !t.Passive && p < t.Level);
+            }
+        }
+        private void Section(string textKey, string toggleKey, string value)
+        {
+            bool shown = !string.IsNullOrEmpty(value);
+            Text(textKey, value);
+            Toggle(toggleKey, shown);
         }
         private void Target(TargetInfoView t)
         {
@@ -243,10 +304,33 @@ namespace Roguelike.Combat
                 for (int i = 0; i < result.Length; i++) result[i] = prefix + i;
                 return result;
             }
-            private static string[] Join(string[] a, string[] b)
+            internal static string[] Join(string[] a, string[] b)
             {
                 var result = new string[a.Length + b.Length];
                 a.CopyTo(result, 0); b.CopyTo(result, a.Length);
+                return result;
+            }
+        }
+        /// <summary>技能提示框 UI.Game.AbilityTooltip 的绑定键；Prefab 由 Tools/HudArt/hud.py 生成，编辑器校验会核对全部键。</summary>
+        public static class TooltipKeys
+        {
+            public const string Name = "tooltip.name", Hotkey = "tooltip.hotkey", Kind = "tooltip.kind", Level = "tooltip.level",
+                Properties = "tooltip.properties", Description = "tooltip.description", Values = "tooltip.values", Notes = "tooltip.notes",
+                Cooldown = "tooltip.cooldown", Mana = "tooltip.mana", Status = "tooltip.status";
+            public const string Icon = "tooltip.icon";
+            public const string HasHotkey = "tooltip.hasHotkey", HasLevel = "tooltip.hasLevel", Passive = "tooltip.passive",
+                HasDescription = "tooltip.hasDescription", HasValues = "tooltip.hasValues", HasNotes = "tooltip.hasNotes",
+                HasCost = "tooltip.hasCost", HasCooldown = "tooltip.hasCooldown", HasMana = "tooltip.hasMana", HasStatus = "tooltip.hasStatus";
+            public static readonly string[] PipSlots = Numbered("tooltip.pipSlot", LevelPips);
+            public static readonly string[] Pips = Numbered("tooltip.pip", LevelPips);
+            public static readonly string[] Texts = { Name, Hotkey, Kind, Level, Properties, Description, Values, Notes, Cooldown, Mana, Status };
+            public static readonly string[] Images = { Icon };
+            public static readonly string[] Toggles = TargetKeys.Join(TargetKeys.Join(new[] { HasHotkey, HasLevel, Passive, HasDescription, HasValues, HasNotes,
+                HasCost, HasCooldown, HasMana, HasStatus }, PipSlots), Pips);
+            private static string[] Numbered(string prefix, int count)
+            {
+                var result = new string[count];
+                for (int i = 0; i < count; i++) result[i] = prefix + i;
                 return result;
             }
         }
@@ -305,6 +389,8 @@ namespace Roguelike.Combat
         public readonly TalentRowView[] Talents = new TalentRowView[CombatHud.TalentRows];
         /// <summary>左键选中的敌人；Visible 为假时隐藏目标面板。</summary>
         public readonly TargetInfoView Target = new TargetInfoView();
+        /// <summary>悬停技能 / 被动图标时的详细提示；Visible 为假时隐藏提示框。</summary>
+        public readonly AbilityTooltipView Tooltip = new AbilityTooltipView();
     }
 
     /// <summary>一个技能槽的展示状态；Cooldown 为剩余冷却比例（1 = 刚进入冷却）。</summary>

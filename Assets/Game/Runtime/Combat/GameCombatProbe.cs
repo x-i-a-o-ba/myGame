@@ -144,6 +144,91 @@ namespace Roguelike.Combat
             ClickAction("combat.order",0); yield return null;
             Check(!controller.AttackArmed,"Second attack button press cancels attack targeting");
             yield return TargetInfoChecks(controller,manager);
+            yield return TooltipChecks(controller);
+            yield return MoveAttackChecks(controller,manager);
+        }
+        /// <summary>悬停技能 / 被动图标：显示 Dota 2 式详细提示（名称、逐级数值），位于图标上方；指针离开后隐藏。</summary>
+        private IEnumerator TooltipChecks(GameCombatController controller)
+        {
+            var ui=UnityEngine.Object.FindFirstObjectByType<UIManager>();
+            if(!ui) yield break;
+            UIHoverAction skill=null,passive=null;
+            foreach(var hover in UnityEngine.Object.FindObjectsByType<UIHoverAction>(FindObjectsInactive.Exclude,FindObjectsSortMode.None))
+            {
+                if(hover.command!=CombatHud.HoverCommand) continue;
+                if(hover.value==1) skill=hover; else if(hover.value==CombatHud.PassiveSlot) passive=hover;
+            }
+            Check(skill && passive,"Bottom HUD has hover sources for skills and the passive");
+            if(!skill || !passive) yield break;
+            skill.OnPointerEnter(null);
+            float until=Time.realtimeSinceStartup+5;
+            while(Time.realtimeSinceStartup<until && !ui.IsVisible(CombatHud.TooltipPanel)) yield return null;
+            yield return null;
+            Check(ui.IsVisible(CombatHud.TooltipPanel),"Hovering a skill icon shows the ability tooltip");
+            if(ui.IsVisible(CombatHud.TooltipPanel))
+            {
+                var definition=controller.SkillAt(1);
+                string expected=definition?(string.IsNullOrWhiteSpace(definition.displayName)?definition.name:definition.displayName):null;
+                Check(expected!=null && PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Name)==expected,"Skill tooltip shows the hovered skill name");
+                Check(!string.IsNullOrEmpty(PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Values)) &&
+                      !string.IsNullOrEmpty(PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Cooldown)),"Skill tooltip lists per-level values and cooldown");
+                var tip=(RectTransform)ui.FindPanel(CombatHud.TooltipPanel).transform; var source=(RectTransform)skill.transform;
+                var a=new Vector3[4]; var b=new Vector3[4]; tip.GetWorldCorners(a); source.GetWorldCorners(b);
+                Check(a[0].y>=b[1].y-1 && a[0].x<=b[2].x && a[2].x>=b[1].x,"Tooltip sits above the hovered icon");
+                yield return Capture("ability-tooltip.png");
+            }
+            skill.OnPointerExit(null); yield return null;
+            Check(!ui.IsVisible(CombatHud.TooltipPanel),"Leaving the icon hides the tooltip");
+            passive.OnPointerEnter(null);
+            until=Time.realtimeSinceStartup+2;
+            while(Time.realtimeSinceStartup<until && !ui.IsVisible(CombatHud.TooltipPanel)) yield return null;
+            yield return null;
+            string kind=PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Kind);
+            Check(ui.IsVisible(CombatHud.TooltipPanel) && kind!=null && kind.Contains("被动"),"Hovering the passive shows the auto attack tooltip");
+            passive.OnPointerExit(null); yield return null;
+            Check(!ui.IsVisible(CombatHud.TooltipPanel),"Leaving the passive hides the tooltip");
+        }
+        /// <summary>移动中攻击：攻击距离内有敌人时右键移动，英雄一边走向目的地一边出手（不停下、不追击）。</summary>
+        private IEnumerator MoveAttackChecks(GameCombatController controller,EntityManager manager)
+        {
+            Check(controller.hero && controller.hero.attackWhileMoving,"Smoke hero enables attack while moving");
+            if(!controller.hero || !controller.hero.attackWhileMoving) yield break;
+            Entity template=NearestEnemy(controller,manager,true);
+            Check(template!=Entity.Null,"Move-attack check has a live enemy template");
+            if(template==Entity.Null) yield break;
+            // 普攻会在敌人进入近距离前将其击杀，等待随机目标会让用例静默跳过。
+            // 仅在显式冒烟模式复制一个静止耐久目标，完成后销毁；不修改配置或正常游戏规则。
+            Entity target=manager.Instantiate(template);
+            try
+            {
+                float3 start=controller.State.Position;
+                float3 forward=math.normalizesafe(new float3(controller.State.Facing.x,0,controller.State.Facing.z),new float3(0,0,1));
+                var transform=manager.GetComponentData<Unity.Transforms.LocalTransform>(target);
+                transform.Position=start+forward*math.min(8,controller.attackRange*0.5f);
+                manager.SetComponentData(target,transform);
+                var unit=manager.GetComponentData<AbilityUnit>(target);
+                unit.Health=unit.MaxHealth=10000; unit.BaseSpeed=unit.Speed=0; unit.BaseAttack=unit.Attack=0;
+                unit.Controls=ControlFlags.None;
+                manager.GetBuffer<ActiveBuff>(target).Clear();
+                manager.SetComponentData(target,unit);
+                float3 destination=start+new float3(-forward.z,0,forward.x)*6;
+                float limit=math.max(1,controller.arenaHalfSize-3);
+                destination.x=math.clamp(destination.x,-limit,limit); destination.z=math.clamp(destination.z,-limit,limit);
+                int shots=controller.State.ShotsFired;
+                controller.SetDestination((Vector3)destination); yield return null;
+                Check(controller.Order.Kind==HeroOrderKind.Move || controller.Order.Kind==HeroOrderKind.Idle,"Right-click ground issues a move order");
+                bool firedWhileMoving=false; float until=Time.realtimeSinceStartup+1.5f;
+                while(Time.realtimeSinceStartup<until && !firedWhileMoving)
+                {
+                    var state=controller.State;
+                    if(state.ShotsFired>shots && math.distance(state.Position.xz,start.xz)>0.1f && math.distance(state.Position.xz,destination.xz)>0.3f) firedWhileMoving=true;
+                    shots=math.max(shots,state.ShotsFired);
+                    yield return null;
+                }
+                Check(firedWhileMoving,"Hero attacks enemies in range while walking to the destination");
+            }
+            finally { if(manager.Exists(target)) manager.DestroyEntity(target); }
+            controller.Hold(); yield return null;
         }
         /// <summary>左键选中敌人：左上角目标信息面板显示种类名称，× 按钮取消选中并隐藏面板。</summary>
         private IEnumerator TargetInfoChecks(GameCombatController controller,EntityManager manager)

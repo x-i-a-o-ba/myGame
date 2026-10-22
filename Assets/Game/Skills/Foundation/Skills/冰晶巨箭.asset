@@ -16,6 +16,7 @@ MonoBehaviour:
   stableId: ability.crystal_arrow
   displayName: "\u51B0\u6676\u5DE8\u7BAD"
   icon: {fileID: 2800000, guid: 93a03db302a94387b2c471e6c3391045, type: 3}
+  description: "\u7EC8\u6781\u6280\u80FD\u3002\u6CBF\u76F4\u7EBF\u5C04\u51FA\u4E00\u652F\u5DE8\u578B\u51B0\u6676\u7BAD\uFF1A\u51FB\u4E2D\u7684\u7B2C\u4E00\u4E2A\u654C\u4EBA\u53D7\u5230\u4F24\u5BB3\u5E76\u88AB\u7729\u6655\uFF0C\u968F\u540E\u51B0\u6676\u7206\u70B8\uFF0C\u5BF9\u5468\u56F4\u654C\u4EBA\u9020\u6210\u4F24\u5BB3\u5E76\u65BD\u52A0\u51B0\u6676\u51CF\u901F\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1

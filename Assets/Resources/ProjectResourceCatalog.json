@@ -72,6 +72,11 @@
             "kind": "resource"
         },
         {
+            "id": "UI.Game.AbilityTooltip",
+            "path": "UI/Panels/UI.Game.AbilityTooltip",
+            "kind": "resource"
+        },
+        {
             "id": "UI.Game.BottomHUD",
             "path": "UI/Panels/UI.Game.BottomHUD",
             "kind": "resource"
@@ -174,6 +179,11 @@
         {
             "id": "UI/Panels/UI.FogOfWarDemo.Selectedtargetinformation",
             "path": "UI/Panels/UI.FogOfWarDemo.Selectedtargetinformation",
+            "kind": "resource"
+        },
+        {
+            "id": "UI/Panels/UI.Game.AbilityTooltip",
+            "path": "UI/Panels/UI.Game.AbilityTooltip",
             "kind": "resource"
         },
         {

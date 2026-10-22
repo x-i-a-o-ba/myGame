@@ -27,6 +27,7 @@ MonoBehaviour:
   range: 20
   basicAttack: {fileID: 11400000, guid: 5374a548d0d643d7a8f4b64ec5b2ffe7, type: 2}
   turnRate: 1080
+  attackWhileMoving: 1
   portrait: {fileID: 2800000, guid: bafc64300b7a42f0b160a6c7a7cb8619, type: 3}
   baseMana: 100
   baseHealthRegen: 1.5
