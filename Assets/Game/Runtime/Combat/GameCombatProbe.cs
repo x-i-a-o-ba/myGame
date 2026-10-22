@@ -405,6 +405,30 @@ namespace Roguelike.Combat
             Check(ui.IsVisible(CombatHud.TooltipPanel) && kind!=null && kind.Contains("被动"),"Hovering the passive shows the auto attack tooltip");
             passive.OnPointerExit(null); yield return null;
             Check(!ui.IsVisible(CombatHud.TooltipPanel),"Leaving the passive hides the tooltip");
+            var manager=World.DefaultGameObjectInjectionWorld.EntityManager;
+            var mana=manager.GetComponentData<AbilityUnit>(controller.SessionEntity);
+            string expectedRegen=$"+{AbilityEffects.BaseManaRegen+mana.ManaRegenBonus:0.0}/秒";
+            Check(PanelText(ui,BottomPanel,"hero.manaRegen")==expectedRegen,"Mana bar shows authoritative regeneration per second");
+            foreach(var stat in new[]{StatKind.AttackDamage,StatKind.AttackSpeed,StatKind.AttackRange,StatKind.MoveSpeed,StatKind.SkillAmplify,StatKind.CooldownReduction,StatKind.DamageReduction,StatKind.CriticalChance,StatKind.MaxHealth,StatKind.MaxMana,StatKind.HealthRegen,StatKind.ManaRegen})
+            {
+                var source=FindAction<UIHoverAction>(a=>a.command==CombatHud.HoverCommand && a.value==CombatHud.StatHoverBase+(int)stat);
+                Check(source,"Individual stat hover exists: "+stat);
+                if(!source) continue;
+                source.OnPointerEnter(null); yield return null; yield return null;
+                string detail=PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Values);
+                Check(PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Name)==StatText.Name(stat) && detail!=null && detail.Contains("基础值") && detail.Contains("等级成长") && detail.Contains("天赋加成") && detail.Contains("装备加成"),"Individual stat tooltip contains all sources: "+stat);
+                if(stat==StatKind.AttackDamage) yield return Capture("attack-stat-tooltip.png");
+                if(stat==StatKind.ManaRegen) yield return Capture("mana-regen-tooltip.png");
+                source.OnPointerExit(null); yield return null;
+            }
+            var portrait=FindAction<UIHoverAction>(a=>a.command==CombatHud.HoverCommand && a.value==CombatHud.StatsHover);
+            Check(portrait && portrait.name=="Portrait","All stats are bound only to the hero portrait");
+            if(portrait)
+            {
+                portrait.OnPointerEnter(null); yield return null; yield return null;
+                Check(PanelText(ui,CombatHud.TooltipPanel,CombatHud.TooltipKeys.Name)=="英雄属性","Portrait opens the full stats overview");
+                yield return Capture("hero-stats-overview.png"); portrait.OnPointerExit(null);
+            }
         }
         /// <summary>移动中攻击：攻击距离内有敌人时右键移动，英雄一边走向目的地一边出手（不停下、不追击）。</summary>
         private IEnumerator MoveAttackChecks(GameCombatController controller,EntityManager manager)

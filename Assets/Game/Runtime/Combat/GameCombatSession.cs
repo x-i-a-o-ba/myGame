@@ -172,8 +172,8 @@ namespace Roguelike.Combat
             manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=heroUnit.Health,MaximumHealth=heroUnit.MaxHealth});
             manager.SetComponentData(Entity,new CombatSettings{ProjectilePrefab=bullet,HostileProjectilePrefab=hostile,PlayerSpeed=hero.speed,
                 TurnRate=math.radians(hero.turnRate),AttackWhileMoving=hero.attackWhileMoving,
-                EnemyAttackRange=config.enemyAttackRange,EnemyAttackDamage=config.enemyAttackDamage,EnemyAttackInterval=config.enemyAttackInterval,ArenaHalfSize=config.arenaHalfSize,
-                EnemyPrefab=enemy,EnemyHealth=config.enemyHealth,EnemySpeed=config.enemySpeed,SafeSpawnRadius=safe,MaxAlive=maxAlive});
+                EnemyAttackRange=config.enemyAttackRange,EnemyAttackDamage=difficulty.baseEnemyDamage,EnemyAttackInterval=config.enemyAttackInterval,ArenaHalfSize=config.arenaHalfSize,
+                EnemyPrefab=enemy,EnemyHealth=difficulty.baseEnemyHealth,EnemySpeed=difficulty.baseEnemySpeed,SafeSpawnRadius=safe,MaxAlive=maxAlive});
         }
         /// <summary>编译装备库；未配置时使用空装备库（商店为空，装备栏 6 格）。调用方唯一拥有返回值。</summary>
         private static BlobAssetReference<EquipmentLibrary> CompileEquipment(EquipmentCatalog catalog,SkillCatalog skills)

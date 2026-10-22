@@ -20,7 +20,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 05ec15d5330abe5419bcbfdedf778c67, type: 2}
   - {fileID: 11400000, guid: 3124da9ddd961dc4bb9e5dc1160e0e78, type: 2}
   - {fileID: 11400000, guid: 7344d4fce2cd8214ba3e75c4588a3cc5, type: 2}
-  health: 300
+  health: 340
   speed: 10
   attackDamage: 30
   attackInterval: 0.12
@@ -29,14 +29,14 @@ MonoBehaviour:
   turnRate: 1080
   attackWhileMoving: 1
   portrait: {fileID: 2800000, guid: bafc64300b7a42f0b160a6c7a7cb8619, type: 3}
-  baseMana: 240
-  baseHealthRegen: 1.5
-  healthPerLevel: 22
-  manaPerLevel: 12
-  attackPerLevel: 3
-  attackSpeedPerLevel: 2.5
+  baseMana: 260
+  baseHealthRegen: 1.8
+  healthPerLevel: 38
+  manaPerLevel: 17
+  attackPerLevel: 2.8
+  attackSpeedPerLevel: 2.8
   moveSpeedPerLevel: 0
-  regenPerLevel: 0.1
+  regenPerLevel: 0.19
   talents:
   - heroLevel: 10
     left:
@@ -75,3 +75,5 @@ MonoBehaviour:
       stat: 4
       value: 10
   baseStats: []
+  baseManaRegen: 4.5
+  manaRegenPerLevel: 0.25

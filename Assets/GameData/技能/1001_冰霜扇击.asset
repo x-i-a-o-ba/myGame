@@ -87,7 +87,7 @@ MonoBehaviour:
   cooldown: 8
   castTime: 0
   recoveryTime: 0
-  manaCost: 45
+  manaCost: 35
   levelPower: 0
   growth:
     track: 2
@@ -105,17 +105,17 @@ MonoBehaviour:
       effectScale: 1.6666666
       buffScale: 1
       cooldownScale: 0.875
-      manaCostScale: 1.1111112
+      manaCostScale: 1.14285714
     - requiredHeroLevel: 5
       effectScale: 2.3333333
       buffScale: 1
       cooldownScale: 0.75
-      manaCostScale: 1.2222222
+      manaCostScale: 1.28571429
     - requiredHeroLevel: 7
       effectScale: 3
       buffScale: 1
       cooldownScale: 0.625
-      manaCostScale: 1.3333334
+      manaCostScale: 1.42857143
   indicatorColor: {r: 0, g: 1, b: 1, a: 1}
   delivery: 0
   targets: 0

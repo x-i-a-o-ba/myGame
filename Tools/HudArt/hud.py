@@ -27,21 +27,25 @@ root=Node("UI.Game.BottomHUD",None,(0.5,0),(0.5,0),(0,0),(1564,214),(0.5,0),go=7
 body=at(root,"Body",0,32,1564,182); image(body,"hud_body",kind="sliced",raycast=1)
 center=at(root,"Ability Section",438,2,580,212); image(center,"hud_body",kind="sliced",raycast=1)
 # ---- 左侧：头像、等级、属性 ----
-plate=at(root,"Portrait",14,44,168,158); image(plate,"hud_plate",kind="sliced")
+plate=at(root,"Portrait",14,44,168,158); image(plate,"hud_plate",kind="sliced",raycast=1)
 por=fill(plate,"Image",3,3,3,3); b.image("hero.portrait",raw(por,preview="寒冰射手"))
 shade=at(plate,"Name Shade",3,112,162,43); image(shade,"shade_bottom",kind="simple")
 nm=at(plate,"HeroName",4,124,160,28); b.text("hero.name",text(nm,"寒冰射手",17,WHITE,"MC",bold=True)); pv[nm.go]="寒冰射手"
 xpt=at(plate,"Experience",58,6,104,18); b.text("hero.xpText",text(xpt,"",12,LIGHT,"MR")); pv[xpt.go]="经验 120 / 240"
 stats=at(root,"Stats",192,44,236,158); image(stats,"hud_plate",kind="sliced",raycast=1)
-hover(stats,"combat.hover",20)  # 悬停显示全部属性与来源（CombatHud.StatsHover）
+hover(plate,"combat.hover",20)  # 仅头像显示全部属性；每项属性单独悬停
 for i,(label,key,sample) in enumerate((("攻击","stats.attack","51"),("攻速","stats.attackSpeed","9.4/秒"),("射程","stats.range","20"),("移速","stats.move","10"))):
     row=at(stats,"Stat "+label,8,8+i*28,112,26)
+    with extra("hud.stat.left."+str(i)):
+        image(fill(row,"Hover"),"white",(1,1,1,0),raycast=1); hover(row,"combat.hover",30+[1,2,10,3][i])
     text(at(row,"Label",0,0,44,26),label,13,MUTED,"ML")
     v=at(row,"Value",40,0,64,26); b.text(key,text(v,"",15,LIGHT,"MR",bold=True)); pv[v.go]=sample
 with extra("hud.stats.right"):
     image(at(stats,"Column Divider",117,12,2,104),"white",(1,1,1,0.08))
     for i,(label,key,sample) in enumerate((("技伤","stats.amplify","30%"),("冷缩","stats.cooldown","20%"),("减伤","stats.reduction","10%"),("暴击","stats.critical","15%"))):
         row=at(stats,"Stat "+label,124,8+i*28,104,26)
+        with extra("hud.stat.right."+str(i)):
+            image(fill(row,"Hover"),"white",(1,1,1,0),raycast=1); hover(row,"combat.hover",30+[5,6,11,13][i])
         text(at(row,"Label",0,0,44,26),label,13,MUTED,"ML")
         v=at(row,"Value",40,0,64,26); b.text(key,text(v,"",15,LIGHT,"MR",bold=True)); pv[v.go]=sample
 badge=at(root,"Level Badge",2,26,62,62); image(badge,"level_badge")
@@ -71,8 +75,8 @@ for i,k in enumerate("qwer"):
     s,back,icon=slot(center,"Skill "+k.upper(),x,44,92)
     button(s,back,"combat.ability",i); hover(s,"combat.hover",i)
     b.image("ability.%s.icon"%k,raw(icon,preview=name))
-    nm_sh=at(s,"Name Shade",7,60,78,25); image(nm_sh,"shade_bottom")
-    n2=at(s,"Name",7,63,78,20); b.text("ability.%s.name"%k,text(n2,"",12,LIGHT,"MC")); pv[n2.go]=name
+    nm_sh=at(s,"Name Shade",7,54,78,31); image(nm_sh,"shade_bottom")
+    n2=at(s,"Name",7,54,78,17); b.text("ability.%s.name"%k,text(n2,"",12,LIGHT,"MC")); pv[n2.go]=name
     nomana=b.toggle("ability.%s.noMana"%k,fill(s,"No Mana",7,7,7,7,active=0)); image(nomana,"white",(0.1,0.2,0.65,0.5))
     locked=b.toggle("ability.%s.locked"%k,fill(s,"Locked",7,7,7,7,active=0)); image(locked,"white",(0.02,0.03,0.04,0.72)); on(locked,level==0)
     cooling=b.toggle("ability.%s.cooling"%k,fill(s,"Cooldown",7,7,7,7,active=0)); on(cooling,cd>0)
@@ -81,7 +85,7 @@ for i,k in enumerate("qwer"):
     image(fill(s,"Frame"),"slot_frame",kind="sliced")
     hk=at(s,"Hotkey",4,4,22,22); image(hk,"hotkey",kind="sliced"); text(fill(hk,"Key"),k.upper(),14,WHITE,"MC",bold=True,shadow=False)
     st=at(s,"Status",28,6,58,18); b.text("ability.%s.status"%k,text(st,"",12,CYAN,"MR",bold=True)); pv[st.go]=status
-    mn=at(s,"Mana",44,44,42,16); b.text("ability.%s.mana"%k,text(mn,"",12,(0.55,0.75,1,1),"MR",bold=True))
+    mn=at(s,"Mana",7,72,78,14); b.text("ability.%s.mana"%k,text(mn,"",12,(0.65,0.82,1,1),"MC",bold=True))
     learn=on(b.toggle("ability.%s.learn"%k,at(s,"Learn",22,-40,48,32,active=0)),level<mx and k!="r")
     lg=image(learn,"learn_plus",raycast=1); button(learn,lg,"combat.learnSkill",i,0.8)
     pips=at(s,"Pips",0,96,92,10)
@@ -93,7 +97,16 @@ bar(center,b,"Health",26,158,528,24,HP,"hero.health","hero.healthText",15,amount
 rg=at(center,"Regen",400,158,148,24); b.text("hero.regen",text(rg,"",12,(0.75,1,0.7,1),"MR")); pv[rg.go]="+2.2"
 pv[center.children[-2].children[-1].go]="1027 / 1252"
 bar(center,b,"Mana",26,184,528,18,MP,"hero.mana","hero.manaText",13,amount=1.0)
-pv[center.children[-1].children[-1].go]="172 / 172"
+pv[center.children[-1].children[-1].go]="260 / 260"
+with extra("hud.resource.regen"):
+    mr=at(center,"Mana Regen",400,184,148,18)
+    b.text("hero.manaRegen",text(mr,"",12,(0.7,0.85,1,1),"MR")); pv[mr.go]="+4.5/秒"
+    for node,value in ((rg,34),(mr,39)):
+        image(fill(node,"Hover"),"white",(1,1,1,0),raycast=1); hover(node,"combat.hover",value)
+    for name,value in (("Health",30),("Mana",38)):
+        node=next(n for n in center.children if n.name==name)
+        image(fill(node,"Hover"),"white",(1,1,1,0),raycast=1); hover(node,"combat.hover",value)
+
 # ---- 装备栏（Dota 2 式）：上方 3 × 2 共 6 格，下方金币；悬停看属性，拖到其他格换位、拖到地面丢弃、拖到商店或右键出售（商店打开时）。
 # 键名与 CombatHud.EquipmentKeys 一一对应；拖动命令与 CombatHud.DragCommand / DragEndCommand / DropOnCommand 一致。
 EQUIP_SAMPLE=["铁剑","迅捷手套","速度之靴","回复戒指"]
@@ -213,7 +226,7 @@ image(fill(root,"Back"),"target_frame",kind="sliced",raycast=1)
 image(at(root,"Header Glow",8,8,TW-16,132),"target_header")
 on(b.toggle("target.tierElite",at(root,"Elite Glow",-6,-6,164,164,active=0)),False); image(root.children[-1],"glow",(1,0.78,0.28,0.6))
 on(b.toggle("target.tierBoss",at(root,"Boss Glow",-6,-6,164,164,active=0)),True); image(root.children[-1],"glow",(1,0.22,0.12,0.65))
-plate=at(root,"Portrait",18,18,116,116); image(plate,"hud_plate",kind="sliced")
+plate=at(root,"Portrait",18,18,116,116); image(plate,"hud_plate",kind="sliced",raycast=1)
 por=fill(plate,"Image",7,7,7,7); b.image("target.portrait",raw(por,preview="深渊领主"))
 image(fill(plate,"Frame"),"portrait_frame",kind="sliced")
 tier=at(root,"Tier",36,124,80,24)

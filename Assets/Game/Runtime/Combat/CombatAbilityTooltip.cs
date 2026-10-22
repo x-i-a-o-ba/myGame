@@ -298,6 +298,58 @@ namespace Roguelike.Combat
         }
 
         // ---------------- 英雄属性 ----------------
+        /// <summary>单项属性来源。复用权威属性快照；状态效果只展示结算后的结果，不从 UI 反推战斗。</summary>
+        public static void BuildStat(StatKind stat,in HeroStats stats,in AbilityUnit unit,in AutoAttackData attack,int level,string heroName,Texture icon,AbilityTooltipView view)
+        {
+            BuildStats(stats,unit,attack,level,heroName,icon,view);
+            view.Name=StatText.Name(stat);
+            view.Properties="";
+            int levels=math.max(0,level-1);
+            block.Clear();
+            Line($"{Key("基础值")}{V(StatText.Value(stat,stats.Base[stat]))}{Unit(stat)}");
+            Line($"{Key("等级成长")}{V(StatText.Value(stat,stats.PerLevel[stat]*levels))}{Unit(stat)}（每级 {StatText.Value(stat,stats.PerLevel[stat])} × {levels} 次）");
+            Line($"{Key("天赋加成")}{V(StatText.Value(stat,stats.Talents[stat]))}{Unit(stat)}");
+            Line($"{Key("装备加成")}{V(StatText.Value(stat,stats.Equipment[stat]))}{Unit(stat)}");
+            Line($"{Key("属性合计")}{V(StatText.Value(stat,stats.Total[stat]))}{Unit(stat)}{Cap(stat,stats.Total[stat])}");
+            view.Values=Trim(block);
+            float current=stats.Total[stat];
+            switch(stat)
+            {
+                case StatKind.MaxHealth: current=unit.MaxHealth; break;
+                case StatKind.MaxMana: current=unit.MaxMana; break;
+                case StatKind.HealthRegen: current=unit.Regen; break;
+                case StatKind.ManaRegen: current=AbilityEffects.BaseManaRegen+unit.ManaRegenBonus; break;
+                case StatKind.AttackDamage: current=unit.Attack; break;
+                case StatKind.AttackSpeed: current=(unit.AttackSpeedMultiplier-1)*100; break;
+                case StatKind.MoveSpeed: current=unit.Speed; break;
+                case StatKind.AttackRange: current=attack.Range; break;
+                case StatKind.SkillAmplify: current=unit.SkillAmplify*100; break;
+                case StatKind.CooldownReduction: current=unit.CooldownReduction*100; break;
+                case StatKind.DamageReduction: current=unit.DamageReduction*100; break;
+                case StatKind.CriticalChance: current=math.clamp(current,0,100); break;
+                case StatKind.CriticalDamage: current=math.max(100,current); break;
+            }
+            view.Status=$"{Key("当前实际（含状态效果）")}{V(StatText.Value(stat,current))}{Unit(stat)}";
+            view.Notes="基础 + 每级成长 ×（等级 - 1）+ 天赋 + 装备。状态效果在合计上继续结算。";
+            switch(stat)
+            {
+                case StatKind.AttackDamage: view.Description="普攻命中时使用当前攻击力；暴击倍率和技能伤害加成分别结算。"; break;
+                case StatKind.AttackSpeed:
+                    view.Description=$"基础攻击间隔 {attack.BaseAttackTime:0.##} 秒；当前每秒攻击 {AutoAttackLogic.AttacksPerSecond(attack,unit.AttackSpeedMultiplier):0.0} 次。";
+                    view.Notes+="\n百分比按百分点相加。增益可能继续乘算攻速，前后摇也随攻速缩短。"; break;
+                case StatKind.ManaRegen: view.Description="每秒恢复法力，达到最大法力后停止；升级、天赋和装备可增加回复。"; break;
+                case StatKind.HealthRegen: view.Description="每秒回复生命，达到最大生命后停止。"; break;
+                case StatKind.MaxMana: view.Description=$"当前法力 {unit.Mana:0} / {unit.MaxMana:0}；每秒回复 {AbilityEffects.BaseManaRegen+unit.ManaRegenBonus:0.##} 点。升级增加上限时同步增加当前法力。"; break;
+                case StatKind.MaxHealth: view.Description=$"当前生命 {unit.Health:0} / {unit.MaxHealth:0}；每秒回复 {unit.Regen:0.##} 点。升级增加上限时同步增加当前生命。"; break;
+                case StatKind.AttackRange: view.Description="普攻可攻击的距离；另计目标体型。距离单位为 Unity 世界单位。"; break;
+                case StatKind.MoveSpeed: view.Description="每秒移动的 Unity 世界单位；减速、眩晕等状态还会影响实际移动。"; break;
+                case StatKind.SkillAmplify: view.Description="只加成技能伤害，不加成普攻伤害。"; break;
+                case StatKind.CooldownReduction: view.Description="缩短技能冷却和充能恢复时间，最高 80%。"; break;
+                case StatKind.DamageReduction: view.Description="按比例减少受到的伤害，最高 80%。"; break;
+                case StatKind.CriticalChance: view.Description=$"普攻暴击概率；暴击时造成 {stats.Total.CriticalDamage:0.#}% 伤害。"; break;
+                default: view.Description="属性按来源直接相加；百分比类数值使用百分点。"; break;
+            }
+        }
         /// <summary>
         /// 属性面板提示：全部属性的合计与来源（基础、等级成长、天赋、装备，直接相加），上限说明，以及含状态效果的当前攻击、攻速与移速。
         /// </summary>

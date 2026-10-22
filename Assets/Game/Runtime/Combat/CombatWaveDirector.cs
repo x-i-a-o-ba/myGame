@@ -16,6 +16,9 @@ namespace Roguelike.Combat
     /// <summary>按难度曲线在玩家周围刷怪。只在主线程、所有 Job 完成后调用；不读取英雄或技能身份。</summary>
     public static class CombatWaveDirector
     {
+        /// <summary>有限关卡到最终波停止新增敌人，继续等待最终首领死亡；FinalWave 为 0 才是无尽。</summary>
+        public static bool ShouldSpawn(in CombatWaveSettings settings,in CombatWaveState state,float elapsed)
+            =>state.Outcome==CombatOutcome.Running && elapsed>=state.NextWaveAt && (settings.FinalWave<=0 || state.Wave<settings.FinalWave);
         public const float NormalScale=0.85f;
 
         public static bool IsBossWave(in CombatWaveSettings settings,int wave)

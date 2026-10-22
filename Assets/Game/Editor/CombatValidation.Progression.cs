@@ -204,6 +204,14 @@ namespace Roguelike.Editor
                 try { Check(inspector is CombatDifficultyChineseInspector,"Difficulty curve uses the Chinese inspector"); }
                 finally { UnityEngine.Object.DestroyImmediate(inspector); }
                 var waves=difficulty.ToSettings();
+                var schedule=new CombatWaveState {Wave=29,NextWaveAt=580,Outcome=CombatOutcome.Running};
+                Check(!CombatWaveDirector.ShouldSpawn(waves,schedule,579) && CombatWaveDirector.ShouldSpawn(waves,schedule,580),"最终波仍按正常时间生成");
+                schedule.Wave=30;
+                Check(!CombatWaveDirector.ShouldSpawn(waves,schedule,10000),"有限关卡在最终首领存活时也不再刷第 31 波");
+                var endless=waves; endless.FinalWave=0;
+                Check(CombatWaveDirector.ShouldSpawn(endless,schedule,10000),"无尽模式仍可继续刷怪");
+                schedule.Outcome=CombatOutcome.Defeat;
+                Check(!CombatWaveDirector.ShouldSpawn(endless,schedule,10000),"阵亡结局不继续刷怪");
                 var combat=new CombatSettings{EnemyHealth=30,EnemySpeed=2,EnemyAttackDamage=4,EnemyAttackInterval=1,ArenaHalfSize=125,SafeSpawnRadius=30,MaxAlive=3000};
                 var first=CombatWaveDirector.Stats(waves,combat,1,EnemyTier.Normal);
                 var eleventh=CombatWaveDirector.Stats(waves,combat,11,EnemyTier.Normal);

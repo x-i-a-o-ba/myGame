@@ -57,29 +57,29 @@ namespace Roguelike.Editor
             var impactDamage=Damage("冰晶首中伤害",120); var explosionDamage=Damage("冰晶爆炸伤害",100);
             var q=Asset<SkillDefinition>("Skills/冰霜专注",x=>
             {
-                Common(x,"ability.frost_focus","冰霜专注",AimMode.Self,0,10); x.requiredHits=4; x.manaCost=30;
-                Growth(x,new[]{1,3,5,7},new[]{1f,1f,1f,1f},new[]{1f,1.25f,1.5f,1.75f},new[]{10f,9f,8f,7f},new[]{30f,35f,40f,45f});
+                Common(x,"ability.frost_focus","冰霜专注",AimMode.Self,0,10); x.requiredHits=4; x.manaCost=20;
+                Growth(x,new[]{1,3,5,7},new[]{1f,1f,1f,1f},new[]{1f,1.25f,1.5f,1.75f},new[]{10f,9f,8f,7f},new[]{20f,22f,24f,26f});
                 x.stages=new[]{new SkillStage {scope=TargetScope.Self,targets=TargetRelation.Allies,range=0,
                     effects=new EffectDefinition[]{focusEffect}}};
             });
             var w=Asset<SkillDefinition>("Skills/冰霜扇击",x=>
             {
-                Common(x,"ability.volley","冰霜扇击",AimMode.Direction,22,8); x.manaCost=45;
-                Growth(x,new[]{1,3,5,7},new[]{1f,100f/60,140f/60,3f},new[]{1f,1f,1f,1f},new[]{8f,7f,6f,5f},new[]{45f,50f,55f,60f});
+                Common(x,"ability.volley","冰霜扇击",AimMode.Direction,22,8); x.manaCost=35;
+                Growth(x,new[]{1,3,5,7},new[]{1f,100f/60,140f/60,3f},new[]{1f,1f,1f,1f},new[]{8f,7f,6f,5f},new[]{35f,40f,45f,50f});
                 x.stages=new[]{new SkillStage {scope=TargetScope.Area,shape=AreaShape.Cone,range=22,radius=22,
                     halfAngleDegrees=35,effects=new EffectDefinition[]{volleyDamage,slowEffect}}};
             });
             var e=Asset<SkillDefinition>("Skills/冰霜冲击",x=>
             {
-                Common(x,"ability.frost_impact","冰霜冲击",AimMode.Point,25,0); x.maxCharges=2; x.rechargeSeconds=14; x.manaCost=60;
-                Growth(x,new[]{1,3,5,7},new[]{1f,150f/90,210f/90,3f},new[]{1f,1f,1f,1f},new[]{14f,13f,12f,11f},new[]{60f,65f,70f,75f});
+                Common(x,"ability.frost_impact","冰霜冲击",AimMode.Point,25,0); x.maxCharges=2; x.rechargeSeconds=14; x.manaCost=50;
+                Growth(x,new[]{1,3,5,7},new[]{1f,150f/90,210f/90,3f},new[]{1f,1f,1f,1f},new[]{14f,13f,12f,11f},new[]{50f,55f,60f,65f});
                 x.stages=new[]{new SkillStage {delivery=DeliveryKind.PointProjectile,scope=TargetScope.Area,
                     shape=AreaShape.Circle,range=25,radius=5,speed=42,effects=new EffectDefinition[]{frostDamage}}};
             });
             var r=Asset<SkillDefinition>("Skills/冰晶巨箭",x=>
             {
-                Common(x,"ability.crystal_arrow","冰晶巨箭",AimMode.Direction,150,30); x.manaCost=100;
-                Growth(x,new[]{6,12,18},new[]{1f,1.75f,2.5f},new[]{1f,1f,1f},new[]{30f,25f,20f},new[]{100f,125f,150f});
+                Common(x,"ability.crystal_arrow","冰晶巨箭",AimMode.Direction,150,30); x.manaCost=90;
+                Growth(x,new[]{6,12,18},new[]{1f,1.75f,2.5f},new[]{1f,1f,1f},new[]{30f,25f,20f},new[]{90f,100f,110f});
                 x.stages=new[]{new SkillStage {delivery=DeliveryKind.LinearProjectile,scope=TargetScope.Area,
                     shape=AreaShape.Circle,range=150,radius=7,hitRadius=1.15f,speed=48,
                     impactEffects=new EffectDefinition[]{impactDamage,stunEffect},effects=new EffectDefinition[]{explosionDamage,ultimateSlowEffect}}};
@@ -88,9 +88,9 @@ namespace Roguelike.Editor
             catalog=Asset<SkillCatalog>("游戏技能库",x=>
             {x.skills=skillSet; x.buffs=new[]{focus,slow,ultimateSlow,stun}; x.passives=Array.Empty<PassiveDefinition>();});
             hero=Asset<HeroDefinition>("寒冰射手",x=>
-            {x.stableId="hero.frost_archer"; x.displayName="寒冰射手"; x.skills=skillSet; x.baseMana=240; x.health=300; x.speed=10; x.attackDamage=30; x.attackInterval=0.12f; x.range=20;});
+            {x.stableId="hero.frost_archer"; x.displayName="寒冰射手"; x.skills=skillSet; x.baseMana=260; x.health=340; x.baseHealthRegen=1.8f; x.baseManaRegen=4.5f; x.healthPerLevel=38; x.manaPerLevel=17; x.attackPerLevel=2.8f; x.attackSpeedPerLevel=2.8f; x.regenPerLevel=0.19f; x.manaRegenPerLevel=0.25f; x.speed=10; x.attackDamage=30; x.attackInterval=0.12f; x.range=20;});
             Asset<HeroDefinition>("寒冰射手·换槽示例",x=>
-            {x.stableId="hero.frost_archer_alternate"; x.displayName="寒冰射手·换槽配置示例"; x.skills=new[]{e,w,q,r}; x.baseMana=240; x.health=300; x.speed=10; x.attackDamage=30; x.attackInterval=0.12f; x.range=20;});
+            {x.stableId="hero.frost_archer_alternate"; x.displayName="寒冰射手·换槽配置示例"; x.skills=new[]{e,w,q,r}; x.baseMana=260; x.health=340; x.baseHealthRegen=1.8f; x.baseManaRegen=4.5f; x.healthPerLevel=38; x.manaPerLevel=17; x.attackPerLevel=2.8f; x.attackSpeedPerLevel=2.8f; x.regenPerLevel=0.19f; x.manaRegenPerLevel=0.25f; x.speed=10; x.attackDamage=30; x.attackInterval=0.12f; x.range=20;});
             AssetDatabase.SaveAssets();
         }
         private static void Growth(SkillDefinition skill,int[] gates,float[] effect,float[] buff,float[] cooldown,float[] mana)

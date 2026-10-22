@@ -10,12 +10,13 @@ namespace Roguelike.Combat
     [CreateAssetMenu(menuName="Roguelike/成长/关卡难度曲线")]
     public sealed class CombatDifficultyDefinition : ScriptableObject
     {
-        [Header("节奏")]
+        [Min(1), Tooltip("普通敌人基准生命（点）。")] public float baseEnemyHealth=30;
+        [Min(0), Tooltip("普通敌人基准攻击力（点）。")] public float baseEnemyDamage=4;
+        [Min(0), Tooltip("普通敌人基准移速（Unity 单位/秒）。")] public float baseEnemySpeed=2;
         [Min(1), Tooltip("两波之间的间隔（秒）。")] public float waveInterval=20;
         [Min(0), Tooltip("第一波出现的时间（秒），0 表示开局立即出现。")] public float firstWaveAt=0;
         [Min(0), Tooltip("最终波编号：这一波刷出最终首领，击杀即胜利；0 表示无尽模式。")] public int finalWave=30;
         [Min(1), Tooltip("刷怪圆环宽度（米）：敌人出现在玩家周围“安全半径”到“安全半径+宽度”之间。")] public float spawnRingWidth=25;
-        [Header("普通敌人")]
         [Min(0), Tooltip("第 1 波普通敌人数量。")] public int baseCount=80;
         [Min(0), Tooltip("每波数量线性增长比例：数量 = 基础 ×（1 + 比例 ×（波次 - 1））。")] public float countGrowthPerWave=0.15f;
         [Min(1), Tooltip("单波普通敌人上限。")] public int maxPerWave=2000;
@@ -27,7 +28,6 @@ namespace Roguelike.Combat
         [Min(1), Tooltip("每波经验倍率（复利）。")] public float experienceGrowth=1.02f;
         [Min(0), Tooltip("第 1 波普通敌人的击杀金币；敌人种类再乘自身金币倍率。")] public float baseGold=1;
         [Min(1), Tooltip("每波金币倍率（复利）。")] public float goldGrowth=1.03f;
-        [Header("精英")]
         [Min(0), Tooltip("每隔几波出现精英；0 表示不出现。")] public int eliteEvery=5;
         [Min(0), Tooltip("精英基础数量。")] public int eliteBaseCount=3;
         [Min(1), Tooltip("每隔几波精英数量 +1。")] public int eliteWavesPerExtra=5;
@@ -36,7 +36,6 @@ namespace Roguelike.Combat
         [Min(0.1f), Tooltip("精英体型倍率。")] public float eliteScale=1.6f;
         [Min(0), Tooltip("精英经验倍率。")] public float eliteExperience=12;
         [Min(0), Tooltip("精英金币倍率。")] public float eliteGold=15;
-        [Header("首领")]
         [Min(0), Tooltip("每隔几波出现首领；最终波总会出现首领。0 表示只在最终波出现。")] public int bossEvery=10;
         [Min(1), Tooltip("首领生命倍率。")] public float bossHealth=60;
         [Min(1), Tooltip("首领伤害倍率。")] public float bossDamage=5;
@@ -48,11 +47,12 @@ namespace Roguelike.Combat
         /// <summary>校验并生成 ECS 快照。数值非法时抛出 InvalidOperationException。</summary>
         public CombatWaveSettings ToSettings()
         {
-            float[] values={waveInterval,firstWaveAt,spawnRingWidth,countGrowthPerWave,healthGrowth,damageGrowth,speedPerWave,maxSpeed,
+            float[] values={baseEnemyHealth,baseEnemyDamage,baseEnemySpeed,waveInterval,firstWaveAt,spawnRingWidth,countGrowthPerWave,healthGrowth,damageGrowth,speedPerWave,maxSpeed,
                 baseExperience,experienceGrowth,baseGold,goldGrowth,eliteHealth,eliteDamage,eliteScale,eliteExperience,eliteGold,
                 bossHealth,bossDamage,bossScale,bossExperience,bossGold,bossSpeed};
             foreach(float value in values)
                 if(float.IsNaN(value) || float.IsInfinity(value) || value<0) throw new InvalidOperationException("难度曲线数值必须是有限的非负数："+name);
+            if(baseEnemyHealth<1) throw new InvalidOperationException("敌人基准生命至少为 1："+name);
             if(waveInterval<1 || spawnRingWidth<1) throw new InvalidOperationException("波次间隔和刷怪圆环宽度至少为 1："+name);
             if(healthGrowth<1 || damageGrowth<1 || experienceGrowth<1 || goldGrowth<1) throw new InvalidOperationException("逐波倍率不能小于 1，难度必须随时间上升："+name);
             if(baseCount<0 || maxPerWave<1 || finalWave<0 || eliteEvery<0 || eliteBaseCount<0 || eliteWavesPerExtra<1 || bossEvery<0)

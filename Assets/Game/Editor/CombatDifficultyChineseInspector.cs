@@ -15,7 +15,11 @@ namespace Roguelike.Editor
         {
             serializedObject.Update();
             EditorGUILayout.HelpBox("每隔固定秒数刷一波敌人，数量、生命、伤害、移速和经验按波次增长；定期出现精英与首领，击杀最终波首领获胜。"+
-                "第 1 波的生命、伤害和移速取自 Game 场景战斗控制器的敌人基础值。重开 Game 后生效。",MessageType.Info);
+                "第 1 波的生命、伤害和移速由此资源统一配置，再乘怪物种类倍率。重开 Game 后生效。",MessageType.Info);
+            Section("第 1 波基准");
+            Field("baseEnemyHealth","基准生命（点）");
+            Field("baseEnemyDamage","基准攻击力（点）");
+            Field("baseEnemySpeed","基准移速（Unity 单位/秒）");
             Section("节奏");
             Field("waveInterval","波次间隔（秒）");
             Field("firstWaveAt","第一波时间（秒）");
@@ -69,8 +73,8 @@ namespace Roguelike.Editor
             CombatWaveSettings settings;
             try { settings=definition.ToSettings(); }
             catch(InvalidOperationException error) { EditorGUILayout.HelpBox(error.Message,MessageType.Error); return; }
-            // 以 1 为基础值，预览结果即相对第 1 波的倍率；移速以 0 为基础，显示累计增量。
-            var unit=new CombatSettings{EnemyHealth=1,EnemyAttackDamage=1,EnemySpeed=0};
+            // 显示该资源的实际基准曲线；具体种类还需乘自身倍率。
+            var unit=new CombatSettings{EnemyHealth=definition.baseEnemyHealth,EnemyAttackDamage=definition.baseEnemyDamage,EnemySpeed=definition.baseEnemySpeed};
             float duration=settings.FinalWave>0?settings.FirstWaveAt+settings.WaveInterval*(settings.FinalWave-1):0;
             EditorGUILayout.LabelField(settings.FinalWave>0?$"最终波第 {settings.FinalWave} 波，约 {duration/60:0.#} 分钟出现":"无尽模式（没有最终波）",EditorStyles.miniLabel);
             foreach(int wave in PreviewWaves)
@@ -79,9 +83,9 @@ namespace Roguelike.Editor
                 var normal=CombatWaveDirector.Stats(settings,unit,wave,EnemyTier.Normal);
                 var elite=CombatWaveDirector.Stats(settings,unit,wave,EnemyTier.Elite);
                 var boss=CombatWaveDirector.Stats(settings,unit,wave,EnemyTier.Boss);
-                string text=$"第 {wave} 波：普通 {normal.Count} 只，生命 ×{normal.Health:0.##}，伤害 ×{normal.Damage:0.##}，移速 +{normal.Speed:0.##}，经验 {normal.Experience:0.#}";
+                string text=$"第 {wave} 波：普通 {normal.Count} 只，生命 {normal.Health:0.##}，伤害 {normal.Damage:0.##}，移速 {normal.Speed:0.##}，经验 {normal.Experience:0.#}";
                 if(elite.Count>0) text+=$"；精英 {elite.Count} 只（经验 {elite.Experience:0.#}）";
-                if(boss.Count>0) text+=$"；首领（生命 ×{boss.Health:0.#}，经验 {boss.Experience:0}）";
+                if(boss.Count>0) text+=$"；首领（生命 {boss.Health:0.#}，经验 {boss.Experience:0}）";
                 EditorGUILayout.LabelField(text,EditorStyles.wordWrappedMiniLabel);
             }
         }

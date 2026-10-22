@@ -44,7 +44,7 @@ namespace Roguelike.Combat
         public const string ShopPanel="UI.Game.Shop";
         /// <summary>
         /// 悬停命令：值 0–3 为 Q/W/E/R，<see cref="PassiveSlot"/> 为自动攻击被动，<see cref="EquipmentHoverBase"/>+格为装备栏，
-        /// <see cref="StatsHover"/> 为属性面板，<see cref="ShopHoverBase"/>+卡片为商店卡片；离开时为 -1 - 值。
+        /// <see cref="StatsHover"/> 为英雄头像总览，<see cref="ShopHoverBase"/>+卡片为商店卡片；离开时为 -1 - 值。
         /// </summary>
         public const string HoverCommand="combat.hover";
         public const int PassiveSlot=4;
@@ -56,7 +56,7 @@ namespace Roguelike.Combat
         /// </summary>
         public const string DragCommand="combat.equip.drag", DragEndCommand="combat.equip.dragEnd", DropOnCommand="combat.equip.dropOn", ShopDropCommand="combat.shop.drop";
         /// <summary>HUD 预制体提供的装备栏格数与商店每页卡片数；装备栏、属性面板与商店卡片的悬停值。</summary>
-        public const int EquipmentSlots=6, ShopCards=12, EquipmentHoverBase=10, StatsHover=20, ShopHoverBase=100;
+        public const int EquipmentSlots=6, ShopCards=12, EquipmentHoverBase=10, StatsHover=20, StatHoverBase=30, StatHoverCount=15, ShopHoverBase=100;
         /// <summary>HUD 预制体提供的技能槽、每槽等级点与天赋层数量。</summary>
         public const int AbilitySlots=4, LevelPips=4, TalentRows=4;
         /// <summary>目标面板的状态效果标签数量。</summary>
@@ -119,10 +119,11 @@ namespace Roguelike.Combat
             { TalentTreeOpen = !TalentTreeOpen; UpdateTalentPanel(); }
         }
         public bool BlocksPointer(Vector2 position) => UI.Blocks(position);
-        /// <summary>HUD 识别的悬停值：0–3 技能、4 被动、10–15 装备栏、20 属性面板、100–111 商店卡片。</summary>
+        /// <summary>HUD 识别的悬停值：0–3 技能、4 被动、10–15 装备栏、20 头像总览、30–44 单项属性、100–111 商店卡片。</summary>
         public static bool IsHoverValue(int value)
             => (value >= 0 && value <= PassiveSlot) || (value >= EquipmentHoverBase && value < EquipmentHoverBase + EquipmentSlots) ||
-               value == StatsHover || (value >= ShopHoverBase && value < ShopHoverBase + ShopCards);
+               value == StatsHover || IsStatHover(value) || (value >= ShopHoverBase && value < ShopHoverBase + ShopCards);
+        public static bool IsStatHover(int value)=>value>=StatHoverBase && value<StatHoverBase+StatHoverCount;
         /// <summary>打开或关闭商店；战斗未进行时不能打开。</summary>
         public void ToggleShop()
         {
@@ -260,7 +261,8 @@ namespace Roguelike.Combat
             Text("hero.regen", s.Regen > 0 ? $"+{s.Regen:0.0}" : "");
             Fill("hero.mana", s.MaximumMana > 0 ? s.Mana / s.MaximumMana : 0);
             Text("hero.manaText", $"{Mathf.FloorToInt(s.Mana)} / {s.MaximumMana:0}");
-            // 属性面板（悬停显示完整属性与来源）
+            Text("hero.manaRegen", $"{(s.ManaRegen>=0?"+":"")}{s.ManaRegen:0.0}/秒");
+            // 单项属性悬停展示来源；英雄头像显示完整总览
             Text(StatsKeys.Attack, $"{s.AttackDamage:0}");
             Text(StatsKeys.AttackSpeed, $"{s.AttacksPerSecond:0.0}/秒");
             Text(StatsKeys.Range, $"{s.AttackRange:0.#}");
@@ -611,7 +613,7 @@ namespace Roguelike.Combat
         public string HeroName; public Texture Portrait;
         public int Level, SkillPoints;
         public float ExperienceFraction; public string ExperienceText;
-        public float Health, MaximumHealth, Regen, Mana, MaximumMana;
+        public float Health, MaximumHealth, Regen, Mana, MaximumMana, ManaRegen;
         public float AttackDamage, AttacksPerSecond, AttackRange, MoveSpeed;
         /// <summary>技能伤害、冷却缩减、伤害减免（已夹到上限）与暴击几率，单位为百分点。</summary>
         public float SkillAmplify, CooldownReduction, DamageReduction, CriticalChance;

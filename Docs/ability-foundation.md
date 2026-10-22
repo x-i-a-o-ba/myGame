@@ -1,8 +1,12 @@
 # 组合技能与 Buff 基础架构
 
+## 2026-10-22 30 波平衡与属性展示
+
+基础法力现为 260、每级 +17；基础回蓝 4.5 点/秒、每级 +0.25，由 `HeroDefinition → HeroStatsLogic → AbilityUnit` 统一结算。HUD 单项提示和蓝条只读权威快照。怪物基准及波次成长归 GameData 难度资源，有限关卡在最终波停止生成。职责、兼容与当前数值见 [30 波平衡](wave-balance-and-stat-details.md)，完整 Player 记录见 [验证结果](validation-wave-balance-2026-10-22.md)。技能组合执行器与 Buff 所有权规则沿用现有架构。
+
 ## 2026-10-22 寒冰射手与 GameData
 
-寒冰射手四技能加入逐级蓝耗，重新配置伤害、冷却与攻速收益；基础法力 240、每级 +12、基础回复 3 点/秒。78 份游戏配置迁入 `Assets/GameData`，按功能分类，保留数字 ID 与 GUID；正式配置、编辑示例和历史示例分开。职责、数值表、编辑入口与迁移说明见 [寒冰射手与数据规范](ashe-balance-and-gamedata.md)，实际验证见 [验证记录](validation-ashe-gamedata-2026-10-22.md)。
+寒冰射手四技能加入逐级蓝耗，重新配置伤害、冷却与攻速收益；当时的法力和回复基准已由上方 30 波版本更新。78 份游戏配置迁入 `Assets/GameData`，按功能分类，保留数字 ID 与 GUID；正式配置、编辑示例和历史示例分开。职责、数值表、编辑入口与迁移说明见 [寒冰射手与数据规范](ashe-balance-and-gamedata.md)，当时的验证见 [验证记录](validation-ashe-gamedata-2026-10-22.md)。
 
 ## 2026-09-28 自由组合技能 V2
 

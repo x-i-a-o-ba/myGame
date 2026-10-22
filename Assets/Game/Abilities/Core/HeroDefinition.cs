@@ -22,32 +22,32 @@ namespace Roguelike.Abilities
         [Tooltip("移动中攻击：右键移动途中自动攻击攻击距离内的敌人且不停下，攻击前摇不定身，新的移动指令不打断攻击。关闭后恢复 Dota 2 式“移动取消攻击”。重开生效。")]
         public bool attackWhileMoving=true;
         [Tooltip("HUD 头像。为空时显示纯色底。")] public Texture2D portrait;
-        [Header("等级成长（Dota 2 式，每升 1 级累加）")]
         [Min(0), Tooltip("开局最大法力；技能施放按技能逐级表消耗法力，局内由单位状态统一扣除。")] public float baseMana=100;
         [Min(0), Tooltip("开局每秒生命回复。")] public float baseHealthRegen=1.5f;
+        [Min(0), Tooltip("开局法力回复（点/秒）；重开生效，由共享单位状态结算。")] public float baseManaRegen=3;
         [Min(0), Tooltip("每级增加的最大生命，当前生命同步增加。")] public float healthPerLevel=22;
         [Min(0), Tooltip("每级增加的最大法力。")] public float manaPerLevel=12;
         [Min(0), Tooltip("每级增加的普攻伤害。")] public float attackPerLevel=3;
         [Min(0), Tooltip("每级增加的攻击速度（百分点）：2.5 表示每级 +2.5%。")] public float attackSpeedPerLevel=2.5f;
         [Min(0), Tooltip("每级增加的移动速度（米/秒）。")] public float moveSpeedPerLevel;
         [Min(0), Tooltip("每级增加的每秒生命回复。")] public float regenPerLevel=0.1f;
+        [Min(0), Tooltip("每升一级增加的法力回复（点/秒），与天赋和装备直接相加。")] public float manaRegenPerLevel;
         [Tooltip("按英雄等级升序排列的天赋层；每层二选一，不消耗技能点。最多 31 层。")]
         public HeroTalentTier[] talents=HeroTalentTier.Defaults();
-        [Header("额外基础属性")]
         [Tooltip("直接加到英雄基础属性上的数值，例如 +10 暴击几率、+5 普攻吸血；与上方基础生命、普攻伤害等字段相加。最多 16 条。")]
         public StatModifier[] baseStats=Array.Empty<StatModifier>();
 
-        /// <summary>英雄基础属性：上方基础字段 + 额外基础属性 + 默认暴击伤害 150%。法力回复基础为每秒 3 点。只读，不修改资源。</summary>
+        /// <summary>英雄基础属性：上方基础字段 + 额外基础属性 + 默认暴击伤害 150%。法力回复由英雄配置给出。只读，不修改资源。</summary>
         public StatSheet BaseSheet(in AutoAttackData attack)
         {
             var sheet=new StatSheet {MaxHealth=health,AttackDamage=attackDamage,MoveSpeed=speed,HealthRegen=baseHealthRegen,
-                MaxMana=baseMana,ManaRegen=AbilityEffects.BaseManaRegen,AttackRange=attack.Range,CriticalDamage=HeroStatsLogic.DefaultCriticalDamage};
+                MaxMana=baseMana,ManaRegen=baseManaRegen,AttackRange=attack.Range,CriticalDamage=HeroStatsLogic.DefaultCriticalDamage};
             if(baseStats!=null) foreach(var modifier in baseStats) sheet.Add(modifier.stat,modifier.value);
             return sheet;
         }
         /// <summary>每升 1 级直接相加的属性成长。</summary>
         public StatSheet GrowthSheet()=>new StatSheet {MaxHealth=healthPerLevel,MaxMana=manaPerLevel,AttackDamage=attackPerLevel,
-            AttackSpeed=attackSpeedPerLevel,MoveSpeed=moveSpeedPerLevel,HealthRegen=regenPerLevel};
+            AttackSpeed=attackSpeedPerLevel,MoveSpeed=moveSpeedPerLevel,HealthRegen=regenPerLevel,ManaRegen=manaRegenPerLevel};
 
         /// <summary>验证英雄与给定库的引用。返回槽位到库索引的映射，不修改共享资源。</summary>
         public int[] ResolveSkills(SkillCatalog catalog)
@@ -80,7 +80,7 @@ namespace Roguelike.Abilities
         /// <summary>验证成长与天赋配置；只读，不修改共享资源。</summary>
         public void ValidateProgression()
         {
-            float[] values={baseMana,baseHealthRegen,healthPerLevel,manaPerLevel,attackPerLevel,attackSpeedPerLevel,moveSpeedPerLevel,regenPerLevel};
+            float[] values={baseMana,baseHealthRegen,baseManaRegen,healthPerLevel,manaPerLevel,attackPerLevel,attackSpeedPerLevel,moveSpeedPerLevel,regenPerLevel,manaRegenPerLevel};
             foreach(float value in values)
                 if(!Finite(value) || value<0) throw new InvalidOperationException("英雄成长数值必须是有限的非负数："+name);
             if(baseStats!=null)

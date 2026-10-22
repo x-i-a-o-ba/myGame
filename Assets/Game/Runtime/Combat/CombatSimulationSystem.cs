@@ -169,7 +169,7 @@ namespace Roguelike.Combat
             if(gained>0) RebuildHeroStats(session,ref runtime.Library.Value);
             hero=manager.GetComponentData<AbilityUnit>(session);
             if(victory) waveState.Outcome=CombatOutcome.Victory;
-            else if(player.Elapsed>=waveState.NextWaveAt)
+            else if(CombatWaveDirector.ShouldSpawn(waves,waveState,player.Elapsed))
             {
                 // 每帧最多刷一波，避免卡顿后集中补刷造成尖峰。实例化会使缓冲区失效，先复制种类表。
                 waveState.Wave++; waveState.NextWaveAt+=waves.WaveInterval;

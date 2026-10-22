@@ -186,6 +186,8 @@ namespace Roguelike.Combat
                 if(!difficulty)
                 {
                     fallbackDifficulty=ScriptableObject.CreateInstance<CombatDifficultyDefinition>(); fallbackDifficulty.name="默认关卡难度曲线";
+                    // 没有难度资源的旧场景才使用控制器基础值；正式 Game 从 GameData 编译。
+                    fallbackDifficulty.baseEnemyHealth=enemyHealth; fallbackDifficulty.baseEnemyDamage=enemyAttackDamage; fallbackDifficulty.baseEnemySpeed=enemySpeed;
                     Debug.LogWarning("Game 未指定关卡难度曲线，使用默认曲线。",this);
                 }
                 if(!enemyRoster) Debug.LogWarning("Game 未指定敌人名册，只刷出统一敌人。",this);
@@ -770,6 +772,7 @@ namespace Roguelike.Combat
             s.HeroName=string.IsNullOrWhiteSpace(hero.displayName)?hero.name:hero.displayName; s.Portrait=hero.portrait;
             s.Level=progression.Level; s.SkillPoints=progression.SkillPoints;
             s.Health=state.Health; s.MaximumHealth=state.MaximumHealth; s.Regen=unit.Regen; s.Mana=unit.Mana; s.MaximumMana=unit.MaxMana;
+            s.ManaRegen=AbilityEffects.BaseManaRegen+unit.ManaRegenBonus;
             s.AttackDamage=unit.Attack; s.AttacksPerSecond=AutoAttackLogic.AttacksPerSecond(attackData,unit.AttackSpeedMultiplier);
             s.AttackRange=attackData.Range; s.MoveSpeed=unit.Speed;
             s.SkillAmplify=unit.SkillAmplify*100; s.CooldownReduction=unit.CooldownReduction*100; s.DamageReduction=unit.DamageReduction*100;
@@ -922,6 +925,11 @@ namespace Roguelike.Combat
             if(index==CombatHud.StatsHover)
             {
                 AbilityTooltipBuilder.BuildStats(heroStats,unit,attackData,progression.Level,s.HeroName,hero.portrait,view);
+                return;
+            }
+            if(CombatHud.IsStatHover(index))
+            {
+                AbilityTooltipBuilder.BuildStat((StatKind)(index-CombatHud.StatHoverBase),heroStats,unit,attackData,progression.Level,s.HeroName,hero.portrait,view);
                 return;
             }
             bool fromShop=index>=CombatHud.ShopHoverBase && index<CombatHud.ShopHoverBase+CombatHud.ShopCards;

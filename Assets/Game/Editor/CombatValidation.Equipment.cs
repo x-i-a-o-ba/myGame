@@ -216,13 +216,14 @@ namespace Roguelike.Editor
                 ??Missing(panel.toggles,b=>b.key,b=>b.target,CombatHud.EquipmentKeys.Toggles)
                 ??Missing(panel.toggles,b=>b.key,b=>b.target,new[]{CombatHud.ShopKeys.Open});
             Check(missing==null,"Bottom HUD binds stats, gold, equipment slots and the shop button: "+missing);
-            int hovers=0,sells=0; bool stats=false,shop=false;
+            int hovers=0,sells=0,statMask=0; bool stats=false,shop=false;
             foreach(var hover in hud.GetComponentsInChildren<UIHoverAction>(true))
             {
                 if(hover.command!=CombatHud.HoverCommand || !Raycast(hover.gameObject)) continue;
                 int slot=hover.value-CombatHud.EquipmentHoverBase;
                 if(slot>=0 && slot<CombatHud.EquipmentSlots) hovers|=1<<slot;
-                stats|=hover.value==CombatHud.StatsHover;
+                stats|=hover.value==CombatHud.StatsHover && hover.name=="Portrait";
+                if(CombatHud.IsStatHover(hover.value)) statMask|=1<<(hover.value-CombatHud.StatHoverBase);
             }
             foreach(var pointer in hud.GetComponentsInChildren<UIPointerAction>(true))
                 if(pointer.command==CombatHud.SellCommand && pointer.button==PointerEventData.InputButton.Right && pointer.value>=0 && pointer.value<CombatHud.EquipmentSlots &&
@@ -231,6 +232,10 @@ namespace Roguelike.Editor
             int all=(1<<CombatHud.EquipmentSlots)-1;
             Check(hovers==all && sells==all,"Every equipment slot has a hover source and a right-click sell source with raycast targets");
             Check(stats && shop,"Bottom HUD has a stats hover source and a shop button");
+            int expectedStats=0;
+            foreach(var stat in new[]{StatKind.AttackDamage,StatKind.AttackSpeed,StatKind.AttackRange,StatKind.MoveSpeed,StatKind.SkillAmplify,StatKind.CooldownReduction,StatKind.DamageReduction,StatKind.CriticalChance,StatKind.MaxHealth,StatKind.MaxMana,StatKind.HealthRegen,StatKind.ManaRegen}) expectedStats|=1<<(int)stat;
+            Check((statMask&expectedStats)==expectedStats,"每项 HUD 属性、生命法力条及回复均有独立悬停入口");
+            Check(Missing(panel.texts,b=>b.key,b=>b.target,new[]{"hero.manaRegen"})==null,"蓝条绑定权威法力回复值");
 
             var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(ShopPanelPath);
             var shopPanel=prefab?prefab.GetComponent<UIPanel>():null;

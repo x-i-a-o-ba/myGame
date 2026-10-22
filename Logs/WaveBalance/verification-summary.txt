@@ -1,0 +1,3 @@
+COMBAT_VALIDATION_PASSED ability foundation checks=343
+GAME_SMOKE_PASSED checks=135
+NORMAL_SPEED_WAVE_CHECK_PASSED rows=30 skipped=0 outcome=Victory

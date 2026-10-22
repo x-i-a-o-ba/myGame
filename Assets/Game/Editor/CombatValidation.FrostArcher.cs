@@ -13,11 +13,24 @@ namespace Roguelike.Editor
         {
             var catalog=AssetDatabase.LoadAssetAtPath<SkillCatalog>(AbilityFoundationAssets.CatalogPath);
             var hero=AssetDatabase.LoadAssetAtPath<HeroDefinition>(AbilityFoundationAssets.HeroPath);
-            Check(hero && catalog && hero.configId==2000 && hero.baseMana==240 && hero.manaPerLevel==12,"寒冰正式装配与法力成长可读取");
+            Check(hero && catalog && hero.configId==2000 && hero.baseMana==260 && hero.manaPerLevel==17,"寒冰正式装配与法力成长可读取");
+            var baseSheet=hero.BaseSheet(hero.ResolveAttack(38));
+            var growth=hero.GrowthSheet();
+            var composed=HeroStatsLogic.Create(baseSheet,growth,22);
+            var level30=HeroStatsLogic.Compose(composed,30);
+            Check(Mathf.Approximately(level30.MaxHealth,1442) && Mathf.Approximately(level30.MaxMana,753) &&
+                Mathf.Approximately(level30.ManaRegen,11.75f),"30 级生命、法力及回蓝成长来自正式英雄定义");
+            var grown=new AbilityUnit {Health=340,MaxHealth=340,Mana=260,MaxMana=260};
+            HeroStatsLogic.Apply(level30,ref grown);
+            Check(Mathf.Approximately(grown.Mana,753) && Mathf.Approximately(grown.ManaRegenBonus+AbilityEffects.BaseManaRegen,11.75f),"升级同步提高当前法力与权威回蓝速率");
+            bool rejected=false; var invalid=Object.Instantiate(hero);
+            try { invalid.manaRegenPerLevel=float.NaN; invalid.ValidateProgression(); } catch(System.InvalidOperationException) { rejected=true; }
+            finally { Object.DestroyImmediate(invalid); }
+            Check(rejected,"非法回蓝成长在编译前拒绝");
             using(var f=new Fixture(catalog))
             {
                 var definitions=hero.ResolveSkills(catalog);
-                float[][] costs={new[]{30f,35f,40f,45f},new[]{45f,50f,55f,60f},new[]{60f,65f,70f,75f},new[]{100f,125f,150f}};
+                float[][] costs={new[]{20f,22f,24f,26f},new[]{35f,40f,45f,50f},new[]{50f,55f,60f,65f},new[]{90f,100f,110f}};
                 float[][] times={new[]{10f,9f,8f,7f},new[]{8f,7f,6f,5f},new[]{14f,13f,12f,11f},new[]{30f,25f,20f}};
                 for(int slot=0;slot<4;slot++)
                 {
@@ -37,7 +50,7 @@ namespace Roguelike.Editor
                 Check(f.State(owner).Mana==240 && f.Manager.GetBuffer<ActiveBuff>(owner).Length==0,"Q 未满层不扣蓝");
                 for(int i=0;i<4;i++) f.Execution.RecordBasicAttackHit(owner);
                 f.Command(owner,0,float3.zero,new float3(1,0,0)); f.Step(owner,0.1f,0.1f);
-                Check(f.State(owner).Mana==210 && Mathf.Approximately(f.State(owner).AttackSpeedMultiplier,1.6f),"Q 满层只扣一次蓝并增加攻速");
+                Check(f.State(owner).Mana==220 && Mathf.Approximately(f.State(owner).AttackSpeedMultiplier,1.6f),"Q 满层只扣一次蓝并增加攻速");
                 f.TickBuffs(owner,5.2f,0);
                 Check(Mathf.Approximately(f.State(owner).AttackSpeedMultiplier,1),"Q 到期恢复攻速");
             }
@@ -45,15 +58,15 @@ namespace Roguelike.Editor
             {
                 var owner=f.Owner(hero.ResolveSkills(catalog));
                 var target=DurableTarget(f,new float3(4,0,0));
-                SetMana(f,owner,44);
+                SetMana(f,owner,34);
                 f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,0,0);
                 var slot=f.Manager.GetBuffer<AbilitySlot>(owner)[1];
-                Check(f.State(owner).Mana==44 && f.State(target).Health==1000 && slot.ReadyAt==0,"W 蓝量不足不伤害、不扣蓝、不进入冷却");
-                SetMana(f,owner,45);
+                Check(f.State(owner).Mana==34 && f.State(target).Health==1000 && slot.ReadyAt==0,"W 蓝量不足不伤害、不扣蓝、不进入冷却");
+                SetMana(f,owner,35);
                 f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,0.1f,0.1f);
                 Check(f.State(owner).Mana==0 && f.State(target).Health==940 && Mathf.Approximately(f.State(target).Speed,6.5f),"W 恰好足够蓝量可施放并结算 60 伤害及 35% 减速");
                 var slots=f.Manager.GetBuffer<AbilitySlot>(owner); slot=slots[1]; slot.Level=4; slot.ReadyAt=0; slots[1]=slot;
-                SetMana(f,owner,60); f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,9,0);
+                SetMana(f,owner,50); f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,9,0);
                 Check(f.State(target).Health==760 && f.State(owner).Mana==0 && Mathf.Approximately(f.State(target).Speed,6.5f),"W 四级结算 180 伤害，减速不随等级意外放大");
             }
             using(var f=new Fixture(catalog))
@@ -61,9 +74,9 @@ namespace Roguelike.Editor
                 var owner=f.Owner(hero.ResolveSkills(catalog)); SetMana(f,owner,240);
                 var target=DurableTarget(f,new float3(10,0,0));
                 f.Command(owner,2,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,0,0); f.Step(owner,1,1);
-                Check(f.State(target).Health==910 && f.State(owner).Mana==180 && f.Manager.GetBuffer<AbilitySlot>(owner)[2].Charges==1,"E 落点结算 90 伤害并消耗一次充能与 60 法力");
+                Check(f.State(target).Health==910 && f.State(owner).Mana==190 && f.Manager.GetBuffer<AbilitySlot>(owner)[2].Charges==1,"E 落点结算 90 伤害并消耗一次充能与 50 法力");
                 f.Command(owner,2,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,1.1f,0.1f); f.Step(owner,2,0.9f);
-                Check(f.State(target).Health==820 && f.State(owner).Mana==120 && f.Manager.GetBuffer<AbilitySlot>(owner)[2].Charges==0,"E 第二次充能独立扣蓝");
+                Check(f.State(target).Health==820 && f.State(owner).Mana==140 && f.Manager.GetBuffer<AbilitySlot>(owner)[2].Charges==0,"E 第二次充能独立扣蓝");
                 f.Step(owner,14.1f,0); Check(f.Manager.GetBuffer<AbilitySlot>(owner)[2].Charges==1,"E 依次恢复充能");
             }
             using(var f=new Fixture(catalog))
@@ -72,7 +85,7 @@ namespace Roguelike.Editor
                 var first=DurableTarget(f,new float3(5,0,0)); var nearby=DurableTarget(f,new float3(5,0,3)); var beyond=DurableTarget(f,new float3(20,0,0));
                 f.Command(owner,3,new float3(30,0,0),new float3(1,0,0)); f.Step(owner,0,0); f.Step(owner,1,1);
                 Check(f.State(first).Health==780 && f.State(nearby).Health==900 && f.State(beyond).Health==1000,"R 首中承受 120+100，附近承受 100，弹体首碰停止");
-                Check(f.State(owner).Mana==140 && f.State(first).Controls!=ControlFlags.None && Mathf.Approximately(f.State(nearby).Speed,5),"R 消耗 100 法力并施加眩晕与减速");
+                Check(f.State(owner).Mana==150 && f.State(first).Controls!=ControlFlags.None && Mathf.Approximately(f.State(nearby).Speed,5),"R 消耗 90 法力并施加眩晕与减速");
             }
         }
         private static void SetMana(Fixture f,Entity owner,float mana)
