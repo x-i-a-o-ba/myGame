@@ -1,0 +1,45 @@
+4602: Begin MonoManager ReloadAssembly
+4621: 	BeginReloadAssembly (1413ms)
+4809: Begin MonoManager ReloadAssembly
+4821: 	BeginReloadAssembly (753ms)
+5007: Begin MonoManager ReloadAssembly
+5019: 	BeginReloadAssembly (962ms)
+5182: Begin MonoManager ReloadAssembly
+5194: 	BeginReloadAssembly (1517ms)
+5345: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+5368: Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\netcorerun\netcorerun.exe "E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+5857: Begin MonoManager ReloadAssembly
+5871: 	BeginReloadAssembly (1793ms)
+6673: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+6706: Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\netcorerun\netcorerun.exe "E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+7063: Begin MonoManager ReloadAssembly
+7077: 	BeginReloadAssembly (1429ms)
+7865: GAMEDATA_MIGRATION_PASSED assets=78
+7897: COMBAT_VALIDATION_PASSED ability foundation checks=303
+7933: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+7969: Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\netcorerun\netcorerun.exe "E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+8131: Begin MonoManager ReloadAssembly
+8145: 	BeginReloadAssembly (1412ms)
+8234: InvalidOperationException: Ability foundation validation failed: W 四级结算 180 伤害，减速不随等级意外放大
+8263: InvalidOperationException: Ability foundation validation failed: W 四级结算 180 伤害，减速不随等级意外放大
+8278: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+8382: Begin MonoManager ReloadAssembly
+8396: 	BeginReloadAssembly (1769ms)
+8468: COMBAT_VALIDATION_PASSED ability foundation checks=334
+8503: COMBAT_VALIDATION_PASSED ability foundation checks=334
+8657: Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\netcorerun\netcorerun.exe "E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aESkipCompile.dag.json" "Library/Bee/1900b0aESkipCompile-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+8732: [ScriptCompilation] Requested script compilation because: Recompiling scripts for player build.
+8748: Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\netcorerun\netcorerun.exe "E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aP.dag.json" "Library/Bee/1900b0aP-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+19535: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+19748: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+20064: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+20261: Begin MonoManager ReloadAssembly
+20275: 	BeginReloadAssembly (1998ms)
+20356: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+20502: Begin MonoManager ReloadAssembly
+20516: 	BeginReloadAssembly (1751ms)
+20602: COMBAT_VALIDATION_PASSED ability foundation checks=334
+20638: [ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+20678: Starting: E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\netcorerun\netcorerun.exe "E:\AllApplicattion\unityHub\UnityEditor\6000.3.18f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+20772: Begin MonoManager ReloadAssembly
+20786: 	BeginReloadAssembly (1914ms)

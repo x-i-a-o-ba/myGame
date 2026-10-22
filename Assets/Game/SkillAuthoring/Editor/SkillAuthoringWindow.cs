@@ -65,7 +65,7 @@ namespace Roguelike.SkillAuthoring.Editor
                     if (GUILayout.Button("打开场景预览",EditorStyles.toolbarButton)) Run(()=>{ var selected=skill; SkillAuthoringSceneTools.Open(); workspace=UnityEngine.Object.FindFirstObjectByType<SkillAuthoringWorkspace>(); if(selected) SelectSkill(selected); });
                     using(new EditorGUI.DisabledScope(!skill))
                     {
-                        if(GUILayout.Button("复制为新技能",EditorStyles.toolbarButton)) Run(()=>{ var path=EditorUtility.SaveFilePanelInProject("复制技能",skill.name+"副本","asset","选择保存位置"); if(path.Length>0) { SelectSkill(SkillAuthoringAssets.CreateAtPath(path,skill)); notice="已分配新技能数字 ID。配方参数已复制，模块定义保持共享。"; } });
+                        if(GUILayout.Button("复制为新技能",EditorStyles.toolbarButton)) Run(()=>{ var path=EditorUtility.SaveFilePanelInProject("复制技能",skill.displayName+"副本","asset","选择保存位置",SkillAuthoringSceneTools.SkillRoot); if(path.Length>0) { SelectSkill(SkillAuthoringAssets.CreateAtPath(path,skill)); notice="已分配新技能数字 ID。配方参数已复制，模块定义保持共享。"; } });
                         if(GUILayout.Button("校验配置",EditorStyles.toolbarButton)) Run(()=>{ preview.Refresh(skill,true); if(!preview.Valid) throw new InvalidOperationException(preview.Error); notice="技能及引用依赖编译通过。"; });
                         if(GUILayout.Button("保存配置",EditorStyles.toolbarButton)) Save();
                     }
@@ -112,7 +112,7 @@ namespace Roguelike.SkillAuthoring.Editor
                 EditorGUILayout.HelpBox(SkillAuthoringWorkflow.TemplateDescription(template),MessageType.None);
                 newName=EditorGUILayout.TextField(newName);
                 using(new EditorGUI.DisabledScope(!creationModules))
-                    if(GUILayout.Button("创建技能资源",GUILayout.Height(30))) Run(()=>{ var path=EditorUtility.SaveFilePanelInProject("创建技能",string.IsNullOrWhiteSpace(newName)?"新技能":newName,"asset","配置保存在项目中，关闭窗口后仍可继续编辑。"); if(path.Length>0) { SelectSkill(SkillAuthoringWorkflow.CreateTemplate(path,template,creationModules)); RefreshLibrary(); } });
+                    if(GUILayout.Button("创建技能资源",GUILayout.Height(30))) Run(()=>{ var path=EditorUtility.SaveFilePanelInProject("创建技能",string.IsNullOrWhiteSpace(newName)?"新技能":newName,"asset","配置保存在项目中，关闭窗口后仍可继续编辑。",SkillAuthoringSceneTools.SkillRoot); if(path.Length>0) { SelectSkill(SkillAuthoringWorkflow.CreateTemplate(path,template,creationModules)); RefreshLibrary(); } });
             }
         }
         private void DrawSkill()

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50ac21f4f53e4f938bed0b0863dd3e0b, type: 3}
+  m_Name: "4005_\u65BD\u52A0\u51B0\u6676\u51CF\u901F"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.ApplyBuffEffect
+  configId: 4005
+  stableId: effect.ee1720bbecfa4fae88de5169e8239271
+  target: 0
+  buff: {fileID: 11400000, guid: 3a8394a740d5701468ed3a904aee6c3d, type: 2}
+  buffScale: 1

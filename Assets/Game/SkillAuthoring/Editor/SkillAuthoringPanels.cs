@@ -38,7 +38,7 @@ namespace Roguelike.SkillAuthoring.Editor
                 using(new EditorGUI.DisabledScope(true)) F("configId","技能 ID（数字编号）");
                 Title("这个技能叫什么？"); F("displayName","技能名称"); F("indicatorColor","范围指示器颜色");
                 if (isRecipe) { Title("施法输入"); F("aim", "瞄准方式"); F("castRange", "最大施法距离（Unity 单位）"); }
-                Title("施放代价"); F("cooldown","冷却时间（秒）"); F("manaCost","资源消耗（点）");
+                Title("施放代价"); F("cooldown","冷却时间（秒）"); F("manaCost","法力消耗（点）");
                 Title("施放动作时间"); F("castTime","释放前摇 / 释放时间（秒）"); F("recoveryTime","释放后摇（秒）");
                 EditorGUILayout.HelpBox("前摇结束才释放技能，随后进入后摇；两者期间禁止移动、普攻和再次施法。阶段延迟从前摇结束计算，后摇不等待弹体落地。0 秒表示无对应动作等待。",MessageType.Info);
                 EditorGUILayout.HelpBox("资源与冷却从接受施法时计算。前摇中被禁止施法状态打断会取消本次释放，不返还消耗；已释放的效果不因后摇结束或受控撤回。",MessageType.None);

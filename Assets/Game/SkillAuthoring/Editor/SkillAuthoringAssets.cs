@@ -58,7 +58,7 @@ namespace Roguelike.SkillAuthoring.Editor
         internal static void CreateForWorkspace(SkillAuthoringWorkspace workspace, bool copy)
         {
             string path = EditorUtility.SaveFilePanelInProject(copy ? "另存一份技能（效果与 Buff 保持共享）" : "创建技能配置",
-                copy && workspace.skill ? workspace.skill.name + "·副本" : "新技能", "asset", "请选择技能配置资源保存位置。", SkillAuthoringSceneTools.ContentRoot);
+                copy && workspace.skill ? workspace.skill.displayName + "·副本" : "新技能", "asset", "请选择技能配置资源保存位置。", SkillAuthoringSceneTools.SkillRoot);
             if (string.IsNullOrEmpty(path)) return;
             var skill = CreateAtPath(path, copy ? workspace.skill : null);
             Undo.RecordObject(workspace, "切换工作台技能");

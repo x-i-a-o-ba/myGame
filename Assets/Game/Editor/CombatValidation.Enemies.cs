@@ -14,8 +14,8 @@ namespace Roguelike.Editor
     /// <summary>自动攻击被动模块、Dota 式转身与敌人名册的校验。</summary>
     public static partial class CombatValidation
     {
-        private const string RosterPath="Assets/Game/Enemies/敌人名册.asset";
-        private const string HeroPath="Assets/Game/Skills/Foundation/寒冰射手.asset";
+        private const string RosterPath="Assets/GameData/目录/敌人名册.asset";
+        private const string HeroPath="Assets/GameData/英雄/2000_寒冰射手.asset";
 
         private static void ValidateAutoAttack()
         {

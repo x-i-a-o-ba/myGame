@@ -1,0 +1,20 @@
+{
+  "movedAssets": 78,
+  "unchangedMetaFiles": 78,
+  "numericIdsPreserved": 56,
+  "externalReferencesPreserved": true,
+  "workbookFormulaAndNativeFeaturesPreserved": true,
+  "cleanedBuildSideEffects": [
+    "Assets/Game/Enemies/Materials/岩石魔像.mat",
+    "Assets/Game/Enemies/Materials/敌方弹体.mat",
+    "Assets/Game/Enemies/Materials/深渊领主.mat",
+    "Assets/Game/Enemies/Materials/爆裂毒囊.mat",
+    "Assets/Game/Enemies/Materials/腐化食尸鬼.mat",
+    "Assets/Game/Enemies/Materials/蛮牛冲锋者.mat",
+    "Assets/Game/Enemies/Materials/迅捷猎犬.mat",
+    "Assets/Settings/Rendering/RoguelikeURP.asset",
+    "Assets/UniversalRenderPipelineGlobalSettings.asset",
+    "ProjectSettings/GraphicsSettings.asset",
+    "Assets/DefaultVolumeProfile.asset"
+  ]
+}

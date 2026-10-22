@@ -38,10 +38,10 @@ namespace Roguelike.SkillIndicators.Editor
 
         internal static CircleSkillPreset Preset(string name, float range, float radius, Color color)
         {
-            string path = Root + "/Settings/" + name + ".asset";
+            string path = "Assets/GameData/历史示例/技能指示器/" + name + ".asset";
             var preset = AssetDatabase.LoadAssetAtPath<CircleSkillPreset>(path);
             if (preset) return preset;
-            Directory.CreateDirectory(Root + "/Settings");
+            Directory.CreateDirectory("Assets/GameData/历史示例/技能指示器");
             preset = ScriptableObject.CreateInstance<CircleSkillPreset>();
             preset.displayName = name; preset.castRange = range; preset.areaRadius = radius; preset.color = color;
             AssetDatabase.CreateAsset(preset, path);

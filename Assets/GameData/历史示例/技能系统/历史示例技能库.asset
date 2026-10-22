@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11cb1e087ebfd60449d9ab500d6514f3, type: 3}
+  m_Name: "\u5386\u53F2\u793A\u4F8B\u6280\u80FD\u5E93"
+  m_EditorClassIdentifier: Roguelike.Abilities::Roguelike.Abilities.SkillCatalog
+  skills:
+  - {fileID: 11400000, guid: 133527784799b4247ae2e7fbf87a8e37, type: 2}
+  - {fileID: 11400000, guid: 960e872012e1abc40988770f498ed381, type: 2}
+  - {fileID: 11400000, guid: a3893bc8cab2fe44bb34142ce150d2e8, type: 2}
+  buffs:
+  - {fileID: 11400000, guid: 62c02bb0e97e79640a5ce69045c8ea40, type: 2}
+  - {fileID: 11400000, guid: 62dac026455ec614988ddefbb45b72be, type: 2}
+  - {fileID: 11400000, guid: 174a49731759d6e4396fa7fc423768a8, type: 2}
+  - {fileID: 11400000, guid: 3d73348ebfdb4044ab6ad5832c043058, type: 2}
+  - {fileID: 11400000, guid: 053600e8f5a15eb49b3cbe45a8854734, type: 2}
+  passives:
+  - {fileID: 11400000, guid: 35d4ef5d22e88b54ba9e579c2918ac65, type: 2}
+  - {fileID: 11400000, guid: ac54e4090a5800f4e9ad1bb8a7d94851, type: 2}

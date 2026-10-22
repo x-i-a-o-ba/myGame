@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cc422bfd635fd741a1ec1319385aac9, type: 3}
+  m_Name: "1003_\u51B0\u6676\u5DE8\u7BAD"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.SkillDefinition
+  configId: 1003
+  stableId: ability.crystal_arrow
+  displayName: "\u51B0\u6676\u5DE8\u7BAD"
+  icon: {fileID: 2800000, guid: 93a03db302a94387b2c471e6c3391045, type: 3}
+  description: "\u7EC8\u6781\u6280\u80FD\u3002\u5C04\u51FA\u5DE8\u578B\u51B0\u6676\u7BAD\uFF0C\u547D\u4E2D\u9996\u4E2A\u654C\u4EBA\u540E\u9020\u6210\u9996\u4E2D\u4F24\u5BB3\u5E76\u7729\u6655
+    1.5 \u79D2\uFF0C\u518D\u5BF9\u534A\u5F84 7 Unity \u5355\u4F4D\u5185\u7684\u654C\u4EBA\u9020\u6210\u7206\u70B8\u4F24\u5BB3\u548C
+    50% \u51CF\u901F\uFF083 \u79D2\uFF09\u3002\u9996\u4E2D\u76EE\u6807\u540C\u65F6\u627F\u53D7\u7206\u70B8\u4F24\u5BB3\uFF1B\u6240\u6709\u602A\u7269\u7C7B\u578B\u5747\u53EF\u547D\u4E2D\u3002"
+  modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
+  recipe:
+    enabled: 1
+    schemaVersion: 1
+    catalogVersion: 1
+    revision: 1
+    recipeId: 1003
+    authorNamespace: official
+    maxDerivedExecutions: 32
+    maxLifetime: 10
+    nodes:
+    - nodeId: 1
+      parentNodeId: 0
+      trigger: 0
+      deliveryModuleId: 10002
+      queryModuleId: 10103
+      delay: 0
+      repeatInterval: 0
+      repeatCount: 1
+      range: 150
+      radius: 7
+      hitRadius: 1.15
+      halfAngleDegrees: 35
+      speed: 48
+      arcHeight: 3
+      flightSeconds: 1
+      launchHeight: 1
+      arrivalHeight: 0
+      effects:
+      - effectId: 4001
+        overrideAmount: 0
+        amount: 0
+        overrideBuffScale: 0
+        buffScale: 1
+      - effectId: 4005
+        overrideAmount: 0
+        amount: 0
+        overrideBuffScale: 0
+        buffScale: 1
+      impactEffects:
+      - effectId: 4002
+        overrideAmount: 0
+        amount: 0
+        overrideBuffScale: 0
+        buffScale: 1
+      - effectId: 4006
+        overrideAmount: 0
+        amount: 0
+        overrideBuffScale: 0
+        buffScale: 1
+  aim: 2
+  stages:
+  - delay: 0
+    repeatCount: 1
+    repeatInterval: 0
+    delivery: 2
+    scope: 2
+    shape: 0
+    targets: 0
+    range: 150
+    radius: 7
+    hitRadius: 1.15
+    halfAngleDegrees: 35
+    speed: 48
+    arcHeight: 3
+    flightSeconds: 1
+    launchHeight: 1
+    arrivalHeight: 0
+    effects:
+    - {fileID: 11400000, guid: 56f3d5343f0cd4748b26912b820099ed, type: 2}
+    - {fileID: 11400000, guid: eaad2490a23cc8e48979266996d47b08, type: 2}
+    impactEffects:
+    - {fileID: 11400000, guid: 791f711cea9d82349a2673209014f12b, type: 2}
+    - {fileID: 11400000, guid: a4c1d3c1a9f724049a8061a26c91974b, type: 2}
+  maxCharges: 1
+  rechargeSeconds: 0
+  requiredHits: 0
+  castRange: 150
+  cooldown: 30
+  castTime: 0
+  recoveryTime: 0
+  manaCost: 100
+  levelPower: 0
+  growth:
+    track: 2
+    effectPerLevel: 0.9
+    buffPerLevel: 0.15
+    cooldownReductionPerLevel: 0.08
+    manaCostPerLevel: 0.1
+    customLevels:
+    - requiredHeroLevel: 6
+      effectScale: 1
+      buffScale: 1
+      cooldownScale: 1
+      manaCostScale: 1
+    - requiredHeroLevel: 12
+      effectScale: 1.75
+      buffScale: 1
+      cooldownScale: 0.8333333
+      manaCostScale: 1.25
+    - requiredHeroLevel: 18
+      effectScale: 2.5
+      buffScale: 1
+      cooldownScale: 0.6666667
+      manaCostScale: 1.5
+  indicatorColor: {r: 0, g: 1, b: 1, a: 1}
+  delivery: 0
+  targets: 0
+  radius: 5
+  areaDuration: 5
+  areaInterval: 0.25
+  effects: []

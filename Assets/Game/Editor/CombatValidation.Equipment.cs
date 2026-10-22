@@ -19,7 +19,7 @@ namespace Roguelike.Editor
     /// </summary>
     public static partial class CombatValidation
     {
-        private const string EquipmentCatalogPath="Assets/Game/Equipment/装备库.asset";
+        private const string EquipmentCatalogPath="Assets/GameData/目录/装备库.asset";
         private const string ShopPanelPath="Assets/Resources/UI/Panels/UI.Game.Shop.prefab";
 
         [Serializable] public sealed class ItemLedger { public int schemaVersion; public List<ItemLedgerEntry> entries; }

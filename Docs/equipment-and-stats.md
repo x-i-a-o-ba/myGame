@@ -70,7 +70,7 @@ AI 决定：
 | `EquipmentCatalog` | Create > Roguelike > 装备 > 装备库 | 装备列表（顺序即商店顺序，最多 256 件）、装备栏格数（1–6，默认 6）、开局金币（300）、出售返还比例（0.5，向下取整）、丢弃距离（3.3 米）、拾取距离（5 米；两个距离均为 0.5–30 米） |
 | `GameShop`（场景组件） | Game 场景 `Environment > Shop - Game` | 商店范围半径（8 米，2–40）；商店中心即物体位置，子物体是商店模型（只做展示） |
 
-- 当前装备库：`Assets/Game/Equipment/装备库.asset`，由 Game 场景 `01_Systems > Game Combat` 上 `GameCombatController` 的“装备库”字段引用；为空时商店为空（装备栏仍有 6 格）并输出警告。
+- 当前装备库：`Assets/GameData/目录/装备库.asset`，由 Game 场景 `01_Systems > Game Combat` 上 `GameCombatController` 的“装备库”字段引用；为空时商店为空（装备栏仍有 6 格）并输出警告。
 - 商店位置：`GameCombatController` 的“商店”字段引用场景中的 `GameShop`；为空时任何位置都能打开商店（首版行为）并输出警告。
 - 品质只影响图标边框颜色和提示文字（普通 #C8D0D8、精良 #6BE07A、稀有 #4FA8FF、史诗 #C77DFF、传说 #FFB347），不改变数值。
 - “唯一”装备同一件最多持有一件，适合带命中效果或强力属性的装备。
@@ -79,7 +79,7 @@ AI 决定：
 
 ### 2.2 首批 18 件
 
-数字 ID 按下表顺序为 6000–6017，资源与图标在 `Assets/Game/Equipment/Items/` 和 `Assets/Game/Equipment/Icons/`（128×128，由 `Tools/HudArt/items.py` 生成）。
+数字 ID 按下表顺序为 6000–6017，资源与图标在 `Assets/GameData/装备/` 和 `Assets/Game/Equipment/Icons/`（128×128，由 `Tools/HudArt/items.py` 生成）。
 
 | 装备 | 品质 | 价格 | 属性 | 备注 |
 | --- | --- | --- | --- | --- |
@@ -104,10 +104,10 @@ AI 决定：
 
 ### 2.3 新增装备
 
-1. 在 Project 窗口（建议 `Assets/Game/Equipment/Items/`）右键 **Create > Roguelike > 装备 > 装备定义**，填写名称、图标（可选，建议 128×128）、品质、价格、是否唯一、说明、属性加成和可选的普攻命中效果。
+1. 在 Project 窗口（建议 `Assets/GameData/装备/`）右键 **Create > Roguelike > 装备 > 装备定义**，填写名称、图标（可选，建议 128×128）、品质、价格、是否唯一、说明、属性加成和可选的普攻命中效果。
 2. 分配数字 ID：取 6000–6999 中未用的号（当前已用 6000–6017），在 `Docs/游戏配置/编号登记.json` 增加一条 `category` 为 `item` 的条目（`assetKey` 为“资源 GUID:11400000”，并填写 `stableId`、`path`、`name`）。内部兼容键用 `item.英文小写名`，改名资源时保持不变。
-3. 打开 `Assets/Game/Equipment/装备库.asset`，把新装备加入装备列表；超过 12 件时商店自动分页。
-4. 需要命中效果时引用已有技能效果资源（例如 `Assets/Game/Skills/Foundation/Effects/施加扇击减速.asset`），或按 [ability-foundation.md](ability-foundation.md) 新建效果与 Buff，并把 Buff 登记到技能库。
+3. 打开 `Assets/GameData/目录/装备库.asset`，把新装备加入装备列表；超过 12 件时商店自动分页。
+4. 需要命中效果时引用已有技能效果资源（例如 `Assets/GameData/效果/4008_施加扇击减速.asset`），或按 [ability-foundation.md](ability-foundation.md) 新建效果与 Buff，并把 Buff 登记到技能库。
 5. 重开（F5）后生效；运行 **Tools/Roguelike/验证/战斗与成长（不构建）** 检查（项目装备校验要求每件装备有图标、名称、说明、数字 ID，并在编号登记中有匹配条目）。
 
 新增**属性种类**需要改代码：在 `StatKind` 末尾追加（不要改已有序号），同步 `StatSheet` 字段与索引器、`StatText` 名称与百分比判断、`HeroStatsLogic.Apply`（或结算处）的使用点，并补充校验用例。
@@ -117,7 +117,7 @@ AI 决定：
 | 规则 | 当前值 | 配置位置 |
 | --- | --- | --- |
 | 开局金币 | 300 | 装备库 |
-| 普通敌人 | 第 1 波 1 金币，每波 ×1.03（复利） | `Assets/Game/Progression/关卡难度曲线.asset` 的“第 1 波击杀金币”“每波金币倍率” |
+| 普通敌人 | 第 1 波 1 金币，每波 ×1.03（复利） | `Assets/GameData/关卡/关卡难度曲线.asset` 的“第 1 波击杀金币”“每波金币倍率” |
 | 精英 / 首领 | 同波普通敌人 ×15 / ×150 | 同上 |
 | 敌人种类倍率 | 岩石魔像 2.5、霜骨巫妖 2、蛮牛冲锋者 1.6、深渊领主 1.5、腐化食尸鬼 1、骷髅弓手 1、迅捷猎犬 0.8、爆裂毒囊 0.6 | 敌人预制体 `EnemyArchetype` 的“击杀金币倍率” |
 | 自爆 | 爆裂毒囊自爆死亡不给经验和金币 | — |

@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cc422bfd635fd741a1ec1319385aac9, type: 3}
+  m_Name: "1006_W_\u51B0\u971C\u533A\u57DF\u793A\u4F8B"
+  m_EditorClassIdentifier: Roguelike.Abilities::Roguelike.Abilities.SkillDefinition
+  configId: 1006
+  stableId: skill.frost
+  displayName: "\u5BD2\u971C\u533A\u57DF"
+  icon: {fileID: 0}
+  description:
+  modules: {fileID: 0}
+  recipe:
+    enabled: 0
+    schemaVersion: 1
+    catalogVersion: 1
+    revision: 1
+    recipeId: 1
+    authorNamespace: local
+    maxDerivedExecutions: 32
+    maxLifetime: 10
+    nodes: []
+  aim: 1
+  stages: []
+  maxCharges: 1
+  rechargeSeconds: 0
+  requiredHits: 0
+  castRange: 18
+  cooldown: 6
+  castTime: 0
+  recoveryTime: 0
+  manaCost: 20
+  levelPower: 0.25
+  growth:
+    track: 0
+    effectPerLevel: 0.9
+    buffPerLevel: 0.15
+    cooldownReductionPerLevel: 0.08
+    manaCostPerLevel: 0.1
+    customLevels: []
+  indicatorColor: {r: 0, g: 1, b: 1, a: 1}
+  delivery: 1
+  targets: 0
+  radius: 6
+  areaDuration: 5
+  areaInterval: 0.2
+  effects:
+  - kind: 2
+    amount: 0
+    buff: {fileID: 11400000, guid: 62dac026455ec614988ddefbb45b72be, type: 2}
+    buffScale: 1

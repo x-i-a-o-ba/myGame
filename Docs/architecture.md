@@ -1,5 +1,9 @@
 # 架构与迁移方案
 
+## 2026-10-22 寒冰射手与 GameData
+
+寒冰射手四技能加入逐级蓝耗，重新配置伤害、冷却与攻速收益；基础法力 240、每级 +12、基础回复 3 点/秒。78 份游戏配置迁入 `Assets/GameData`，按功能分类，保留数字 ID 与 GUID；正式配置、编辑示例和历史示例分开。职责、数值表、编辑入口与迁移说明见 [寒冰射手与数据规范](ashe-balance-and-gamedata.md)，实际验证见 [验证记录](validation-ashe-gamedata-2026-10-22.md)。
+
 ## 2026-09-24 当前技能架构（优先于下方历史章节）
 
 用户要求组合地基优先，已移除Game固定QWER实现，当前契约见 [ability-foundation.md](ability-foundation.md)。`HeroDefinition → SkillDefinition → Stage[] → EffectDefinition[]`，Buff独立；Core无UI依赖，Game采用AbilityUnit唯一属性权威。GameCombatSession负责实体与Blob生命周期，Controller只装配输入/展示，CombatSimulationSystem处理战斗宿主行为，技能由AbilityExecution调度。现有行为差异、未实现内容与本轮验证统一见新文档。下文关于四份专用配置和旧验证的段落为历史记录。

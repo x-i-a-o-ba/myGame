@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59fd6a1c49a8aea40bc5761551ea0157, type: 3}
+  m_Name: "5005_\u51B0\u6676\u51CF\u901F"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.BuffDefinition
+  configId: 5005
+  stableId: buff.crystal_slow
+  displayName: "\u51B0\u6676\u51CF\u901F"
+  duration: 3
+  interval: 1
+  periodicDamage: 0
+  stacking: 0
+  maxStacks: 1
+  dispellable: 1
+  sourcePolicy: 1
+  modifiers:
+  - attribute: 0
+    operation: 1
+    value: -0.5
+  controls: 0
+  moveSpeedPercent: 0
+  attackDamageFlat: 0
+  healthRegen: 0

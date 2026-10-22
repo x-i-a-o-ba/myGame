@@ -12,7 +12,8 @@ namespace Roguelike.SkillAuthoring.Editor
     public static class SkillAuthoringSceneTools
     {
         public const string ScenePath = "Assets/Scenes/技能配置工作台.unity";
-        public const string ContentRoot = "Assets/Game/SkillAuthoring/Content";
+        public const string ContentRoot = "Assets/GameData/编辑示例/技能工作台";
+        public const string SkillRoot = "Assets/GameData/技能";
         public static void Open()
         {
             if (Application.isPlaying) { Debug.LogWarning("请先退出运行模式再打开技能工作场景。"); return; }
@@ -32,7 +33,7 @@ namespace Roguelike.SkillAuthoring.Editor
             if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath)) return;
             if (File.Exists(ScenePath)) throw new IOException("场景路径存在但无法加载，已停止以保留原文件："+ScenePath);
             Folder("Assets/Scenes"); Folder(ContentRoot);
-            string samplePath=ContentRoot+"/范围技能示例.asset";
+            string samplePath=ContentRoot+"/1007_范围技能示例.asset";
             var sample=AssetDatabase.LoadAssetAtPath<SkillDefinition>(samplePath);
             if (!sample) sample=SkillAuthoringAssets.CreateAtPath(samplePath);
             string catalogPath=ContentRoot+"/工作台技能库.asset";
@@ -106,7 +107,9 @@ namespace Roguelike.SkillAuthoring.Editor
         }
         private static Material Material(string name,Color color)
         {
-            string path=ContentRoot+"/"+name+".mat"; var existing=AssetDatabase.LoadAssetAtPath<Material>(path); if(existing) return existing;
+            const string materialRoot="Assets/Game/SkillAuthoring/Content";
+            Folder(materialRoot);
+            string path=materialRoot+"/"+name+".mat"; var existing=AssetDatabase.LoadAssetAtPath<Material>(path); if(existing) return existing;
             var shader=Shader.Find("Universal Render Pipeline/Lit");
             if(!shader) throw new InvalidOperationException("未找到 URP Lit 着色器。");
             var material=new Material(shader){name=name}; material.SetColor("_BaseColor",color);

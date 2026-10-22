@@ -1,5 +1,9 @@
 # 组合技能与 Buff 基础架构
 
+## 2026-10-22 寒冰射手与 GameData
+
+寒冰射手四技能加入逐级蓝耗，重新配置伤害、冷却与攻速收益；基础法力 240、每级 +12、基础回复 3 点/秒。78 份游戏配置迁入 `Assets/GameData`，按功能分类，保留数字 ID 与 GUID；正式配置、编辑示例和历史示例分开。职责、数值表、编辑入口与迁移说明见 [寒冰射手与数据规范](ashe-balance-and-gamedata.md)，实际验证见 [验证记录](validation-ashe-gamedata-2026-10-22.md)。
+
 ## 2026-09-28 自由组合技能 V2
 
 用户已批准按 [V2 设计方案](skill-composition-v2-proposal.md)实施。当前新增数字模块目录、纯数据配方、共享编译器、有限事件步骤、版本化执行库及中文步骤编辑器。5 个正式技能迁移为配方输入，旧阶段保留用于恢复，Game 继续使用共享结算核心。最新职责、迁移、限制与验证见 [V2 实施记录](skill-composition-v2-implementation.md)，该记录优先于下方旧版说明。
@@ -185,7 +189,7 @@ Game 的生命、属性和持续状态以 `AbilityUnit` 等 Core 运行态为权
 | 多段 | 最多32段，每段1–32次；延迟/重复间隔以秒计；全体查询仍实际遍历目标 |
 | 状态 | AbilitySlot保存槽位独立冷却/充能/命中层数；ActiveBuff保存来源/层数/到期/周期；AbilityUnit保存唯一生命/聚合属性 |
 | 会话 | GameCombatSession拥有Blob与CombatOwned实体，重开先Complete再销毁；AbilityExecution系统对象拥有Native网格与候选列表并在系统销毁时释放 |
-| 资源 | `Assets/Game/Skills/Foundation`：技能库、2份英雄装配、4技能、4Buff、8效果模块；2个英雄共用技能定义 |
+| 资源 | `Assets/GameData`：正式技能库、英雄、技能、Buff、效果等按类别保存；换槽示例在“编辑示例”，共用正式技能定义；最新数值见本页顶部链接 |
 | 迁移 | 删除四个CombatQ/W/E/RSkillConfig及旧资源；Game场景改绑hero/catalog，保留原3000敌人/30米安全区与布局；脚本迁移保留GUID |
 
 范围查询使用8米XZ网格，局部精确几何后执行效果；All遍历本World当前单位。Game强制单会话，旧示例与Game双向拒绝同时运行。网格构建、候选收集/排序与效果写入当前为串行宿主执行；Buff Tick和敌人移动/攻击使用Burst并行Job，然后在明确同步点交接。没有宣称所有技能热路径均并行，也没有把架构选择当作万敌达标证据。

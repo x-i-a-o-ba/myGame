@@ -23,7 +23,7 @@ namespace Roguelike.SkillAuthoring.Editor
             SkillAuthoringSceneTools.EnsureScene();
             var scene=EditorSceneManager.OpenScene(SkillAuthoringSceneTools.ScenePath);
             var workspace=SkillAuthoringSceneTools.Find(scene);
-            var sample=SkillAuthoringWorkflow.CreateTemplate("Assets/Game/SkillAuthoring/Content/抛物线编辑验证.asset",SkillTemplateKind.ArcExplosion);
+            var sample=SkillAuthoringWorkflow.CreateTemplate("Assets/GameData/编辑示例/技能工作台/抛物线编辑验证.asset",SkillTemplateKind.ArcExplosion);
             if(timingView) { sample.castTime=0.6f; sample.recoveryTime=0.4f; EditorUtility.SetDirty(sample); }
             workspace.skill=sample; workspace.target.position=new Vector3(9,0,5); Selection.activeGameObject=workspace.gameObject;
             Directory.CreateDirectory("Logs/SkillAuthoring");

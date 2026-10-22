@@ -6,7 +6,7 @@
 
 打开 `Assets/Scenes/Game.unity`。操作按 Dota 2：右键地面移动（途中不攻击），右键敌人攻击，A 后左键敌人/地面为攻击/攻击移动，S 停止，H 待命，待机时自动攻击附近敌人；Q/W/E/R 对应英雄技能槽0–3，自身目标立即提交，其余按配置瞄准，左键确认，右键/Esc取消，F5重开。开局1级、1个技能点、四个技能均未学习：Ctrl+Q/W/E/R 或成长面板按钮学习/升级技能，10/15/20/25 级按 1/2 选天赋。敌人按波次在玩家周围安全半径30米外刷出，种类由“敌人名册”按波次与权重抽取（8 种，见 enemies-and-controls.md），同屏存活上限 `enemyCount`=3000；击杀第30波首领胜利。Game视野关闭。
 
-选择 GameCombatController：`hero` 决定英雄基础属性、自动攻击模块、转身速度、成长、天赋及技能装配，`enemyRoster` 是敌人名册，`skillCatalog` 是共享定义注册表，`progressionRules` 是经验与等级规则，`difficulty` 是关卡难度曲线（两者为空时使用代码默认值并警告）。配置目录 `Assets/Game/Skills/Foundation`，包含 Buffs、Effects、Skills、两份英雄装配及技能库。更换英雄资源后重开；`SelectHero` 提供运行时选人接入边界，完整选人界面尚未制作。第二份英雄仅换槽用于展示复用，不是新增完整英雄。
+选择 GameCombatController：`hero` 决定英雄基础属性、自动攻击模块、转身速度、成长、天赋及技能装配，`enemyRoster` 是敌人名册，`skillCatalog` 是共享定义注册表，`progressionRules` 是经验与等级规则，`difficulty` 是关卡难度曲线（两者为空时使用代码默认值并警告）。配置统一位于 `Assets/GameData`，按英雄、技能、效果、Buff、普攻、怪物、装备、成长、关卡与目录分类；示例单独归档。查阅入口为 `Assets/GameData/README.md`。更换英雄资源后重开；`SelectHero` 提供运行时选人接入边界，完整选人界面尚未制作。第二份英雄仅换槽用于展示复用，不是新增完整英雄。
 
 打开 SkillDefinition：先选择 aim/castRange，再配置 stages。每段独立配置范围、投递、延迟、重复次数/间隔、effects；直线弹另有 impactEffects。EffectDefinition资源可被多个技能复用。新普通技能只组装资源并登记到库，不新增 Q/W/E/R 配置类。Core编译器拒绝非法参数与未登记Buff。
 

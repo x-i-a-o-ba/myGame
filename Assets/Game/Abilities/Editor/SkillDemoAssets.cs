@@ -11,7 +11,7 @@ namespace Roguelike.Abilities.Editor
         public const string Root="Assets/Game/Abilities";
         public static SkillCatalog Ensure()
         {
-            Directory.CreateDirectory(Root+"/Settings"); Directory.CreateDirectory(Root+"/Materials");
+            Directory.CreateDirectory("Assets/GameData/历史示例/技能系统"); Directory.CreateDirectory(Root+"/Materials");
             var burn=Asset<BuffDefinition>("Burn",d=>{d.stableId="buff.burn";d.displayName="灼烧";d.duration=4;d.periodicDamage=5;d.interval=1;d.maxStacks=3;d.stacking=BuffStackRule.AddAndRefresh;});
             var slow=Asset<BuffDefinition>("Frost Slow",d=>{d.stableId="buff.frost";d.displayName="寒霜减速";d.duration=0.6f;d.moveSpeedPercent=-0.35f;});
             var haste=Asset<BuffDefinition>("Haste",d=>{d.stableId="buff.haste";d.displayName="鼓舞加速";d.duration=5;d.moveSpeedPercent=0.5f;});
@@ -30,7 +30,21 @@ namespace Roguelike.Abilities.Editor
         private static EffectEntry Buff(BuffDefinition definition) => new EffectEntry{kind=EffectKind.ApplyBuff,buff=definition,buffScale=1};
         private static T Asset<T>(string name,Action<T> initialize) where T:ScriptableObject
         {
-            string path=Root+"/Settings/"+name+".asset";
+            var paths=new System.Collections.Generic.Dictionary<string,string>
+            {
+                {"Burn","Assets/GameData/历史示例/技能系统/5000_灼烧.asset"},
+                {"Demo Skill Catalog","Assets/GameData/历史示例/技能系统/历史示例技能库.asset"},
+                {"E Inspire","Assets/GameData/历史示例/技能系统/1004_E_鼓舞示例.asset"},
+                {"Frost Slow","Assets/GameData/历史示例/技能系统/5001_冰霜减速.asset"},
+                {"Haste","Assets/GameData/历史示例/技能系统/5002_急速.asset"},
+                {"Passive Poison Sting","Assets/GameData/历史示例/技能系统/被动_毒刺示例.asset"},
+                {"Passive Vitality","Assets/GameData/历史示例/技能系统/被动_活力示例.asset"},
+                {"Poison","Assets/GameData/历史示例/技能系统/5003_中毒.asset"},
+                {"Q Burst","Assets/GameData/历史示例/技能系统/1005_Q_爆发示例.asset"},
+                {"Vitality","Assets/GameData/历史示例/技能系统/5004_活力.asset"},
+                {"W Frost Field","Assets/GameData/历史示例/技能系统/1006_W_冰霜区域示例.asset"}
+            };
+            string path=paths[name];
             var asset=AssetDatabase.LoadAssetAtPath<T>(path); if(asset) return asset;
             asset=ScriptableObject.CreateInstance<T>(); initialize(asset); AssetDatabase.CreateAsset(asset,path); return asset;
         }

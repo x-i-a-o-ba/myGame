@@ -106,7 +106,7 @@ namespace Roguelike.Abilities.Editor
             Field("cooldown", "冷却时间（秒）", "成功提交施法后开始计算；每个英雄独立保存。");
             Field("castTime", "释放前摇 / 释放时间（秒）", "前摇结束才释放；阶段延迟从此刻计算。默认 0。Game 前后摇期间禁止移动、普攻和再次施法，重开会话后生效。");
             Field("recoveryTime", "释放后摇（秒）", "从前摇结束计算，不等待飞行或多段完成。前摇被禁止施法状态打断会取消释放，不退资源和冷却。");
-            Field("manaCost", "资源消耗", "成功提交时扣除一次；不足时施法失败。");
+            Field("manaCost", "法力消耗（点）", "技能 1 级的基础蓝耗；按等级表缩放，成功提交时扣除一次，不足时施法失败。");
             Field("growth", "等级成长", "学习门槛、最高等级与每级倍率。1 级等于上方配置数值；Game 开局技能为 0 级，需要用技能点学习。");
             bool formal = recipe || serializedObject.FindProperty("stages").arraySize > 0;
             Field("indicatorColor", formal ? "指示器颜色" : "旧示例指示器颜色",

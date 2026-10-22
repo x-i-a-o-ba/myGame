@@ -92,7 +92,7 @@ namespace Roguelike.SkillAuthoring.Editor
                 AssetDatabase.DeleteAsset(tempScene);AssetDatabase.DeleteAsset(path);if(copyPath!=null) AssetDatabase.DeleteAsset(copyPath);
                 UnityEngine.Object.DestroyImmediate(temporaryCatalog);Undo.ClearAll();
             }
-            var gameCatalog=AssetDatabase.LoadAssetAtPath<SkillCatalog>("Assets/Game/Skills/Foundation/游戏技能库.asset");
+            var gameCatalog=AssetDatabase.LoadAssetAtPath<SkillCatalog>("Assets/GameData/目录/游戏技能库.asset");
             using(var blob=gameCatalog.Compile())
             {
                 for(int i=0;i<blob.Value.Skills.Length;i++)

@@ -18,8 +18,8 @@ def prefab_meta(path):
 # ---------- 脚本与文件夹 meta ----------
 for folder in ["Assets/Game/UI","Assets/Game/UI/Sprites","Assets/Game/UI/Icons",
                "Assets/Game/Abilities/Core/AutoAttack","Assets/Game/Runtime/Combat/Enemies",
-               "Assets/Game/Enemies","Assets/Game/Enemies/Attacks","Assets/Game/Enemies/Materials","Assets/Game/Enemies/Prefabs",
-               "Assets/Game/Skills/Foundation/AutoAttacks"]:
+               "Assets/Game/Enemies","Assets/GameData/普攻/怪物","Assets/Game/Enemies/Materials","Assets/GameData/怪物",
+               "Assets/GameData/普攻/英雄"]:
     os.makedirs(os.path.join(ROOT,folder),exist_ok=True); folder_meta(folder,g)
 SCRIPTS={}
 for script in ["Assets/Game/Abilities/Core/AutoAttack/AutoAttackDefinition.cs","Assets/Game/Abilities/Core/AutoAttack/AutoAttackLogic.cs",
@@ -60,9 +60,9 @@ MonoBehaviour:
 """
     write(path,text); native_meta(path)
     return guid_for(path,g)
-A="Assets/Game/Enemies/Attacks/"
+A="Assets/GameData/普攻/怪物/"
 attacks={
- "冰箭普攻":attack_asset("Assets/Game/Skills/Foundation/AutoAttacks/冰箭普攻.asset","attack.frost_arrow","冰箭","冰箭普攻",
+ "冰箭普攻":attack_asset("Assets/GameData/普攻/英雄/冰箭普攻.asset","attack.frost_arrow","冰箭","冰箭普攻",
     "被动：自动向攻击距离内的敌人射出追踪冰箭。命中计入普攻命中，可为冰霜专注叠层。",1,20,22,0.12,0.03,0.05,38,1.5,1),
  "腐爪":attack_asset(A+"腐爪.asset","attack.rot_claw","腐爪","腐爪","近战：前摇结束立即抓伤目标。",0,1.25,14,1.0,0.35,0.4,0,0.5,0),
  "迅捷撕咬":attack_asset(A+"迅捷撕咬.asset","attack.swift_bite","迅捷撕咬","腐爪","近战：短前摇、短间隔的快速撕咬。",0,1.1,14,0.75,0.2,0.3,0,0.5,0),
@@ -196,8 +196,8 @@ Transform:
 PREFABS={}
 def enemy(cid,file,stable,name,desc,color,behavior,attack,parts,**stats):
     mat=emat(file,color)
-    path="Assets/Game/Enemies/Prefabs/%s.prefab"%file
-    key=path
+    path="Assets/GameData/怪物/%d_%s.prefab"%(cid,file)
+    key="Assets/Game/Enemies/Prefabs/%s.prefab"%file # 固定序列化对象 fileID 的历史种子
     root_go,root_tf,root_mb=fid(key+"go"),fid(key+"tf"),fid(key+"mb")
     blocks=[]; child_tfs=[]
     for i,(pname,shape,pos,rot,scale) in enumerate(parts):
@@ -321,7 +321,7 @@ entries="".join(f"""  - prefab: {{fileID: {PREFABS[c]['component']}, guid: {PREF
     lastWave: {l}
     tiers: {t}
 """ for c,w,f,l,t in ROSTER)
-rpath="Assets/Game/Enemies/敌人名册.asset"
+rpath="Assets/GameData/目录/敌人名册.asset"
 write(rpath,f"""%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000

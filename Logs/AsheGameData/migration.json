@@ -1,0 +1,472 @@
+{
+  "moves": [
+    {
+      "source": "Assets/Game/Skills/Foundation/Skills/冰晶巨箭.asset",
+      "target": "Assets/GameData/技能/1003_冰晶巨箭.asset",
+      "guid": "7344d4fce2cd8214ba3e75c4588a3cc5",
+      "id": 1003
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Skills/冰霜专注.asset",
+      "target": "Assets/GameData/技能/1000_冰霜专注.asset",
+      "guid": "3124da9ddd961dc4bb9e5dc1160e0e78",
+      "id": 1000
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Skills/冰霜冲击.asset",
+      "target": "Assets/GameData/技能/1002_冰霜冲击.asset",
+      "guid": "f0d6ef98d0304cd4397e5fa7e1d12581",
+      "id": 1002
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Skills/冰霜扇击.asset",
+      "target": "Assets/GameData/技能/1001_冰霜扇击.asset",
+      "guid": "05ec15d5330abe5419bcbfdedf778c67",
+      "id": 1001
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/冰晶爆炸伤害.asset",
+      "target": "Assets/GameData/效果/4001_冰晶爆炸伤害.asset",
+      "guid": "56f3d5343f0cd4748b26912b820099ed",
+      "id": 4001
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/冰晶首中伤害.asset",
+      "target": "Assets/GameData/效果/4002_冰晶首中伤害.asset",
+      "guid": "791f711cea9d82349a2673209014f12b",
+      "id": 4002
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/冰霜冲击伤害.asset",
+      "target": "Assets/GameData/效果/4003_冰霜冲击伤害.asset",
+      "guid": "db8c2bb5d7ba7f749a103ad76e0cb467",
+      "id": 4003
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/冰霜扇击伤害.asset",
+      "target": "Assets/GameData/效果/4004_冰霜扇击伤害.asset",
+      "guid": "51df81526f9ecc347b643ed08bb01a42",
+      "id": 4004
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/施加冰晶减速.asset",
+      "target": "Assets/GameData/效果/4005_施加冰晶减速.asset",
+      "guid": "eaad2490a23cc8e48979266996d47b08",
+      "id": 4005
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/施加冰晶眩晕.asset",
+      "target": "Assets/GameData/效果/4006_施加冰晶眩晕.asset",
+      "guid": "a4c1d3c1a9f724049a8061a26c91974b",
+      "id": 4006
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/施加冰霜专注.asset",
+      "target": "Assets/GameData/效果/4007_施加冰霜专注.asset",
+      "guid": "e5d9c5d164c6cd04981fa8b845c0239c",
+      "id": 4007
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/施加扇击减速.asset",
+      "target": "Assets/GameData/效果/4008_施加扇击减速.asset",
+      "guid": "72282bc99f34428428ee275e7bff9ac4",
+      "id": 4008
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/通用治疗.asset",
+      "target": "Assets/GameData/效果/4009_通用治疗.asset",
+      "guid": "4dae654f45f148ca8cf287121dccb906",
+      "id": 4009
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Effects/通用驱散.asset",
+      "target": "Assets/GameData/效果/4010_通用驱散.asset",
+      "guid": "3a70e3fa0813430392c9b0fb5ba19c0f",
+      "id": 4010
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Buffs/冰晶减速.asset",
+      "target": "Assets/GameData/Buff/5005_冰晶减速.asset",
+      "guid": "3a8394a740d5701468ed3a904aee6c3d",
+      "id": 5005
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Buffs/冰晶眩晕.asset",
+      "target": "Assets/GameData/Buff/5006_冰晶眩晕.asset",
+      "guid": "0fb1c0d09d44d4e4e88bff3eba485966",
+      "id": 5006
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Buffs/冰霜专注.asset",
+      "target": "Assets/GameData/Buff/5007_冰霜专注.asset",
+      "guid": "24eb8f36bb568274bb8b7bfc73c60bae",
+      "id": 5007
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/Buffs/扇击减速.asset",
+      "target": "Assets/GameData/Buff/5008_扇击减速.asset",
+      "guid": "791f470112b04214a9115b491531fc18",
+      "id": 5008
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/AutoAttacks/冰箭普攻.asset",
+      "target": "Assets/GameData/普攻/英雄/冰箭普攻.asset",
+      "guid": "5374a548d0d643d7a8f4b64ec5b2ffe7",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/SkillAuthoring/Content/工作台技能库.asset",
+      "target": "Assets/GameData/编辑示例/技能工作台/工作台技能库.asset",
+      "guid": "7b62771d2301dba4d967c2f0d6a3969a",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/SkillAuthoring/Content/范围技能示例.asset",
+      "target": "Assets/GameData/编辑示例/技能工作台/1007_范围技能示例.asset",
+      "guid": "c603a2f790c17ba4293be5d65a4c507d",
+      "id": 1007
+    },
+    {
+      "source": "Assets/Game/SkillAuthoring/Content/范围技能示例·伤害效果.asset",
+      "target": "Assets/GameData/编辑示例/技能工作台/4000_范围技能示例·伤害效果.asset",
+      "guid": "12a4173b07c489743a78d1e76080174e",
+      "id": 4000
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Burn.asset",
+      "target": "Assets/GameData/历史示例/技能系统/5000_灼烧.asset",
+      "guid": "62c02bb0e97e79640a5ce69045c8ea40",
+      "id": 5000
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Demo Skill Catalog.asset",
+      "target": "Assets/GameData/历史示例/技能系统/历史示例技能库.asset",
+      "guid": "8f059c54ed7dd6443813ef3250354d67",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/E Inspire.asset",
+      "target": "Assets/GameData/历史示例/技能系统/1004_E_鼓舞示例.asset",
+      "guid": "a3893bc8cab2fe44bb34142ce150d2e8",
+      "id": 1004
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Frost Slow.asset",
+      "target": "Assets/GameData/历史示例/技能系统/5001_冰霜减速.asset",
+      "guid": "62dac026455ec614988ddefbb45b72be",
+      "id": 5001
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Haste.asset",
+      "target": "Assets/GameData/历史示例/技能系统/5002_急速.asset",
+      "guid": "174a49731759d6e4396fa7fc423768a8",
+      "id": 5002
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Passive Poison Sting.asset",
+      "target": "Assets/GameData/历史示例/技能系统/被动_毒刺示例.asset",
+      "guid": "ac54e4090a5800f4e9ad1bb8a7d94851",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Passive Vitality.asset",
+      "target": "Assets/GameData/历史示例/技能系统/被动_活力示例.asset",
+      "guid": "35d4ef5d22e88b54ba9e579c2918ac65",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Poison.asset",
+      "target": "Assets/GameData/历史示例/技能系统/5003_中毒.asset",
+      "guid": "053600e8f5a15eb49b3cbe45a8854734",
+      "id": 5003
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Q Burst.asset",
+      "target": "Assets/GameData/历史示例/技能系统/1005_Q_爆发示例.asset",
+      "guid": "133527784799b4247ae2e7fbf87a8e37",
+      "id": 1005
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/Vitality.asset",
+      "target": "Assets/GameData/历史示例/技能系统/5004_活力.asset",
+      "guid": "3d73348ebfdb4044ab6ad5832c043058",
+      "id": 5004
+    },
+    {
+      "source": "Assets/Game/Abilities/Settings/W Frost Field.asset",
+      "target": "Assets/GameData/历史示例/技能系统/1006_W_冰霜区域示例.asset",
+      "guid": "960e872012e1abc40988770f498ed381",
+      "id": 1006
+    },
+    {
+      "source": "Assets/Game/SkillIndicatorDemo/Settings/E - 远距投放.asset",
+      "target": "Assets/GameData/历史示例/技能指示器/E - 远距投放.asset",
+      "guid": "24c7c710867b616408a69cda9a7a9244",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/SkillIndicatorDemo/Settings/Q - 精准落点.asset",
+      "target": "Assets/GameData/历史示例/技能指示器/Q - 精准落点.asset",
+      "guid": "c37980edb0ed69745b8633ffffb3e560",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/SkillIndicatorDemo/Settings/W - 扩大范围.asset",
+      "target": "Assets/GameData/历史示例/技能指示器/W - 扩大范围.asset",
+      "guid": "ad34e19f01085e1469bae6e51197f60c",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/专注护符.asset",
+      "target": "Assets/GameData/装备/6011_专注护符.asset",
+      "guid": "9936b09cf327407dab35a6f52ac19a03",
+      "id": 6011
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/侦察镜.asset",
+      "target": "Assets/GameData/装备/6006_侦察镜.asset",
+      "guid": "9bbd1af495124e779fce839afb380546",
+      "id": 6006
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/吸血獠牙.asset",
+      "target": "Assets/GameData/装备/6007_吸血獠牙.asset",
+      "guid": "21c6ea1b18ec4849b3ad5457fd3487ee",
+      "id": 6007
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/嗜血之刃.asset",
+      "target": "Assets/GameData/装备/6016_嗜血之刃.asset",
+      "guid": "0de58d0543e944b18c91bc8152ac6a98",
+      "id": 6016
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/回复戒指.asset",
+      "target": "Assets/GameData/装备/6005_回复戒指.asset",
+      "guid": "0c81c1c4cd474f1bb4262b8172b150f5",
+      "id": 6005
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/奥术法杖.asset",
+      "target": "Assets/GameData/装备/6013_奥术法杖.asset",
+      "guid": "2b2b4229200442a0a289d72bc9fcf462",
+      "id": 6013
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/守护铠甲.asset",
+      "target": "Assets/GameData/装备/6010_守护铠甲.asset",
+      "guid": "f1002eab27ff44bfb59b5dcce426977c",
+      "id": 6010
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/幸运匕首.asset",
+      "target": "Assets/GameData/装备/6008_幸运匕首.asset",
+      "guid": "9cc0346b6e4d4e50baefec3b6cd36985",
+      "id": 6008
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/法力宝石.asset",
+      "target": "Assets/GameData/装备/6004_法力宝石.asset",
+      "guid": "cfe48742477b471e8127dd1426a08a73",
+      "id": 6004
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/泰坦之心.asset",
+      "target": "Assets/GameData/装备/6015_泰坦之心.asset",
+      "guid": "a09504f4c1544eb3866918d642a8807d",
+      "id": 6015
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/狂战巨斧.asset",
+      "target": "Assets/GameData/装备/6014_狂战巨斧.asset",
+      "guid": "9819c402da8c4afb995da95c7dd69cfb",
+      "id": 6014
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/皮甲背心.asset",
+      "target": "Assets/GameData/装备/6002_皮甲背心.asset",
+      "guid": "e0436b5a059044979f78e97477c95a1a",
+      "id": 6002
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/贤者之书.asset",
+      "target": "Assets/GameData/装备/6009_贤者之书.asset",
+      "guid": "2223275f2344480ca737362684ee8227",
+      "id": 6009
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/迅捷手套.asset",
+      "target": "Assets/GameData/装备/6001_迅捷手套.asset",
+      "guid": "19203632d92a4e8d8ac851964cc8bd91",
+      "id": 6001
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/速度之靴.asset",
+      "target": "Assets/GameData/装备/6003_速度之靴.asset",
+      "guid": "26ac4f78fc3c41b498d6c6baf78a9b1a",
+      "id": 6003
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/铁剑.asset",
+      "target": "Assets/GameData/装备/6000_铁剑.asset",
+      "guid": "11a81445ec594d8c91e5de34804e61e0",
+      "id": 6000
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/霜语长弓.asset",
+      "target": "Assets/GameData/装备/6012_霜语长弓.asset",
+      "guid": "d3843131114347b5b397f1220408e200",
+      "id": 6012
+    },
+    {
+      "source": "Assets/Game/Equipment/Items/风暴王冠.asset",
+      "target": "Assets/GameData/装备/6017_风暴王冠.asset",
+      "guid": "e1bac581022242d29cea59e5fc79e561",
+      "id": 6017
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/岩石重击.asset",
+      "target": "Assets/GameData/普攻/怪物/岩石重击.asset",
+      "guid": "7585fbde20264361b4d8da83ea4b8c42",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/巫妖霜弹.asset",
+      "target": "Assets/GameData/普攻/怪物/巫妖霜弹.asset",
+      "guid": "c5c45647d624456294acc0d0b63ba405",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/毒囊自爆.asset",
+      "target": "Assets/GameData/普攻/怪物/毒囊自爆.asset",
+      "guid": "1c4925f110b24d5aa1816a6ec61c88db",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/深渊横扫.asset",
+      "target": "Assets/GameData/普攻/怪物/深渊横扫.asset",
+      "guid": "fbb699201ef5462494ba82ab7cdce496",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/腐爪.asset",
+      "target": "Assets/GameData/普攻/怪物/腐爪.asset",
+      "guid": "26c9c3b736b64fafa881425c5080d827",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/蛮角冲撞.asset",
+      "target": "Assets/GameData/普攻/怪物/蛮角冲撞.asset",
+      "guid": "143ac7812ced42a39e1cb3678e30346a",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/迅捷撕咬.asset",
+      "target": "Assets/GameData/普攻/怪物/迅捷撕咬.asset",
+      "guid": "8e10d11d281e47ccb3d778c958008ff0",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Attacks/骨箭.asset",
+      "target": "Assets/GameData/普攻/怪物/骨箭.asset",
+      "guid": "484eaf08617d4b5991f61ccfcad63654",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/岩石魔像.prefab",
+      "target": "Assets/GameData/怪物/3006_岩石魔像.prefab",
+      "guid": "7d1efde1513041b29c94568ef7ea9f79",
+      "id": 3006
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/深渊领主.prefab",
+      "target": "Assets/GameData/怪物/3007_深渊领主.prefab",
+      "guid": "bffe868347a64acabc9b9fed3c55cc8b",
+      "id": 3007
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/爆裂毒囊.prefab",
+      "target": "Assets/GameData/怪物/3005_爆裂毒囊.prefab",
+      "guid": "40e7adbea79446229c181e0673820e81",
+      "id": 3005
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/腐化食尸鬼.prefab",
+      "target": "Assets/GameData/怪物/3001_腐化食尸鬼.prefab",
+      "guid": "4664f792cbed49f7953b1642f94e67e3",
+      "id": 3001
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/蛮牛冲锋者.prefab",
+      "target": "Assets/GameData/怪物/3004_蛮牛冲锋者.prefab",
+      "guid": "a80395477a0141219d8d3e7031a1646b",
+      "id": 3004
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/迅捷猎犬.prefab",
+      "target": "Assets/GameData/怪物/3002_迅捷猎犬.prefab",
+      "guid": "0148d39a1a66443eaf9ed41e4791e0c8",
+      "id": 3002
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/霜骨巫妖.prefab",
+      "target": "Assets/GameData/怪物/3008_霜骨巫妖.prefab",
+      "guid": "f6c56a0a78cb442e8ff332b0fe34d457",
+      "id": 3008
+    },
+    {
+      "source": "Assets/Game/Enemies/Prefabs/骷髅弓手.prefab",
+      "target": "Assets/GameData/怪物/3003_骷髅弓手.prefab",
+      "guid": "baabf897d8bf4c46946a7573518ab17b",
+      "id": 3003
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/寒冰射手.asset",
+      "target": "Assets/GameData/英雄/2000_寒冰射手.asset",
+      "guid": "f29047387b5e76b429c30ea469a0e3f5",
+      "id": 2000
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/寒冰射手·换槽示例.asset",
+      "target": "Assets/GameData/编辑示例/换槽/2001_寒冰射手·换槽示例.asset",
+      "guid": "42ce87a7ad244e4409e2f72ccb13b18e",
+      "id": 2001
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/游戏技能库.asset",
+      "target": "Assets/GameData/目录/游戏技能库.asset",
+      "guid": "5e67ebe04ba6d654982d4f2b91600903",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Skills/Foundation/组合模块目录.asset",
+      "target": "Assets/GameData/目录/组合模块目录.asset",
+      "guid": "cdc374f107b2fe044a0b6024bbe4e054",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Enemies/敌人名册.asset",
+      "target": "Assets/GameData/目录/敌人名册.asset",
+      "guid": "91435bcec21046efb74915127f3dbd2c",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Equipment/装备库.asset",
+      "target": "Assets/GameData/目录/装备库.asset",
+      "guid": "c90d0951a451453599c00c7c8895f5bc",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Progression/经验与等级规则.asset",
+      "target": "Assets/GameData/成长/经验与等级规则.asset",
+      "guid": "3ce276e01428475c9caa287b3cbc51df",
+      "id": 0
+    },
+    {
+      "source": "Assets/Game/Progression/关卡难度曲线.asset",
+      "target": "Assets/GameData/关卡/关卡难度曲线.asset",
+      "guid": "fcd4cda1ade141bcbe637cfce6b43d87",
+      "id": 0
+    }
+  ]
+}

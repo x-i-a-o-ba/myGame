@@ -5,7 +5,7 @@ import sys, os; sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from common import *
 from ui import us
 g=load_guids(); random.seed(11); N=128
-ICONS="Assets/Game/Equipment/Icons"; ITEMS="Assets/Game/Equipment/Items"; CATALOG="Assets/Game/Equipment/装备库.asset"
+ICONS="Assets/Game/Equipment/Icons"; ITEMS="Assets/GameData/装备"; CATALOG="Assets/GameData/目录/装备库.asset"
 DEFINITION_SCRIPT="56e54fc344be4a05a6443f96e0f98886"; CATALOG_SCRIPT="17057a8115734595ba72fc838e743761"
 SLOW_EFFECT="72282bc99f34428428ee275e7bff9ac4"  # Skills/Foundation/Effects/施加扇击减速.asset
 QUALITY=['#C8D0D8','#6BE07A','#4FA8FF','#C77DFF','#FFB347']  # 与 CombatAbilityTooltip.QualityColor 一致
@@ -322,7 +322,7 @@ ledger=[]; refs=[]
 for index,(name,stable,quality,price,unique,stats,effects,draw,desc) in enumerate(ITEM_TABLE):
     s,c=surface(N,N); draw(c); finish(c,quality)
     icon="%s/%s.png"%(ICONS,name); save(s,icon); sprite_meta(icon,g)
-    asset="%s/%s.asset"%(ITEMS,name); cid=6000+index
+    cid=6000+index; asset="%s/%d_%s.asset"%(ITEMS,cid,name)
     body=HEADER+"  m_Script: {fileID: 11500000, guid: %s, type: 3}\n"%DEFINITION_SCRIPT
     body+="  m_Name: %s\n  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.EquipmentDefinition\n"%us(name)
     body+="  configId: %d\n  stableId: %s\n  displayName: %s\n"%(cid,stable,us(name))

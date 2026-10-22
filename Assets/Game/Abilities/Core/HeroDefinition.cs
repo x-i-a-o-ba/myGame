@@ -23,7 +23,7 @@ namespace Roguelike.Abilities
         public bool attackWhileMoving=true;
         [Tooltip("HUD 头像。为空时显示纯色底。")] public Texture2D portrait;
         [Header("等级成长（Dota 2 式，每升 1 级累加）")]
-        [Min(0), Tooltip("开局最大法力；当前技能多数不消耗法力。")] public float baseMana=100;
+        [Min(0), Tooltip("开局最大法力；技能施放按技能逐级表消耗法力，局内由单位状态统一扣除。")] public float baseMana=100;
         [Min(0), Tooltip("开局每秒生命回复。")] public float baseHealthRegen=1.5f;
         [Min(0), Tooltip("每级增加的最大生命，当前生命同步增加。")] public float healthPerLevel=22;
         [Min(0), Tooltip("每级增加的最大法力。")] public float manaPerLevel=12;

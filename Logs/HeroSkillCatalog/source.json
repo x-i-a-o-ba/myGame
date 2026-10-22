@@ -7,22 +7,110 @@
         {
             "id": 3000,
             "name": "普通怪物",
-            "usage": "当前统一怪物配置",
+            "usage": "未配置敌人名册时的兼容怪物",
             "path": "Assets/Scenes/Game.unity",
             "health": 30.0,
             "speed": 2.0,
             "attackDamage": 4.0,
             "attackInterval": 1.0,
             "range": 1.25
+        },
+        {
+            "id": 3001,
+            "name": "腐化食尸鬼",
+            "usage": "近战追击；普通/精英；第 1 波起；权重 10",
+            "path": "Assets/GameData/怪物/3001_腐化食尸鬼.prefab",
+            "health": 30.0,
+            "speed": 2.0,
+            "attackDamage": 4.0,
+            "attackInterval": 1.0,
+            "range": 1.25
+        },
+        {
+            "id": 3002,
+            "name": "迅捷猎犬",
+            "usage": "近战追击；普通/精英；第 2 波起；权重 6",
+            "path": "Assets/GameData/怪物/3002_迅捷猎犬.prefab",
+            "health": 16.5,
+            "speed": 3.4000000953674318,
+            "attackDamage": 2.799999952316284,
+            "attackInterval": 0.75,
+            "range": 1.100000023841858
+        },
+        {
+            "id": 3003,
+            "name": "骷髅弓手",
+            "usage": "远程游击；普通/精英；第 3 波起；权重 5",
+            "path": "Assets/GameData/怪物/3003_骷髅弓手.prefab",
+            "health": 21.0,
+            "speed": 1.7999999523162842,
+            "attackDamage": 3.200000047683716,
+            "attackInterval": 1.600000023841858,
+            "range": 12.0
+        },
+        {
+            "id": 3004,
+            "name": "蛮牛冲锋者",
+            "usage": "冲锋；普通/精英；第 4 波起；权重 3",
+            "path": "Assets/GameData/怪物/3004_蛮牛冲锋者.prefab",
+            "health": 54.0,
+            "speed": 1.600000023841858,
+            "attackDamage": 4.800000190734863,
+            "attackInterval": 1.2000000476837159,
+            "range": 1.399999976158142
+        },
+        {
+            "id": 3005,
+            "name": "爆裂毒囊",
+            "usage": "自爆；普通；第 5 波起；权重 3",
+            "path": "Assets/GameData/怪物/3005_爆裂毒囊.prefab",
+            "health": 15.0,
+            "speed": 2.5,
+            "attackDamage": 4.0,
+            "attackInterval": 1.0,
+            "range": 1.600000023841858
+        },
+        {
+            "id": 3006,
+            "name": "岩石魔像",
+            "usage": "近战追击；普通/精英；第 6 波起；权重 1.5",
+            "path": "Assets/GameData/怪物/3006_岩石魔像.prefab",
+            "health": 90.0,
+            "speed": 1.2999999523162842,
+            "attackDamage": 6.0,
+            "attackInterval": 1.600000023841858,
+            "range": 1.600000023841858
+        },
+        {
+            "id": 3007,
+            "name": "深渊领主",
+            "usage": "近战追击；首领；第 1 波起；权重 1",
+            "path": "Assets/GameData/怪物/3007_深渊领主.prefab",
+            "health": 36.0,
+            "speed": 1.7999999523162842,
+            "attackDamage": 4.800000190734863,
+            "attackInterval": 1.2999999523162842,
+            "range": 2.200000047683716
+        },
+        {
+            "id": 3008,
+            "name": "霜骨巫妖",
+            "usage": "远程游击；精英/首领；第 10 波起；权重 1",
+            "path": "Assets/GameData/怪物/3008_霜骨巫妖.prefab",
+            "health": 42.0,
+            "speed": 1.7000000476837159,
+            "attackDamage": 5.199999809265137,
+            "attackInterval": 1.399999976158142,
+            "range": 16.0
         }
     ],
     "heroes": [
         {
-            "id": 2000,
-            "legacyId": "hero.frost_archer",
-            "name": "寒冰射手",
-            "path": "Assets/Game/Skills/Foundation/寒冰射手.asset",
-            "usage": "正式配置",
+            "id": 2001,
+            "legacyId": "hero.frost_archer_alternate",
+            "name": "寒冰射手·换槽配置示例",
+            "path": "Assets/GameData/编辑示例/换槽/2001_寒冰射手·换槽示例.asset",
+            "usage": "换槽示例",
             "health": 300.0,
             "speed": 10.0,
             "attackDamage": 30.0,
@@ -30,11 +118,11 @@
             "range": 20.0
         },
         {
-            "id": 2001,
-            "legacyId": "hero.frost_archer_alternate",
-            "name": "寒冰射手·换槽配置示例",
-            "path": "Assets/Game/Skills/Foundation/寒冰射手·换槽示例.asset",
-            "usage": "换槽示例",
+            "id": 2000,
+            "legacyId": "hero.frost_archer",
+            "name": "寒冰射手",
+            "path": "Assets/GameData/英雄/2000_寒冰射手.asset",
+            "usage": "正式配置",
             "health": 300.0,
             "speed": 10.0,
             "attackDamage": 30.0,
@@ -47,7 +135,7 @@
             "id": 1004,
             "legacyId": "skill.inspire",
             "name": "鼓舞",
-            "path": "Assets/Game/Abilities/Settings/E Inspire.asset",
+            "path": "Assets/GameData/历史示例/技能系统/1004_E_鼓舞示例.asset",
             "usage": "历史示例",
             "aim": "Point",
             "castRange": 8.0,
@@ -68,18 +156,29 @@
                 {
                     "kind": "ApplyBuff",
                     "buffId": "buff.haste",
-                    "buffPath": "Assets/Game/Abilities/Settings/Haste.asset",
-                    "buffParameters": "{\"stableId\":\"buff.haste\",\"displayName\":\"鼓舞加速\",\"duration\":5.0,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":0,\"moveSpeedPercent\":0.5,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "buffPath": "Assets/GameData/历史示例/技能系统/5002_急速.asset",
+                    "buffParameters": "{\"configId\":5002,\"stableId\":\"buff.haste\",\"displayName\":\"鼓舞加速\",\"duration\":5.0,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":0,\"moveSpeedPercent\":0.5,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
                     "amount": 0.0,
                     "buffScale": 1.0
                 }
-            ]
+            ],
+            "recipe": {
+                "enabled": false,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1,
+                "authorNamespace": "local",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": []
+            }
         },
         {
             "id": 1005,
             "legacyId": "skill.burst",
             "name": "爆裂",
-            "path": "Assets/Game/Abilities/Settings/Q Burst.asset",
+            "path": "Assets/GameData/历史示例/技能系统/1005_Q_爆发示例.asset",
             "usage": "历史示例",
             "aim": "Point",
             "castRange": 18.0,
@@ -108,18 +207,29 @@
                 {
                     "kind": "ApplyBuff",
                     "buffId": "buff.burn",
-                    "buffPath": "Assets/Game/Abilities/Settings/Burn.asset",
-                    "buffParameters": "{\"stableId\":\"buff.burn\",\"displayName\":\"灼烧\",\"duration\":4.0,\"interval\":1.0,\"periodicDamage\":5.0,\"stacking\":1,\"maxStacks\":3,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "buffPath": "Assets/GameData/历史示例/技能系统/5000_灼烧.asset",
+                    "buffParameters": "{\"configId\":5000,\"stableId\":\"buff.burn\",\"displayName\":\"灼烧\",\"duration\":4.0,\"interval\":1.0,\"periodicDamage\":5.0,\"stacking\":1,\"maxStacks\":3,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
                     "amount": 0.0,
                     "buffScale": 1.0
                 }
-            ]
+            ],
+            "recipe": {
+                "enabled": false,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1,
+                "authorNamespace": "local",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": []
+            }
         },
         {
             "id": 1006,
             "legacyId": "skill.frost",
             "name": "寒霜区域",
-            "path": "Assets/Game/Abilities/Settings/W Frost Field.asset",
+            "path": "Assets/GameData/历史示例/技能系统/1006_W_冰霜区域示例.asset",
             "usage": "历史示例",
             "aim": "Point",
             "castRange": 18.0,
@@ -140,18 +250,314 @@
                 {
                     "kind": "ApplyBuff",
                     "buffId": "buff.frost",
-                    "buffPath": "Assets/Game/Abilities/Settings/Frost Slow.asset",
-                    "buffParameters": "{\"stableId\":\"buff.frost\",\"displayName\":\"寒霜减速\",\"duration\":0.6000000238418579,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":0,\"moveSpeedPercent\":-0.3499999940395355,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "buffPath": "Assets/GameData/历史示例/技能系统/5001_冰霜减速.asset",
+                    "buffParameters": "{\"configId\":5001,\"stableId\":\"buff.frost\",\"displayName\":\"寒霜减速\",\"duration\":0.6000000238418579,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":0,\"moveSpeedPercent\":-0.3499999940395355,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
                     "amount": 0.0,
                     "buffScale": 1.0
                 }
-            ]
+            ],
+            "recipe": {
+                "enabled": false,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1,
+                "authorNamespace": "local",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": []
+            }
+        },
+        {
+            "id": 1000,
+            "legacyId": "ability.frost_focus",
+            "name": "冰霜专注",
+            "path": "Assets/GameData/技能/1000_冰霜专注.asset",
+            "usage": "正式配置",
+            "aim": "Self",
+            "castRange": 0.0,
+            "cooldown": 10.0,
+            "castTime": 0.0,
+            "recoveryTime": 0.0,
+            "manaCost": 30.0,
+            "rechargeSeconds": 0.0,
+            "maxCharges": 1,
+            "requiredHits": 4,
+            "stageCount": 1,
+            "legacyDelivery": "",
+            "legacyTargets": "",
+            "legacyRadius": 0.0,
+            "legacyAreaDuration": 0.0,
+            "legacyAreaInterval": 0.0,
+            "legacyEffects": [],
+            "recipe": {
+                "enabled": true,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1000,
+                "authorNamespace": "official",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": [
+                    {
+                        "nodeId": 1,
+                        "parentNodeId": 0,
+                        "trigger": 0,
+                        "deliveryModuleId": 10000,
+                        "queryModuleId": 10106,
+                        "delay": 0.0,
+                        "repeatInterval": 0.0,
+                        "repeatCount": 1,
+                        "range": 0.0,
+                        "radius": 5.0,
+                        "hitRadius": 0.5,
+                        "halfAngleDegrees": 35.0,
+                        "speed": 40.0,
+                        "arcHeight": 3.0,
+                        "flightSeconds": 1.0,
+                        "launchHeight": 1.0,
+                        "arrivalHeight": 0.0,
+                        "effects": [
+                            {
+                                "effectId": 4007,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            }
+                        ],
+                        "impactEffects": []
+                    }
+                ]
+            }
+        },
+        {
+            "id": 1001,
+            "legacyId": "ability.volley",
+            "name": "冰霜扇击",
+            "path": "Assets/GameData/技能/1001_冰霜扇击.asset",
+            "usage": "正式配置",
+            "aim": "Direction",
+            "castRange": 22.0,
+            "cooldown": 8.0,
+            "castTime": 0.0,
+            "recoveryTime": 0.0,
+            "manaCost": 45.0,
+            "rechargeSeconds": 0.0,
+            "maxCharges": 1,
+            "requiredHits": 0,
+            "stageCount": 1,
+            "legacyDelivery": "",
+            "legacyTargets": "",
+            "legacyRadius": 0.0,
+            "legacyAreaDuration": 0.0,
+            "legacyAreaInterval": 0.0,
+            "legacyEffects": [],
+            "recipe": {
+                "enabled": true,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1001,
+                "authorNamespace": "official",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": [
+                    {
+                        "nodeId": 1,
+                        "parentNodeId": 0,
+                        "trigger": 0,
+                        "deliveryModuleId": 10000,
+                        "queryModuleId": 10104,
+                        "delay": 0.0,
+                        "repeatInterval": 0.0,
+                        "repeatCount": 1,
+                        "range": 22.0,
+                        "radius": 22.0,
+                        "hitRadius": 0.5,
+                        "halfAngleDegrees": 35.0,
+                        "speed": 40.0,
+                        "arcHeight": 3.0,
+                        "flightSeconds": 1.0,
+                        "launchHeight": 1.0,
+                        "arrivalHeight": 0.0,
+                        "effects": [
+                            {
+                                "effectId": 4004,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            },
+                            {
+                                "effectId": 4008,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            }
+                        ],
+                        "impactEffects": []
+                    }
+                ]
+            }
+        },
+        {
+            "id": 1002,
+            "legacyId": "ability.frost_impact",
+            "name": "冰霜冲击",
+            "path": "Assets/GameData/技能/1002_冰霜冲击.asset",
+            "usage": "正式配置",
+            "aim": "Point",
+            "castRange": 25.0,
+            "cooldown": 0.0,
+            "castTime": 0.0,
+            "recoveryTime": 0.0,
+            "manaCost": 60.0,
+            "rechargeSeconds": 14.0,
+            "maxCharges": 2,
+            "requiredHits": 0,
+            "stageCount": 1,
+            "legacyDelivery": "",
+            "legacyTargets": "",
+            "legacyRadius": 0.0,
+            "legacyAreaDuration": 0.0,
+            "legacyAreaInterval": 0.0,
+            "legacyEffects": [],
+            "recipe": {
+                "enabled": true,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1002,
+                "authorNamespace": "official",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": [
+                    {
+                        "nodeId": 1,
+                        "parentNodeId": 0,
+                        "trigger": 0,
+                        "deliveryModuleId": 10001,
+                        "queryModuleId": 10103,
+                        "delay": 0.0,
+                        "repeatInterval": 0.0,
+                        "repeatCount": 1,
+                        "range": 25.0,
+                        "radius": 5.0,
+                        "hitRadius": 0.5,
+                        "halfAngleDegrees": 35.0,
+                        "speed": 42.0,
+                        "arcHeight": 3.0,
+                        "flightSeconds": 1.0,
+                        "launchHeight": 1.0,
+                        "arrivalHeight": 0.0,
+                        "effects": [
+                            {
+                                "effectId": 4003,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            }
+                        ],
+                        "impactEffects": []
+                    }
+                ]
+            }
+        },
+        {
+            "id": 1003,
+            "legacyId": "ability.crystal_arrow",
+            "name": "冰晶巨箭",
+            "path": "Assets/GameData/技能/1003_冰晶巨箭.asset",
+            "usage": "正式配置",
+            "aim": "Direction",
+            "castRange": 150.0,
+            "cooldown": 30.0,
+            "castTime": 0.0,
+            "recoveryTime": 0.0,
+            "manaCost": 100.0,
+            "rechargeSeconds": 0.0,
+            "maxCharges": 1,
+            "requiredHits": 0,
+            "stageCount": 1,
+            "legacyDelivery": "",
+            "legacyTargets": "",
+            "legacyRadius": 0.0,
+            "legacyAreaDuration": 0.0,
+            "legacyAreaInterval": 0.0,
+            "legacyEffects": [],
+            "recipe": {
+                "enabled": true,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1003,
+                "authorNamespace": "official",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": [
+                    {
+                        "nodeId": 1,
+                        "parentNodeId": 0,
+                        "trigger": 0,
+                        "deliveryModuleId": 10002,
+                        "queryModuleId": 10103,
+                        "delay": 0.0,
+                        "repeatInterval": 0.0,
+                        "repeatCount": 1,
+                        "range": 150.0,
+                        "radius": 7.0,
+                        "hitRadius": 1.149999976158142,
+                        "halfAngleDegrees": 35.0,
+                        "speed": 48.0,
+                        "arcHeight": 3.0,
+                        "flightSeconds": 1.0,
+                        "launchHeight": 1.0,
+                        "arrivalHeight": 0.0,
+                        "effects": [
+                            {
+                                "effectId": 4001,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            },
+                            {
+                                "effectId": 4005,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            }
+                        ],
+                        "impactEffects": [
+                            {
+                                "effectId": 4002,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            },
+                            {
+                                "effectId": 4006,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            }
+                        ]
+                    }
+                ]
+            }
         },
         {
             "id": 1007,
             "legacyId": "ability.a1a0adca2d274b72b6a4c7e61d4dcebf",
             "name": "范围技能示例",
-            "path": "Assets/Game/SkillAuthoring/Content/范围技能示例.asset",
+            "path": "Assets/GameData/编辑示例/技能工作台/1007_范围技能示例.asset",
             "usage": "工作台示例",
             "aim": "Direction",
             "castRange": 12.0,
@@ -168,245 +574,100 @@
             "legacyRadius": 0.0,
             "legacyAreaDuration": 0.0,
             "legacyAreaInterval": 0.0,
-            "legacyEffects": []
-        },
-        {
-            "id": 1003,
-            "legacyId": "ability.crystal_arrow",
-            "name": "冰晶巨箭",
-            "path": "Assets/Game/Skills/Foundation/Skills/冰晶巨箭.asset",
-            "usage": "正式配置",
-            "aim": "Direction",
-            "castRange": 150.0,
-            "cooldown": 20.0,
-            "castTime": 0.0,
-            "recoveryTime": 0.0,
-            "manaCost": 0.0,
-            "rechargeSeconds": 0.0,
-            "maxCharges": 1,
-            "requiredHits": 0,
-            "stageCount": 1,
-            "legacyDelivery": "",
-            "legacyTargets": "",
-            "legacyRadius": 0.0,
-            "legacyAreaDuration": 0.0,
-            "legacyAreaInterval": 0.0,
-            "legacyEffects": []
-        },
-        {
-            "id": 1000,
-            "legacyId": "ability.frost_focus",
-            "name": "冰霜专注",
-            "path": "Assets/Game/Skills/Foundation/Skills/冰霜专注.asset",
-            "usage": "正式配置",
-            "aim": "Self",
-            "castRange": 0.0,
-            "cooldown": 7.0,
-            "castTime": 0.0,
-            "recoveryTime": 0.0,
-            "manaCost": 0.0,
-            "rechargeSeconds": 0.0,
-            "maxCharges": 1,
-            "requiredHits": 4,
-            "stageCount": 1,
-            "legacyDelivery": "",
-            "legacyTargets": "",
-            "legacyRadius": 0.0,
-            "legacyAreaDuration": 0.0,
-            "legacyAreaInterval": 0.0,
-            "legacyEffects": []
-        },
-        {
-            "id": 1002,
-            "legacyId": "ability.frost_impact",
-            "name": "冰霜冲击",
-            "path": "Assets/Game/Skills/Foundation/Skills/冰霜冲击.asset",
-            "usage": "正式配置",
-            "aim": "Point",
-            "castRange": 25.0,
-            "cooldown": 0.0,
-            "castTime": 0.0,
-            "recoveryTime": 0.0,
-            "manaCost": 0.0,
-            "rechargeSeconds": 15.0,
-            "maxCharges": 2,
-            "requiredHits": 0,
-            "stageCount": 1,
-            "legacyDelivery": "",
-            "legacyTargets": "",
-            "legacyRadius": 0.0,
-            "legacyAreaDuration": 0.0,
-            "legacyAreaInterval": 0.0,
-            "legacyEffects": []
-        },
-        {
-            "id": 1001,
-            "legacyId": "ability.volley",
-            "name": "冰霜扇击",
-            "path": "Assets/Game/Skills/Foundation/Skills/冰霜扇击.asset",
-            "usage": "正式配置",
-            "aim": "Direction",
-            "castRange": 22.0,
-            "cooldown": 5.0,
-            "castTime": 0.0,
-            "recoveryTime": 0.0,
-            "manaCost": 0.0,
-            "rechargeSeconds": 0.0,
-            "maxCharges": 1,
-            "requiredHits": 0,
-            "stageCount": 1,
-            "legacyDelivery": "",
-            "legacyTargets": "",
-            "legacyRadius": 0.0,
-            "legacyAreaDuration": 0.0,
-            "legacyAreaInterval": 0.0,
-            "legacyEffects": []
+            "legacyEffects": [],
+            "recipe": {
+                "enabled": true,
+                "schemaVersion": 1,
+                "catalogVersion": 1,
+                "revision": 1,
+                "recipeId": 1007,
+                "authorNamespace": "official",
+                "maxDerivedExecutions": 32,
+                "maxLifetime": 10.0,
+                "nodes": [
+                    {
+                        "nodeId": 1,
+                        "parentNodeId": 0,
+                        "trigger": 0,
+                        "deliveryModuleId": 10000,
+                        "queryModuleId": 10104,
+                        "delay": 0.0,
+                        "repeatInterval": 0.0,
+                        "repeatCount": 1,
+                        "range": 12.0,
+                        "radius": 3.0,
+                        "hitRadius": 0.5,
+                        "halfAngleDegrees": 35.0,
+                        "speed": 40.0,
+                        "arcHeight": 3.0,
+                        "flightSeconds": 1.0,
+                        "launchHeight": 1.0,
+                        "arrivalHeight": 0.0,
+                        "effects": [
+                            {
+                                "effectId": 4000,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            },
+                            {
+                                "effectId": 4000,
+                                "overrideAmount": false,
+                                "amount": 0.0,
+                                "overrideBuffScale": false,
+                                "buffScale": 1.0
+                            }
+                        ],
+                        "impactEffects": []
+                    }
+                ]
+            }
         }
     ],
     "loadouts": [
         {
-            "heroId": 2000,
-            "skillId": 1000,
+            "heroId": 2001,
+            "skillId": 1002,
             "slot": 1
         },
         {
-            "heroId": 2000,
+            "heroId": 2001,
             "skillId": 1001,
             "slot": 2
         },
         {
-            "heroId": 2000,
-            "skillId": 1002,
+            "heroId": 2001,
+            "skillId": 1000,
             "slot": 3
         },
         {
-            "heroId": 2000,
+            "heroId": 2001,
             "skillId": 1003,
             "slot": 4
         },
         {
-            "heroId": 2001,
-            "skillId": 1002,
+            "heroId": 2000,
+            "skillId": 1000,
             "slot": 1
         },
         {
-            "heroId": 2001,
+            "heroId": 2000,
             "skillId": 1001,
             "slot": 2
         },
         {
-            "heroId": 2001,
-            "skillId": 1000,
+            "heroId": 2000,
+            "skillId": 1002,
             "slot": 3
         },
         {
-            "heroId": 2001,
+            "heroId": 2000,
             "skillId": 1003,
             "slot": 4
         }
     ],
     "stages": [
-        {
-            "skillId": 1007,
-            "delivery": "Instant",
-            "scope": "Area",
-            "shape": "Cone",
-            "targets": "Enemies",
-            "index": 1,
-            "repeatCount": 1,
-            "delay": 0.0,
-            "repeatInterval": 0.0,
-            "range": 12.0,
-            "radius": 3.0,
-            "hitRadius": 0.5,
-            "halfAngleDegrees": 35.0,
-            "speed": 40.0,
-            "arcHeight": 3.0,
-            "flightSeconds": 1.0,
-            "launchHeight": 1.0,
-            "arrivalHeight": 0.0,
-            "effects": [
-                {
-                    "name": "范围技能示例·伤害效果",
-                    "type": "DamageEffect",
-                    "path": "Assets/Game/SkillAuthoring/Content/范围技能示例·伤害效果.asset",
-                    "parameters": "{\"target\":0,\"amount\":10.0}",
-                    "buffId": "",
-                    "buffPath": "",
-                    "buffParameters": ""
-                },
-                {
-                    "name": "范围技能示例·伤害效果",
-                    "type": "DamageEffect",
-                    "path": "Assets/Game/SkillAuthoring/Content/范围技能示例·伤害效果.asset",
-                    "parameters": "{\"target\":0,\"amount\":10.0}",
-                    "buffId": "",
-                    "buffPath": "",
-                    "buffParameters": ""
-                }
-            ],
-            "impactEffects": []
-        },
-        {
-            "skillId": 1003,
-            "delivery": "LinearProjectile",
-            "scope": "Area",
-            "shape": "Circle",
-            "targets": "Enemies",
-            "index": 1,
-            "repeatCount": 1,
-            "delay": 0.0,
-            "repeatInterval": 0.0,
-            "range": 150.0,
-            "radius": 7.0,
-            "hitRadius": 1.149999976158142,
-            "halfAngleDegrees": 35.0,
-            "speed": 48.0,
-            "arcHeight": 3.0,
-            "flightSeconds": 1.0,
-            "launchHeight": 1.0,
-            "arrivalHeight": 0.0,
-            "effects": [
-                {
-                    "name": "冰晶爆炸伤害",
-                    "type": "DamageEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/冰晶爆炸伤害.asset",
-                    "parameters": "{\"target\":0,\"amount\":16.0}",
-                    "buffId": "",
-                    "buffPath": "",
-                    "buffParameters": ""
-                },
-                {
-                    "name": "施加冰晶减速",
-                    "type": "ApplyBuffEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/施加冰晶减速.asset",
-                    "parameters": "{\"target\":0,\"buff\":{\"instanceID\":55494},\"buffScale\":1.0}",
-                    "buffId": "buff.crystal_slow",
-                    "buffPath": "Assets/Game/Skills/Foundation/Buffs/冰晶减速.asset",
-                    "buffParameters": "{\"stableId\":\"buff.crystal_slow\",\"displayName\":\"冰晶减速\",\"duration\":3.0,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[{\"attribute\":0,\"operation\":1,\"value\":-0.5}],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}"
-                }
-            ],
-            "impactEffects": [
-                {
-                    "name": "冰晶首中伤害",
-                    "type": "DamageEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/冰晶首中伤害.asset",
-                    "parameters": "{\"target\":0,\"amount\":20.0}",
-                    "buffId": "",
-                    "buffPath": "",
-                    "buffParameters": ""
-                },
-                {
-                    "name": "施加冰晶眩晕",
-                    "type": "ApplyBuffEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/施加冰晶眩晕.asset",
-                    "parameters": "{\"target\":0,\"buff\":{\"instanceID\":55496},\"buffScale\":1.0}",
-                    "buffId": "buff.crystal_stun",
-                    "buffPath": "Assets/Game/Skills/Foundation/Buffs/冰晶眩晕.asset",
-                    "buffParameters": "{\"stableId\":\"buff.crystal_stun\",\"displayName\":\"冰晶眩晕\",\"duration\":1.5,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":7,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}"
-                }
-            ]
-        },
         {
             "skillId": 1000,
             "delivery": "Instant",
@@ -428,48 +689,23 @@
             "arrivalHeight": 0.0,
             "effects": [
                 {
-                    "name": "施加冰霜专注",
+                    "name": "4007_施加冰霜专注",
                     "type": "ApplyBuffEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/施加冰霜专注.asset",
-                    "parameters": "{\"target\":0,\"buff\":{\"instanceID\":55470},\"buffScale\":1.0}",
+                    "path": "Assets/GameData/效果/4007_施加冰霜专注.asset",
+                    "parameters": "{\"configId\":4007,\"stableId\":\"effect.44ed1aebdd5e4de0a989f3007cad7861\",\"target\":0,\"buff\":{\"instanceID\":56684},\"buffScale\":1.0}",
                     "buffId": "buff.frost_focus",
-                    "buffPath": "Assets/Game/Skills/Foundation/Buffs/冰霜专注.asset",
-                    "buffParameters": "{\"stableId\":\"buff.frost_focus\",\"displayName\":\"冰霜专注\",\"duration\":5.0,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[{\"attribute\":2,\"operation\":1,\"value\":0.6000000238418579}],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}"
+                    "buffPath": "Assets/GameData/Buff/5007_冰霜专注.asset",
+                    "buffParameters": "{\"configId\":5007,\"stableId\":\"buff.frost_focus\",\"displayName\":\"冰霜专注\",\"duration\":5.0,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[{\"attribute\":2,\"operation\":1,\"value\":0.6000000238418579}],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "effectId": 4007,
+                    "buffNumericId": 5007,
+                    "overrideAmount": false,
+                    "effectiveAmount": 0.0
                 }
             ],
-            "impactEffects": []
-        },
-        {
-            "skillId": 1002,
-            "delivery": "PointProjectile",
-            "scope": "Area",
-            "shape": "Circle",
-            "targets": "Enemies",
-            "index": 1,
-            "repeatCount": 1,
-            "delay": 0.0,
-            "repeatInterval": 0.0,
-            "range": 25.0,
-            "radius": 5.0,
-            "hitRadius": 0.5,
-            "halfAngleDegrees": 35.0,
-            "speed": 42.0,
-            "arcHeight": 3.0,
-            "flightSeconds": 1.0,
-            "launchHeight": 1.0,
-            "arrivalHeight": 0.0,
-            "effects": [
-                {
-                    "name": "冰霜冲击伤害",
-                    "type": "DamageEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/冰霜冲击伤害.asset",
-                    "parameters": "{\"target\":0,\"amount\":18.0}",
-                    "buffId": "",
-                    "buffPath": "",
-                    "buffParameters": ""
-                }
-            ],
-            "impactEffects": []
+            "impactEffects": [],
+            "nodeId": 1,
+            "parentNodeId": 0,
+            "trigger": "OnRelease"
         },
         {
             "skillId": 1001,
@@ -492,25 +728,206 @@
             "arrivalHeight": 0.0,
             "effects": [
                 {
-                    "name": "冰霜扇击伤害",
+                    "name": "4004_冰霜扇击伤害",
                     "type": "DamageEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/冰霜扇击伤害.asset",
-                    "parameters": "{\"target\":0,\"amount\":30.0}",
+                    "path": "Assets/GameData/效果/4004_冰霜扇击伤害.asset",
+                    "parameters": "{\"configId\":4004,\"stableId\":\"effect.5b2e0dd30abb4011a84f06b01bfe4979\",\"target\":0,\"amount\":60.0}",
                     "buffId": "",
                     "buffPath": "",
-                    "buffParameters": ""
+                    "buffParameters": "",
+                    "effectId": 4004,
+                    "buffNumericId": 0,
+                    "overrideAmount": false,
+                    "effectiveAmount": 60.0
                 },
                 {
-                    "name": "施加扇击减速",
+                    "name": "4008_施加扇击减速",
                     "type": "ApplyBuffEffect",
-                    "path": "Assets/Game/Skills/Foundation/Effects/施加扇击减速.asset",
-                    "parameters": "{\"target\":0,\"buff\":{\"instanceID\":55492},\"buffScale\":1.0}",
+                    "path": "Assets/GameData/效果/4008_施加扇击减速.asset",
+                    "parameters": "{\"configId\":4008,\"stableId\":\"effect.a982e694958845c1bd2af1b286dbaac6\",\"target\":0,\"buff\":{\"instanceID\":56068},\"buffScale\":1.0}",
                     "buffId": "buff.volley_slow",
-                    "buffPath": "Assets/Game/Skills/Foundation/Buffs/扇击减速.asset",
-                    "buffParameters": "{\"stableId\":\"buff.volley_slow\",\"displayName\":\"扇击减速\",\"duration\":2.5,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[{\"attribute\":0,\"operation\":1,\"value\":-0.3499999940395355}],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}"
+                    "buffPath": "Assets/GameData/Buff/5008_扇击减速.asset",
+                    "buffParameters": "{\"configId\":5008,\"stableId\":\"buff.volley_slow\",\"displayName\":\"扇击减速\",\"duration\":2.5,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[{\"attribute\":0,\"operation\":1,\"value\":-0.3499999940395355}],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "effectId": 4008,
+                    "buffNumericId": 5008,
+                    "overrideAmount": false,
+                    "effectiveAmount": 0.0
                 }
             ],
-            "impactEffects": []
+            "impactEffects": [],
+            "nodeId": 1,
+            "parentNodeId": 0,
+            "trigger": "OnRelease"
+        },
+        {
+            "skillId": 1002,
+            "delivery": "PointProjectile",
+            "scope": "Area",
+            "shape": "Circle",
+            "targets": "Enemies",
+            "index": 1,
+            "repeatCount": 1,
+            "delay": 0.0,
+            "repeatInterval": 0.0,
+            "range": 25.0,
+            "radius": 5.0,
+            "hitRadius": 0.5,
+            "halfAngleDegrees": 35.0,
+            "speed": 42.0,
+            "arcHeight": 3.0,
+            "flightSeconds": 1.0,
+            "launchHeight": 1.0,
+            "arrivalHeight": 0.0,
+            "effects": [
+                {
+                    "name": "4003_冰霜冲击伤害",
+                    "type": "DamageEffect",
+                    "path": "Assets/GameData/效果/4003_冰霜冲击伤害.asset",
+                    "parameters": "{\"configId\":4003,\"stableId\":\"effect.47fd7946cfdb4f80843f46b888106ee2\",\"target\":0,\"amount\":90.0}",
+                    "buffId": "",
+                    "buffPath": "",
+                    "buffParameters": "",
+                    "effectId": 4003,
+                    "buffNumericId": 0,
+                    "overrideAmount": false,
+                    "effectiveAmount": 90.0
+                }
+            ],
+            "impactEffects": [],
+            "nodeId": 1,
+            "parentNodeId": 0,
+            "trigger": "OnRelease"
+        },
+        {
+            "skillId": 1003,
+            "delivery": "LinearProjectile",
+            "scope": "Area",
+            "shape": "Circle",
+            "targets": "Enemies",
+            "index": 1,
+            "repeatCount": 1,
+            "delay": 0.0,
+            "repeatInterval": 0.0,
+            "range": 150.0,
+            "radius": 7.0,
+            "hitRadius": 1.149999976158142,
+            "halfAngleDegrees": 35.0,
+            "speed": 48.0,
+            "arcHeight": 3.0,
+            "flightSeconds": 1.0,
+            "launchHeight": 1.0,
+            "arrivalHeight": 0.0,
+            "effects": [
+                {
+                    "name": "4001_冰晶爆炸伤害",
+                    "type": "DamageEffect",
+                    "path": "Assets/GameData/效果/4001_冰晶爆炸伤害.asset",
+                    "parameters": "{\"configId\":4001,\"stableId\":\"effect.ca77a76ab9b249219c00753aa078a9fa\",\"target\":0,\"amount\":100.0}",
+                    "buffId": "",
+                    "buffPath": "",
+                    "buffParameters": "",
+                    "effectId": 4001,
+                    "buffNumericId": 0,
+                    "overrideAmount": false,
+                    "effectiveAmount": 100.0
+                },
+                {
+                    "name": "4005_施加冰晶减速",
+                    "type": "ApplyBuffEffect",
+                    "path": "Assets/GameData/效果/4005_施加冰晶减速.asset",
+                    "parameters": "{\"configId\":4005,\"stableId\":\"effect.ee1720bbecfa4fae88de5169e8239271\",\"target\":0,\"buff\":{\"instanceID\":56234},\"buffScale\":1.0}",
+                    "buffId": "buff.crystal_slow",
+                    "buffPath": "Assets/GameData/Buff/5005_冰晶减速.asset",
+                    "buffParameters": "{\"configId\":5005,\"stableId\":\"buff.crystal_slow\",\"displayName\":\"冰晶减速\",\"duration\":3.0,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[{\"attribute\":0,\"operation\":1,\"value\":-0.5}],\"controls\":0,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "effectId": 4005,
+                    "buffNumericId": 5005,
+                    "overrideAmount": false,
+                    "effectiveAmount": 0.0
+                }
+            ],
+            "impactEffects": [
+                {
+                    "name": "4002_冰晶首中伤害",
+                    "type": "DamageEffect",
+                    "path": "Assets/GameData/效果/4002_冰晶首中伤害.asset",
+                    "parameters": "{\"configId\":4002,\"stableId\":\"effect.6653cd78205341239d33d86fb47d7fb4\",\"target\":0,\"amount\":120.0}",
+                    "buffId": "",
+                    "buffPath": "",
+                    "buffParameters": "",
+                    "effectId": 4002,
+                    "buffNumericId": 0,
+                    "overrideAmount": false,
+                    "effectiveAmount": 120.0
+                },
+                {
+                    "name": "4006_施加冰晶眩晕",
+                    "type": "ApplyBuffEffect",
+                    "path": "Assets/GameData/效果/4006_施加冰晶眩晕.asset",
+                    "parameters": "{\"configId\":4006,\"stableId\":\"effect.645fd12511cd440483f47d5e53c58c3b\",\"target\":0,\"buff\":{\"instanceID\":56588},\"buffScale\":1.0}",
+                    "buffId": "buff.crystal_stun",
+                    "buffPath": "Assets/GameData/Buff/5006_冰晶眩晕.asset",
+                    "buffParameters": "{\"configId\":5006,\"stableId\":\"buff.crystal_stun\",\"displayName\":\"冰晶眩晕\",\"duration\":1.5,\"interval\":1.0,\"periodicDamage\":0.0,\"stacking\":0,\"maxStacks\":1,\"dispellable\":true,\"sourcePolicy\":1,\"modifiers\":[],\"controls\":7,\"moveSpeedPercent\":0.0,\"attackDamageFlat\":0.0,\"healthRegen\":0.0}",
+                    "effectId": 4006,
+                    "buffNumericId": 5006,
+                    "overrideAmount": false,
+                    "effectiveAmount": 0.0
+                }
+            ],
+            "nodeId": 1,
+            "parentNodeId": 0,
+            "trigger": "OnRelease"
+        },
+        {
+            "skillId": 1007,
+            "delivery": "Instant",
+            "scope": "Area",
+            "shape": "Cone",
+            "targets": "Enemies",
+            "index": 1,
+            "repeatCount": 1,
+            "delay": 0.0,
+            "repeatInterval": 0.0,
+            "range": 12.0,
+            "radius": 3.0,
+            "hitRadius": 0.5,
+            "halfAngleDegrees": 35.0,
+            "speed": 40.0,
+            "arcHeight": 3.0,
+            "flightSeconds": 1.0,
+            "launchHeight": 1.0,
+            "arrivalHeight": 0.0,
+            "effects": [
+                {
+                    "name": "4000_范围技能示例·伤害效果",
+                    "type": "DamageEffect",
+                    "path": "Assets/GameData/编辑示例/技能工作台/4000_范围技能示例·伤害效果.asset",
+                    "parameters": "{\"configId\":4000,\"stableId\":\"effect.9461525a7492404b8e18bf95738f6069\",\"target\":0,\"amount\":10.0}",
+                    "buffId": "",
+                    "buffPath": "",
+                    "buffParameters": "",
+                    "effectId": 4000,
+                    "buffNumericId": 0,
+                    "overrideAmount": false,
+                    "effectiveAmount": 10.0
+                },
+                {
+                    "name": "4000_范围技能示例·伤害效果",
+                    "type": "DamageEffect",
+                    "path": "Assets/GameData/编辑示例/技能工作台/4000_范围技能示例·伤害效果.asset",
+                    "parameters": "{\"configId\":4000,\"stableId\":\"effect.9461525a7492404b8e18bf95738f6069\",\"target\":0,\"amount\":10.0}",
+                    "buffId": "",
+                    "buffPath": "",
+                    "buffParameters": "",
+                    "effectId": 4000,
+                    "buffNumericId": 0,
+                    "overrideAmount": false,
+                    "effectiveAmount": 10.0
+                }
+            ],
+            "impactEffects": [],
+            "nodeId": 1,
+            "parentNodeId": 0,
+            "trigger": "OnRelease"
         }
     ]
 }

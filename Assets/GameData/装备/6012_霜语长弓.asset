@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56e54fc344be4a05a6443f96e0f98886, type: 3}
+  m_Name: "6012_\u971C\u8BED\u957F\u5F13"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.EquipmentDefinition
+  configId: 6012
+  stableId: item.frostwhisper_bow
+  displayName: "\u971C\u8BED\u957F\u5F13"
+  icon: {fileID: 2800000, guid: 13c237aec2624411979cebaefa632b47, type: 3}
+  quality: 2
+  price: 2200
+  unique: 1
+  description: "\u4EE5\u6C38\u51BB\u5BD2\u51B0\u96D5\u6210\u7684\u957F\u5F13\uFF0C\u666E\u653B\u547D\u4E2D\u65F6\u65BD\u52A0\u6247\u51FB\u51CF\u901F\u3002\u540C\u540D\u88C5\u5907\u53EA\u80FD\u6301\u6709\u4E00\u4EF6\u3002"
+  stats:
+  - stat: 1
+    value: 25
+  - stat: 2
+    value: 20
+  onHitEffects:
+  - {fileID: 11400000, guid: 72282bc99f34428428ee275e7bff9ac4, type: 2}

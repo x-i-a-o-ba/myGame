@@ -11,7 +11,7 @@ namespace Roguelike.SkillAuthoring.Editor
     /// <summary>显式一次性迁移。由隔离 Editor 执行，保留原资源 GUID 与旧阶段；无自动启动或菜单副作用。</summary>
     public static class RecipeAssetMigration
     {
-        public const string CatalogPath="Assets/Game/Skills/Foundation/组合模块目录.asset";
+        public const string CatalogPath="Assets/GameData/目录/组合模块目录.asset";
         public static T[] Assets<T>() where T:UnityEngine.Object => AssetDatabase.FindAssets("t:"+typeof(T).Name)
             .Select(AssetDatabase.GUIDToAssetPath).Where(path=>
                 string.IsNullOrEmpty(Environment.GetEnvironmentVariable("HERO_SKILL_SOURCE_PROJECT")) ||

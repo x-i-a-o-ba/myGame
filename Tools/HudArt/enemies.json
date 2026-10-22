@@ -14,56 +14,56 @@
  },
  "prefabs": {
   "3001": {
-   "path": "Assets/Game/Enemies/Prefabs/腐化食尸鬼.prefab",
+   "path": "Assets/GameData/怪物/3001_腐化食尸鬼.prefab",
    "guid": "4664f792cbed49f7953b1642f94e67e3",
    "component": 4127538355715876718,
    "name": "腐化食尸鬼",
    "stable": "enemy.ghoul"
   },
   "3002": {
-   "path": "Assets/Game/Enemies/Prefabs/迅捷猎犬.prefab",
+   "path": "Assets/GameData/怪物/3002_迅捷猎犬.prefab",
    "guid": "0148d39a1a66443eaf9ed41e4791e0c8",
    "component": 327166426177962618,
    "name": "迅捷猎犬",
    "stable": "enemy.hound"
   },
   "3003": {
-   "path": "Assets/Game/Enemies/Prefabs/骷髅弓手.prefab",
+   "path": "Assets/GameData/怪物/3003_骷髅弓手.prefab",
    "guid": "baabf897d8bf4c46946a7573518ab17b",
    "component": 1162408049307120960,
    "name": "骷髅弓手",
    "stable": "enemy.skeleton_archer"
   },
   "3004": {
-   "path": "Assets/Game/Enemies/Prefabs/蛮牛冲锋者.prefab",
+   "path": "Assets/GameData/怪物/3004_蛮牛冲锋者.prefab",
    "guid": "a80395477a0141219d8d3e7031a1646b",
    "component": 669259657311150719,
    "name": "蛮牛冲锋者",
    "stable": "enemy.bull_charger"
   },
   "3005": {
-   "path": "Assets/Game/Enemies/Prefabs/爆裂毒囊.prefab",
+   "path": "Assets/GameData/怪物/3005_爆裂毒囊.prefab",
    "guid": "40e7adbea79446229c181e0673820e81",
    "component": 2122610207335516857,
    "name": "爆裂毒囊",
    "stable": "enemy.toxic_sac"
   },
   "3006": {
-   "path": "Assets/Game/Enemies/Prefabs/岩石魔像.prefab",
+   "path": "Assets/GameData/怪物/3006_岩石魔像.prefab",
    "guid": "7d1efde1513041b29c94568ef7ea9f79",
    "component": 294869362402068463,
    "name": "岩石魔像",
    "stable": "enemy.rock_golem"
   },
   "3007": {
-   "path": "Assets/Game/Enemies/Prefabs/深渊领主.prefab",
+   "path": "Assets/GameData/怪物/3007_深渊领主.prefab",
    "guid": "bffe868347a64acabc9b9fed3c55cc8b",
    "component": 627129538977734335,
    "name": "深渊领主",
    "stable": "enemy.abyss_lord"
   },
   "3008": {
-   "path": "Assets/Game/Enemies/Prefabs/霜骨巫妖.prefab",
+   "path": "Assets/GameData/怪物/3008_霜骨巫妖.prefab",
    "guid": "f6c56a0a78cb442e8ff332b0fe34d457",
    "component": 140452038508195850,
    "name": "霜骨巫妖",

@@ -88,7 +88,7 @@ namespace Roguelike.SkillIndicators.Editor
                 IndicatorDemoHudBuilder.Bind(serialized,"hud",root.GetComponentInChildren<IndicatorDemoHud>());
                 var presets=serialized.FindProperty("skills"); presets.arraySize=3;
                 string[] names={"Q - 精准落点","W - 扩大范围","E - 远距投放"};
-                for(int i=0;i<3;i++) presets.GetArrayElementAtIndex(i).objectReferenceValue=AssetDatabase.LoadAssetAtPath<CircleSkillPreset>(IndicatorDemoAssets.Root+"/Settings/"+names[i]+".asset");
+                for(int i=0;i<3;i++) presets.GetArrayElementAtIndex(i).objectReferenceValue=AssetDatabase.LoadAssetAtPath<CircleSkillPreset>("Assets/GameData/历史示例/技能指示器/"+names[i]+".asset");
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 var input=root.AddComponent<IndicatorDemoInput>();
                 var inputData=new SerializedObject(input);
