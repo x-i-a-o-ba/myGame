@@ -16,6 +16,8 @@ namespace Roguelike.Combat
     public sealed class GameCombatProbe : MonoBehaviour
     {
         private const string BottomPanel="UI.Game.BottomHUD";
+        [Tooltip("开局选择目录：英雄切换检查从这里取第二位英雄（磐锋卫士），并核对本场景的战场定义。只在 --game-smoke 时使用。")]
+        public Roguelike.Flow.StartSelectionCatalog selectionCatalog;
         private bool failed;
         private string output;
         private IEnumerator Start()
@@ -30,6 +32,7 @@ namespace Roguelike.Combat
             while(!controller.IsReady && Time.realtimeSinceStartup<deadline) yield return null;
             Check(controller.IsReady,"Game initializes composed hero");
             if(failed) { Finish(controller); yield break; }
+            Check(controller.map && controller.map.sceneId=="Scene."+gameObject.scene.name && controller.ActiveRoster==controller.map.enemyRoster,"Battlefield definition supplies this scene's enemy roster");
             var manager=World.DefaultGameObjectInjectionWorld.EntityManager;
             var originalHero=controller.hero;
             var indicator=UnityEngine.Object.FindFirstObjectByType<GameAbilityIndicator>();
@@ -127,14 +130,12 @@ namespace Roguelike.Combat
         }
         private IEnumerator VanguardChecks(GameCombatController controller,EntityManager manager,HeroDefinition original)
         {
-            var roster=FindFirstObjectByType<HeroRoster>();
-            Check(roster && roster.heroes.Length==2,"Hero selection exposes both authored heroes");
-            if(!roster) yield break;
-            var buttons=roster.GetComponentsInChildren<UnityEngine.UI.Button>();
-            Check(buttons.Length==2,"Both hero choices have authored buttons");
-            if(buttons.Length!=2) yield break;
-            buttons[1].onClick.Invoke();yield return null;yield return null;
-            Check(controller.hero==roster.heroes[1] && controller.LiveAttack.Delivery==AttackDelivery.Melee,"Hero button starts the melee vanguard");
+            // 英雄选择已移到开局选择场景；这里用同一目录与控制器的选择边界切换英雄。
+            var heroes=selectionCatalog?selectionCatalog.heroes:null;
+            Check(heroes!=null && heroes.Length>=2 && heroes[0]==original && selectionCatalog.IndexOf(controller.map)>=0,"Start selection catalog lists the archer, the vanguard and this battlefield");
+            if(heroes==null || heroes.Length<2) yield break;
+            controller.SelectHero(heroes[1]);yield return null;yield return null;
+            Check(controller.hero==heroes[1] && controller.LiveAttack.Delivery==AttackDelivery.Melee,"Selecting the catalog vanguard starts the melee hero");
             Check(controller.Progression.Level==1 && controller.GroundCount==0 && controller.EquippedAt(0)==-1,"Hero selection resets level and inventory");
             var progress=controller.Progression;progress.Experience=progress.Library.Value.CumulativeExperience[6];manager.SetComponentData(controller.SessionEntity,progress);
             yield return null;yield return null;
@@ -165,7 +166,7 @@ namespace Roguelike.Combat
                 }
                 finally { if(manager.Exists(target)) manager.DestroyEntity(target); }
             }
-            buttons[0].onClick.Invoke();yield return null;yield return null;
+            controller.SelectHero(original);yield return null;yield return null;
             Check(controller.hero==original && controller.Progression.Level==1 && manager.GetBuffer<ActiveBuff>(controller.SessionEntity).Length==0,"Switching back restores archer and clears vanguard state");
         }
         /// <summary>Dota 2 式指令：右键敌人攻击、S 停止、H 待命、HUD 指令按钮与鼠标点选敌人。</summary>

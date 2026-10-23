@@ -1,5 +1,9 @@
 # 架构与迁移方案
 
+## 2026-10-23 开局选择与多战场
+
+场景流程为 Main → SelectScene → 战场场景（Game 幽暗荒原 / EmberRift 熔火裂谷）。新增 `Roguelike.Flow`（`Assets/Game/Runtime/Flow`，属于 Roguelike.Runtime 程序集）。配置只存在 ScriptableObject 中：`StartSelectionCatalog` 存可选英雄与战场及其顺序，`GameMapDefinition` 存战场展示信息、场景 ID、敌人名册与难度曲线。跨场景只传 `GameSelection` 中的两个配置引用（只在内存中，不写存档），战斗状态仍归战场场景的 `GameCombatSession`。`SelectSceneController` 经场景 UIManager 发布展示键并处理 `select.*` 命令，`HeroShowcase` 只负责外形。`GameCombatController.ApplySelection` 在创建会话前换成所选英雄；只有所选战场属于当前场景时才替换战场，名册和难度统一由 `ActiveRoster` / `ActiveDifficulty` 读取。场景切换统一走 `SceneNavigation` 路由表（命令 → 加载场景 / 退出，可要求限时二次确认），面板不直接切换场景。Game 内的英雄切换组件 `HeroRoster` 已删除，战斗探针改用开局选择目录与 `SelectHero`。说明见 [开局选择](hero-and-map-selection.md)，未经 Unity 验证。
+
 ## 2026-10-23 散射与英雄切换
 
 通用直线投递按配置创建独立飞行状态；英雄目录按钮调用既有装配重开边界，外形和圆形反馈只消费战斗状态。模块职责与兼容说明见 [冰箭与战士](volley-and-vanguard.md)。
@@ -130,5 +134,5 @@ Assets/Game/Abilities 以 ScriptableObject 编写共享配置，启动时编译�
 
 ## 场景/UI 模块统一（2026-09-23）
 
-所有 7 个场景已采用 Bootstrap、Systems、World、Presentation、UI、Debug 分组。新增独立 Roguelike.Foundation 程序集：场景级 UIManager 管理面板生命周期，UIPanel 只绑定内部控件，UIAction 通过 UiEvents 发出命令，模块 HUD 适配器发布展示快照。15 个常驻面板保存成 Prefab，另有 F1 按需加载的开发说明。ResourcePaths 统一解析 ProjectResourceCatalog.json，旧资源加载入口也转到该清单。世界常驻资源继续保留 Inspector 引用。迷雾 contentRoot 显式定义查找作用域，避免控制器对子节点排布的隐式依赖。详细使用、扩展和设计来源见 scene-ui-framework.md。
+所有 7 个场景已采用 Bootstrap、Systems、World、Presentation、UI、Debug 分组（2026-10-23 新增的 EmberRift 沿用同一分组，现为 8 个）。新增独立 Roguelike.Foundation 程序集：场景级 UIManager 管理面板生命周期，UIPanel 只绑定内部控件，UIAction 通过 UiEvents 发出命令，模块 HUD 适配器发布展示快照。15 个常驻面板保存成 Prefab，另有 F1 按需加载的开发说明。ResourcePaths 统一解析 ProjectResourceCatalog.json，旧资源加载入口也转到该清单。世界常驻资源继续保留 Inspector 引用。迷雾 contentRoot 显式定义查找作用域，避免控制器对子节点排布的隐式依赖。详细使用、扩展和设计来源见 scene-ui-framework.md。
 

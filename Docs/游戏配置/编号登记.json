@@ -218,6 +218,78 @@
             "retired": false
         },
         {
+            "id": 3009,
+            "category": "monster",
+            "assetKey": "monster:3009",
+            "stableId": "enemy.ember_imp",
+            "path": "Assets/GameData/怪物/3009_余烬小鬼.prefab",
+            "name": "余烬小鬼",
+            "retired": false
+        },
+        {
+            "id": 3010,
+            "category": "monster",
+            "assetKey": "monster:3010",
+            "stableId": "enemy.magma_lizard",
+            "path": "Assets/GameData/怪物/3010_熔岩蜥蜴.prefab",
+            "name": "熔岩蜥蜴",
+            "retired": false
+        },
+        {
+            "id": 3011,
+            "category": "monster",
+            "assetKey": "monster:3011",
+            "stableId": "enemy.flame_caster",
+            "path": "Assets/GameData/怪物/3011_火焰术士.prefab",
+            "name": "火焰术士",
+            "retired": false
+        },
+        {
+            "id": 3012,
+            "category": "monster",
+            "assetKey": "monster:3012",
+            "stableId": "enemy.lava_rhino",
+            "path": "Assets/GameData/怪物/3012_熔岩犀牛.prefab",
+            "name": "熔岩犀牛",
+            "retired": false
+        },
+        {
+            "id": 3013,
+            "category": "monster",
+            "assetKey": "monster:3013",
+            "stableId": "enemy.blaze_wisp",
+            "path": "Assets/GameData/怪物/3013_爆燃火灵.prefab",
+            "name": "爆燃火灵",
+            "retired": false
+        },
+        {
+            "id": 3014,
+            "category": "monster",
+            "assetKey": "monster:3014",
+            "stableId": "enemy.obsidian_colossus",
+            "path": "Assets/GameData/怪物/3014_黑曜石巨像.prefab",
+            "name": "黑曜石巨像",
+            "retired": false
+        },
+        {
+            "id": 3015,
+            "category": "monster",
+            "assetKey": "monster:3015",
+            "stableId": "enemy.molten_lord",
+            "path": "Assets/GameData/怪物/3015_熔火领主.prefab",
+            "name": "熔火领主",
+            "retired": false
+        },
+        {
+            "id": 3016,
+            "category": "monster",
+            "assetKey": "monster:3016",
+            "stableId": "enemy.ash_witch",
+            "path": "Assets/GameData/怪物/3016_灰烬女巫.prefab",
+            "name": "灰烬女巫",
+            "retired": false
+        },
+        {
             "id": 4000,
             "category": "effect",
             "assetKey": "12a4173b07c489743a78d1e76080174e:11400000",
@@ -593,6 +665,24 @@
             "stableId": "item.storm_crown",
             "path": "Assets/GameData/装备/6017_风暴王冠.asset",
             "name": "风暴王冠",
+            "retired": false
+        },
+        {
+            "id": 7001,
+            "category": "map",
+            "assetKey": "3b3fb97d5dde419ba816820b33bf35f7:11400000",
+            "stableId": "map.shadow_wastes",
+            "path": "Assets/GameData/战场/7001_幽暗荒原.asset",
+            "name": "幽暗荒原",
+            "retired": false
+        },
+        {
+            "id": 7002,
+            "category": "map",
+            "assetKey": "8e52b5f2f6e5476aa1347fa18dcb73e5:11400000",
+            "stableId": "map.ember_rift",
+            "path": "Assets/GameData/战场/7002_熔火裂谷.asset",
+            "name": "熔火裂谷",
             "retired": false
         }
     ]

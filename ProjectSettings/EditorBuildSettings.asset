@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: 652d7ec13f8253645aff0212e25776ba
+  - enabled: 1
+    path: Assets/Scenes/EmberRift.unity
+    guid: a6479951264f486a8a8151cddc9813c0
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

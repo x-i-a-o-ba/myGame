@@ -64,7 +64,7 @@ namespace Roguelike.Combat
             if(!rules || !difficulty) throw new InvalidOperationException("Game缺少经验规则或难度曲线。");
             var waves=difficulty.ToSettings();
             var heroAttack=config.hero.ResolveAttack(config.projectileSpeed);
-            var roster=PlanRoster(config.enemyRoster);
+            var roster=PlanRoster(config.ActiveRoster);
             var nextProgression=HeroProgressionLogic.Compile(rules,config.hero);
             BlobAssetReference<AbilityLibrary> nextLibrary;
             try { nextLibrary=config.skillCatalog.Compile(); }
@@ -113,7 +113,7 @@ namespace Roguelike.Combat
                     prototype=EnemyPrototype(mesh,plan.Material,plan.Attack,plan.Behavior,LinearColor(plan.Material));
                     prototypes.Add(plan.Archetype,prototype);
                 }
-                var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=config.enemyRoster;
+                var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=config.ActiveRoster;
                 Color baseColor=MaterialColor(plan.Material);
                 kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstWave=entry.firstWave,LastWave=entry.lastWave,
                     Weight=entry.weight,Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,

@@ -13,6 +13,9 @@ namespace Roguelike.Editor
     public static class GameTools
     {
         public const string ScenePath = "Assets/Scenes/Game.unity";
+        public const string SecondBattlefieldPath = "Assets/Scenes/EmberRift.unity";
+        /// <summary>Windows 游戏构建的场景：主菜单首位 → 选择场景 → 各战场。--game-smoke / --game-balance 由 GameStartupRouter 直接进入 Game。</summary>
+        public static readonly string[] BuildScenes = { "Assets/Scenes/Main.unity", "Assets/Scenes/SelectScene.unity", ScenePath, SecondBattlefieldPath };
 
         [MenuItem("Tools/Roguelike/打开游戏场景")]
         public static void Open()
@@ -78,13 +81,18 @@ namespace Roguelike.Editor
         {
             BenchmarkTools.ValidateFoundation();
             CombatValidation.Validate();
-            if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath)) throw new InvalidOperationException("Game scene missing.");
-            EditorSceneManager.OpenScene(ScenePath);
-            CombatSceneAuthoring.Validate(UnityEngine.Object.FindFirstObjectByType<GameCombatController>());
+            GameFlowValidation.Validate();
+            foreach (string path in BuildScenes)
+                if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(path)) throw new InvalidOperationException("构建场景缺失：" + path);
+            foreach (string path in new[] { ScenePath, SecondBattlefieldPath })
+            {
+                EditorSceneManager.OpenScene(path);
+                CombatSceneAuthoring.Validate(UnityEngine.Object.FindFirstObjectByType<GameCombatController>());
+            }
             Directory.CreateDirectory("Builds/Game");
             var result = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath }, target = BuildTarget.StandaloneWindows64,
+                scenes = BuildScenes, target = BuildTarget.StandaloneWindows64,
                 locationPathName = "Builds/Game/Game.exe", options = BuildOptions.None
             });
             if (result.summary.result != BuildResult.Succeeded) throw new InvalidOperationException("Game build failed.");

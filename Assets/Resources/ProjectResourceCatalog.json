@@ -22,6 +22,11 @@
             "kind": "scene"
         },
         {
+            "id": "Scene.EmberRift",
+            "path": "EmberRift",
+            "kind": "scene"
+        },
+        {
             "id": "Scene.FogOfWarDemo",
             "path": "FogOfWarDemo",
             "kind": "scene"

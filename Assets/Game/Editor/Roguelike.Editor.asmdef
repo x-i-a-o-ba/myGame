@@ -10,6 +10,7 @@
     "Unity.Collections",
     "Unity.RenderPipelines.Universal.Runtime",
     "Roguelike.Foundation",
+    "Roguelike.Foundation.Editor",
     "Roguelike.Abilities.Core"
   ],
   "includePlatforms": [

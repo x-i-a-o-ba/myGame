@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.21 的 3D 俯视角肉鸽，目标是 PC 上同屏一万只可战斗敌人。主场景 `Assets/Scenes/Game.unity`，当前英雄“寒冰射手”，Q/W/E/R 为冰霜专注 / 冰霜扇击 / 冰霜冲击 / 冰晶巨箭。
+Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.21 的 3D 俯视角肉鸽，目标是 PC 上同屏一万只可战斗敌人。主场景 `Assets/Scenes/Game.unity`，当前英雄“寒冰射手”，Q/W/E/R 为冰霜专注 / 冰霜扇击 / 冰霜冲击 / 冰晶巨箭。2026-10-23 起游戏从主菜单 `Main.unity` 进入选择场景 `SelectScene.unity`，先选英雄（寒冰射手、磐锋卫士），再选战场：`Game.unity`（幽暗荒原）或新增的 `EmberRift.unity`（熔火裂谷），两个战场的怪物不同（未经 Unity 验证）。
 
 ## 目录与模块
 
@@ -13,6 +13,7 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | `Assets/Game/Abilities/Core` | Roguelike.Abilities.Core | 技能、Buff、效果的 ScriptableObject 定义与编译；通用施法、多段、投递、几何；英雄成长（`Progression/`）、属性（`Stats/`）与装备（`Equipment/`）。不依赖 UI、输入或场景 |
 | `Assets/Game/Abilities/Editor` | Roguelike.Abilities.Editor | 中文 Inspector、技能验证、演示资源工具 |
 | `Assets/Game/Runtime` | Roguelike.Runtime | Game 战斗宿主：会话、ECS 系统、波次、HUD、输入、指示器；压测与迷雾演示 |
+| `Assets/Game/Runtime/Flow` | Roguelike.Runtime | 2026-10-23 开局选择：开局选择目录、本局选择、选择场景控制器、英雄展示台、命令行启动路由与 `--select-smoke` 流程检查；战场定义 `GameMapDefinition` 在 `Runtime/Combat` |
 | `Assets/Game/Editor` | Roguelike.Editor | 场景构建与迁移、战斗/成长验证、压测工具、难度曲线 Inspector |
 | `Assets/Game/Foundation` | Roguelike.Foundation | 场景导航、UIManager/UIPanel/UIAction、资源目录 |
 | `Assets/Game/SkillAuthoring` | — | 技能配置工作台（独立窗口和场景） |
@@ -43,17 +44,18 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | 组合技能 / Buff 架构、V2 配方、中文编辑器、技能工作台 | 已完成，见 [ability-foundation.md](ability-foundation.md)、[V2 实施记录](skill-composition-v2-implementation.md) |
 | 寒冰射手四技能与指示器 | 已完成，见 [ashe-game-integration.md](ashe-game-integration.md) |
 | Dota 2 式升级、技能点、技能等级、天赋、波次难度、胜负 | 2026-10-21 Unity 编译、89 项 Editor 规则、Windows 构建及 31 项 Player 集成检查通过；完整实玩和数值平衡未验收，见 [hero-progression.md](hero-progression.md) |
+| 开局选择英雄与战场、第二战场熔火裂谷 | 2026-10-23 新增选择场景（英雄卡、属性与技能详情、3D 展示台、战场卡与怪物列表）、熔火裂谷场景与 8 种新怪物、战斗内“返回选择”；**未经 Unity 编译或运行验证**，见 [hero-and-map-selection.md](hero-and-map-selection.md) 和 [验证记录](validation-hero-map-selection-2026-10-23.md) |
 | 万敌完整战斗性能 | 未在 Player 中实测 |
-| 选人界面、经验掉落、敌人技能（复用技能组合）、局外成长、存档、音效、正式美术与动画 | 未开始 |
+| 经验掉落、敌人技能（复用技能组合）、局外成长、存档、音效、正式美术与动画 | 未开始 |
 
 ## 遗留代码建议（未执行）
 
-`Assets/Scripts/ProjectBase` 与 `Assets/_Scripts` 没有程序集定义，会编进默认的 Assembly-CSharp，新代码不依赖它们。功能已分别被 `Roguelike.Foundation`（场景、UI、资源）和 ECS 系统替代。建议在确认 Main、SelectScene 两个旧场景不再需要后，单独一次提交将它们移到 `Backups/` 或删除，并检查场景内是否还挂着这些脚本。本轮没有删除或移动任何旧代码。
+`Assets/Scripts/ProjectBase` 与 `Assets/_Scripts` 没有程序集定义，会编进默认的 Assembly-CSharp，新代码不依赖它们。功能已分别被 `Roguelike.Foundation`（场景、UI、资源）和 ECS 系统替代。建议单独一次提交将它们移到 `Backups/` 或删除。Main、SelectScene 自 2026-10-23 起是主菜单和选择场景，已核对四个游戏场景都没有引用这两个目录中的脚本。本轮没有删除或移动任何旧代码。
 
 ## 建议的后续顺序
 
-1. 在 Unity 中打开项目，跑 **Tools/Roguelike/验证/战斗与成长（不构建）**，修正编译或验证问题；检查新 HUD 画面、左键选中敌人信息面板、技能悬停提示、移动中攻击手感、商店与装备栏、装备与属性提示、装备拖动 / 丢弃 / 拾取与固定商店（商店模型外观与位置）、敌人预制体外形和 Dota 2 式操作手感，试玩一局调节经验、难度曲线和各敌人倍率。
+1. 在 Unity 中打开项目，跑 **Tools/Roguelike/验证/战斗与成长（不构建）** 和 **Tools/Roguelike/维护/检查开局选择流程**，修正编译或验证问题；从 Main 走一遍选英雄 → 选战场 → 返回选择，检查熔火裂谷外观与新怪物；检查新 HUD 画面、左键选中敌人信息面板、技能悬停提示、移动中攻击手感、商店与装备栏、装备与属性提示、装备拖动 / 丢弃 / 拾取与固定商店（商店模型外观与位置）、敌人预制体外形和 Dota 2 式操作手感，试玩一局调节经验、难度曲线和各敌人倍率。
 2. Player 中把同屏上限调到一万，按 [performance.md](performance.md) 测帧时间；必要时为索敌和范围技能加空间划分。
 3. 经验球掉落与拾取范围；精英/首领技能（复用技能组合架构）；敌人之间的避让与分离。
-4. 选人界面与第二个完整英雄，验证成长系统对其他英雄的复用。
+4. 选人界面与第二个完整英雄已于 2026-10-23 写完（待 Unity 验证）；之后可为每个战场配置独立的难度曲线和首领机制，并验证成长系统对两名英雄的复用。
 5. 局外成长、存档、音效与正式美术资源。

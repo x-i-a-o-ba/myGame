@@ -6,7 +6,7 @@ Unity 6.3 + URP + ECS 的 3D 俯视角肉鸽游戏项目。
 - 依赖：URP `17.3.0`、Entities `1.4.8`、Entities Graphics `1.4.21`，以 `Packages/manifest.json` 为准。
 - 开发文档：[Docs/README.md](Docs/README.md)。
 - 开发约定：[AGENTS.md](AGENTS.md)。
-- 当前战斗场景：`Assets/Scenes/Game.unity`。
+- 游戏入口：`Assets/Scenes/Main.unity`（主菜单 → 选择英雄 → 选择战场）。战场场景：`Assets/Scenes/Game.unity`（幽暗荒原）、`Assets/Scenes/EmberRift.unity`（熔火裂谷，2026-10-23 新增，未经 Unity 验证），见 [开局选择](Docs/hero-and-map-selection.md)。
 
 ## 恢复项目
 

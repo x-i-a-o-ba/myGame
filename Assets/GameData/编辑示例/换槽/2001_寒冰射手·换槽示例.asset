@@ -15,6 +15,8 @@ MonoBehaviour:
   configId: 2001
   stableId: hero.frost_archer_alternate
   displayName: "\u5BD2\u51B0\u5C04\u624B\xB7\u6362\u69FD\u914D\u7F6E\u793A\u4F8B"
+  role: 
+  description: 
   skills:
   - {fileID: 11400000, guid: f0d6ef98d0304cd4397e5fa7e1d12581, type: 2}
   - {fileID: 11400000, guid: 05ec15d5330abe5419bcbfdedf778c67, type: 2}

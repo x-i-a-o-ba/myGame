@@ -10,6 +10,8 @@ namespace Roguelike.Abilities
         public int configId;
         [InspectorName("稳定 ID")] public string stableId;
         [InspectorName("英雄名称")] public string displayName;
+        [Tooltip("开局选择界面显示的定位标签，例如“远程 · 控制”。只用于展示，不参与战斗结算。")] public string role;
+        [TextArea(2,5), Tooltip("开局选择界面显示的英雄简介。只用于展示，不参与战斗结算。")] public string description;
         [InspectorName("技能槽（按顺序）")] public SkillDefinition[] skills=Array.Empty<SkillDefinition>();
         [InspectorName("基础生命"), Min(1)] public float health=300;
         [InspectorName("移动速度（米/秒）"), Min(0)] public float speed=8;

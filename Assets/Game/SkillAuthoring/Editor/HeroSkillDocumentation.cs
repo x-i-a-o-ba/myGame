@@ -15,6 +15,8 @@ namespace Roguelike.SkillAuthoring.Editor
     public static class HeroSkillDocumentation
     {
         public const string OutputPath = "Logs/HeroSkillCatalog/source.json";
+        /// <summary>开局选择目录：怪物文档按其中各战场的名册列出全部怪物。</summary>
+        private const string SelectionCatalogPath = "Assets/GameData/目录/开局选择目录.asset";
 
         /// <summary>验证全部英雄和技能的全局稳定 ID 与装配引用，然后写入 UTF-8 JSON；失败时保留旧快照。</summary>
         public static void Export()
@@ -91,12 +93,18 @@ namespace Roguelike.SkillAuthoring.Editor
                 var rows = new List<MonsterRow> { new MonsterRow { id = GameCombatController.EnemyConfigId, name = "普通怪物", usage = "未配置敌人名册时的兼容怪物", path = path,
                     health = c.enemyHealth, speed = c.enemySpeed, attackDamage = c.enemyAttackDamage, attackInterval = c.enemyAttackInterval, range = c.enemyAttackRange } };
                 // 名册种类：数值为第 1 波普通档（场景基础值 × 种类倍率），攻击节奏取自动攻击模块。
+                // 先列 Game 场景本局使用的名册（战场定义优先），再列开局选择目录中各战场的名册；同一怪物只列一次，用途前标注所属战场。
+                var rosters = new List<(string label, EnemyRoster roster)> { (c.map ? c.map.Label : "Game", c.ActiveRoster) };
+                var selection = AssetDatabase.LoadAssetAtPath<Roguelike.Flow.StartSelectionCatalog>(SelectionCatalogPath);
+                if (selection && selection.maps != null)
+                    foreach (var map in selection.maps) if (map) rosters.Add((map.Label, map.enemyRoster));
                 var seen = new HashSet<EnemyArchetype>();
-                foreach (var entry in c.enemyRoster ? c.enemyRoster.entries : Array.Empty<EnemySpawnEntry>())
+                foreach (var (label, roster) in rosters)
+                foreach (var entry in roster ? roster.entries : Array.Empty<EnemySpawnEntry>())
                 {
                     var a = entry?.prefab;
                     if (!a || !seen.Add(a)) continue;
-                    rows.Add(new MonsterRow { id = a.configId, name = a.Label, usage = MonsterUsage(a, entry), path = AssetDatabase.GetAssetPath(a),
+                    rows.Add(new MonsterRow { id = a.configId, name = a.Label, usage = label + "：" + MonsterUsage(a, entry), path = AssetDatabase.GetAssetPath(a),
                         health = c.enemyHealth * a.healthMultiplier, speed = c.enemySpeed * a.speedMultiplier, attackDamage = c.enemyAttackDamage * a.damageMultiplier,
                         attackInterval = a.attack ? a.attack.baseAttackTime : 0, range = a.attack ? a.attack.range : 0 });
                 }

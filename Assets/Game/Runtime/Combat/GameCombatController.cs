@@ -1,5 +1,7 @@
 using System;
 using Roguelike.Abilities;
+using Roguelike.Flow;
+using Roguelike.Foundation;
 using Roguelike.SkillIndicators;
 using Unity.Collections;
 using Unity.Entities;
@@ -23,6 +25,9 @@ namespace Roguelike.Combat
         public Camera gameCamera;
         public Material playerMaterial,enemyMaterial,projectileMaterial,groundMaterial,markerMaterial;
         [Tooltip("敌方远程弹体材质；为空时使用敌人材质。")] public Material enemyProjectileMaterial;
+        [Header("战场（重开生效）")]
+        [Tooltip("本场景对应的战场定义：提供敌人名册与关卡难度曲线，覆盖下方同名配置。从选择界面进入时由所选战场（必须指向本场景）替换；为空时使用下方名册与难度曲线。")]
+        public GameMapDefinition map;
         [Header("英雄和技能库（重开生效）")]
         public HeroDefinition hero;
         public SkillCatalog skillCatalog;
@@ -165,12 +170,16 @@ namespace Roguelike.Combat
         /// <summary>是否处于 A 键攻击瞄准：下一次左键对敌人下达攻击、对地面下达攻击移动。</summary>
         public bool AttackArmed {get; private set;}
         public HeroProgressionRules ActiveRules=>progressionRules?progressionRules:fallbackRules;
-        public CombatDifficultyDefinition ActiveDifficulty=>difficulty?difficulty:fallbackDifficulty;
+        /// <summary>本局使用的关卡难度曲线：战场定义优先，其次本控制器的配置，最后为默认曲线。</summary>
+        public CombatDifficultyDefinition ActiveDifficulty=>map && map.difficulty?map.difficulty:difficulty?difficulty:fallbackDifficulty;
+        /// <summary>本局使用的敌人名册：战场定义优先，其次本控制器的配置；都为空时只刷统一敌人。</summary>
+        public EnemyRoster ActiveRoster=>map && map.enemyRoster?map.enemyRoster:enemyRoster;
         private bool Running=>IsReady && State.Health>0 && Wave.Outcome==CombatOutcome.Running;
         private void Start()
         {
             try
             {
+                ApplySelection();
                 if(!hero || !skillCatalog) throw new InvalidOperationException("Game缺少英雄或技能库配置。");
                 if(!enemyMaterial || !projectileMaterial || !enemyMesh || !projectileMesh || !playerView || !destinationMarker || !hud || !hud.HasBindings || !abilityIndicator || !abilityIndicator.HasBindings)
                     throw new InvalidOperationException("Game场景展示引用不完整。");
@@ -185,14 +194,14 @@ namespace Roguelike.Combat
                     fallbackRules=ScriptableObject.CreateInstance<HeroProgressionRules>(); fallbackRules.name="默认经验与等级规则";
                     Debug.LogWarning("Game 未指定经验与等级规则，使用 Dota 2 默认经验表。",this);
                 }
-                if(!difficulty)
+                if(!(map && map.difficulty) && !difficulty)
                 {
                     fallbackDifficulty=ScriptableObject.CreateInstance<CombatDifficultyDefinition>(); fallbackDifficulty.name="默认关卡难度曲线";
                     // 没有难度资源的旧场景才使用控制器基础值；正式 Game 从 GameData 编译。
                     fallbackDifficulty.baseEnemyHealth=enemyHealth; fallbackDifficulty.baseEnemyDamage=enemyAttackDamage; fallbackDifficulty.baseEnemySpeed=enemySpeed;
                     Debug.LogWarning("Game 未指定关卡难度曲线，使用默认曲线。",this);
                 }
-                if(!enemyRoster) Debug.LogWarning("Game 未指定敌人名册，只刷出统一敌人。",this);
+                if(!ActiveRoster) Debug.LogWarning("Game 未指定敌人名册，只刷出统一敌人。",this);
                 if(!equipmentCatalog) Debug.LogWarning("Game 未指定装备库，商店为空。",this);
                 if(!shop) Debug.LogWarning("Game 未指定商店位置（GameShop），任何位置都能打开商店。",this);
                 markerRenderer=destinationMarker.GetComponentInChildren<Renderer>(true);
@@ -225,7 +234,22 @@ namespace Roguelike.Combat
             observedLevelUps=0; observedCommands=0; observedEquipment=0;
             ShowNotice(shop?"按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习技能；商店在上方的金色圆圈里，走进去按 B 购买装备":
                 "按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习第一个技能；按 B 打开商店购买装备",6);
-            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; finalWave={ActiveDifficulty.finalWave}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
+            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; map={(map?map.stableId:"none")}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; finalWave={ActiveDifficulty.finalWave}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
+        }
+        /// <summary>
+        /// 应用开局选择（GameSelection）：英雄总是替换；战场只在所选战场的场景就是本场景时替换，否则保留场景配置并警告。
+        /// 直接打开战场场景（没有选择）时沿用场景上的英雄与战场。
+        /// </summary>
+        private void ApplySelection()
+        {
+            if(GameSelection.Hero) hero=GameSelection.Hero;
+            var chosen=GameSelection.Map;
+            if(!chosen || chosen==map) return;
+            string scene;
+            try { scene=ResourcePaths.Resolve(chosen.sceneId,"scene"); }
+            catch(InvalidOperationException) { scene=null; }
+            if(scene==gameObject.scene.name) map=chosen;
+            else Debug.LogWarning($"所选战场 {chosen.Label} 属于场景 {chosen.sceneId}，与当前场景 {gameObject.scene.name} 不符，沿用场景上的战场配置。",this);
         }
         /// <summary>选择英雄配置并重新开局；不改变共享配置。选人界面可调用此边界。</summary>
         public void SelectHero(HeroDefinition selected)
@@ -789,6 +813,7 @@ namespace Roguelike.Combat
             var equipped=manager.GetBuffer<EquipmentSlot>(session.Entity);
             s.Outcome=state.Health<=0?CombatOutcome.Defeat:wave.Outcome;
             s.HeroName=string.IsNullOrWhiteSpace(hero.displayName)?hero.name:hero.displayName; s.Portrait=hero.portrait;
+            s.MapName=map?map.Label:"";
             s.Level=progression.Level; s.SkillPoints=progression.SkillPoints;
             s.Health=state.Health; s.MaximumHealth=state.MaximumHealth; s.Regen=unit.Regen; s.Mana=unit.Mana; s.MaximumMana=unit.MaxMana;
             s.ManaRegen=AbilityEffects.BaseManaRegen+unit.ManaRegenBonus;

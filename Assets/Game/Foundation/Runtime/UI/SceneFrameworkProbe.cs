@@ -28,7 +28,7 @@ namespace Roguelike.Foundation.UI
         }
         private IEnumerator Start()
         {
-            var names = new[] { "Main", "SelectScene", "Game", "SkillIndicatorDemo", "FogOfWarDemo", "SkillArchitectureDemo", "Benchmark10k", "Main" };
+            var names = new[] { "Main", "SelectScene", "Game", "EmberRift", "SkillIndicatorDemo", "FogOfWarDemo", "SkillArchitectureDemo", "Benchmark10k", "Main" };
             UIManager previous = null;
             foreach (string scene in names)
             {
@@ -70,7 +70,7 @@ namespace Roguelike.Foundation.UI
                 Debug.Log("SCENE_UI_VISITED "+scene);
             }
             string output=Path.Combine(Application.dataPath,"../scene-ui-result.json");
-            File.WriteAllText(output,"{\"passed\":"+(!failed?"true":"false")+",\"sceneVisits\":8}");
+            File.WriteAllText(output,"{\"passed\":"+(!failed?"true":"false")+",\"sceneVisits\":"+names.Length+"}");
             Debug.Log(failed?"SCENE_UI_SMOKE_FAILED":"SCENE_UI_SMOKE_PASSED");
             Application.Quit(failed?1:0);
         }

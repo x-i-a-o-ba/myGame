@@ -1,6 +1,14 @@
 # Game 场景维护说明
 
-## 2026-10-21 敌人名册、敌人预制体与 Dota 2 式 HUD（当前）
+## 2026-10-23 开局选择与第二战场（当前，未在 Unity 中打开验证）
+
+- `Main.unity`：Canvas 上 `SceneNavigation` 的路由表为 `main.start` → `Scene.SelectScene`、`main.quit` → 退出游戏。
+- `SelectScene.unity`：`01_Systems > Select Flow` 挂 `SelectSceneController`（UI 管理器、开局选择目录、英雄展示台）；`02_World > Actors > Hero Showcase` 挂 `HeroShowcase`，`Turntable > Hero Model` 的胶囊及其子节点 `Facing`（朝向标记）是默认外形；`04_UI > Canvas - UIManager` 下是 `UI.SelectScene.SelectPanel` 面板实例，Canvas 的导航路由为 `select.menu` → `Scene.Main`。
+- `Game.unity`：`01_Systems > Game Combat` 的 `GameCombatController` 新增“战场”，指向 `7001_幽暗荒原`；探针新增“开局选择目录”；原“英雄选择” Canvas（`HeroRoster`）已删除。Canvas 的导航路由为 `game.leave`（确认 3 秒）和 `game.select`，都进入 `Scene.SelectScene`。
+- `EmberRift.unity`（熔火裂谷）：节点结构、HUD 面板、控制器参数和导航路由与 Game 相同，“战场”指向 `7002_熔火裂谷`，没有战斗探针。地形在 `02_World > Environment`：`Arena`（熔岩地面）、`Shop - EmberRift`（固定商店，位置 (0, 0, 14)）、`Ember Decor` 下的 `Lava Pools`（11 处）、`Obsidian Spikes`（54 根）和 `Basalt Columns`（9 组共 37 根）。装饰都没有碰撞体；材质与纹理在 `Assets/GameData/表现/战场/`。
+- 这些场景 YAML 为手写或脚本生成；首次打开时如有丢失引用或布局问题，按本节和 [开局选择](hero-and-map-selection.md) 重新指定。
+
+## 2026-10-21 敌人名册、敌人预制体与 Dota 2 式 HUD
 
 - `01_Systems > Game Combat` 的 `GameCombatController` 新增两个引用：“敌人名册”指向 `Assets/GameData/目录/敌人名册.asset`，“敌方远程弹体材质”指向 `Assets/Game/Enemies/Materials/敌方弹体.mat`。名册为空时只刷旧的统一敌人。
 - 敌人外形在 `Assets/GameData/怪物/` 的预制体里改（子物体网格会合并成一个 ECS 网格，第一个 MeshRenderer 的材质决定颜色）；预制体不会被放进场景，也不会实例化成 GameObject。数值、行为与攻击模块在预制体根节点的 `EnemyArchetype` 上改，出场规则在名册里改。

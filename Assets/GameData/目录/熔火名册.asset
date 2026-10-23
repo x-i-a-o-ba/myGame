@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1f26af0a7404fed852ef7c33f620d3c, type: 3}
+  m_Name: "\u7194\u706B\u540D\u518C"
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.EnemyRoster
+  entries:
+  - prefab: {fileID: 127704650136075505, guid: cb51396c1b2f4bb9999bc56320a9430e, type: 3}
+    weight: 10
+    firstWave: 1
+    lastWave: 0
+    tiers: 3
+  - prefab: {fileID: 8006096733989807, guid: 8ea24b4b8faa447ca996620ec3361500, type: 3}
+    weight: 6
+    firstWave: 2
+    lastWave: 0
+    tiers: 3
+  - prefab: {fileID: 2222946399882953397, guid: e3555c1b577847a4adbffc77195d4e91, type: 3}
+    weight: 5
+    firstWave: 3
+    lastWave: 0
+    tiers: 3
+  - prefab: {fileID: 2681173993582546296, guid: ad91859af14a45dea481bd494e3dad72, type: 3}
+    weight: 3
+    firstWave: 4
+    lastWave: 0
+    tiers: 3
+  - prefab: {fileID: 4438442710521159918, guid: 2cb3a187c0aa4fdba1e8b577a754d0ec, type: 3}
+    weight: 3
+    firstWave: 5
+    lastWave: 0
+    tiers: 1
+  - prefab: {fileID: 4245934547569510881, guid: 142ecd1b165a4eb48a170bd264d16b76, type: 3}
+    weight: 1.5
+    firstWave: 6
+    lastWave: 0
+    tiers: 3
+  - prefab: {fileID: 2055660800540374455, guid: b29b06385fd24a078badfb3cb5be7667, type: 3}
+    weight: 1
+    firstWave: 1
+    lastWave: 0
+    tiers: 4
+  - prefab: {fileID: 2883372264530182364, guid: 8fee8a2ef3d44af391ae38dfe0e6c94b, type: 3}
+    weight: 1
+    firstWave: 10
+    lastWave: 0
+    tiers: 6
+  eliteTint: {r: 1, g: 0.78, b: 0.28, a: 1}
+  eliteTintStrength: 0.45
+  bossTint: {r: 1, g: 0.35, b: 0.3, a: 1}
+  bossTintStrength: 0.15

@@ -619,6 +619,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c9a666b31c61e428f0fab01adc22ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Roguelike.Foundation::Roguelike.Foundation.UI.SceneNavigation
+  routes:
+  - command: main.start
+    action: 0
+    sceneId: Scene.SelectScene
+    confirmSeconds: 0
+  - command: main.quit
+    action: 1
+    sceneId: 
+    confirmSeconds: 0
 --- !u!114 &830785197
 MonoBehaviour:
   m_ObjectHideFlags: 0

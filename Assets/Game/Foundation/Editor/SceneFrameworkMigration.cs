@@ -19,11 +19,11 @@ using Manager = Roguelike.Foundation.UI.UIManager;
 
 namespace Roguelike.Foundation.Editor
 {
-    /// <summary>显式、可重复的七场景迁移。通过序列化引用搬迁，不重建原有布局或改写玩法配置。</summary>
+    /// <summary>显式、可重复的八场景迁移（含第二战场 EmberRift）。通过序列化引用搬迁，不重建原有布局或改写玩法配置。</summary>
     public static class SceneFrameworkMigration
     {
         public static readonly string[] Scenes = {
-            "Assets/Scenes/Main.unity", "Assets/Scenes/SelectScene.unity", "Assets/Scenes/Game.unity",
+            "Assets/Scenes/Main.unity", "Assets/Scenes/SelectScene.unity", "Assets/Scenes/Game.unity", "Assets/Scenes/EmberRift.unity",
             "Assets/Scenes/SkillIndicatorDemo.unity", "Assets/Scenes/FogOfWarDemo.unity",
             "Assets/Scenes/SkillArchitectureDemo.unity", "Assets/Game/Scenes/Benchmark10k.unity"
         };
@@ -59,7 +59,7 @@ namespace Roguelike.Foundation.Editor
                 }
                 WriteManifest();
                 AssetDatabase.SaveAssets();
-                Debug.Log("SCENE_FRAMEWORK_MIGRATION_PASSED: 7 scenes");
+                Debug.Log("SCENE_FRAMEWORK_MIGRATION_PASSED: " + Scenes.Length + " scenes");
             }
             finally { if (!Application.isBatchMode) EditorSceneManager.RestoreSceneManagerSetup(setup); }
         }

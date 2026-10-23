@@ -1,8 +1,12 @@
 # 万级同屏肉鸽开发文档
 
+## 2026-10-23 开局选择英雄与战场
+
+主菜单“开始游戏”后进入选择场景：第 1 步选英雄（英雄卡、属性与技能详情、3D 展示台），第 2 步选战场（预览、简介、该战场的怪物）。新增第二战场“熔火裂谷”（`EmberRift` 场景）和 8 种新怪物，两个战场的怪物互不重复。战斗右上角“返回选择”需 3 秒内二次点击确认，结算面板也能返回；Game 内的英雄切换按钮已移除。**未经 Unity 编译或运行验证。** 说明见 [功能说明](hero-and-map-selection.md)，检查范围和待验证清单见 [验证记录](validation-hero-map-selection-2026-10-23.md)。
+
 ## 2026-10-23 冰箭散射与磐锋卫士
 
-寒冰第二技能改为默认七支独立冰箭，首碰造成伤害并消失；新增近战战士“磐锋卫士”，通过蓄势重劈、守势回复、固定刃阵与延迟落剑作战，游戏右上角可选择并重开。配置、数值和共享模块边界见 [功能说明](volley-and-vanguard.md)，实测见 [验证记录](validation-volley-vanguard-2026-10-23.md)。
+寒冰第二技能改为默认七支独立冰箭，首碰造成伤害并消失；新增近战战士“磐锋卫士”，通过蓄势重劈、守势回复、固定刃阵与延迟落剑作战，游戏右上角可选择并重开（同日已改为在开局选择场景中选择，见上一节）。配置、数值和共享模块边界见 [功能说明](volley-and-vanguard.md)，实测见 [验证记录](validation-volley-vanguard-2026-10-23.md)。
 
 ## 2026-10-22 30 波平衡、回蓝与单项属性
 
@@ -67,7 +71,7 @@
 | URP | 17.3.0；Forward+ 与全局 GraphicsSettings 已绑定，各 Quality 继承全局设置；基础构建与 Player 初始化已验证 |
 | ECS | Entities 1.4.8 + Entities Graphics 1.4.21；基础框架、独立压测及 Game 战斗系统已加入 |
 | 现有代码 | Assets/Scripts/ProjectBase 与 Assets/_Scripts 两套 MonoBehaviour/管理工具 |
-| 场景 | Game.unity 绑定 HeroDefinition、SkillCatalog、经验与等级规则、关卡难度曲线和按配置工作的指示器；enemyCount=3000（同屏存活上限）、safeSpawnRadius=30。Main、SelectScene及独立历史场景保留；完整选人UI尚未接入 |
+| 场景 | Game.unity 绑定 HeroDefinition、SkillCatalog、经验与等级规则、关卡难度曲线和按配置工作的指示器；enemyCount=3000（同屏存活上限）、safeSpawnRadius=30。2026-10-23 起流程为 Main（主菜单）→ SelectScene（选择英雄与战场）→ Game（幽暗荒原）或 EmberRift（熔火裂谷，控制器配置相同、怪物不同），未经 Unity 验证；独立历史场景保留 |
 | 版本管理 | 2026-10-21 建立 Git 仓库，远程为公开仓库 x-i-a-o-ba/myGame；修改前检查工作区并保留可恢复状态，备份范围见根目录 README.md |
 
 当前 Game 使用 `Roguelike.Abilities.Core`：旧固定技能类及 QWER 状态已移除，共享核心已实际接入。最新验证以 [基础架构记录](ability-foundation.md) 为准。`build4.log/player3.log/Smoke3` 属于上一版固定技能实现，不能证明本轮重构通过。万敌完整战斗性能仍未验收。
@@ -95,6 +99,7 @@
 19. [英雄成长、技能等级与波次难度](hero-progression.md)：Dota 2 式经验/技能点/天赋、技能等级、30 波难度曲线、胜负、操作与验证状态。
 20. [敌人种类、Dota 2 式操作与 HUD](enemies-and-controls.md)：自动攻击被动模块、右键/A/S/H 指令、8 种敌人预制体与名册、新版 HUD 面板、左键选中敌人信息面板、技能悬停提示、移动中攻击与验证状态。
 21. [属性与装备](equipment-and-stats.md)：15 种直接相加的属性、合成规则与上限、装备与装备库、首批 18 件、新增装备步骤、金币、商店操作与验证状态。
+22. [开局选择英雄与战场](hero-and-map-selection.md)：选择场景流程与按键、两个战场与熔火裂谷 8 种怪物、配置入口、新增英雄/战场步骤；[验证记录](validation-hero-map-selection-2026-10-23.md)写明未经 Unity 验证。
 
 ## 文档维护规则
 
@@ -108,7 +113,7 @@
 
 ## 统一场景与 UI 框架
 
-[场景节点与 UI 使用规范](scene-ui-framework.md)：覆盖全部 7 个场景，单根 Canvas/UIManager、面板 Prefab、场景事件、集中资源文本清单与按需加载。当前节点和面板修改入口以此文档为准。
+[场景节点与 UI 使用规范](scene-ui-framework.md)：覆盖全部 7 个场景（2026-10-23 新增第二战场 EmberRift 后为 8 个），单根 Canvas/UIManager、面板 Prefab、场景事件、集中资源文本清单与按需加载。当前节点和面板修改入口以此文档为准。
 
 ## 2026-09-24 组合架构验证
 

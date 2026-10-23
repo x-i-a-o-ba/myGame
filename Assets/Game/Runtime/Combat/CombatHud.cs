@@ -297,6 +297,7 @@ namespace Roguelike.Combat
             Text("top.alive", $"{s.Alive:N0}");
             Text("top.fps", $"{s.Fps:0} FPS");
             Text("top.projectiles", $"弹体 {s.Projectiles:N0}");
+            Text("top.map", string.IsNullOrEmpty(s.MapName) ? "" : "战场 · " + s.MapName);
             Toggle("top.boss", running && s.BossAlive);
             if (s.BossAlive) { Text("top.bossName", s.BossName); Fill("top.bossFill", s.BossFraction); }
             // 提示条
@@ -611,6 +612,8 @@ namespace Roguelike.Combat
     {
         public CombatOutcome Outcome;
         public string HeroName; public Texture Portrait;
+        /// <summary>当前战场名称；场景没有战场定义时为空。</summary>
+        public string MapName;
         public int Level, SkillPoints;
         public float ExperienceFraction; public string ExperienceText;
         public float Health, MaximumHealth, Regen, Mana, MaximumMana, ManaRegen;

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Roguelike.Abilities;
 using Roguelike.Combat;
+using Roguelike.Flow;
 using UnityEditor;
 using UnityEditor.Events;
 using UnityEditor.SceneManagement;
@@ -15,6 +16,8 @@ namespace Roguelike.SkillAuthoring.Editor
     public static class VanguardContent
     {
         const string Root="Assets/GameData/";
+        const string VanguardRole="近战 · 坦克";
+        const string VanguardDescription="手持重剑的前排战士。普攻积蓄战意释放破阵重劈，用磐石战歌在包围中回血，以回环刃阵与震岳落剑封锁敌群，适合正面顶住怪潮。";
         static T Load<T>(string path) where T:UnityEngine.Object=>AssetDatabase.LoadAssetAtPath<T>(Root+path);
         static T Asset<T>(string path) where T:ScriptableObject
         {
@@ -80,10 +83,10 @@ namespace Roguelike.SkillAuthoring.Editor
             Selection.activeObject=Load<SkillDefinition>("技能/1001_冰霜扇击.asset");
             EditorApplication.ExecuteMenuItem("Window/General/Inspector");
         }
+        /// <summary>英雄选择已移到开局选择场景（SelectScene）：选中开局选择目录，检查它的中文 Inspector。</summary>
         public static void InspectRoster()
         {
-            EditorSceneManager.OpenScene("Assets/Scenes/Game.unity");
-            Selection.activeGameObject=UnityEngine.Object.FindFirstObjectByType<HeroRoster>().gameObject;
+            Selection.activeObject=Load<StartSelectionCatalog>("目录/开局选择目录.asset");
             EditorApplication.ExecuteMenuItem("Window/General/Inspector");
         }
         public static void Generate()
@@ -108,26 +111,13 @@ namespace Roguelike.SkillAuthoring.Editor
             var rn=Node(10103,Use(4004,240),Use(4012));rn.deliveryModuleId=10003;rn.radius=5;rn.arcHeight=7;rn.flightSeconds=.65f;
             var r=Skill(1011,"震岳落剑","ability.vanguard_fall",AimMode.Point,12,28,80,"向目标区域投下重剑，0.65 秒后造成范围伤害并压制敌人的攻击与移速；用于封路和配合刃阵。",rn);r.growth.track=SkillLevelTrack.Ultimate;
             var attack=Asset<AutoAttackDefinition>("普攻/英雄/裂刃普攻.asset");attack.stableId="attack.vanguard";attack.displayName="裂刃";attack.description="近战普攻；命中为破阵重劈积蓄战意。";attack.icon=q.icon;attack.delivery=AttackDelivery.Melee;attack.range=2.8f;attack.acquisitionRange=8;attack.baseAttackTime=.75f;attack.attackPoint=.18f;attack.backswing=.25f;Dirty(attack);
-            var hero=Asset<HeroDefinition>("英雄/2002_磐锋卫士.asset");hero.configId=2002;hero.stableId="hero.stone_vanguard";hero.displayName="磐锋卫士";hero.skills=new[]{q,w,e,r};hero.basicAttack=attack;
+            var hero=Asset<HeroDefinition>("英雄/2002_磐锋卫士.asset");hero.configId=2002;hero.stableId="hero.stone_vanguard";hero.displayName="磐锋卫士";hero.role=VanguardRole;hero.description=VanguardDescription;hero.skills=new[]{q,w,e,r};hero.basicAttack=attack;
             hero.health=620;hero.healthPerLevel=52;hero.baseMana=240;hero.manaPerLevel=14;hero.baseManaRegen=4;hero.manaRegenPerLevel=.2f;hero.speed=8;hero.range=2.8f;hero.attackDamage=48;hero.attackPerLevel=4;hero.attackInterval=.75f;hero.baseHealthRegen=3;hero.regenPerLevel=.2f;hero.attackWhileMoving=false;hero.portrait=Icon("磐锋卫士",4);hero.visualPrefab=Model();hero.baseStats=new[]{new StatModifier(StatKind.DamageReduction,12)};Dirty(hero);
             catalog.skills=catalog.skills.Concat(new[]{q,w,e,r}).Distinct().ToArray();Dirty(catalog);Dirty(modules);AssetDatabase.SaveAssets();NumericConfigIds.AssignMissing();
-            var scene=EditorSceneManager.OpenScene("Assets/Scenes/Game.unity");var controller=UnityEngine.Object.FindFirstObjectByType<GameCombatController>();
-            var existing=UnityEngine.Object.FindFirstObjectByType<HeroRoster>();if(existing) UnityEngine.Object.DestroyImmediate(existing.gameObject);
-            var root=new GameObject("英雄选择",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster),typeof(HeroRoster));
-            root.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;root.GetComponent<Canvas>().sortingOrder=30;
-            var scaler=root.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1920,1080);
-            var roster=root.GetComponent<HeroRoster>();roster.controller=controller;roster.heroes=new[]{frost,hero};
-            var font=UnityEngine.Object.FindObjectsByType<Text>(FindObjectsInactive.Include,FindObjectsSortMode.None).Select(t=>t.font).FirstOrDefault(f=>f);
-            if(!font) font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            for(int i=0;i<2;i++)
-            {
-                var go=new GameObject(roster.heroes[i].displayName,typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(root.transform,false);
-                var rect=(RectTransform)go.transform;rect.anchorMin=rect.anchorMax=new Vector2(1,1);rect.pivot=new Vector2(1,1);rect.anchoredPosition=new Vector2(-22,-105-i*42);rect.sizeDelta=new Vector2(250,36);
-                go.GetComponent<Image>().color=new Color(.08f,.12f,.17f,.95f);UnityEventTools.AddIntPersistentListener(go.GetComponent<Button>().onClick,roster.Select,i);
-                var label=new GameObject("名称",typeof(RectTransform),typeof(Text));label.transform.SetParent(go.transform,false);var lr=(RectTransform)label.transform;lr.anchorMin=Vector2.zero;lr.anchorMax=Vector2.one;lr.offsetMin=lr.offsetMax=Vector2.zero;
-                var text=label.GetComponent<Text>();text.font=font;text.fontSize=18;text.alignment=TextAnchor.MiddleCenter;text.color=new Color(1,.8f,.4f);text.text=roster.heroes[i].displayName+" · 选择并重开";text.raycastTarget=false;
-            }
-            EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();Debug.Log("VANGUARD_CONTENT_READY");
+            // 英雄选择在开局选择场景：只把英雄登记到开局选择目录，不在 Game 场景创建按钮。
+            var selection=Load<StartSelectionCatalog>("目录/开局选择目录.asset");
+            if(selection && System.Array.IndexOf(selection.heroes,hero)<0) { selection.heroes=selection.heroes.Append(hero).ToArray(); Dirty(selection); }
+            AssetDatabase.SaveAssets();Debug.Log("VANGUARD_CONTENT_READY");
         }
     }
 }

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45b6ca3044b343c8b698b622bbdf9ae9, type: 3}
+  m_Name: "7002_\u7194\u706B\u88C2\u8C37"
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.GameMapDefinition
+  configId: 7002
+  stableId: map.ember_rift
+  displayName: "\u7194\u706B\u88C2\u8C37"
+  description: "\u7194\u5CA9\u6CB3\u6A2A\u8D2F\u7684\u706B\u5C71\u88C2\u8C37\uFF1A\u4F59\u70EC\u5C0F\u9B3C\u4E0E\u7194\u5CA9\u8725\u8734\u8702\u62E5\u800C\u4E0A\uFF0C\u706B\u7130\u672F\u58EB\u6295\u63B7\u706B\u7403\uFF0C\u7194\u5CA9\u7280\u725B\u8FDC\u8DDD\u79BB\u51B2\u950B\uFF0C\u7206\u71C3\u706B\u7075\u5927\u8303\u56F4\u81EA\u7206\uFF0C\u9ED1\u66DC\u77F3\u5DE8\u50CF\u5835\u8DEF\uFF1B\u9996\u9886\u6CE2\u7531\u7194\u706B\u9886\u4E3B\u6216\u7070\u70EC\u5973\u5DEB\u5750\u9547\u3002"
+  preview: {fileID: 2800000, guid: e4e6b32548e04642a64973477550ca7c, type: 3}
+  sceneId: Scene.EmberRift
+  enemyRoster: {fileID: 11400000, guid: f202e1d6a6384a49a0a20e49bba2d1a4, type: 2}
+  difficulty: {fileID: 11400000, guid: fcd4cda1ade141bcbe637cfce6b43d87, type: 2}

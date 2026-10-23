@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45b6ca3044b343c8b698b622bbdf9ae9, type: 3}
+  m_Name: "7001_\u5E7D\u6697\u8352\u539F"
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.GameMapDefinition
+  configId: 7001
+  stableId: map.shadow_wastes
+  displayName: "\u5E7D\u6697\u8352\u539F"
+  description: "\u6708\u5149\u4E0B\u7684\u7070\u7EFF\u8352\u539F\uFF0C\u4EA1\u7075\u4E0E\u91CE\u517D\u4ECE\u56DB\u9762\u6D8C\u6765\uFF1A\u98DF\u5C38\u9B3C\u4E0E\u730E\u72AC\u8D34\u8EAB\u56F4\u653B\uFF0C\u9AB7\u9AC5\u5F13\u624B\u8FDC\u7A0B\u653E\u7BAD\uFF0C\u86EE\u725B\u51B2\u950B\u3001\u6BD2\u56CA\u81EA\u7206\uFF0C\u5CA9\u77F3\u9B54\u50CF\u5835\u8DEF\uFF1B\u9996\u9886\u6CE2\u7531\u6DF1\u6E0A\u9886\u4E3B\u6216\u971C\u9AA8\u5DEB\u5996\u5750\u9547\u3002"
+  preview: {fileID: 2800000, guid: e12dfd0a1ec74a68b1725189fcb8022a, type: 3}
+  sceneId: Scene.Game
+  enemyRoster: {fileID: 11400000, guid: 91435bcec21046efb74915127f3dbd2c, type: 2}
+  difficulty: {fileID: 11400000, guid: fcd4cda1ade141bcbe637cfce6b43d87, type: 2}

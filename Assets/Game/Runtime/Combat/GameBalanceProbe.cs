@@ -40,8 +40,10 @@ namespace Roguelike.Combat
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
-            if(Array.IndexOf(Environment.GetCommandLineArgs(),"--game-balance")>=0)
-                new GameObject("整局平衡观测（命令行）").AddComponent<GameBalanceProbe>();
+            if(Array.IndexOf(Environment.GetCommandLineArgs(),"--game-balance")<0) return;
+            // 构建首场景是主菜单，GameStartupRouter 随后切到战场；观测对象需跨场景保留。
+            var go=new GameObject("整局平衡观测（命令行）");
+            DontDestroyOnLoad(go); go.AddComponent<GameBalanceProbe>();
         }
         private IEnumerator Start()
         {

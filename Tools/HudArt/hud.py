@@ -179,11 +179,18 @@ panel(root,"UI.Game.Title",b)
 title=root; write("UI.Game.Title",root)
 # ================= 右上角 =================
 b=Bindings()
-root=Node("UI.Game.Controls",None,(1,1),(1,1),(-16,-14),(300,74),(1,1),go=7198065516410080699,rt=5117782400737888598)
+root=Node("UI.Game.Controls",None,(1,1),(1,1),(-16,-14),(300,112),(1,1),go=7198065516410080699,rt=5117782400737888598)
 image(fill(root,"Back"),"hud_body",kind="sliced",raycast=1)
 fp=at(root,"FPS",14,8,130,26); b.text("top.fps",text(fp,"",16,(0.6,1,0.6,1),"ML",bold=True)); pv[fp.go]="60 FPS"
 pj=at(root,"Projectiles",150,8,136,26); b.text("top.projectiles",text(pj,"",13,MUTED,"MR")); pv[pj.go]="弹体 1,204"
-text(at(root,"Help",14,38,272,28),"F1 帮助  ·  F5 重开  ·  滚轮缩放视野",12,MUTED,"ML")
+text(at(root,"Help",14,76,272,28),"F1 帮助  ·  F5 重开  ·  滚轮缩放视野",12,MUTED,"ML")
+with extra("hud.controls.leave"):
+    # 当前战场名（CombatHud 发布 top.map）与“返回选择”按钮：SceneNavigation 的 game.leave 路由需要 3 秒内再次点击才返回选择场景，
+    # 首次点击发布 game.leave.confirm，按钮文字从“返回选择”切换为“确认返回？”。
+    mp=at(root,"Map",14,40,156,30); b.text("top.map",text(mp,"",14,GOLD,"ML",bold=True)); pv[mp.go]="战场 · 幽暗荒原"
+    lv=at(root,"Leave",176,40,110,30); lg=image(lv,"button",kind="sliced",raycast=1); button(lv,lg,"game.leave",0)
+    ll=b.toggle("game.leave.confirm",fill(lv,"Label"),invert=1); text(ll,"返回选择",14,GOLD,"MC",bold=True)
+    lc=b.toggle("game.leave.confirm",fill(lv,"Confirm",active=0)); text(lc,"确认返回？",14,(1,0.62,0.45,1),"MC",bold=True)
 panel(root,"UI.Game.Controls",b)
 controls=root; write("UI.Game.Controls",root)
 # ================= 提示条（动态） =================

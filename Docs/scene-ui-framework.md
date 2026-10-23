@@ -6,6 +6,8 @@
 
 7 个场景：Main、SelectScene、Game、SkillIndicatorDemo、FogOfWarDemo、SkillArchitectureDemo、Benchmark10k。
 
+2026-10-23 新增第二战场 `Assets/Scenes/EmberRift.unity`（熔火裂谷），与 Game 使用相同的节点分组、HUD 面板和控制器，现为 8 个运行场景；SelectScene 改为开局选择英雄与战场。流程见 [开局选择](hero-and-map-selection.md)，未经 Unity 验证。
+
 2026-09-24 新增第 8 个场景 `Assets/Scenes/技能配置工作台.unity`，为编辑器工具场景，不进入玩家构建。根节点下分为“00_编辑装配 / 01_世界参照 / 02_相机与灯光”；配置、锚点、参考物和灯光相机保存为场景资产。此工具的界面由中文 EditorWindow 与 Scene Handles 承担，明确不建运行 Canvas/UIManager/EventSystem；游戏场景继续遵循下方规范。具体使用与验证见 [技能配置工作台](skill-authoring-workbench.md)。
 
 ```text
@@ -52,11 +54,11 @@
 | Foundation/UI/UIAction | 按钮的命令 ID 和参数；在本面板内查找发送入口 | 拖拽控制器、其他面板或其他 Canvas |
 | Foundation/UI/UiEvents | 场景内命令与展示事件，最近值回放 | 全局静态事件总线、万实体逐对象消息 |
 | CombatHud / IndicatorDemoHud / FogDemoHud / SkillDemoHud | 模块边界的事件翻译和展示数据发布 | 持有跨面板控件、拼装布局 |
-| SceneNavigation | 主菜单导航意图到场景切换/退出 | 主菜单按钮布局 |
+| SceneNavigation | 按路由表把 UI 命令映射为加载场景或退出；可设置确认时间，首次点击只发布 `<命令>.confirm`，限时内再点才执行。Main、SelectScene、Game、EmberRift 都用它切换场景 | 按钮布局、选择或战斗逻辑 |
 
 原 HUD 的旧控件字段只用于旧场景的显式迁移，已隐藏并清空；运行时不使用。旧全局 `UIManager` 只保留兼容适配，转到场景管理器，不再生成 DontDestroyOnLoad Canvas/EventSystem。新代码明确使用 `Roguelike.Foundation.UI.UIManager`，禁止用旧 `GetPanel` 绕过面板间事件约定。
 
-事件命令例：`ability.command` 携带 `SkillDemoCommand` 的数值；`fog.command` 携带 `FogCommand`；`indicator.skill` 携带 Q/W/E 索引；`combat.restart`、`main.start`、`main.quit`。展示键例：`ability.summary`、`fog.minimap`、`combat.healthFill`。可用项目全文搜索追踪发布者和接收者。
+事件命令例：`ability.command` 携带 `SkillDemoCommand` 的数值；`fog.command` 携带 `FogCommand`；`indicator.skill` 携带 Q/W/E 索引；`combat.restart`、`main.start`、`main.quit`；2026-10-23 新增 `select.hero` / `select.map`（数值为卡片序号）、`select.next`、`select.back`、`select.start`、`select.menu`，以及战场中的 `game.leave`（3 秒内二次确认）和 `game.select`（结算面板，立即返回）。展示键例：`ability.summary`、`fog.minimap`、`combat.healthFill`。可用项目全文搜索追踪发布者和接收者。
 
 当前每场景一个根 Canvas。将来性能分析证明高频区域需要独立重建时，可在同一 UI 根下增加子 Canvas，仍由同一管理器负责；不以统一管理为由把所有高频更新强制放在一个绘制批次。
 
@@ -92,7 +94,7 @@ F1 打开开发说明面板，第一次异步加载，关闭后保留实例供�
 
 菜单：`Tools > Roguelike > Scene Framework > Migrate All Scenes` / `Validate All Scenes`。迁移显式执行，已带 SceneLayout 标记的场景保留手改结构；后续升级只处理明确缺失的绑定。原场景/脚本/规范备份在 `Backups/scene-ui-20260923`；Editor 首次迁移也备份到 `Backups/scene-framework-editor`。
 
-Main 原脚本存在 Start 自动跳场景和错误按钮订阅，已替换为按钮意图 + 导航适配器；SelectScene 原本的占位内容保留，没有新增角色选择玩法。Game、技能指示器、视野、技能架构均保持原功能范围。
+Main 原脚本存在 Start 自动跳场景和错误按钮订阅，已替换为按钮意图 + 导航适配器；SelectScene 原本的占位内容保留，没有新增角色选择玩法（2026-10-23 已改为开局选择英雄与战场，Main 的 `main.start` 改为进入 SelectScene）。Game、技能指示器、视野、技能架构均保持原功能范围。
 
 验证已完成：
 
@@ -108,7 +110,7 @@ Main 原脚本存在 Start 自动跳场景和错误按钮订阅，已替换为�
 | 实际画面 | 已查看四个 Demo 的离屏截图，布局、文字、结算面板、指示器和小地图保持可用；`DemoReports/SceneFramework` |
 | skill | 官方 quick_validate.py 通过，项目/全局副本同步；验证依赖仅安装到 Temp/SkillValidationDependencies |
 
-复验全场景：运行 Player 加 `--scene-ui-smoke`。指定场景回归：`--start-scene Game --demo-smoke`、`--start-scene SkillIndicatorDemo --indicator-smoke`、`--start-scene FogOfWarDemo --fog-smoke`、`--start-scene SkillArchitectureDemo --ability-smoke`；可加 `--demo-output <绝对目录>`。
+复验全场景：运行 Player 加 `--scene-ui-smoke`。指定场景回归：`--start-scene Game --demo-smoke`、`--start-scene SkillIndicatorDemo --indicator-smoke`、`--start-scene FogOfWarDemo --fog-smoke`、`--start-scene SkillArchitectureDemo --ability-smoke`；可加 `--demo-output <绝对目录>`。2026-10-23 起 `--scene-ui-smoke` 共 9 次场景访问（加入 EmberRift），开局流程另有 `--select-smoke`，两者本轮均未运行。
 
 Player 退出时仍有此前已知的 ComputeBuffer GC 释放警告，本轮未解决。该改造不改变技能/战斗/视野算法，没有把旧性能数字当作 UI 重构后的性能证明。
 

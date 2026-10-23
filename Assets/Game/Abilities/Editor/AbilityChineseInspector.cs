@@ -179,6 +179,8 @@ namespace Roguelike.Abilities.Editor
             using(new EditorGUI.DisabledScope(true)) { Field("configId", "英雄 ID（数字编号）"); Field("stableId", "内部兼容键"); }
             AssignMissingNumber();
             Field("displayName", "英雄名称");
+            Field("role", "定位标签", "开局选择界面英雄卡与详情显示，例如“远程 · 控制”。只用于展示。");
+            Field("description", "英雄简介", "开局选择界面详情显示的一段介绍。只用于展示。");
             Array("skills", "技能装配", "槽位", "按顺序对应 Game 的 Q、W、E、R 输入槽；当前 Game 最多支持四槽。");
             Section("基础属性（重开后生效）");
             Field("health", "基础生命值");
@@ -190,7 +192,7 @@ namespace Roguelike.Abilities.Editor
             Field("turnRate", "转身速度（度/秒）", "移动与开始攻击前先转向；0 表示瞬间转身。");
             Field("attackWhileMoving", "移动中攻击", "开启：右键移动途中自动攻击攻击距离内的敌人且不停下，前摇不定身，按住右键拖动也能持续出手。关闭：Dota 2 式移动取消攻击。重开后生效。");
             Field("visualPrefab", "英雄展示预制体");
-            Field("portrait", "头像", "Game 底部 HUD 显示。");
+            Field("portrait", "头像", "Game 底部 HUD 与开局选择界面显示。");
             Section("等级成长（Dota 2 式，每升 1 级累加，重开后生效）");
             Field("baseMana", "开局最大法力");
             Field("baseHealthRegen", "开局生命回复（点/秒）");
