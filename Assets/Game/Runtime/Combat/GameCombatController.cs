@@ -52,6 +52,8 @@ namespace Roguelike.Combat
         [Range(12,160)] public float cameraZoom=28;
         [Header("场景展示引用")]
         [SerializeField] private Transform playerView,destinationMarker;
+        private GameObject heroVisual;
+        private readonly System.Collections.Generic.List<(Roguelike.SkillIndicators.CircleIndicatorView view,float until)> skillRings=new();
         [SerializeField] private CombatHud hud;
         [SerializeField] private GameAbilityIndicator abilityIndicator;
         [SerializeField] private Mesh enemyMesh,projectileMesh;
@@ -211,6 +213,10 @@ namespace Roguelike.Combat
         public void RestartRun()
         {
             if(session==null) return;
+            if(heroVisual) Destroy(heroVisual);
+            foreach(var renderer in playerView.GetComponentsInChildren<Renderer>(true)) renderer.enabled=!hero.visualPrefab;
+            if(hero.visualPrefab) { heroVisual=Instantiate(hero.visualPrefab,playerView);heroVisual.transform.localPosition=Vector3.zero;heroVisual.transform.localRotation=Quaternion.identity; }
+            foreach(var ring in skillRings) if(ring.view) Destroy(ring.view.gameObject);skillRings.Clear();
             abilityIndicator.Cancel(); suppressRightUntilRelease=false; rightDragMoving=false; AttackArmed=false; hovered=Entity.Null; selected=Entity.Null;
             abilityIndicator.HideSelection(); hud.CloseShop();
             hoveredGround=0; inspectedGround=0; hud.HideGroundTooltip(); groundViews?.Clear();
@@ -331,7 +337,7 @@ namespace Roguelike.Combat
             }
             if(Input.GetMouseButtonDown(1) && (abilityIndicator.IsAiming || AttackArmed))
             { abilityIndicator.Cancel(); AttackArmed=false; suppressRightUntilRelease=true; return; }
-            bool overHud=hud.BlocksPointer(Input.mousePosition);
+            bool overHud=hud.BlocksPointer(Input.mousePosition) || (UnityEngine.EventSystems.EventSystem.current && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject());
             if(!overHud) cameraZoom=Mathf.Clamp(cameraZoom-Input.mouseScrollDelta.y*Mathf.Max(2,cameraZoom*0.08f),12,160);
             Vector3 point=default;
             bool ground=!overHud && TryGround(Input.mousePosition,out point);
@@ -671,9 +677,22 @@ namespace Roguelike.Combat
                 bool arc=flightLibrary.Value.Skills[flight.Skill].Stages[flight.Stage].Delivery==DeliveryKind.ParabolicProjectile;
                 // 抛物线的世界位置已经包含配置高度；旧投递保留原有模型离地补偿。
                 Vector3 position=(Vector3)flight.Position+(arc?Vector3.zero:Vector3.up*0.5f);
-                Graphics.DrawMesh(projectileMesh,Matrix4x4.TRS(position,Quaternion.identity,Vector3.one*0.5f),projectileMaterial,0);
+                bool arrow=flightLibrary.Value.Skills[flight.Skill].Stages[flight.Stage].Delivery==DeliveryKind.LinearProjectile;
+                Graphics.DrawMesh(projectileMesh,Matrix4x4.TRS(position,Quaternion.LookRotation((Vector3)flight.Direction),arrow?new Vector3(.16f,.16f,1.2f):Vector3.one*.5f),projectileMaterial,0);
             }
-            manager.GetBuffer<SkillCue>(session.Entity).Clear(); // 特效订阅边界；详细命中特效待内容迭代。
+            var cues=manager.GetBuffer<SkillCue>(session.Entity);
+            foreach(var cue in cues)
+            {
+                var plan=session.World.GetExistingSystemManaged<CombatSimulationSystem>().GetLibrary(session.Entity,cue.ProgramVersion);
+                ref var stage=ref plan.Value.Skills[cue.Skill].Stages[cue.Stage];
+                if(stage.Scope!=TargetScope.Area || stage.Shape!=AreaShape.Circle || skillRings.Count>=48) continue;
+                var ring=abilityIndicator.CreateCircle("技能范围反馈");
+                var tint=plan.Value.Skills[cue.Skill].IndicatorColor;
+                ring.Show(new Vector3(cue.Position.x,.08f,cue.Position.z),stage.Radius,new Color(tint.x,tint.y,tint.z),.65f);
+                skillRings.Add((ring,Time.time+Mathf.Max(.3f,stage.RepeatInterval)));
+            }
+            cues.Clear();
+            for(int i=skillRings.Count-1;i>=0;i--) if(Time.time>=skillRings[i].until) {Destroy(skillRings[i].view.gameObject);skillRings.RemoveAt(i);}
             smoothFrameTime=Mathf.Lerp(smoothFrameTime,Time.unscaledDeltaTime,0.08f);
             if(Time.unscaledTime<nextHudUpdate) return;
             nextHudUpdate=Time.unscaledTime+0.1f;
@@ -974,6 +993,8 @@ namespace Roguelike.Combat
             if(hud) { hud.RestartRequested-=RestartRun; hud.AbilityRequested-=CastAbility; hud.LearnRequested-=LearnSkill; hud.TalentRequested-=ChooseTalentEncoded; hud.OrderRequested-=OnOrderButton; hud.TargetCloseRequested-=ClearSelection; hud.HoverChanged-=OnHoverChanged;
                 hud.BuyRequested-=BuyItem; hud.SellRequested-=SellItem; hud.ShopChanged-=OnHoverChanged;
                 hud.ShopRequested-=ToggleShop; hud.MoveRequested-=MoveItem; hud.DropRequested-=OnDropRequested; }
+            if(heroVisual) Destroy(heroVisual);
+            foreach(var ring in skillRings) if(ring.view) Destroy(ring.view.gameObject);skillRings.Clear();
             groundViews?.Dispose(); groundViews=null;
             if(shopCircle) Destroy(shopCircle.gameObject);
             if(abilityIndicator) { abilityIndicator.Cancel(); abilityIndicator.HideSelection(); }

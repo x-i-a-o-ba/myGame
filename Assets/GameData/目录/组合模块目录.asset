@@ -232,6 +232,22 @@ MonoBehaviour:
     allowBuffScaleOverride: 0
     minBuffScale: 0.1
     maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: e01e1d00b80d37b42b070f60be2d4249, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: b88935995c048464a834fd36cf597026, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
   buffs:
   - {fileID: 11400000, guid: 62c02bb0e97e79640a5ce69045c8ea40, type: 2}
   - {fileID: 11400000, guid: 62dac026455ec614988ddefbb45b72be, type: 2}
@@ -242,3 +258,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0fb1c0d09d44d4e4e88bff3eba485966, type: 2}
   - {fileID: 11400000, guid: 24eb8f36bb568274bb8b7bfc73c60bae, type: 2}
   - {fileID: 11400000, guid: 791f470112b04214a9115b491531fc18, type: 2}
+  - {fileID: 11400000, guid: 010aa5e65f5f3bb418dcd667c809ce79, type: 2}
+  - {fileID: 11400000, guid: ddbc11f5703eead4bb810509c3ba9426, type: 2}

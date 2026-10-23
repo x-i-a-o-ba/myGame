@@ -26,9 +26,9 @@ namespace Roguelike.Abilities
             ref var stage=ref skill.Stages[stageIndex];
             return new SkillAimPreview
             {
-                Aim=skill.Aim,Scope=stage.Scope,Shape=stage.Shape,Delivery=stage.Delivery,
+                Aim=skill.Aim,Scope=stage.ProjectileCount>1?TargetScope.Area:stage.Scope,Shape=stage.ProjectileCount>1?AreaShape.Cone:stage.Shape,Delivery=stage.Delivery,
                 CastRange=skill.CastRange,Range=stage.Range,Radius=stage.Radius,
-                HitRadius=stage.HitRadius,HalfAngleDegrees=stage.HalfAngleDegrees,
+                HitRadius=stage.HitRadius,HalfAngleDegrees=stage.ProjectileCount>1?stage.SpreadDegrees*.5f:stage.HalfAngleDegrees,
                 ArcHeight=stage.ArcHeight,FlightSeconds=stage.FlightSeconds,LaunchHeight=stage.LaunchHeight,ArrivalHeight=stage.ArrivalHeight,
                 IndicatorColor=new Color(skill.IndicatorColor.x,skill.IndicatorColor.y,skill.IndicatorColor.z,skill.IndicatorColor.w)
             };

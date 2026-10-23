@@ -182,6 +182,10 @@ namespace Roguelike.Abilities
             EnumValue(input.shape,context+" 几何"); EnumValue(input.targets,context+" 目标关系");
             NonNegative(input.delay,context+" 延迟"); NonNegative(input.repeatInterval,context+" 重复间隔");
             NonNegative(input.range,context+" 距离"); NonNegative(input.radius,context+" 半径");
+            if(input.projectileCount<1 || input.projectileCount>32 || !float.IsFinite(input.spreadDegrees) || input.spreadDegrees<0 || input.spreadDegrees>180)
+                throw new InvalidOperationException(context+"：弹体数量须为 1–32，散射角须为 0–180 度。");
+            if(input.delivery!=DeliveryKind.LinearProjectile && (input.projectileCount!=1 || input.spreadDegrees!=0))
+                throw new InvalidOperationException(context+"：多弹体散射仅支持直线首碰投递。");
             NonNegative(input.hitRadius,context+" 碰撞半径"); NonNegative(input.speed,context+" 弹速");
             Finite(input.halfAngleDegrees,context+" 半角");
             if(input.repeatCount<1 || input.repeatCount>MaximumRepeats ||
@@ -210,6 +214,7 @@ namespace Roguelike.Abilities
                 throw new InvalidOperationException("碰撞目标效果仅支持直线弹体："+context);
             output=new StageData { ParentStage=-1,Trigger=RecipeTrigger.OnRelease,Delay=input.delay,RepeatCount=input.repeatCount,RepeatInterval=input.repeatInterval,
                 Delivery=input.delivery,Scope=input.scope,Shape=input.shape,Targets=input.targets,
+                ProjectileCount=input.projectileCount,SpreadDegrees=input.spreadDegrees,
                 Range=input.range,Radius=input.radius,HitRadius=input.hitRadius,HalfAngleDegrees=input.halfAngleDegrees,Speed=input.speed,
                 ArcHeight=input.arcHeight,FlightSeconds=input.flightSeconds,LaunchHeight=input.launchHeight,ArrivalHeight=input.arrivalHeight };
             CompileModules(builder,ref output.Effects,input.effects,true,context,uses);

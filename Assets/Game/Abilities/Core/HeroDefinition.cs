@@ -22,6 +22,7 @@ namespace Roguelike.Abilities
         [Tooltip("移动中攻击：右键移动途中自动攻击攻击距离内的敌人且不停下，攻击前摇不定身，新的移动指令不打断攻击。关闭后恢复 Dota 2 式“移动取消攻击”。重开生效。")]
         public bool attackWhileMoving=true;
         [Tooltip("HUD 头像。为空时显示纯色底。")] public Texture2D portrait;
+        [Tooltip("英雄展示预制体；只负责外形，战斗以 ECS 数据为准。为空沿用场景模型。")] public GameObject visualPrefab;
         [Min(0), Tooltip("开局最大法力；技能施放按技能逐级表消耗法力，局内由单位状态统一扣除。")] public float baseMana=100;
         [Min(0), Tooltip("开局每秒生命回复。")] public float baseHealthRegen=1.5f;
         [Min(0), Tooltip("开局法力回复（点/秒）；重开生效，由共享单位状态结算。")] public float baseManaRegen=3;

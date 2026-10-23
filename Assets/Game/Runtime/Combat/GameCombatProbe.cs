@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using Roguelike.Abilities;
 using Roguelike.Foundation.UI;
 using Unity.Collections;
@@ -70,9 +71,10 @@ namespace Roguelike.Combat
             Check(manager.GetComponentData<AbilityUnit>(controller.SessionEntity).AttackSpeedMultiplier>1,"Self buff modifies attack speed");
             Click(1);
             Check(indicator.IsAiming && indicator.ActiveSlot==1,"HUD slot enters configured aim");
-            Check(controller.TryConfirmAbilityAt((Vector3)controller.State.Position+Vector3.right*12),"Confirm cone ability");
+            Check(controller.TryConfirmAbilityAt((Vector3)controller.State.Position+Vector3.right*12),"Confirm arrow fan ability");
             yield return null; yield return null;
             Check(manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[1].ReadyAt>0,"Successful cast commits cooldown");
+            yield return Capture("volley.png");
             Click(2);
             indicator.UpdateAim((Vector3)controller.State.Position,(Vector3)controller.State.Position+Vector3.forward*10,true,controller.arenaHalfSize);
             yield return Capture("point-indicator.png",()=>indicator.UpdateAim((Vector3)controller.State.Position,(Vector3)controller.State.Position+Vector3.forward*10,true,controller.arenaHalfSize));
@@ -120,7 +122,51 @@ namespace Roguelike.Combat
             controller.RestartRun(); yield return null;
             Check(controller.State.Health==originalHero.health,"Restart restores configured hero");
             yield return Capture("foundation-game.png");
+            yield return VanguardChecks(controller,manager,originalHero);
             Finish(controller);
+        }
+        private IEnumerator VanguardChecks(GameCombatController controller,EntityManager manager,HeroDefinition original)
+        {
+            var roster=FindFirstObjectByType<HeroRoster>();
+            Check(roster && roster.heroes.Length==2,"Hero selection exposes both authored heroes");
+            if(!roster) yield break;
+            var buttons=roster.GetComponentsInChildren<UnityEngine.UI.Button>();
+            Check(buttons.Length==2,"Both hero choices have authored buttons");
+            if(buttons.Length!=2) yield break;
+            buttons[1].onClick.Invoke();yield return null;yield return null;
+            Check(controller.hero==roster.heroes[1] && controller.LiveAttack.Delivery==AttackDelivery.Melee,"Hero button starts the melee vanguard");
+            Check(controller.Progression.Level==1 && controller.GroundCount==0 && controller.EquippedAt(0)==-1,"Hero selection resets level and inventory");
+            var progress=controller.Progression;progress.Experience=progress.Library.Value.CumulativeExperience[6];manager.SetComponentData(controller.SessionEntity,progress);
+            yield return null;yield return null;
+            for(int i=0;i<4;i++) controller.LearnSkill(i);
+            yield return null;yield return null;
+            var template=NearestEnemy(controller,manager);Check(template!=Entity.Null,"Vanguard test has an enemy template");
+            if(template!=Entity.Null)
+            {
+                var target=manager.Instantiate(template);
+                try
+                {
+                    var position=controller.State.Position+new float3(2,0,0);
+                    var transform=manager.GetComponentData<Unity.Transforms.LocalTransform>(target);transform.Position=position;manager.SetComponentData(target,transform);
+                    var unit=manager.GetComponentData<AbilityUnit>(target);unit.Health=unit.MaxHealth=10000;unit.BaseSpeed=unit.Speed=0;unit.BaseAttack=unit.Attack=0;manager.SetComponentData(target,unit);
+                    controller.IssueAttack(target);float deadline=Time.realtimeSinceStartup+5;
+                    while(manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[0].HitStacks<3 && Time.realtimeSinceStartup<deadline) yield return null;
+                    Check(manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[0].HitStacks>=3 && manager.GetComponentData<AbilityUnit>(target).Health<10000,"Melee attacks deal damage and build cleave stacks");
+                    int serial=manager.GetComponentData<AbilityRuntime>(controller.SessionEntity).CastSerial;
+                    Click(0);Check(controller.TryConfirmAbilityAt((Vector3)position),"Vanguard cleave accepts direction");yield return null;yield return null;
+                    Click(1);yield return null;yield return null;
+                    Check(manager.GetBuffer<ActiveBuff>(controller.SessionEntity).Length>0,"Vanguard guard creates an owned buff");
+                    Click(2);yield return null;yield return null;
+                    yield return Capture("vanguard-field.png");
+                    Click(3);Check(controller.TryConfirmAbilityAt((Vector3)position),"Vanguard falling sword accepts a ground point");
+                    yield return new WaitForSeconds(.8f);
+                    Check(manager.GetComponentData<AbilityRuntime>(controller.SessionEntity).CastSerial==serial+4,"All four vanguard abilities execute through shared runtime");
+                    Check(manager.GetBuffer<SkillFlight>(controller.SessionEntity).Length==0,"Vanguard falling sword releases its flight state");
+                }
+                finally { if(manager.Exists(target)) manager.DestroyEntity(target); }
+            }
+            buttons[0].onClick.Invoke();yield return null;yield return null;
+            Check(controller.hero==original && controller.Progression.Level==1 && manager.GetBuffer<ActiveBuff>(controller.SessionEntity).Length==0,"Switching back restores archer and clears vanguard state");
         }
         /// <summary>Dota 2 式指令：右键敌人攻击、S 停止、H 待命、HUD 指令按钮与鼠标点选敌人。</summary>
         private IEnumerator OrderChecks(GameCombatController controller,EntityManager manager)
@@ -572,10 +618,8 @@ namespace Roguelike.Combat
             beforeRender?.Invoke();
             var demo = GetComponent<GameCombatController>();
             var camera = demo.gameCamera;
-            var canvas = UnityEngine.Object.FindFirstObjectByType<Canvas>();
-            var oldMode = canvas.renderMode;
-            var oldCamera = canvas.worldCamera;
-            float oldPlaneDistance = canvas.planeDistance;
+            var canvases=UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Where(c=>c.isRootCanvas).ToArray();
+            var states=canvases.Select(c=>(canvas:c,mode:c.renderMode,camera:c.worldCamera,distance:c.planeDistance)).ToArray();
             var oldTarget = camera.targetTexture;
             var oldActive = RenderTexture.active;
             var target = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
@@ -586,9 +630,7 @@ namespace Roguelike.Combat
                 // render including the same HUD into a texture, independent of window visibility.
                 target.Create();
                 camera.targetTexture = target;
-                canvas.renderMode = RenderMode.ScreenSpaceCamera;
-                canvas.worldCamera = camera;
-                canvas.planeDistance = 1;
+                foreach(var canvas in canvases) { canvas.renderMode=RenderMode.ScreenSpaceCamera; canvas.worldCamera=camera;canvas.planeDistance=1; }
                 Canvas.ForceUpdateCanvases();
                 RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                 RenderTexture.active = target;
@@ -611,9 +653,7 @@ namespace Roguelike.Combat
             {
                 RenderTexture.active = oldActive;
                 camera.targetTexture = oldTarget;
-                canvas.renderMode = oldMode;
-                canvas.worldCamera = oldCamera;
-                canvas.planeDistance = oldPlaneDistance;
+                foreach(var state in states) { state.canvas.renderMode=state.mode;state.canvas.worldCamera=state.camera;state.canvas.planeDistance=state.distance; }
                 target.Release();
                 Destroy(target);
                 Destroy(texture);

@@ -134,6 +134,7 @@ namespace Roguelike.SkillAuthoring.Editor
                 Field(node, "launchHeight", "发射高度偏移（Unity 单位）"); Field(node, "arrivalHeight", "落点高度偏移（Unity 单位）");
             }
             else if (delivery.kind != DeliveryKind.Instant) Field(node, "speed", "飞行速度（Unity 单位 / 秒）");
+            if(delivery.kind==DeliveryKind.LinearProjectile) { Field(node,"projectileCount","每次发射数量（支）"); Field(node,"spreadDegrees","完整散射张角（度）"); }
             if (delivery.kind == DeliveryKind.LinearProjectile) { Field(node, "range", "最大飞行距离（Unity 单位）"); Field(node, "hitRadius", "弹体碰撞半径（Unity 单位）"); }
         }
 

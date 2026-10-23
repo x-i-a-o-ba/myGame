@@ -238,14 +238,20 @@ namespace Roguelike.Abilities
                     Direction=math.normalizesafe(planar,math.normalizesafe(fallback,new float3(0,0,1))),StartedAt=pending.NextAt,Elapsed=0});
                 return;
             }
-            float3 destination=stage.Delivery==DeliveryKind.PointProjectile?pending.Point:pending.Origin+pending.Direction*stage.Range;
-            float distance=math.distance(pending.Origin,destination);
-            if(distance<0.0001f)
-            { Resolve(owner,pending,destination,pending.Direction,pending.Target,ref library,now,ref runtime); return; }
-            manager.GetBuffer<SkillFlight>(owner).Add(new SkillFlight {Skill=pending.Skill,Stage=pending.Stage,Cast=pending.Cast,
-                ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
-                Target=pending.Target,Position=pending.Origin,Destination=destination,Direction=(destination-pending.Origin)/distance,RemainingRange=distance,
-                StartedAt=pending.NextAt,Elapsed=0});
+            int count=stage.Delivery==DeliveryKind.LinearProjectile?stage.ProjectileCount:1;
+            for(int arrow=0;arrow<count;arrow++)
+            {
+                float angle=count==1?0:math.radians(stage.SpreadDegrees*(arrow/(float)(count-1)-.5f));
+                float3 direction=math.mul(quaternion.RotateY(angle),pending.Direction);
+                float3 destination=stage.Delivery==DeliveryKind.PointProjectile?pending.Point:pending.Origin+direction*stage.Range;
+                float distance=math.distance(pending.Origin,destination);
+                if(distance<0.0001f)
+                { Resolve(owner,pending,destination,pending.Direction,pending.Target,ref library,now,ref runtime); return; }
+                manager.GetBuffer<SkillFlight>(owner).Add(new SkillFlight {Skill=pending.Skill,Stage=pending.Stage,Cast=pending.Cast,
+                    ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
+                    Target=pending.Target,Position=pending.Origin,Destination=destination,Direction=(destination-pending.Origin)/distance,RemainingRange=distance,
+                    StartedAt=pending.NextAt,Elapsed=0});
+            }
         }
         private void Resolve(Entity owner,in ScheduledSkillStage context,float3 center,float3 direction,Entity selected,
             ref AbilityLibrary library,float now,ref AbilityRuntime runtime)

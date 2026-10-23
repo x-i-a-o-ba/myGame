@@ -16,14 +16,14 @@ MonoBehaviour:
   stableId: ability.volley
   displayName: "\u51B0\u971C\u6247\u51FB"
   icon: {fileID: 2800000, guid: 082752b2bdca45e0a95d6ce30d9d59f4, type: 3}
-  description: "\u5411\u524D\u65B9 70\xB0 \u6247\u5F62\u533A\u57DF\u9F50\u5C04\u51B0\u7BAD\uFF0C\u9020\u6210\u8303\u56F4\u4F24\u5BB3\u5E76\u964D\u4F4E\u654C\u4EBA
-    35% \u79FB\u901F\uFF0C\u6301\u7EED 2.5 \u79D2\u3002\u540C\u6B21\u65BD\u653E\u5BF9\u6BCF\u4E2A\u76EE\u6807\u7ED3\u7B97\u4E00\u6B21\u4F24\u5BB3\u3002"
+  description: "\u671D\u6307\u5B9A\u65B9\u5411\u6563\u5C04 7 \u652F\u51B0\u7BAD\u3002\u6BCF\u652F\u7BAD\u547D\u4E2D\u9996\u4E2A\u654C\u4EBA\u540E\u6D88\u5931\uFF0C\u9020\u6210\u4F24\u5BB3\u5E76\u51CF\u901F
+    35%\uFF0C\u6301\u7EED 2.5 \u79D2\uFF1B\u4E0D\u540C\u7BAD\u53EF\u547D\u4E2D\u540C\u4E00\u76EE\u6807\u3002\u7BAD\u6570\u4E0E\u6563\u5C04\u89D2\u53EF\u5728\u914D\u65B9\u4E2D\u914D\u7F6E\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1
     schemaVersion: 1
     catalogVersion: 1
-    revision: 1
+    revision: 3
     recipeId: 1001
     authorNamespace: official
     maxDerivedExecutions: 32
@@ -32,16 +32,18 @@ MonoBehaviour:
     - nodeId: 1
       parentNodeId: 0
       trigger: 0
-      deliveryModuleId: 10000
-      queryModuleId: 10104
+      deliveryModuleId: 10002
+      queryModuleId: 10101
       delay: 0
       repeatInterval: 0
       repeatCount: 1
       range: 22
       radius: 22
-      hitRadius: 0.5
+      hitRadius: 0.22
       halfAngleDegrees: 35
       speed: 40
+      projectileCount: 7
+      spreadDegrees: 70
       arcHeight: 3
       flightSeconds: 1
       launchHeight: 1
@@ -72,6 +74,8 @@ MonoBehaviour:
     hitRadius: 0.5
     halfAngleDegrees: 35
     speed: 40
+    projectileCount: 1
+    spreadDegrees: 0
     arcHeight: 3
     flightSeconds: 1
     launchHeight: 1
@@ -105,17 +109,17 @@ MonoBehaviour:
       effectScale: 1.6666666
       buffScale: 1
       cooldownScale: 0.875
-      manaCostScale: 1.14285714
+      manaCostScale: 1.1428572
     - requiredHeroLevel: 5
       effectScale: 2.3333333
       buffScale: 1
       cooldownScale: 0.75
-      manaCostScale: 1.28571429
+      manaCostScale: 1.2857143
     - requiredHeroLevel: 7
       effectScale: 3
       buffScale: 1
       cooldownScale: 0.625
-      manaCostScale: 1.42857143
+      manaCostScale: 1.4285715
   indicatorColor: {r: 0, g: 1, b: 1, a: 1}
   delivery: 0
   targets: 0

@@ -74,6 +74,42 @@
             "retired": false
         },
         {
+            "id": 1008,
+            "category": "skill",
+            "assetKey": "d50b685fe35fa7b46a13fcae05630d3d:11400000",
+            "stableId": "ability.vanguard_cleave",
+            "path": "Assets/GameData/技能/1008_破阵重劈.asset",
+            "name": "1008_破阵重劈",
+            "retired": false
+        },
+        {
+            "id": 1009,
+            "category": "skill",
+            "assetKey": "a049becf44adf8049a727643754b2003:11400000",
+            "stableId": "ability.vanguard_guard",
+            "path": "Assets/GameData/技能/1009_磐石战歌.asset",
+            "name": "1009_磐石战歌",
+            "retired": false
+        },
+        {
+            "id": 1010,
+            "category": "skill",
+            "assetKey": "b2d86783cfabd4444b9fb2abc32d9814:11400000",
+            "stableId": "ability.vanguard_field",
+            "path": "Assets/GameData/技能/1010_回环刃阵.asset",
+            "name": "1010_回环刃阵",
+            "retired": false
+        },
+        {
+            "id": 1011,
+            "category": "skill",
+            "assetKey": "0da00ec083eac1e4093612507175c013:11400000",
+            "stableId": "ability.vanguard_fall",
+            "path": "Assets/GameData/技能/1011_震岳落剑.asset",
+            "name": "1011_震岳落剑",
+            "retired": false
+        },
+        {
             "id": 2000,
             "category": "hero",
             "assetKey": "f29047387b5e76b429c30ea469a0e3f5:11400000",
@@ -89,6 +125,15 @@
             "stableId": "hero.frost_archer_alternate",
             "path": "Assets/GameData/编辑示例/换槽/2001_寒冰射手·换槽示例.asset",
             "name": "寒冰射手·换槽示例",
+            "retired": false
+        },
+        {
+            "id": 2002,
+            "category": "hero",
+            "assetKey": "4aadcb27dc1212e4295dfdaa6e01a00d:11400000",
+            "stableId": "hero.stone_vanguard",
+            "path": "Assets/GameData/英雄/2002_磐锋卫士.asset",
+            "name": "2002_磐锋卫士",
             "retired": false
         },
         {
@@ -272,6 +317,24 @@
             "retired": false
         },
         {
+            "id": 4011,
+            "category": "effect",
+            "assetKey": "e01e1d00b80d37b42b070f60be2d4249:11400000",
+            "stableId": "effect.stone_guard",
+            "path": "Assets/GameData/效果/4011_施加磐石守势.asset",
+            "name": "4011_施加磐石守势",
+            "retired": false
+        },
+        {
+            "id": 4012,
+            "category": "effect",
+            "assetKey": "b88935995c048464a834fd36cf597026:11400000",
+            "stableId": "effect.line_break",
+            "path": "Assets/GameData/效果/4012_施加破阵压制.asset",
+            "name": "4012_施加破阵压制",
+            "retired": false
+        },
+        {
             "id": 5000,
             "category": "buff",
             "assetKey": "62c02bb0e97e79640a5ce69045c8ea40:11400000",
@@ -350,6 +413,24 @@
             "stableId": "buff.volley_slow",
             "path": "Assets/GameData/Buff/5008_扇击减速.asset",
             "name": "扇击减速",
+            "retired": false
+        },
+        {
+            "id": 5009,
+            "category": "buff",
+            "assetKey": "010aa5e65f5f3bb418dcd667c809ce79:11400000",
+            "stableId": "buff.stone_guard",
+            "path": "Assets/GameData/Buff/5009_磐石守势.asset",
+            "name": "5009_磐石守势",
+            "retired": false
+        },
+        {
+            "id": 5010,
+            "category": "buff",
+            "assetKey": "ddbc11f5703eead4bb810509c3ba9426:11400000",
+            "stableId": "buff.line_break",
+            "path": "Assets/GameData/Buff/5010_破阵压制.asset",
+            "name": "5010_破阵压制",
             "retired": false
         },
         {

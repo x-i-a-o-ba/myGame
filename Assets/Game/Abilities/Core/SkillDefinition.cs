@@ -36,6 +36,8 @@ namespace Roguelike.Abilities
         [InspectorName("直线弹体碰撞半径（米）"), Min(0)] public float hitRadius=0.5f;
         [InspectorName("扇形半角（度）"), Range(0,180)] public float halfAngleDegrees=35;
         [InspectorName("弹体速度（米/秒）"), Min(0)] public float speed=40;
+        [Range(1,32), Tooltip("每次发射的箭数；仅直线弹体使用，每支首碰独立消失。")] public int projectileCount=1;
+        [Range(0,180), Tooltip("多支弹体的完整散射张角（度），1 支时沿中心方向。")] public float spreadDegrees;
         [Min(0), Tooltip("抛物线相对起终点连线的最高附加高度，Unity 世界单位；仅三维抛物线投递使用。")] public float arcHeight=3;
         [Min(0.001f), Tooltip("完整飞行时间（秒）；独立于距离，不模拟物理重力。")] public float flightSeconds=1;
         [Min(0), Tooltip("相对施法起点的发射高度，Unity 世界单位。")] public float launchHeight=1;

@@ -57,16 +57,16 @@ namespace Roguelike.Editor
             using(var f=new Fixture(catalog))
             {
                 var owner=f.Owner(hero.ResolveSkills(catalog));
-                var target=DurableTarget(f,new float3(4,0,0));
+                var target=DurableTarget(f,new float3(10,0,0));
                 SetMana(f,owner,34);
                 f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,0,0);
                 var slot=f.Manager.GetBuffer<AbilitySlot>(owner)[1];
                 Check(f.State(owner).Mana==34 && f.State(target).Health==1000 && slot.ReadyAt==0,"W 蓝量不足不伤害、不扣蓝、不进入冷却");
                 SetMana(f,owner,35);
-                f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,0.1f,0.1f);
+                f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,0.1f,0.1f); f.Step(owner,.4f,.3f);
                 Check(f.State(owner).Mana==0 && f.State(target).Health==940 && Mathf.Approximately(f.State(target).Speed,6.5f),"W 恰好足够蓝量可施放并结算 60 伤害及 35% 减速");
                 var slots=f.Manager.GetBuffer<AbilitySlot>(owner); slot=slots[1]; slot.Level=4; slot.ReadyAt=0; slots[1]=slot;
-                SetMana(f,owner,50); f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,9,0);
+                SetMana(f,owner,50); f.Command(owner,1,new float3(10,0,0),new float3(1,0,0)); f.Step(owner,9,0); f.Step(owner,9.3f,.3f);
                 Check(f.State(target).Health==760 && f.State(owner).Mana==0 && Mathf.Approximately(f.State(target).Speed,6.5f),"W 四级结算 180 伤害，减速不随等级意外放大");
             }
             using(var f=new Fixture(catalog))

@@ -559,7 +559,7 @@ namespace Roguelike.Combat
             switch (stage.Delivery)
             {
                 case DeliveryKind.PointProjectile: line.Append(Key("弹体")).Append($"飞向目标点 · 速度 {V(N(stage.Speed))} 米/秒"); break;
-                case DeliveryKind.LinearProjectile: line.Append(Key("直线弹体")).Append($"射程 {V(N(stage.Range))} 米 · 速度 {V(N(stage.Speed))} 米/秒 · 宽度 {V(N(stage.HitRadius * 2))} 米"); break;
+                case DeliveryKind.LinearProjectile: line.Append($"{V(stage.ProjectileCount.ToString())} 支 · 散射 {V(N(stage.SpreadDegrees))}° · 首碰消失\n").Append(Key("直线弹体")).Append($"射程 {V(N(stage.Range))} 米 · 速度 {V(N(stage.Speed))} 米/秒 · 宽度 {V(N(stage.HitRadius * 2))} 米"); break;
                 case DeliveryKind.ParabolicProjectile: line.Append(Key("抛物线投掷")).Append($"飞行 {V(N(stage.FlightSeconds))} 秒"); break;
             }
             string area = "";

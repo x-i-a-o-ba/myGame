@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Roguelike.Abilities;
 using UnityEditor;
@@ -95,6 +96,15 @@ namespace Roguelike.Abilities.Editor
             Field("modules","组合模块目录","通过数字 ID 查找投递、查询和效果模块。");
             if(recipe)
             {
+                var definition=(SkillDefinition)target;
+                for(int i=0;i<definition.recipe.nodes.Length;i++)
+                {
+                    var node=definition.recipe.nodes[i];
+                    if(node==null || !definition.modules || !definition.modules.deliveries.Any(d=>d.id==node.deliveryModuleId && d.kind==DeliveryKind.LinearProjectile)) continue;
+                    Section("步骤 "+(i+1)+" · 直线首碰投递");
+                    Field("recipe.nodes.Array.data["+i+"].projectileCount","每次发射数量（支）","1–32 支；每支首次命中后独立消失。重开生效。");
+                    Field("recipe.nodes.Array.data["+i+"].spreadDegrees","完整散射张角（度）","0–180 度；一支时始终沿中心方向。重开生效。");
+                }
                 EditorGUILayout.HelpBox("当前使用数字配方。旧阶段仅用于回退，不参与执行。请在技能设计器中编辑步骤卡片。",MessageType.Info);
                 if(GUILayout.Button("打开技能配方设计器")) Roguelike.SkillAuthoring.Editor.SkillAuthoringWindow.Edit((SkillDefinition)target);
             }
@@ -179,6 +189,7 @@ namespace Roguelike.Abilities.Editor
             Field("basicAttack", "自动攻击（被动模块）", "攻击距离、索敌距离、基础攻击间隔、前后摇与弹道；可与敌人共用同一模块。");
             Field("turnRate", "转身速度（度/秒）", "移动与开始攻击前先转向；0 表示瞬间转身。");
             Field("attackWhileMoving", "移动中攻击", "开启：右键移动途中自动攻击攻击距离内的敌人且不停下，前摇不定身，按住右键拖动也能持续出手。关闭：Dota 2 式移动取消攻击。重开后生效。");
+            Field("visualPrefab", "英雄展示预制体");
             Field("portrait", "头像", "Game 底部 HUD 显示。");
             Section("等级成长（Dota 2 式，每升 1 级累加，重开后生效）");
             Field("baseMana", "开局最大法力");
@@ -343,6 +354,8 @@ namespace Roguelike.Abilities.Editor
         {
             ("delay", "释放后延迟（秒）", "从前摇结束、正式释放时计算；不包含前摇和后摇。"),
             ("repeatCount", "执行次数", "同一阶段可按间隔重复执行。"),
+            ("projectileCount", "每次发射数量（支）", "仅直线弹体；每支首碰造成效果后消失。"),
+            ("spreadDegrees", "完整散射张角（度）", "仅直线弹体；一支时始终朝中心发射。"),
             ("repeatInterval", "重复间隔（秒）", "执行次数大于 1 时必须为正数。"),
             ("delivery", "投递方式", "立即结算、飞向目标点、直线首碰或三维抛物线投递。抛物线沿途不碰撞，到点结算。"),
             ("scope", "目标范围", "自身、单体、区域或全体。"),

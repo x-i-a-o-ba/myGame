@@ -41,6 +41,8 @@ namespace Roguelike.Abilities
         public float delay,repeatInterval;
         public int repeatCount=1;
         public float range=18,radius=5,hitRadius=.5f,halfAngleDegrees=35,speed=40;
+        public int projectileCount=1;
+        public float spreadDegrees;
         public float arcHeight=3,flightSeconds=1,launchHeight=1,arrivalHeight;
         public RecipeEffectUse[] effects=Array.Empty<RecipeEffectUse>();
         public RecipeEffectUse[] impactEffects=Array.Empty<RecipeEffectUse>();

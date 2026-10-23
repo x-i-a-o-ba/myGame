@@ -99,6 +99,7 @@ namespace Roguelike.Abilities
                 result.Stages[i]=new SkillStage {delay=n.delay,repeatCount=n.repeatCount,repeatInterval=n.repeatInterval,
                     delivery=d.kind,scope=q.scope,shape=q.shape,targets=q.targets,
                     range=n.range,radius=n.radius,hitRadius=n.hitRadius,halfAngleDegrees=n.halfAngleDegrees,speed=n.speed,
+                    projectileCount=n.projectileCount,spreadDegrees=n.spreadDegrees,
                     arcHeight=n.arcHeight,flightSeconds=n.flightSeconds,launchHeight=n.launchHeight,arrivalHeight=n.arrivalHeight,
                     effects=ResolveEffects(catalog,n.effects,forPlayer,c),impactEffects=ResolveEffects(catalog,n.impactEffects,forPlayer,c)};
             }

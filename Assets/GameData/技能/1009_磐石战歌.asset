@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cc422bfd635fd741a1ec1319385aac9, type: 3}
+  m_Name: "1009_\u78D0\u77F3\u6218\u6B4C"
+  m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.SkillDefinition
+  configId: 1009
+  stableId: ability.vanguard_guard
+  displayName: "\u78D0\u77F3\u6218\u6B4C"
+  icon: {fileID: 2800000, guid: 751af932b0c3ab24996d695a04449aa7, type: 3}
+  description: "\u7ACB\u5373\u56DE\u590D\u751F\u547D\uFF0C\u968F\u540E 4 \u79D2\u6BCF\u79D2\u56DE\u590D
+    16 \u70B9\u751F\u547D\uFF1B\u5B88\u52BF\u671F\u95F4\u79FB\u901F\u964D\u4F4E 20%\u3002\u9002\u5408\u5728\u5203\u9635\u4E2D\u8FCE\u6218\u3002"
+  modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
+  recipe:
+    enabled: 1
+    schemaVersion: 1
+    catalogVersion: 1
+    revision: 1
+    recipeId: 1009
+    authorNamespace: official
+    maxDerivedExecutions: 32
+    maxLifetime: 10
+    nodes:
+    - nodeId: 1
+      parentNodeId: 0
+      trigger: 0
+      deliveryModuleId: 10000
+      queryModuleId: 10106
+      delay: 0
+      repeatInterval: 0
+      repeatCount: 1
+      range: 18
+      radius: 5
+      hitRadius: 0.5
+      halfAngleDegrees: 35
+      speed: 40
+      projectileCount: 1
+      spreadDegrees: 0
+      arcHeight: 3
+      flightSeconds: 1
+      launchHeight: 1
+      arrivalHeight: 0
+      effects:
+      - effectId: 4009
+        overrideAmount: 1
+        amount: 45
+        overrideBuffScale: 0
+        buffScale: 1
+      - effectId: 4011
+        overrideAmount: 0
+        amount: 0
+        overrideBuffScale: 0
+        buffScale: 1
+      impactEffects: []
+  aim: 0
+  stages: []
+  maxCharges: 1
+  rechargeSeconds: 0
+  requiredHits: 0
+  castRange: 0
+  cooldown: 14
+  castTime: 0
+  recoveryTime: 0
+  manaCost: 40
+  levelPower: 0.25
+  growth:
+    track: 0
+    effectPerLevel: 0.9
+    buffPerLevel: 0.15
+    cooldownReductionPerLevel: 0.08
+    manaCostPerLevel: 0.1
+    customLevels: []
+  indicatorColor: {r: 1, g: 0.68, b: 0.2, a: 1}
+  delivery: 0
+  targets: 0
+  radius: 5
+  areaDuration: 5
+  areaInterval: 0.25
+  effects: []

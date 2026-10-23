@@ -27,6 +27,7 @@ namespace Roguelike.Abilities
                 result.nodes[i]=new RecipeNode {nodeId=i+1,deliveryModuleId=delivery.id,queryModuleId=query.id,
                     delay=s.delay,repeatCount=s.repeatCount,repeatInterval=s.repeatInterval,
                     range=s.range,radius=s.radius,hitRadius=s.hitRadius,halfAngleDegrees=s.halfAngleDegrees,speed=s.speed,
+                    projectileCount=s.projectileCount,spreadDegrees=s.spreadDegrees,
                     arcHeight=s.arcHeight,flightSeconds=s.flightSeconds,launchHeight=s.launchHeight,arrivalHeight=s.arrivalHeight,
                     effects=Uses(s.effects,catalog),impactEffects=Uses(s.impactEffects,catalog)};
                 float distance=s.delivery==DeliveryKind.PointProjectile?skill.castRange:s.range;

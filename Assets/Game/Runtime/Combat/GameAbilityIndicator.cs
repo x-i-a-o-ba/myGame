@@ -48,7 +48,7 @@ namespace Roguelike.Combat
             else direction=Vector3.forward;
             rangeCircle.Show(new Vector3(origin.x,RangeHeight,origin.z),Mathf.Max(0.1f,skill.CastRange),previewColor,0.7f);
             Vector3 deliveryDirection=SkillPreviewGeometry.DeliveryDirection(skill,origin,target,direction);
-            if(skill.Delivery==DeliveryKind.LinearProjectile)
+            if(skill.Delivery==DeliveryKind.LinearProjectile && !(skill.Scope==TargetScope.Area && skill.Shape==AreaShape.Cone))
             {
                 SkillPreviewGeometry.ProjectileOutline(skill,origin,deliveryDirection,outlinePoints);
                 ShowOutline();

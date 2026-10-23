@@ -17,9 +17,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 05ec15d5330abe5419bcbfdedf778c67, type: 2}
   - {fileID: 11400000, guid: f0d6ef98d0304cd4397e5fa7e1d12581, type: 2}
   - {fileID: 11400000, guid: 7344d4fce2cd8214ba3e75c4588a3cc5, type: 2}
+  - {fileID: 11400000, guid: d50b685fe35fa7b46a13fcae05630d3d, type: 2}
+  - {fileID: 11400000, guid: a049becf44adf8049a727643754b2003, type: 2}
+  - {fileID: 11400000, guid: b2d86783cfabd4444b9fb2abc32d9814, type: 2}
+  - {fileID: 11400000, guid: 0da00ec083eac1e4093612507175c013, type: 2}
   buffs:
   - {fileID: 11400000, guid: 24eb8f36bb568274bb8b7bfc73c60bae, type: 2}
   - {fileID: 11400000, guid: 791f470112b04214a9115b491531fc18, type: 2}
   - {fileID: 11400000, guid: 3a8394a740d5701468ed3a904aee6c3d, type: 2}
   - {fileID: 11400000, guid: 0fb1c0d09d44d4e4e88bff3eba485966, type: 2}
+  - {fileID: 11400000, guid: 010aa5e65f5f3bb418dcd667c809ce79, type: 2}
+  - {fileID: 11400000, guid: ddbc11f5703eead4bb810509c3ba9426, type: 2}
   passives: []

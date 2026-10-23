@@ -38,6 +38,8 @@ namespace Roguelike.Abilities
         public AreaShape Shape;
         public TargetRelation Targets;
         public float Range,Radius,HitRadius,HalfAngleDegrees,Speed;
+        public int ProjectileCount;
+        public float SpreadDegrees;
         public float ArcHeight,FlightSeconds,LaunchHeight,ArrivalHeight;
         public BlobArray<EffectData> Effects,ImpactEffects;
     }
