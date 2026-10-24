@@ -1,0 +1,306 @@
+2026-10-24 增量包 dd9ce6b 合并验证
+Unity 6000.3.18f1 / URP 17.3.0 / Windows Player
+Editor：360 战斗、345 开局、110 工作台、44 工作流、20 配方事务；编号与五场景检查通过。
+Player：68 开局、149 战斗、37 UI；五个场景、六次访问。
+
+来源：build.log
+COMBAT_VALIDATION_PASSED ability foundation checks=360
+GAME_FLOW_VALIDATION_PASSED checks=345
+GAME_BUILD_SUCCEEDED
+
+来源：editor-verified.log
+BUNDLE_NUMERIC_IDS_PASSED
+SKILL_AUTHORING_VALIDATION_PASSED checks=110
+SKILL_AUTHORING_WORKFLOW_VALIDATION_PASSED checks=44
+RecipeAuthoringValidation PASS: 20 项编辑器事务检查；未运行游戏。
+BUNDLE_WORKBENCH_ROUNDTRIP_PASSED
+SCENE_FRAMEWORK_PASS Main panels=1
+SCENE_FRAMEWORK_PASS SelectScene panels=1
+SCENE_FRAMEWORK_PASS Game panels=4
+SCENE_FRAMEWORK_PASS EmberRift panels=4
+SCENE_FRAMEWORK_PASS Benchmark10k panels=0
+SCENE_FRAMEWORK_BUILD_PASSED
+BUNDLE_INTEGRATION_PASSED
+
+来源：framework-verified-build.log
+SCENE_FRAMEWORK_PASS Main panels=1
+SCENE_FRAMEWORK_PASS SelectScene panels=1
+SCENE_FRAMEWORK_PASS Game panels=4
+SCENE_FRAMEWORK_PASS EmberRift panels=4
+SCENE_FRAMEWORK_PASS Benchmark10k panels=0
+SCENE_FRAMEWORK_BUILD_PASSED
+
+来源：select-verified-player.log
+SELECT_CHECK_PASSED: Flow starts at the main menu
+SELECT_CHECK_PASSED: Visible authored button main.start 0
+SELECT_CHECK_PASSED: Main start opens the ready selection scene
+SELECT_CHECK_PASSED: Catalog offers at least two heroes and two battlefields
+SELECT_CHECK_PASSED: Fresh selection defaults to the first hero and battlefield
+SELECT_CHECK_PASSED: Hero step is shown first
+SELECT_CHECK_PASSED: Hero cards match the catalog
+SELECT_CHECK_PASSED: Hero details show the first hero
+SELECT_CHECK_PASSED: Hero details list the first skill
+SELECT_CHECK_PASSED: Visible authored button select.hero 1
+SELECT_CHECK_PASSED: Hero card selects the second hero and updates details
+SELECT_CHECK_PASSED: Showcase displays the selected hero model
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: select-hero.png
+SELECT_CHECK_PASSED: Visible authored button select.next 0
+SELECT_CHECK_PASSED: Next opens the battlefield step and hides the showcase
+SELECT_CHECK_PASSED: Visible authored button select.map 1
+SELECT_CHECK_PASSED: Battlefield card selects the second battlefield
+SELECT_CHECK_PASSED: Battlefield card lists its own monsters
+SELECT_CHECK_PASSED: Battlefields show different monsters
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: select-map.png
+SELECT_CHECK_PASSED: Visible authored button select.back 0
+SELECT_CHECK_PASSED: Back returns to the hero step and keeps both choices
+SELECT_CHECK_PASSED: Visible authored button select.next 0
+SELECT_CHECK_PASSED: Visible authored button select.start 0
+SELECT_CHECK_PASSED: Start records the selection
+SELECT_CHECK_PASSED: second battlefield: start loads the battlefield scene EmberRift
+SELECT_CHECK_PASSED: second battlefield: battle starts and spawns enemies
+SELECT_CHECK_PASSED: second battlefield: battle uses the selected hero
+SELECT_CHECK_PASSED: second battlefield: battle uses the battlefield roster and difficulty
+SELECT_CHECK_PASSED: second battlefield: enemy kinds come from the battlefield roster
+SELECT_CHECK_PASSED: second battlefield: every spawned enemy belongs to the battlefield roster
+SELECT_CHECK_PASSED: second battlefield: HUD shows the battlefield name
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-ember_rift.png
+SELECT_CHECK_PASSED: second battlefield: migrated indicator views are bound
+SELECT_CHECK_PASSED: second battlefield: compiled point preview opens
+SELECT_CHECK_PASSED: second battlefield: compiled point preview has a valid target
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-ember_rift-indicator.png
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: second battlefield: first leave click only asks for confirmation
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: second battlefield: confirmed leave returns to the selection scene
+SELECT_CHECK_PASSED: Leaving the battlefield returns to the selection scene
+SELECT_CHECK_PASSED: Returning preselects the previous hero and battlefield
+SELECT_CHECK_PASSED: Visible authored button select.hero 0
+SELECT_CHECK_PASSED: Visible authored button select.next 0
+SELECT_CHECK_PASSED: Visible authored button select.map 0
+SELECT_CHECK_PASSED: Visible authored button select.start 0
+SELECT_CHECK_PASSED: first battlefield: start loads the battlefield scene Game
+SELECT_CHECK_PASSED: first battlefield: battle starts and spawns enemies
+SELECT_CHECK_PASSED: first battlefield: battle uses the selected hero
+SELECT_CHECK_PASSED: first battlefield: battle uses the battlefield roster and difficulty
+SELECT_CHECK_PASSED: first battlefield: enemy kinds come from the battlefield roster
+SELECT_CHECK_PASSED: first battlefield: every spawned enemy belongs to the battlefield roster
+SELECT_CHECK_PASSED: first battlefield: HUD shows the battlefield name
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-shadow_wastes.png
+SELECT_CHECK_PASSED: first battlefield: migrated indicator views are bound
+SELECT_CHECK_PASSED: first battlefield: compiled point preview opens
+SELECT_CHECK_PASSED: first battlefield: compiled point preview has a valid target
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-shadow_wastes-indicator.png
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: first battlefield: first leave click only asks for confirmation
+SELECT_CHECK_PASSED: first battlefield: leave confirmation expires
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: first battlefield: confirmed leave returns to the selection scene
+SELECT_CHECK_PASSED: Second leave returns to the selection scene
+SELECT_CHECK_PASSED: Visible authored button select.menu 0
+SELECT_CHECK_PASSED: Selection returns to the main menu
+SELECT_SMOKE_PASSED checks=68
+
+来源：game-player.log
+GAME_CHECK_PASSED: Game initializes composed hero
+GAME_CHECK_PASSED: Battlefield definition supplies this scene's enemy roster
+GAME_CHECK_PASSED: Authored indicator references
+GAME_CHECK_PASSED: First difficulty wave spawns within alive cap
+GAME_CHECK_PASSED: Hero starts at level 1 with one skill point
+GAME_CHECK_PASSED: Skills start unlearned
+GAME_CHECK_PASSED: Unlearned skill cannot enter aim
+GAME_CHECK_PASSED: Experience table levels hero to 7 and grants skill points
+GAME_CHECK_PASSED: Level growth raises authoritative max health
+GAME_CHECK_PASSED: HUD learn buttons learn every slot once
+GAME_CHECK_PASSED: Ultimate level 2 waits for hero level 12
+GAME_CHECK_PASSED: HUD blocks movement
+GAME_CHECK_PASSED: Enemy roster provides several enemy kinds
+GAME_CHECK_PASSED: Attack-move order is recorded
+GAME_CHECK_PASSED: Auto attack module fires through the shared effect pipeline
+GAME_CHECK_PASSED: Enemies remain near the hero after attack-move
+GAME_CHECK_PASSED: Mouse ray picks the enemy under the cursor
+GAME_CHECK_PASSED: Right-clicking an enemy issues an attack order
+GAME_CHECK_PASSED: Attack order damages the chosen target
+GAME_CHECK_PASSED: Hold position keeps the hero in place
+GAME_CHECK_PASSED: HUD stop button issues stop
+GAME_CHECK_PASSED: HUD attack button arms attack targeting
+GAME_CHECK_PASSED: Second attack button press cancels attack targeting
+GAME_CHECK_PASSED: Scene has a UI manager for the target panel
+GAME_CHECK_PASSED: Left-click selection shows the target info panel
+GAME_CHECK_PASSED: Target panel shows the selected enemy kind name
+GAME_CHECK_PASSED: Target panel shows target health
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: target-info.png
+GAME_CHECK_PASSED: Target panel close button clears the selection
+GAME_CHECK_PASSED: Clearing the selection hides the target panel
+GAME_CHECK_PASSED: Bottom HUD has hover sources for skills and the passive
+GAME_CHECK_PASSED: Hovering a skill icon shows the ability tooltip
+GAME_CHECK_PASSED: Skill tooltip shows the hovered skill name
+GAME_CHECK_PASSED: Skill tooltip lists per-level values and cooldown
+GAME_CHECK_PASSED: Tooltip sits above the hovered icon
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: ability-tooltip.png
+GAME_CHECK_PASSED: Leaving the icon hides the tooltip
+GAME_CHECK_PASSED: Hovering the passive shows the auto attack tooltip
+GAME_CHECK_PASSED: Leaving the passive hides the tooltip
+GAME_CHECK_PASSED: Mana bar shows authoritative regeneration per second
+GAME_CHECK_PASSED: Individual stat hover exists: AttackDamage
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: AttackDamage
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: attack-stat-tooltip.png
+GAME_CHECK_PASSED: Individual stat hover exists: AttackSpeed
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: AttackSpeed
+GAME_CHECK_PASSED: Individual stat hover exists: AttackRange
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: AttackRange
+GAME_CHECK_PASSED: Individual stat hover exists: MoveSpeed
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: MoveSpeed
+GAME_CHECK_PASSED: Individual stat hover exists: SkillAmplify
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: SkillAmplify
+GAME_CHECK_PASSED: Individual stat hover exists: CooldownReduction
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: CooldownReduction
+GAME_CHECK_PASSED: Individual stat hover exists: DamageReduction
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: DamageReduction
+GAME_CHECK_PASSED: Individual stat hover exists: CriticalChance
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: CriticalChance
+GAME_CHECK_PASSED: Individual stat hover exists: MaxHealth
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: MaxHealth
+GAME_CHECK_PASSED: Individual stat hover exists: MaxMana
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: MaxMana
+GAME_CHECK_PASSED: Individual stat hover exists: HealthRegen
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: HealthRegen
+GAME_CHECK_PASSED: Individual stat hover exists: ManaRegen
+GAME_CHECK_PASSED: Individual stat tooltip contains all sources: ManaRegen
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: mana-regen-tooltip.png
+GAME_CHECK_PASSED: All stats are bound only to the hero portrait
+GAME_CHECK_PASSED: Portrait opens the full stats overview
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: hero-stats-overview.png
+GAME_CHECK_PASSED: Smoke hero enables attack while moving
+GAME_CHECK_PASSED: Move-attack check has a live enemy template
+GAME_CHECK_PASSED: Right-click ground issues a move order
+GAME_CHECK_PASSED: Hero attacks enemies in range while walking to the destination
+GAME_CHECK_PASSED: Shop lists the project equipment catalog on its first page
+GAME_CHECK_PASSED: Scene places the shop at a fixed site with a range
+GAME_CHECK_PASSED: Scene has the HUD for shop and equipment checks
+GAME_CHECK_PASSED: Hero stands outside the shop range
+GAME_CHECK_PASSED: Shop button does not open the shop outside its range
+GAME_CHECK_PASSED: Shop button dims and shows the distance outside the shop range
+GAME_CHECK_PASSED: Simulation rejects buying outside the shop range
+GAME_CHECK_PASSED: Hero walks into the shop range
+GAME_CHECK_PASSED: Shop button lights up inside the shop range
+GAME_CHECK_PASSED: HUD shop button opens the shop inside its range
+GAME_CHECK_PASSED: Shop card buys the item into the first slot and spends gold
+GAME_CHECK_PASSED: Equipment attack adds directly to hero attack
+GAME_CHECK_PASSED: Non-unique items can be bought twice and stack
+GAME_CHECK_PASSED: Equipment slot has a right-click sell source
+GAME_CHECK_PASSED: Right-clicking an equipped item in the open shop sells it for the refund price
+GAME_CHECK_PASSED: Selling removes the item's stats
+GAME_CHECK_PASSED: Equipment slots have drag sources and drop targets
+GAME_CHECK_PASSED: Dragging an equipped item shows a drag ghost
+GAME_CHECK_PASSED: Dragging over another slot highlights it as the drop target
+GAME_CHECK_PASSED: Dropping an item on another slot moves it there
+GAME_CHECK_PASSED: Releasing the drag removes the drag ghost
+GAME_CHECK_PASSED: Drop highlight clears after the drag
+GAME_CHECK_PASSED: A new purchase fills the first free slot
+GAME_CHECK_PASSED: Open shop panel is a drop target
+GAME_CHECK_PASSED: Dragging an item onto the open shop sells it
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: shop.png
+GAME_CHECK_PASSED: Ground drop point is on screen outside the HUD
+GAME_CHECK_PASSED: Dragging an item onto the ground issues a drop order
+GAME_CHECK_PASSED: Hero walks into drop range and leaves the item where the drag was released
+GAME_CHECK_PASSED: Dropping happens within drop range and removes the item's stats
+GAME_CHECK_PASSED: Leaving the shop range closes the shop
+GAME_CHECK_PASSED: Mouse ray picks the item lying on the ground
+GAME_CHECK_PASSED: Clicking a ground item inspects it
+GAME_CHECK_PASSED: Ground item tooltip shows the item name and the right-click pickup hint
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: ground-item.png
+GAME_CHECK_PASSED: Right-clicking a ground item issues a pickup order
+GAME_CHECK_PASSED: Hero walks into pickup range and puts the item into the first free slot
+GAME_CHECK_PASSED: Picking the item up closes its tooltip
+GAME_CHECK_PASSED: Selling requires the shop to be open
+GAME_CHECK_PASSED: Shop cannot be opened outside its range
+GAME_CHECK_PASSED: Drop order accepts a point next to the hero
+GAME_CHECK_PASSED: Dropping next to the hero leaves the item on the ground
+GAME_CHECK_PASSED: Self buff modifies attack speed
+GAME_CHECK_PASSED: HUD slot enters configured aim
+GAME_CHECK_PASSED: Confirm arrow fan ability
+GAME_CHECK_PASSED: Successful cast commits cooldown
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: volley.png
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: point-indicator.png
+GAME_CHECK_PASSED: Point ability accepts target
+GAME_CHECK_PASSED: Point projectile consumes one charge
+GAME_CHECK_PASSED: Linear projectile accepts direction
+GAME_CHECK_PASSED: All configured examples commit through one executor
+GAME_CHECK_PASSED: Level 10 unlocks first talent tier
+GAME_CHECK_PASSED: Talent button applies left option
+GAME_CHECK_PASSED: Next difficulty wave spawns when its timer elapses
+GAME_CHECK_PASSED: Waves mix several enemy kinds from the roster
+GAME_CHECK_PASSED: Different hero loadout changes Q aim without simulation branches
+GAME_CHECK_PASSED: Restart clears combat and flights
+GAME_CHECK_PASSED: Restart resets level and learned skills
+GAME_CHECK_PASSED: Restart clears equipment, ground items and restores starting gold
+GAME_CHECK_PASSED: Death snapshot comes from authoritative unit
+GAME_CHECK_PASSED: Hero death records defeat outcome
+GAME_CHECK_PASSED: Restart restores configured hero
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: foundation-game.png
+GAME_CHECK_PASSED: Start selection catalog lists the archer, the vanguard and this battlefield
+GAME_CHECK_PASSED: Selecting the catalog vanguard starts the melee hero
+GAME_CHECK_PASSED: Hero selection resets level and inventory
+GAME_CHECK_PASSED: Vanguard test has an enemy template
+GAME_CHECK_PASSED: Melee attacks deal damage and build cleave stacks
+GAME_CHECK_PASSED: Vanguard cleave accepts direction
+GAME_CHECK_PASSED: Vanguard guard creates an owned buff
+GAME_CHECK_PASSED: Offscreen render contains scene/UI pixels: vanguard-field.png
+GAME_CHECK_PASSED: Vanguard falling sword accepts a ground point
+GAME_CHECK_PASSED: All four vanguard abilities execute through shared runtime
+GAME_CHECK_PASSED: Vanguard falling sword releases its flight state
+GAME_CHECK_PASSED: Switching back restores archer and clears vanguard state
+GAME_SMOKE_PASSED
+
+来源：scene-ui-verified-player.log
+SCENE_UI_PASS Main: single Canvas/manager
+SCENE_UI_PASS Main: previous UI scope disposed
+SCENE_UI_HELP_STATE Main: totalBefore=1; totalAfter=2; helpCount=1
+SCENE_UI_PASS Main: async coalescing and hide-before-complete
+SCENE_UI_PASS Main: cached reopen
+SCENE_UI_PASS Main: button event closes panel
+SCENE_UI_PASS Main does not auto-navigate
+SCENE_UI_PASS Main button navigates through event adapter
+SCENE_UI_VISITED Main
+SCENE_UI_PASS SelectScene: single Canvas/manager
+SCENE_UI_PASS SelectScene: previous UI scope disposed
+SCENE_UI_HELP_STATE SelectScene: totalBefore=1; totalAfter=2; helpCount=1
+SCENE_UI_PASS SelectScene: async coalescing and hide-before-complete
+SCENE_UI_PASS SelectScene: cached reopen
+SCENE_UI_PASS SelectScene: button event closes panel
+SCENE_UI_PASS SelectScene: hidden panel state replay
+SCENE_UI_VISITED SelectScene
+SCENE_UI_PASS Game: single Canvas/manager
+SCENE_UI_PASS Game: previous UI scope disposed
+SCENE_UI_HELP_STATE Game: totalBefore=4; totalAfter=6; helpCount=1
+SCENE_UI_PASS Game: async coalescing and hide-before-complete
+SCENE_UI_PASS Game: cached reopen
+SCENE_UI_PASS Game: button event closes panel
+SCENE_UI_PASS Game: hidden panel state replay
+SCENE_UI_VISITED Game
+SCENE_UI_PASS EmberRift: single Canvas/manager
+SCENE_UI_PASS EmberRift: previous UI scope disposed
+SCENE_UI_HELP_STATE EmberRift: totalBefore=4; totalAfter=6; helpCount=1
+SCENE_UI_PASS EmberRift: async coalescing and hide-before-complete
+SCENE_UI_PASS EmberRift: cached reopen
+SCENE_UI_PASS EmberRift: button event closes panel
+SCENE_UI_PASS EmberRift: hidden panel state replay
+SCENE_UI_VISITED EmberRift
+SCENE_UI_PASS Benchmark10k: single Canvas/manager
+SCENE_UI_PASS Benchmark10k: previous UI scope disposed
+SCENE_UI_HELP_STATE Benchmark10k: totalBefore=0; totalAfter=1; helpCount=1
+SCENE_UI_PASS Benchmark10k: async coalescing and hide-before-complete
+SCENE_UI_PASS Benchmark10k: cached reopen
+SCENE_UI_PASS Benchmark10k: button event closes panel
+SCENE_UI_VISITED Benchmark10k
+SCENE_UI_PASS Main: single Canvas/manager
+SCENE_UI_PASS Main: previous UI scope disposed
+SCENE_UI_HELP_STATE Main: totalBefore=1; totalAfter=2; helpCount=1
+SCENE_UI_PASS Main: async coalescing and hide-before-complete
+SCENE_UI_PASS Main: cached reopen
+SCENE_UI_PASS Main: button event closes panel
+SCENE_UI_PASS Main does not auto-navigate
+SCENE_UI_PASS Main button navigates through event adapter
+SCENE_UI_VISITED Main
+SCENE_UI_SMOKE_PASSED

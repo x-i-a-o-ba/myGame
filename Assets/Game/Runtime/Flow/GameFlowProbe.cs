@@ -123,6 +123,25 @@ namespace Roguelike.Flow
             }
             yield return WaitFor(()=>(Text("top.map")??"").Contains(map.Label),label+": HUD shows the battlefield name",5);
             yield return Capture(controller.gameCamera,map.stableId.Replace('.','-')+".png");
+            // 仅验证编译快照驱动的范围表现；不施法、不绕过学习门槛修改战斗状态。
+            var indicator=FindFirstObjectByType<GameAbilityIndicator>();
+            Check(indicator && indicator.HasBindings,label+": migrated indicator views are bound");
+            if(indicator && indicator.HasBindings)
+            {
+                using(var library=controller.skillCatalog.Compile())
+                {
+                    int index=hero.ResolveSkills(controller.skillCatalog)[3];
+                    indicator.BeginAim(3,SkillAimPreview.From(ref library.Value.Skills[index]));
+                }
+                Check(indicator.IsAiming,label+": compiled point preview opens");
+                yield return Capture(controller.gameCamera,map.stableId.Replace('.','-')+"-indicator.png",()=>
+                {
+                    Vector3 origin=(Vector3)controller.State.Position;
+                    indicator.UpdateAim(origin,origin+Vector3.forward*8,true,controller.arenaHalfSize);
+                    Check(indicator.CanConfirm,label+": compiled point preview has a valid target");
+                });
+                indicator.Cancel();
+            }
             yield return Click("game.leave",0);
             Check(SceneManager.GetActiveScene().name==scene && Toggle("game.leave.confirm"),label+": first leave click only asks for confirmation");
             if(checkTimeout)
@@ -178,9 +197,10 @@ namespace Roguelike.Flow
             Check(condition(),label);
         }
         /// <summary>离屏渲染相机与全部根 Canvas 到 1920×1080 图片，不依赖窗口是否可见。</summary>
-        private IEnumerator Capture(Camera camera,string name)
+        private IEnumerator Capture(Camera camera,string name,Action beforeRender=null)
         {
             yield return null;
+            beforeRender?.Invoke();
             if(!camera) { Check(false,"Camera available for capture: "+name); yield break; }
             var canvases=FindObjectsByType<Canvas>(FindObjectsSortMode.None).Where(c=>c.isRootCanvas).ToArray();
             var states=canvases.Select(c=>(canvas:c,mode:c.renderMode,camera:c.worldCamera,distance:c.planeDistance)).ToArray();

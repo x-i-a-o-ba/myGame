@@ -42,7 +42,10 @@ namespace Roguelike.Foundation.UI
                 manager.Show("UI.DeveloperHelp"); manager.Show("UI.DeveloperHelp"); manager.Hide("UI.DeveloperHelp");
                 float deadline=Time.realtimeSinceStartup+10;
                 while (!manager.FindPanel("UI.DeveloperHelp") && Time.realtimeSinceStartup<deadline) yield return null;
-                Check(manager.PanelCount==before+1 && !manager.IsVisible("UI.DeveloperHelp"),scene+": async coalescing and hide-before-complete");
+                int helpCount=manager.GetComponentsInChildren<UIPanel>(true).Count(panel=>panel.panelId=="UI.DeveloperHelp");
+                // 战斗 HUD 可能同时异步加载其他面板；合并请求只应断言目标面板唯一。
+                Debug.Log($"SCENE_UI_HELP_STATE {scene}: totalBefore={before}; totalAfter={manager.PanelCount}; helpCount={helpCount}");
+                Check(helpCount==1 && !manager.IsVisible("UI.DeveloperHelp"),scene+": async coalescing and hide-before-complete");
                 manager.Show("UI.DeveloperHelp");
                 var help=manager.FindPanel("UI.DeveloperHelp");
                 Check(help && manager.IsVisible(help.panelId),scene+": cached reopen");

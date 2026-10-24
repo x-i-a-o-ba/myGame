@@ -27,22 +27,27 @@ namespace Roguelike.SkillAuthoring.Editor
                     var skill = SkillAuthoringWorkflow.CreateTemplate(root + "/" + SkillAuthoringWorkflow.TemplateName(kind) + ".asset", kind);
                     created.Add(skill);
                     Check(ids.Add(skill.stableId), "模板稳定 ID 独立");
-                    Check(skill.stages.Length == 1 && skill.stages[0].effects.Length == 1, "模板只创建所需效果");
+                    var stages=SkillRecipeCompiler.Resolve(skill).Stages;
+                    Check(RecipeAuthoringCommands.Enabled(skill) && stages.Length == 1 && stages[0].effects.Length == 1, "当前配方模板只引用所需效果");
+                    var stage=stages[0];
                     Compile(skill);
                     if (kind == SkillTemplateKind.ArcExplosion)
                     {
-                        Check(skill.stages[0].delivery == DeliveryKind.ParabolicProjectile, "抛物线模板投递方式");
-                        Check(skill.stages[0].arcHeight == 3 && skill.stages[0].flightSeconds == 1 &&
-                              skill.stages[0].launchHeight == 1 && skill.stages[0].arrivalHeight == 0, "抛物线默认三维参数");
+                        Check(stage.delivery == DeliveryKind.ParabolicProjectile, "抛物线模板投递方式");
+                        Check(stage.arcHeight == 3 && stage.flightSeconds == 1 &&
+                              stage.launchHeight == 1 && stage.arrivalHeight == 0, "抛物线默认三维参数");
                     }
                     if (kind == SkillTemplateKind.SelfHeal)
-                        Check(skill.aim == AimMode.Self && skill.stages[0].scope == TargetScope.Self && skill.stages[0].effects[0] is HealEffect, "自身治疗模板");
+                        Check(skill.aim == AimMode.Self && stage.scope == TargetScope.Self && stage.effects[0] is HealEffect, "自身治疗模板");
                     if (kind == SkillTemplateKind.UnitDamage)
-                        Check(skill.aim == AimMode.Unit && skill.stages[0].scope == TargetScope.Single && skill.stages[0].effects[0] is DamageEffect, "单体伤害模板");
+                        Check(skill.aim == AimMode.Unit && stage.scope == TargetScope.Single && stage.effects[0] is DamageEffect, "单体伤害模板");
                 }
-                Check(AssetDatabase.FindAssets("t:EffectDefinition", new[] { root }).Length == 6, "六模板没有孤立默认效果文件");
+                Check(AssetDatabase.FindAssets("t:EffectDefinition", new[] { root }).Length == 0, "六配方模板共享目录效果，不新建孤立效果文件");
 
                 var target = created[0];
+                // 单独覆盖旧阶段编辑命令；当前配方事务由 RecipeAuthoringValidation 覆盖。
+                target.stages=SkillRecipeCompiler.Resolve(target).Stages;
+                target.recipe.enabled=false;
                 bool rejected = false;
                 try { SkillAuthoringWorkflow.RemoveStage(target, 0); }
                 catch (InvalidOperationException) { rejected = true; }

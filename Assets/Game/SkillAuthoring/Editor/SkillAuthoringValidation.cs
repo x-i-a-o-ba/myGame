@@ -39,6 +39,18 @@ namespace Roguelike.SkillAuthoring.Editor
             {
                 Check(skill.stableId!=workspace.skill.stableId && skill.stages[0].effects[0]==workspace.skill.stages[0].effects[0],"复制新 ID，效果保持共享");
                 workspace.skill=skill;
+                Check(RecipeAuthoringCommands.Enabled(skill),"工作台正式示例使用当前数字配方");
+                float recipeRadius=skill.recipe.nodes[0].radius+1;
+                int recipeRevision=skill.recipe.revision;
+                skill.recipe.nodes[0].radius=recipeRadius;
+                EditorUtility.SetDirty(skill);SkillAuthoringAssets.Save(skill);
+                AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceUpdate);
+                skill=AssetDatabase.LoadAssetAtPath<SkillDefinition>(path);workspace.skill=skill;
+                Check(skill.recipe.nodes[0].radius==recipeRadius && skill.recipe.revision==recipeRevision+1,"当前配方编辑保存并重新导入保留参数与修订");
+                var recipePreview=SkillAuthoringSceneGUI.Get(workspace,true);
+                Check(recipePreview.Valid && Mathf.Approximately(recipePreview.Stages[0].Radius,recipeRadius),"当前配方保存后驱动工作台预览");
+                // 下方独立覆盖旧阶段兼容与几何；不能让已启用的配方掩盖测试阶段。
+                skill.recipe.enabled=false;
                 skill.stages=new[]
                 {
                     new SkillStage {shape=AreaShape.Circle,radius=5,effects=skill.stages[0].effects},
