@@ -2,4 +2,4 @@
 
 此处记录 2026-09-23 至 2026-10-06 的多代理试运行。当前约定见根目录 [AGENTS.md](../../AGENTS.md)；AI 按任务自主选择协作方式，历史派工流程不作为执行要求。
 
-迁移前的完整手册已保存在[迁移备份](../../Backups/matt-skills-migration-20261007/Docs/ai-team/README.md)。同目录的任务卡与试运行记录仅作历史证据，不作为后续派工模板。
+迁移前的完整手册原保存在 `Backups/matt-skills-migration-20261007/Docs/ai-team/README.md`；`Backups/` 已于 2026-10-24 移出仓库，需要时可从 git 历史提交 `9bd09b3` 恢复。同目录的任务卡与试运行记录仅作历史证据，不作为后续派工模板。

@@ -1681,7 +1681,7 @@ def write_index(root, scene_rows, mask_notes):
         "",
         "## 已经在项目里的相关素材",
         "",
-        "Kenney Particle Pack 的圆环和星光在 `Assets/Game/SkillIndicatorDemo/Art/DemoOnly/Kenney`，许可是 CC0，只适合做发光和确认反馈，不能拿发光边缘当技能判定。",
+        "Kenney Particle Pack 的圆环和星光在 `Assets/Art/effect/Kenney粒子`，许可是 CC0，只适合做发光和确认反馈，不能拿发光边缘当技能判定。",
         "",
         "## 没有收进来的东西",
         "",
@@ -1733,7 +1733,7 @@ def main():
     write_contacts(OUT, by_folder)
     write_index(OUT, rows, notes)
     with open(os.path.join(OUT, "许可.txt"), "w", encoding="utf-8", newline="\n") as handle:
-        handle.write("对照图、可染色底图和状态色由本项目生成，可在本项目中使用。\n它们参照了英雄联盟和 DOTA2 的技能指示类型，但不是这两个游戏的官方素材。\nKenney 粒子图不在这个目录里，许可见 Assets/Game/SkillIndicatorDemo/Art/DemoOnly/Kenney/License.txt。\n")
+        handle.write("对照图、可染色底图和状态色由本项目生成，可在本项目中使用。\n它们参照了英雄联盟和 DOTA2 的技能指示类型，但不是这两个游戏的官方素材。\nKenney 粒子图不在这个目录里，许可见 Assets/Art/effect/Kenney粒子/License.txt。\n")
     print("DONE", len(SCENES), "scenes", len(MASKS), "masks")
 
 

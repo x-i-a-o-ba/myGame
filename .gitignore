@@ -53,6 +53,6 @@ __pycache__/
 *.pyc
 node_modules/
 
-# Keep authored backups, exports and historical validation evidence.
+# Keep authored exports and validation evidence (Backups/ and DemoReports/ were removed on 2026-10-24; restore from git history 9bd09b3 if needed).
 # Only exclude Unity's transient shader compiler logs here.
 /Logs/shadercompiler-*.log

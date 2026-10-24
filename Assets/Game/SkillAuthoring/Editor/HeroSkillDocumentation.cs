@@ -153,7 +153,6 @@ namespace Roguelike.SkillAuthoring.Editor
         private static string Usage(string path)
         {
             if (path.StartsWith("Assets/GameData/编辑示例/", StringComparison.Ordinal)) return path.Contains("换槽") ? "换槽示例" : "工作台示例";
-            if (path.StartsWith("Assets/GameData/历史示例/", StringComparison.Ordinal)) return "历史示例";
             if (path.StartsWith("Assets/GameData/", StringComparison.Ordinal)) return "正式配置";
             return "未分类";
         }

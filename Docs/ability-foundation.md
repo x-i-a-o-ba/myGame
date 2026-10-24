@@ -1,5 +1,11 @@
 # 组合技能与 Buff 基础架构
 
+## 2026-10-24 重设计定稿与工程清理
+
+用户定稿「远征闯关」，后续技能相关改动见 [redesign-expedition.md](redesign-expedition.md)：技能键改为 Q / E / R / F（仍只是输入槽）、快速施法、普攻群伤（分裂箭、顺劈）、磐锋卫士 Q 改为每第 3 次普攻触发的被动、技能满级二选一形态（同一技能的另一份配方），以及分裂、穿透、牵引、跟随英雄的区域、击杀触发等新模块参数；全部按本文的模块组合底线实现。
+
+本次清理删除了独立技能架构演示（`Roguelike.Abilities` 运行时程序集、`SkillArchitectureDemo` 场景、`SkillDemoAssets` / `SkillDemoTools` / `AbilityValidation`）和 GameData 历史示例（1004–1006 示例技能已在编号登记中标为退役）；`Roguelike.Abilities.Core`、正式配置和技能编辑器不变。历史示例中的 5 个通用 Buff（5000 灼烧、5001 冰霜减速、5002 急速、5003 中毒、5004 活力）仍是组合模块目录里技能编辑器可选的 Buff，已带原 GUID 移到 `Assets/GameData/Buff`。下文提到的“独立演示 / 历史示例”均为历史。
+
 ## 2026-10-23 通用多箭散射与战士装配
 
 直线首碰投递新增弹体数和散射张角，配方、编译、预览与共享执行链一致；磐锋卫士的四技能复用现有效果、Buff、重复阶段和抛物线模块。数据所有权、生命周期、兼容与验证见 [冰箭与战士](volley-and-vanguard.md)。

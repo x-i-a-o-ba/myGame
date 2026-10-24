@@ -27,11 +27,6 @@
             "kind": "scene"
         },
         {
-            "id": "Scene.FogOfWarDemo",
-            "path": "FogOfWarDemo",
-            "kind": "scene"
-        },
-        {
             "id": "Scene.Game",
             "path": "Game",
             "kind": "scene"
@@ -47,33 +42,8 @@
             "kind": "scene"
         },
         {
-            "id": "Scene.SkillArchitectureDemo",
-            "path": "SkillArchitectureDemo",
-            "kind": "scene"
-        },
-        {
-            "id": "Scene.SkillIndicatorDemo",
-            "path": "SkillIndicatorDemo",
-            "kind": "scene"
-        },
-        {
             "id": "UI.DeveloperHelp",
             "path": "UI/Panels/UI.DeveloperHelp",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.FogOfWarDemo.Debugcontrols",
-            "path": "UI/Panels/UI.FogOfWarDemo.Debugcontrols",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.FogOfWarDemo.Minimapfiltered",
-            "path": "UI/Panels/UI.FogOfWarDemo.Minimapfiltered",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.FogOfWarDemo.Selectedtargetinformation",
-            "path": "UI/Panels/UI.FogOfWarDemo.Selectedtargetinformation",
             "kind": "resource"
         },
         {
@@ -132,36 +102,6 @@
             "kind": "resource"
         },
         {
-            "id": "UI.SkillArchitectureDemo.Buffinspector",
-            "path": "UI/Panels/UI.SkillArchitectureDemo.Buffinspector",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.SkillArchitectureDemo.Commandsandruntimesummary",
-            "path": "UI/Panels/UI.SkillArchitectureDemo.Commandsandruntimesummary",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.SkillArchitectureDemo.Skillslotseditablelayout",
-            "path": "UI/Panels/UI.SkillArchitectureDemo.Skillslotseditablelayout",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.SkillIndicatorDemo.Controls",
-            "path": "UI/Panels/UI.SkillIndicatorDemo.Controls",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.SkillIndicatorDemo.Skillselectionandstatus",
-            "path": "UI/Panels/UI.SkillIndicatorDemo.Skillselectionandstatus",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.SkillIndicatorDemo.Titleanddemonotice",
-            "path": "UI/Panels/UI.SkillIndicatorDemo.Titleanddemonotice",
-            "kind": "resource"
-        },
-        {
             "id": "UI/Canvas",
             "path": "UI/Canvas",
             "kind": "resource"
@@ -174,21 +114,6 @@
         {
             "id": "UI/Panels/UI.DeveloperHelp",
             "path": "UI/Panels/UI.DeveloperHelp",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.FogOfWarDemo.Debugcontrols",
-            "path": "UI/Panels/UI.FogOfWarDemo.Debugcontrols",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.FogOfWarDemo.Minimapfiltered",
-            "path": "UI/Panels/UI.FogOfWarDemo.Minimapfiltered",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.FogOfWarDemo.Selectedtargetinformation",
-            "path": "UI/Panels/UI.FogOfWarDemo.Selectedtargetinformation",
             "kind": "resource"
         },
         {
@@ -244,36 +169,6 @@
         {
             "id": "UI/Panels/UI.SelectScene.SelectPanel",
             "path": "UI/Panels/UI.SelectScene.SelectPanel",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.SkillArchitectureDemo.Buffinspector",
-            "path": "UI/Panels/UI.SkillArchitectureDemo.Buffinspector",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.SkillArchitectureDemo.Commandsandruntimesummary",
-            "path": "UI/Panels/UI.SkillArchitectureDemo.Commandsandruntimesummary",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.SkillArchitectureDemo.Skillslotseditablelayout",
-            "path": "UI/Panels/UI.SkillArchitectureDemo.Skillslotseditablelayout",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.SkillIndicatorDemo.Controls",
-            "path": "UI/Panels/UI.SkillIndicatorDemo.Controls",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.SkillIndicatorDemo.Skillselectionandstatus",
-            "path": "UI/Panels/UI.SkillIndicatorDemo.Skillselectionandstatus",
-            "kind": "resource"
-        },
-        {
-            "id": "UI/Panels/UI.SkillIndicatorDemo.Titleanddemonotice",
-            "path": "UI/Panels/UI.SkillIndicatorDemo.Titleanddemonotice",
             "kind": "resource"
         }
     ]

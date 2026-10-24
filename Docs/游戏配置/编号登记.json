@@ -44,7 +44,7 @@
             "stableId": "skill.inspire",
             "path": "Assets/GameData/历史示例/技能系统/1004_E_鼓舞示例.asset",
             "name": "E Inspire",
-            "retired": false
+            "retired": true
         },
         {
             "id": 1005,
@@ -53,7 +53,7 @@
             "stableId": "skill.burst",
             "path": "Assets/GameData/历史示例/技能系统/1005_Q_爆发示例.asset",
             "name": "Q Burst",
-            "retired": false
+            "retired": true
         },
         {
             "id": 1006,
@@ -62,7 +62,7 @@
             "stableId": "skill.frost",
             "path": "Assets/GameData/历史示例/技能系统/1006_W_冰霜区域示例.asset",
             "name": "W Frost Field",
-            "retired": false
+            "retired": true
         },
         {
             "id": 1007,
@@ -411,7 +411,7 @@
             "category": "buff",
             "assetKey": "62c02bb0e97e79640a5ce69045c8ea40:11400000",
             "stableId": "buff.burn",
-            "path": "Assets/GameData/历史示例/技能系统/5000_灼烧.asset",
+            "path": "Assets/GameData/Buff/5000_灼烧.asset",
             "name": "Burn",
             "retired": false
         },
@@ -420,7 +420,7 @@
             "category": "buff",
             "assetKey": "62dac026455ec614988ddefbb45b72be:11400000",
             "stableId": "buff.frost",
-            "path": "Assets/GameData/历史示例/技能系统/5001_冰霜减速.asset",
+            "path": "Assets/GameData/Buff/5001_冰霜减速.asset",
             "name": "Frost Slow",
             "retired": false
         },
@@ -429,7 +429,7 @@
             "category": "buff",
             "assetKey": "174a49731759d6e4396fa7fc423768a8:11400000",
             "stableId": "buff.haste",
-            "path": "Assets/GameData/历史示例/技能系统/5002_急速.asset",
+            "path": "Assets/GameData/Buff/5002_急速.asset",
             "name": "Haste",
             "retired": false
         },
@@ -438,7 +438,7 @@
             "category": "buff",
             "assetKey": "053600e8f5a15eb49b3cbe45a8854734:11400000",
             "stableId": "buff.poison",
-            "path": "Assets/GameData/历史示例/技能系统/5003_中毒.asset",
+            "path": "Assets/GameData/Buff/5003_中毒.asset",
             "name": "Poison",
             "retired": false
         },
@@ -447,7 +447,7 @@
             "category": "buff",
             "assetKey": "3d73348ebfdb4044ab6ad5832c043058:11400000",
             "stableId": "buff.vitality",
-            "path": "Assets/GameData/历史示例/技能系统/5004_活力.asset",
+            "path": "Assets/GameData/Buff/5004_活力.asset",
             "name": "Vitality",
             "retired": false
         },

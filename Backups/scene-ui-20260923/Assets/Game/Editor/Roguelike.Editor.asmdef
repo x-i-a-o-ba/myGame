@@ -1,5 +1,0 @@
-{
-  "name": "Roguelike.Editor",
-  "references": ["Roguelike.Runtime", "Unity.ugui", "Unity.Entities", "Unity.Entities.Graphics", "Unity.Transforms", "Unity.Mathematics", "Unity.Collections", "Unity.RenderPipelines.Universal.Runtime"],
-  "includePlatforms": ["Editor"]
-}

@@ -16,7 +16,7 @@ git clone https://github.com/x-i-a-o-ba/myGame.git
 
 在 Unity Hub 中添加克隆后的项目目录，用上述版本的 Editor 打开。首次打开需要联网恢复 Package Manager 依赖并重新导入资源；`Library` 缓存会自动生成。
 
-仓库保存 `Assets`（含 `.meta`）、`Packages`、`ProjectSettings`、开发工具、项目规则、文档、历史备份、配置表导出和验证证据。Unity 缓存、构建产物、个人 IDE 状态及凭据不纳入版本管理，排除规则见 [.gitignore](.gitignore)。现有文件的换行与字节内容在首次入库时保持不变。
+仓库保存 `Assets`（含 `.meta`）、`Packages`、`ProjectSettings`、开发工具、项目规则、文档、配置表导出和验证证据。原有的 `Backups/` 历史备份和 `DemoReports/` 演示报告已于 2026-10-24 随工程清理移除，需要时可从 git 历史提交 `9bd09b3` 恢复。Unity 缓存、构建产物、个人 IDE 状态及凭据不纳入版本管理，排除规则见 [.gitignore](.gitignore)。现有文件的换行与字节内容在首次入库时保持不变。
 
 ## 保存后续修改
 

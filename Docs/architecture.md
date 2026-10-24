@@ -1,5 +1,11 @@
 # 架构与迁移方案
 
+## 2026-10-24 重设计定稿与工程清理
+
+用户定稿「远征闯关」（3 关 + 2 营地、15 分钟、WASD、保留法力、营地买装备），目标架构与分步计划见 [远征闯关重设计](redesign-expedition.md)。后续要新增的边界：按强度时间的刷怪导演与怪物分离（第 2 步）、可配置键位与快速施法输入（第 3 步）、怪物技能模板（第 5 步）、跨场景的局内状态 RunState 与营地界面（第 6 步）；技能形态和新技能参数继续按 ability-foundation.md 做成可组合模块。
+
+第 1 步工程清理已完成，现存程序集：`Roguelike.Foundation(.Editor)`、`Roguelike.Abilities.Core`、`Roguelike.Abilities.Editor`、`Roguelike.Runtime`、`Roguelike.Editor`、`Roguelike.SkillAuthoring(.Editor)`、`Roguelike.SkillIndicators`（只剩游戏在用的圆形视图）。删除了 `Roguelike.FogOfWar(.Editor)`、`Roguelike.Abilities`（演示运行时）、`Roguelike.SkillIndicators.Editor` 和默认程序集里的遗留 ProjectBase / `_Scripts`，详见下方“已移除的独立演示”。`SceneFrameworkMigration` 只保留检查场景、更新资源目录和构建跨场景 UI 验证 Player，场景清单为 Main、SelectScene、Game、EmberRift、Benchmark10k；技能编辑场景 `技能配置工作台` 只在编辑器使用，不在清单和构建中。
+
 ## 2026-10-24 跨场景校验的资源生命周期
 
 `GameFlowValidation.activeCatalog` 仅在校验期间静态持有开局目录及其依赖，避免打开场景时卸载局部变量引用的资源；`finally` 清空，正常游戏仍由既有选择/会话持有状态。360 项战斗检查、345 项流程检查和 Windows 构建通过，见 [验证记录](validation-hero-map-selection-2026-10-23.md)。
@@ -112,31 +118,25 @@ GraphicsSettings 已绑定管线，现有 Quality 各档无独立覆盖，继承
 
 完成文件级配置和 GUID 检查，Unity 已导入管线并注册 URP 全局设置；BRG 变体保留为 KeepAll，项目使用 Linear 色彩空间。独立验证副本位于 Temp/AgentValidation，输出日志位于 Logs/AgentValidation.log。最终状态见 requirements.md 和性能记录。
 
-## 独立技能指示器演示
+## 已移除的独立演示（2026-10-24）
 
-SkillIndicatorDemo 使用独立 Roguelike.SkillIndicators 程序集，不依赖 ECS 战斗模块。CircleTargeting 处理平面距离规则，IndicatorDemoInput 适配桌面输入，IndicatorDemoController 连接配置、视图与 HUD。布尔值 clampOutOfRange 默认 true，公开属性可供未来设置界面接入。固定节点与 UI 保存到场景，圆形视图使用可编辑 Prefab，素材仅供演示。使用与验证见 skill-indicator-demo.md。
+用户在重设计定稿时决定删除战争迷雾的功能、代码和场景以及其他演示，技能编辑器保留（见 [远征闯关重设计](redesign-expedition.md)）。已删除：`Roguelike.FogOfWar` / `Roguelike.FogOfWar.Editor` 程序集与 `FogOfWarDemo` 场景、Game 中封存的 `CombatFogSession.cs`；技能架构演示 `Roguelike.Abilities` 运行时程序集（`SkillDemo*`、`AbilityJobs`、`SkillSimulationSystem`）与 `SkillArchitectureDemo` 场景；技能指示器演示（`IndicatorDemo*`、`CircleTargeting`、`CircleSkillPreset`、`IndicatorFeedback`、`Roguelike.SkillIndicators.Editor`）与 `SkillIndicatorDemo` 场景；三组演示面板 Prefab。
 
-## 独立迷雾与视野演示
-
-柔边更新：FogVisualMask 独立拥有三张 4 倍分辨率 RenderTexture 和滤波材质实例，完成双线性放大、两遍可分离高斯滤波及前后快照混合。只有逻辑掩码变化或显示参数变化才更新 GPU 目标纹理；世界 Shader 每帧按时间插值，不提高 Solver 刷新率，不向 CPU 回读。阵营切换、重置、探索模式和全知模式切换清除显示历史。敌人渲染/选择继续使用当前逻辑快照，滤波只影响地形迷雾。
-
-FogOfWarDemo 使用独立 Roguelike.FogOfWar 程序集。VisionSource 配置少量来源，FogSolver 用 Burst 阴影投射写入阵营位图，FogTargetBatch 并行查询万级目标，FogDemoInput/Hud 适配输入与场景 UI，FogDemoPresentation 负责显示资源与安全信息展示，FogDemoSession 负责装配和模拟资源生命周期。固定 UI、眼槽、地形、树与来源保存为场景对象；普通敌人不会隐式成为来源。
-
-独立演示的万级目标是 NativeArray 与 GPU instancing，不是 Entities 战斗单位。`FogOfWarDemo` 的 `FogSolver`、柔边显示、小地图与调试 UI 均保留在该独立场景。Game 先前复用这些能力的代码是历史方案，本轮关闭后保存在单个 `CombatFogSession.cs`，不参与 Game 当前战斗装配、索敌或渲染。详细现行边界见 ashe-game-integration.md。
+游戏在用的部分已迁到 `Assets/Game/Skills/Indicators`，保留原 GUID：`Runtime/CircleIndicatorView.cs`（程序集名仍为 `Roguelike.SkillIndicators`，只剩这一份通用圆形视图）和 `Meshes/UnitDisk.asset`、`Meshes/UnitRing.asset`（施法距离圈和落点圈 Prefab 使用）。`Roguelike.Abilities.Core` 与共享技能核心不变。需要找回旧实现时，从 git 历史（提交 `9bd09b3` 及之前）恢复。
 
 ## Game 技能与指示器适配（2026-09-23）
 
 `GameCombatController` 是 Game 会话装配和输入桥接：四份 `CombatQ/W/E/RSkillConfig` ScriptableObject 在重开时填入 `CombatAbilitySettings` ECS 数值快照；冷却、层数和充能属于会话状态，不写回资源。`CombatSimulationSystem` 消费 `CombatAbilityCommand`，统一处理 Q/W/E/R、伤害/击杀和敌人减速、眩晕。E 使用 `CombatAreaProjectile` 飞向目标点，抵达后按半径造成一次范围伤害；R 仍命中第一只怪物后爆炸。
 
-`GameAbilityIndicator` 只维护 W 扇形、E 距离与落点圆、R 直线的可视化及瞄准状态；指示器不结算伤害。Game 输入将左键确认的目标和方向提交给 ECS，右键或 Esc 取消，HUD 区域和无效地面投影不得复用旧落点。固定圆环与轮廓线由 Game 场景的 `03_Presentation/Effects` 持有；`CombatHud` 通过场景 UI 事件转发技能槽意图并展示快照，不读取 ECS。`Roguelike.Runtime` 复用独立指示器程序集中的通用圆形视图和截距规则，独立指示器演示输入/控制器不进入 Game。
+`GameAbilityIndicator` 只维护 W 扇形、E 距离与落点圆、R 直线的可视化及瞄准状态；指示器不结算伤害。Game 输入将左键确认的目标和方向提交给 ECS，右键或 Esc 取消，HUD 区域和无效地面投影不得复用旧落点。固定圆环与轮廓线由 Game 场景的 `03_Presentation/Effects` 持有；`CombatHud` 通过场景 UI 事件转发技能槽意图并展示快照，不读取 ECS。`Roguelike.Runtime` 复用 `Roguelike.SkillIndicators` 程序集中的通用圆形视图（2026-10-24 起该程序集只保留这一份视图，位于 `Assets/Game/Skills/Indicators/Runtime`）。
 
-Game 当前关闭迷雾、昼夜、真视、隐身和视野过滤，自动攻击面向全部存活怪物。旧 Game 迷雾适配的原生容器、纹理和逻辑被封存在 `CombatFogSession.cs` 单文件，不再创建会话对象；独立 `FogOfWarDemo` 仍按原规则运行。Game 场景已绑定四份 `Assets/Game/Skills` 配置资产、两只技能圆环、一条轮廓线和 HUD 技能按钮；地面改用 GameGround，旧视野组件已移除，`enemyCount=3000`、`safeSpawnRadius=30` 保留。隔离副本 Unity 迁移与最终版 CombatValidation、Windows Player 构建、3000 敌人技能冒烟通过；证据位于 `D:\UnityProject\myGame_validation_20260923` 的 `migration2.log`、`build4.log`、`player3.log`、`Smoke3/result.json` 和 `Smoke3/e-aim.png`。右键按住取消瞄准后的移动抑制已静态修复，但真实鼠标输入未测。生成场景资产已复制回主项目，主项目 Editor 未单独运行。旧 Game 迷雾 Player 记录是历史证据；一万可见参战是目标，完整战斗 FPS 未测。详见[接入说明](ashe-game-integration.md)。
+Game 当前关闭迷雾、昼夜、真视、隐身和视野过滤，自动攻击面向全部存活怪物。旧 Game 迷雾适配曾封存在 `CombatFogSession.cs`，2026-10-24 已与独立 `FogOfWarDemo` 一起删除。Game 场景已绑定四份 `Assets/Game/Skills` 配置资产、两只技能圆环、一条轮廓线和 HUD 技能按钮；地面改用 GameGround，旧视野组件已移除，`enemyCount=3000`、`safeSpawnRadius=30` 保留。隔离副本 Unity 迁移与最终版 CombatValidation、Windows Player 构建、3000 敌人技能冒烟通过；证据位于 `D:\UnityProject\myGame_validation_20260923` 的 `migration2.log`、`build4.log`、`player3.log`、`Smoke3/result.json` 和 `Smoke3/e-aim.png`。右键按住取消瞄准后的移动抑制已静态修复，但真实鼠标输入未测。生成场景资产已复制回主项目，主项目 Editor 未单独运行。旧 Game 迷雾 Player 记录是历史证据；一万可见参战是目标，完整战斗 FPS 未测。详见[接入说明](ashe-game-integration.md)。
 
 ## 独立技能架构模块（2026-09-23）
 
-Assets/Game/Abilities 以 ScriptableObject 编写共享配置，启动时编译为 Blob；等级、冷却和 Buff 保存在拥有者 ECS 数据中。技能按投放类型、阵营、范围、效果列表组合，被动在学会/移除或普攻命中入口调用同一效果层。作业流水线为 Buff/移动 → 空间网格 → 命令校验与区域查询 → 请求排序与统一写回 → 摘要。效果写回为单 Burst Job；不为万单位创建事件订阅或 MonoBehaviour。输入、UI、展示与会话装配分开，静态节点保存到场景。详见 skill-architecture-demo.md；未接入 Game/Fog，不代表原战斗架构已迁移。
+Assets/Game/Abilities 以 ScriptableObject 编写共享配置，启动时编译为 Blob；等级、冷却和 Buff 保存在拥有者 ECS 数据中。技能按投放类型、阵营、范围、效果列表组合，被动在学会/移除或普攻命中入口调用同一效果层。作业流水线为 Buff/移动 → 空间网格 → 命令校验与区域查询 → 请求排序与统一写回 → 摘要。效果写回为单 Burst Job；不为万单位创建事件订阅或 MonoBehaviour。输入、UI、展示与会话装配分开，静态节点保存到场景。当时的独立演示（skill-architecture-demo.md）已于 2026-10-24 删除，共享配置与核心保留在 `Roguelike.Abilities.Core`。
 
 ## 场景/UI 模块统一（2026-09-23）
 
-所有 7 个场景已采用 Bootstrap、Systems、World、Presentation、UI、Debug 分组（2026-10-23 新增的 EmberRift 沿用同一分组，现为 8 个）。新增独立 Roguelike.Foundation 程序集：场景级 UIManager 管理面板生命周期，UIPanel 只绑定内部控件，UIAction 通过 UiEvents 发出命令，模块 HUD 适配器发布展示快照。15 个常驻面板保存成 Prefab，另有 F1 按需加载的开发说明。ResourcePaths 统一解析 ProjectResourceCatalog.json，旧资源加载入口也转到该清单。世界常驻资源继续保留 Inspector 引用。迷雾 contentRoot 显式定义查找作用域，避免控制器对子节点排布的隐式依赖。详细使用、扩展和设计来源见 scene-ui-framework.md。
+所有 7 个场景已采用 Bootstrap、Systems、World、Presentation、UI、Debug 分组（2026-10-23 新增的 EmberRift 沿用同一分组；2026-10-24 删除三个演示场景后为 Main、SelectScene、Game、EmberRift、Benchmark10k 5 个）。新增独立 Roguelike.Foundation 程序集：场景级 UIManager 管理面板生命周期，UIPanel 只绑定内部控件，UIAction 通过 UiEvents 发出命令，模块 HUD 适配器发布展示快照。15 个常驻面板保存成 Prefab，另有 F1 按需加载的开发说明。ResourcePaths 统一解析 ProjectResourceCatalog.json，旧资源加载入口也转到该清单。世界常驻资源继续保留 Inspector 引用。迷雾 contentRoot 显式定义查找作用域，避免控制器对子节点排布的隐式依赖。详细使用、扩展和设计来源见 scene-ui-framework.md。
 

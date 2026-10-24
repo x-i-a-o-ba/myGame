@@ -14,6 +14,8 @@ namespace Roguelike.SkillAuthoring.Editor
         public const string ScenePath = "Assets/Scenes/技能配置工作台.unity";
         public const string ContentRoot = "Assets/GameData/编辑示例/技能工作台";
         public const string SkillRoot = "Assets/GameData/技能";
+        /// <summary>打开专用技能编辑场景（技能配置工作台，仅编辑器使用、不进构建）并打开技能设计器；场景缺失时先创建。</summary>
+        [MenuItem("Tools/Roguelike/打开技能编辑场景")]
         public static void Open()
         {
             if (Application.isPlaying) { Debug.LogWarning("请先退出运行模式再打开技能工作场景。"); return; }

@@ -1,9 +1,7 @@
 {
   "name": "Roguelike.Abilities.Editor",
   "references": [
-    "Roguelike.Abilities",
     "Roguelike.SkillAuthoring.Editor",
-    "Roguelike.SkillIndicators",
     "Unity.Entities",
     "Unity.Entities.Hybrid",
     "Unity.Transforms",

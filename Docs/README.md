@@ -1,5 +1,11 @@
 # 万级同屏肉鸽开发文档
 
+## 2026-10-24 重设计定稿（远征闯关）与工程清理
+
+用户定稿重设计：采用「远征闯关」——一局 15 分钟，3 关（所选战场 → 另一张战场 → 第 1 关战场的深渊版），关间 2 个营地（随机商店、首领遗物三选一、路线二选一）；WASD 移动、移动中自动普攻、快速施法，技能键改为 Q / E / R / F；保留法力；15 级上限、删除天赋、技能满级选形态；持续刷怪到同屏 4,000，怪物有技能和精英词缀。完整规则、数值初值和 7 步实施计划见 [远征闯关重设计](redesign-expedition.md)。
+
+第 1 步工程清理已完成：删除战争迷雾（代码、场景、面板）、技能架构与指示器演示、遗留 ProjectBase / `_Scripts`、GameData 历史示例、一次性迁移工具，以及仓库根目录的 `Backups/`（迁移备份）和 `DemoReports/`（演示报告）；技能编辑器与专用编辑场景 `技能配置工作台` 保留，新增菜单 Tools/Roguelike/打开技能编辑场景。静态检查已通过，Unity 编译与回归由用户的 Unity AI 验证。旧文档里引用的 `Backups/…`、`DemoReports/…` 路径和已删除的演示文档可用 `git show 9bd09b3:<路径>` 查看，或 `git checkout 9bd09b3 -- <路径>` 恢复。
+
 ## 2026-10-23 开局选择英雄与战场
 
 主菜单“开始游戏”后进入选择场景：第 1 步选英雄（英雄卡、属性与技能详情、3D 展示台），第 2 步选战场（预览、简介、该战场的怪物）。新增第二战场“熔火裂谷”（`EmberRift` 场景）和 8 种新怪物，两个战场的怪物互不重复。战斗右上角“返回选择”需 3 秒内二次点击确认，结算面板也能返回；Game 内的英雄切换按钮已移除。2026-10-24 已通过 Unity 构建与 Player 流程检查。 说明见 [功能说明](hero-and-map-selection.md)，检查范围和待验证清单见 [验证记录](validation-hero-map-selection-2026-10-23.md)。
@@ -70,7 +76,7 @@
 | Editor | ProjectSettings/ProjectVersion.txt 为 6000.3.18f1，即 Unity 6.3 |
 | URP | 17.3.0；Forward+ 与全局 GraphicsSettings 已绑定，各 Quality 继承全局设置；基础构建与 Player 初始化已验证 |
 | ECS | Entities 1.4.8 + Entities Graphics 1.4.21；基础框架、独立压测及 Game 战斗系统已加入 |
-| 现有代码 | Assets/Scripts/ProjectBase 与 Assets/_Scripts 两套 MonoBehaviour/管理工具 |
+| 现有代码 | 正式代码在 `Assets/Game` 的各程序集；2021 版遗留的 ProjectBase / `_Scripts` 已于 2026-10-24 删除 |
 | 场景 | Game.unity 绑定 HeroDefinition、SkillCatalog、经验与等级规则、关卡难度曲线和按配置工作的指示器；enemyCount=3000（同屏存活上限）、safeSpawnRadius=30。2026-10-23 起流程为 Main（主菜单）→ SelectScene（选择英雄与战场）→ Game（幽暗荒原）或 EmberRift（熔火裂谷，控制器配置相同、怪物不同），2026-10-24 已通过 Unity 构建与 Player 流程检查；独立历史场景保留 |
 | 版本管理 | 2026-10-21 建立 Git 仓库，远程为公开仓库 x-i-a-o-ba/myGame；修改前检查工作区并保留可恢复状态，备份范围见根目录 README.md |
 
@@ -88,9 +94,9 @@
 8. [架构规范与编辑器说明](architecture-guidelines.md)：胶水层、注释、复用边界及现行 Game 职责。
 9. [编辑器工具验证记录](validation-architecture-editor-2026-09-22.md)：skill 校验、包解析、构建与 Player 回归。
 10. [Game 场景维护说明](scene-authoring.md)：场景节点、布局修改入口、动态属性、迁移与验证。
-11. [技能指示器独立演示](skill-indicator-demo.md)：演示场景和历史验证；Game 接入状态以第 16 项为准。
-12. [迷雾与视野 Demo](fog-of-war-demo.md)：独立双阵营场景、指定敌人视野预制体、万级显隐目标与验证。
-13. [视野系统调研](fog-of-war-research.md)：Dota/RTS 参考资料、规则边界与性能设计。
+11. 技能指示器独立演示：2026-10-24 已删除，游戏在用的圆形视图与网格迁到 `Assets/Game/Skills/Indicators`；Game 接入状态以第 16 项为准。
+12. 迷雾与视野 Demo：2026-10-24 按用户决定删除。
+13. 视野系统调研：随迷雾一并删除，需要时从 git 历史恢复。
 14. [AI 主控与多代理游戏开发调研及操作手册（历史）](ai-multi-agent-game-dev-workflow-draft.md)：旧方案研究，不再作为执行规则。
 15. [项目开发约定](../AGENTS.md)：AI 按目标自主选择方案、工具、技能与协作方式。旧 [AI 团队手册](ai-team/README.md)仅作历史参考。
 16. [Game 寒冰技能与指示器](ashe-game-integration.md)：四份技能配置、W/E/R 瞄准、E 范围伤害、Game 视野封存及本轮验证状态。
@@ -100,6 +106,7 @@
 20. [敌人种类、Dota 2 式操作与 HUD](enemies-and-controls.md)：自动攻击被动模块、右键/A/S/H 指令、8 种敌人预制体与名册、新版 HUD 面板、左键选中敌人信息面板、技能悬停提示、移动中攻击与验证状态。
 21. [属性与装备](equipment-and-stats.md)：15 种直接相加的属性、合成规则与上限、装备与装备库、首批 18 件、新增装备步骤、金币、商店操作与验证状态。
 22. [开局选择英雄与战场](hero-and-map-selection.md)：选择场景流程与按键、两个战场与熔火裂谷 8 种怪物、配置入口、新增英雄/战场步骤；[验证记录](validation-hero-map-selection-2026-10-23.md)写明2026-10-24 已通过 Unity 构建与 Player 流程检查。
+23. [远征闯关重设计（定稿）](redesign-expedition.md)：2026-10-24 用户定稿的目标设计（3 关 + 2 营地、15 分钟、WASD、Q / E / R / F、营地商店与遗物）、数值初值、与现行需求的差异和 7 步实施计划；数值估算脚本 `Tools/Design/expedition_model.py`。
 
 ## 文档维护规则
 
@@ -109,11 +116,11 @@
 
 ## 技能架构基础演示
 
-[使用与配置](skill-architecture-demo.md)：独立 SkillArchitectureDemo，三个主动技能、两种被动、共享 Buff 管线和万目标验证。设计依据见 [架构调研与批准方案](skill-architecture-proposal.md)。
+独立 SkillArchitectureDemo 与演示运行时程序集已于 2026-10-24 删除，共享核心（`Roguelike.Abilities.Core`）不变，见 [组合技能架构](ability-foundation.md)。当时的设计依据见 [架构调研与批准方案](skill-architecture-proposal.md)。
 
 ## 统一场景与 UI 框架
 
-[场景节点与 UI 使用规范](scene-ui-framework.md)：覆盖全部 7 个场景（2026-10-23 新增第二战场 EmberRift 后为 8 个），单根 Canvas/UIManager、面板 Prefab、场景事件、集中资源文本清单与按需加载。当前节点和面板修改入口以此文档为准。
+[场景节点与 UI 使用规范](scene-ui-framework.md)：覆盖全部运行场景（2026-10-24 删除三个演示场景后为 Main、SelectScene、Game、EmberRift、Benchmark10k 5 个），单根 Canvas/UIManager、面板 Prefab、场景事件、集中资源文本清单与按需加载。当前节点和面板修改入口以此文档为准。
 
 ## 2026-09-24 组合架构验证
 

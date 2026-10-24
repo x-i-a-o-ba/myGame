@@ -1,8 +1,0 @@
-CPU AMD Ryzen 7 7745HX with Radeon Graphics 
-GPU NVIDIA GeForce RTX 4060 Laptop GPU
-10000 ECS targets, recurring Q/W/E, three runs 10s warmup + 60s capture
-Samples 1782
-p50 0.185 ms
-p95 0.244 ms
-p99 0.332 ms
-Simulation CPU wall time; excludes Entities Graphics rendering. Background frame times are diagnostic, not foreground FPS acceptance.

@@ -28,7 +28,7 @@ namespace Roguelike.Foundation.UI
         }
         private IEnumerator Start()
         {
-            var names = new[] { "Main", "SelectScene", "Game", "EmberRift", "SkillIndicatorDemo", "FogOfWarDemo", "SkillArchitectureDemo", "Benchmark10k", "Main" };
+            var names = new[] { "Main", "SelectScene", "Game", "EmberRift", "Benchmark10k", "Main" };
             UIManager previous = null;
             foreach (string scene in names)
             {

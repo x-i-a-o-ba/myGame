@@ -2,6 +2,8 @@
 
 本文是给新加入的开发者或 AI 的一页式总览：项目现在是什么、代码在哪、哪些已完成、哪些是旧代码、接下来做什么。详细规则仍以 [README](README.md) 阅读顺序中的各专题文档为准。
 
+2026-10-24 更新：用户定稿重设计为「远征闯关」（3 关 + 2 营地、15 分钟一局、WASD 移动、保留法力、营地买装备），目标设计和 7 步实施计划见 [redesign-expedition.md](redesign-expedition.md)。第 1 步工程清理已删除战争迷雾、技能架构与指示器演示、遗留 ProjectBase / `_Scripts`、GameData 历史示例和 `Backups/`、`DemoReports/`；技能编辑器与专用编辑场景保留。下文的目录表已按清理后更新，完成度一节仍描述当前（重设计前）的游戏。
+
 ## 项目是什么
 
 Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.21 的 3D 俯视角肉鸽，目标是 PC 上同屏一万只可战斗敌人。主场景 `Assets/Scenes/Game.unity`，当前英雄“寒冰射手”，Q/W/E/R 为冰霜专注 / 冰霜扇击 / 冰霜冲击 / 冰晶巨箭。2026-10-23 起游戏从主菜单 `Main.unity` 进入选择场景 `SelectScene.unity`，先选英雄（寒冰射手、磐锋卫士），再选战场：`Game.unity`（幽暗荒原）或新增的 `EmberRift.unity`（熔火裂谷），两个战场的怪物不同（2026-10-24 已通过 Unity 构建与 Player 流程检查）。
@@ -11,21 +13,20 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | 目录 | 程序集 | 职责 |
 | --- | --- | --- |
 | `Assets/Game/Abilities/Core` | Roguelike.Abilities.Core | 技能、Buff、效果的 ScriptableObject 定义与编译；通用施法、多段、投递、几何；英雄成长（`Progression/`）、属性（`Stats/`）与装备（`Equipment/`）。不依赖 UI、输入或场景 |
-| `Assets/Game/Abilities/Editor` | Roguelike.Abilities.Editor | 中文 Inspector、技能验证、演示资源工具 |
-| `Assets/Game/Runtime` | Roguelike.Runtime | Game 战斗宿主：会话、ECS 系统、波次、HUD、输入、指示器；压测与迷雾演示 |
+| `Assets/Game/Abilities/Editor` | Roguelike.Abilities.Editor | 技能、装备、成长与组合模块目录的中文 Inspector |
+| `Assets/Game/Runtime` | Roguelike.Runtime | Game 战斗宿主：会话、ECS 系统、波次、HUD、输入、指示器；万敌压测 |
 | `Assets/Game/Runtime/Flow` | Roguelike.Runtime | 2026-10-23 开局选择：开局选择目录、本局选择、选择场景控制器、英雄展示台、命令行启动路由与 `--select-smoke` 流程检查；战场定义 `GameMapDefinition` 在 `Runtime/Combat` |
 | `Assets/Game/Editor` | Roguelike.Editor | 场景构建与迁移、战斗/成长验证、压测工具、难度曲线 Inspector |
 | `Assets/Game/Foundation` | Roguelike.Foundation | 场景导航、UIManager/UIPanel/UIAction、资源目录 |
-| `Assets/Game/SkillAuthoring` | — | 技能配置工作台（独立窗口和场景） |
-| `Assets/Game/FogOfWar`、`SkillIndicatorDemo` | — | 独立迷雾与指示器演示，Game 中视野已关闭 |
+| `Assets/Game/SkillAuthoring` | Roguelike.SkillAuthoring(.Editor) | 技能编辑器：技能设计器窗口（Tools/Roguelike/技能设计器）与专用编辑场景 `Assets/Scenes/技能配置工作台.unity`（Tools/Roguelike/打开技能编辑场景，只在编辑器使用、不进构建） |
+| `Assets/Game/Skills/Indicators` | Roguelike.SkillIndicators | 施法距离圈 / 落点圈 Prefab、圆形视图 `CircleIndicatorView` 与单位网格（2026-10-24 从已删除的指示器演示迁入，GUID 不变） |
 | `Assets/Game/Skills/Foundation` | 资源 | 正式技能、Buff、效果、两份英雄、技能库 |
 | `Assets/Game/Progression` | 资源 | 经验与等级规则、关卡难度曲线 |
 | `Assets/Game/Enemies` | 资源 | 8 个敌人种类预制体、敌人自动攻击模块、材质与敌人名册（代码在 `Runtime/Combat/Enemies`） |
 | `Assets/Game/Equipment` | 资源 | 装备库、18 件装备定义与图标（2026-10-22，程序生成图标） |
 | `Assets/Game/UI` | 资源 | Dota 2 风格 HUD 的精灵与图标（程序生成 PNG） |
 | `Assets/Resources/UI/Panels` | 资源 | 按需加载的 UI 面板，ID 登记在 `Resources/ProjectResourceCatalog.json` |
-| `Assets/Scripts/ProjectBase`、`Assets/_Scripts` | 无 asmdef | 2021 版遗留的 MonoBehaviour 管理工具（单例、事件、输入、对象池、A*、UI 等，共 24 个脚本），当前 Game 代码不引用 |
-| `Docs`、`Tools`、`Backups`、`BenchmarkReports` | — | 文档、辅助脚本、迁移备份和压测报告 |
+| `Docs`、`Tools`、`Logs`、`BenchmarkReports` | — | 文档、辅助脚本、验证日志和压测报告（`Backups/`、`DemoReports/` 已于 2026-10-24 删除，需要时从 git 历史恢复） |
 
 核心约定（见 [AGENTS.md](../AGENTS.md)）：技能必须由模块组合，不按 QWER 或英雄写分支；定义资源只存配置，运行状态归拥有者；`AbilityUnit` 是生命和属性的唯一权威；Inspector 用中文；每次改动同步更新需求、架构和验证文档。
 
@@ -48,11 +49,13 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | 万敌完整战斗性能 | 未在 Player 中实测 |
 | 经验掉落、敌人技能（复用技能组合）、局外成长、存档、音效、正式美术与动画 | 未开始 |
 
-## 遗留代码建议（未执行）
+## 遗留代码（2026-10-24 已删除）
 
-`Assets/Scripts/ProjectBase` 与 `Assets/_Scripts` 没有程序集定义，会编进默认的 Assembly-CSharp，新代码不依赖它们。功能已分别被 `Roguelike.Foundation`（场景、UI、资源）和 ECS 系统替代。建议单独一次提交将它们移到 `Backups/` 或删除。Main、SelectScene 自 2026-10-23 起是主菜单和选择场景，已核对四个游戏场景都没有引用这两个目录中的脚本。本轮没有删除或移动任何旧代码。
+`Assets/Scripts/ProjectBase` 与 `Assets/_Scripts`（2021 版遗留的单例、事件、输入、对象池、A*、UI 等 24 个脚本，编进默认的 Assembly-CSharp）已删除。删除前确认没有场景、Prefab 或程序集引用它们，功能早已由 `Roguelike.Foundation` 和 ECS 系统替代。需要时从 git 历史（提交 `9bd09b3` 及之前）恢复。
 
 ## 建议的后续顺序
+
+2026-10-24 起以 [远征闯关重设计](redesign-expedition.md) 第 10 节的 7 步为准；以下是重设计前的旧顺序，仅作历史参考。
 
 1. 在 Unity 中打开项目，跑 **Tools/Roguelike/验证/战斗与成长（不构建）** 和 **Tools/Roguelike/维护/检查开局选择流程**，修正编译或验证问题；从 Main 走一遍选英雄 → 选战场 → 返回选择，检查熔火裂谷外观与新怪物；检查新 HUD 画面、左键选中敌人信息面板、技能悬停提示、移动中攻击手感、商店与装备栏、装备与属性提示、装备拖动 / 丢弃 / 拾取与固定商店（商店模型外观与位置）、敌人预制体外形和 Dota 2 式操作手感，试玩一局调节经验、难度曲线和各敌人倍率。
 2. Player 中把同屏上限调到一万，按 [performance.md](performance.md) 测帧时间；必要时为索敌和范围技能加空间划分。

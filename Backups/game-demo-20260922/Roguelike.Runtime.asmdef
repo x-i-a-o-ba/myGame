@@ -1,6 +1,0 @@
-{
-  "name": "Roguelike.Runtime",
-  "rootNamespace": "Roguelike",
-  "references": ["Unity.Entities", "Unity.Entities.Hybrid", "Unity.Entities.Graphics", "Unity.Transforms", "Unity.Mathematics", "Unity.Collections", "Unity.Burst"],
-  "autoReferenced": true
-}

@@ -4,7 +4,9 @@
 
 ## 场景入口
 
-7 个场景：Main、SelectScene、Game、SkillIndicatorDemo、FogOfWarDemo、SkillArchitectureDemo、Benchmark10k。
+2026-10-24 现状：运行场景为 Main、SelectScene、Game、EmberRift、Benchmark10k 共 5 个（`SceneFrameworkMigration.Scenes`，“检查场景”与 `--scene-ui-smoke` 都按这份清单）；SkillIndicatorDemo、FogOfWarDemo、SkillArchitectureDemo 三个演示场景及其面板（`UI.SkillIndicatorDemo.*`、`UI.FogOfWarDemo.*`、`UI.SkillArchitectureDemo.*`）已删除，资源目录中的对应条目同时移除。一次性的旧场景迁移代码（`MigrateAll` 等）已完成使命，一并删除；`BuildVerificationPlayer` 改为先检查场景、更新资源目录再构建。下文提到的演示 HUD、`ability.command` / `fog.command` / `indicator.skill` 命令和演示场景的验证记录都是历史。
+
+原 7 个场景：Main、SelectScene、Game、SkillIndicatorDemo、FogOfWarDemo、SkillArchitectureDemo、Benchmark10k。
 
 2026-10-23 新增第二战场 `Assets/Scenes/EmberRift.unity`（熔火裂谷），与 Game 使用相同的节点分组、HUD 面板和控制器，现为 8 个运行场景；SelectScene 改为开局选择英雄与战场。流程见 [开局选择](hero-and-map-selection.md)，未经 Unity 验证。
 

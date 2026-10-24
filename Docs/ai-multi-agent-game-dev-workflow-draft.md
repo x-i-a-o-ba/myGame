@@ -97,7 +97,7 @@ flowchart LR
 1. **建立可恢复基线。**关闭正在写入的 Unity Editor，检查已有备份，按 [GitHub 的 Unity.gitignore 模板](https://github.com/github/gitignore/blob/main/Unity.gitignore) 建立忽略规则，再审查本项目的 Backups、DemoReports、Logs、Builds 是否应纳入版本库。保存 Assets、Packages、ProjectSettings、Docs、Tools 和资源对应的 .meta。Unity 6.3 文档说明文本序列化有利于场景合并；本项目文件已记录 Visible Meta Files 与 m_SerializationMode: 2，仍可在 Editor 核对显示值。[Unity 6.3 Editor 设置](https://docs.unity.com/en-us/engine/6000.3/manual/unity-editor/editor-settings-reference/comp-manager-group/class-editor-manager)。
 2. **本地 Git 基线。**核对 .gitignore 和大文件清单后，才初始化 Git、审查待提交文件并提交一次可恢复的起点。大型二进制资产按实际体积与团队托管方式选择 Git LFS 或 Unity Version Control；不要盲目把 Library、Temp、构建输出或私有素材上传远端。
 3. **任务隔离。**有了 Git 基线后，Codex 桌面端的 Worktree 或原生 Git worktree 才可为独立代码任务提供分支与文件隔离；当前项目尚不能直接使用。Codex 官方说明 Worktree 依赖 Git 仓库；**同一任务中的子代理共享文件系统，并不会自动得到工作树**，因此仍需指定文件归属。[Codex Worktrees](https://learn.chatgpt.com/docs/environments/git-worktrees)、[Codex Subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)。
-4. **先用已有验证，再补自动化。**现成的 Editor 验证菜单和 Player smoke 已见 [Game Demo](game-demo.md)、[压测指南](benchmark-guide.md)、[技能架构 Demo](skill-architecture-demo.md)、[迷雾 Demo](fog-of-war-demo.md) 与[场景 UI 框架](scene-ui-framework.md)。先把每个任务映射到对应检查；项目自己的 Test Framework 测试和 CI 是后续建设项。
+4. **先用已有验证，再补自动化。**现成的 Editor 验证菜单和 Player smoke 已见 [Game Demo](game-demo.md)、[压测指南](benchmark-guide.md)、技能架构 Demo（已于 2026-10-24 删除）、迷雾 Demo（已于 2026-10-24 删除） 与[场景 UI 框架](scene-ui-framework.md)。先把每个任务映射到对应检查；项目自己的 Test Framework 测试和 CI 是后续建设项。
 5. **Editor 接入作为可选第二阶段。**Unity AI 助手现有 Beta 功能可读项目上下文与调用 Editor 工具，但本项目尚未安装该包；Unity CLI/Pipeline/MCP 也尚未在本机核实可用。若之后需要 AI 直接操作 Editor，先核对 Unity 6.3 兼容性、Unity Cloud/账户条件、费用、授权和 [Unity 官方代理接入条款](https://unity.com/legal/terms-of-service)，优先走明确授权的官方路径。[Unity AI 介绍](https://unity.com/blog/unity-ai-how-to-get-started)、[Unity CLI](https://docs.unity.com/en-us/unity-cli)、[Unity Pipeline 包](https://docs.unity.com/en-us/unity-production-pipeline/local-tools-cli/unity-pipeline-package)。MCP 是 Editor 操作入口，不替代设计、版本管理和测试。
 
 版本管理选型先看资产规模和团队习惯。**Git + 按需 Git LFS**能直接使用 Codex Worktree，适合先搭本地任务隔离；大二进制文件仍需管理托管配额与合并冲突。**Unity Version Control**有针对模型、图片、音频等不可合并资源的 Smart Locks；若单用它，Codex 的 Git Worktree 流程就不直接适用，应改用其分支/锁和单文件所有者。[Codex Worktree 前提](https://learn.chatgpt.com/docs/environments/git-worktrees)、[Unity Version Control Smart Locks](https://docs.unity.com/en-us/unity-version-control/smart-locks)。当前建议先试本地 Git 基线，最终选型由项目所有者根据资产体量、协作人数与托管成本确定。
@@ -167,7 +167,7 @@ unity mcp configure codex --local --project-path 'D:\UnityProject\myGame' --dry-
 | 6. 发行准备 | 发布代理核对平台条款、素材、版本、语言、商店说明、披露、崩溃收集和回滚；按已选渠道准备 Demo、宣传素材、社区与时间表。 | Release Candidate、构建哈希、许可清单、商店资料、已知问题、玩家获取与反馈指标草案。 | 人核对最终游戏和公开承诺，选择渠道并决定提交/发布；开发速度不等于玩家会自然发现游戏。 |
 | 7. 上线后 | 主 AI 分流崩溃、玩家反馈和可取得的数据；策划提版本假设；程序/QA 按小批次修复。 | 补丁任务卡、回归证据、版本说明和下一轮计划。 | 主 AI 裁决范围内修复及玩法细节；对外沟通或付费变更由用户决定。 |
 
-“纵切片”是让玩家从进入游戏到得到反馈的真实流程，优先验证是否有趣、是否看得懂、是否可维护；不要求一开始有完整内容量。对本项目，现有 Game Demo 是起点，技能、迷雾和压测等独立 Demo 接入 Game 时先核对现有实现，由主 AI 按用户方向裁决范围。[Game Demo 当前范围](game-demo.md)、[技能架构现状](skill-architecture-demo.md)、[迷雾现状](fog-of-war-demo.md)。
+“纵切片”是让玩家从进入游戏到得到反馈的真实流程，优先验证是否有趣、是否看得懂、是否可维护；不要求一开始有完整内容量。对本项目，现有 Game Demo 是起点，技能、迷雾和压测等独立 Demo 接入 Game 时先核对现有实现，由主 AI 按用户方向裁决范围。[Game Demo 当前范围](game-demo.md)、技能架构现状（已于 2026-10-24 删除）、迷雾现状（已于 2026-10-24 删除）。
 
 ### 各专业交付到下一环节时要写什么
 
