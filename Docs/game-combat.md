@@ -6,7 +6,7 @@
 
 正常游戏从主菜单进入选择场景，选完英雄和战场后进入 `Game.unity`（幽暗荒原）或 `EmberRift.unity`（熔火裂谷），见 [开局选择](hero-and-map-selection.md)；在 Editor 中也可以直接打开战场场景运行。打开 `Assets/Scenes/Game.unity`。操作按 Dota 2：右键地面移动（途中不攻击），右键敌人攻击，A 后左键敌人/地面为攻击/攻击移动，S 停止，H 待命，待机时自动攻击附近敌人；Q/W/E/R 对应英雄技能槽0–3，自身目标立即提交，其余按配置瞄准，左键确认，右键/Esc取消，F5重开。开局1级、1个技能点、四个技能均未学习：Ctrl+Q/W/E/R 或成长面板按钮学习/升级技能，10/15/20/25 级按 1/2 选天赋。敌人按波次在玩家周围安全半径30米外刷出，种类由“敌人名册”按波次与权重抽取（8 种，见 enemies-and-controls.md），同屏存活上限 `enemyCount`=3000；击杀第30波首领胜利。Game视野关闭。
 
-选择 GameCombatController：`hero` 决定英雄基础属性、自动攻击模块、转身速度、成长、天赋及技能装配，`enemyRoster` 是敌人名册，`skillCatalog` 是共享定义注册表，`progressionRules` 是经验与等级规则，`difficulty` 是关卡难度曲线（两者为空时使用代码默认值并警告）；2026-10-23 新增 `map`（战场定义），其敌人名册和难度曲线优先于 `enemyRoster`、`difficulty`，Game 指向 7001 幽暗荒原、EmberRift 指向 7002 熔火裂谷。配置统一位于 `Assets/GameData`，按英雄、技能、效果、Buff、普攻、怪物、装备、成长、关卡与目录分类；示例单独归档。查阅入口为 `Assets/GameData/README.md`。更换英雄资源后重开；`SelectHero` 是运行时换英雄的边界。2026-10-23 已制作选人界面：从选择场景进入时，`ApplySelection` 在开局前换成所选英雄，并在所选战场属于本场景时换成该战场（未经 Unity 验证）。“换槽示例”英雄仅用于展示技能复用，不是完整英雄。
+选择 GameCombatController：`hero` 决定英雄基础属性、自动攻击模块、转身速度、成长、天赋及技能装配，`enemyRoster` 是敌人名册，`skillCatalog` 是共享定义注册表，`progressionRules` 是经验与等级规则，`difficulty` 是关卡难度曲线（两者为空时使用代码默认值并警告）；2026-10-23 新增 `map`（战场定义），其敌人名册和难度曲线优先于 `enemyRoster`、`difficulty`，Game 指向 7001 幽暗荒原、EmberRift 指向 7002 熔火裂谷。配置统一位于 `Assets/GameData`，按英雄、技能、效果、Buff、普攻、怪物、装备、成长、关卡与目录分类；示例单独归档。查阅入口为 `Assets/GameData/README.md`。更换英雄资源后重开；`SelectHero` 是运行时换英雄的边界。2026-10-23 已制作选人界面：从选择场景进入时，`ApplySelection` 在开局前换成所选英雄，并在所选战场属于本场景时换成该战场（2026-10-24 已通过 Unity 构建与 Player 流程检查）。“换槽示例”英雄仅用于展示技能复用，不是完整英雄。
 
 打开 SkillDefinition：先选择 aim/castRange，再配置 stages。每段独立配置范围、投递、延迟、重复次数/间隔、effects；直线弹另有 impactEffects。EffectDefinition资源可被多个技能复用。新普通技能只组装资源并登记到库，不新增 Q/W/E/R 配置类。Core编译器拒绝非法参数与未登记Buff。
 

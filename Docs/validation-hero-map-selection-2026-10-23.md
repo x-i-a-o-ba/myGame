@@ -1,5 +1,22 @@
 # 开局选择英雄与战场验证
 
+## 2026-10-24 本机合并与 Unity 补验
+
+在主工作目录 `D:/UnityProject/myGame` 的 `main` 快进同步 `609d43c`，保留本地未跟踪的日志与场景恢复备份，没有创建分支或 worktree。
+
+- Unity 6000.3.18f1 实际导入、编译和 Windows 构建通过。
+- 360 项战斗/成长 Editor 检查、345 项开局流程 Editor 检查通过。
+- Windows Player 开局流程 60 项、战斗回归 149 项通过，没有失败或跳过。选择检查通过实际按钮事件完成英雄与战场选择、两个战场进入、名册归属、返回确认和超时取消、预选上局、回主菜单。
+- 已查看 1920×1080 的英雄选择、战场选择和熔火裂谷运行截图。没有据此声称全部分辨率或人工键鼠操作验收。
+
+首次真实构建发现 `GameFlowValidation` 的方法局部变量不能防止打开场景时卸载配置，导致 `GameMapDefinition` 的 `MissingReferenceException`。校验器现在用静态 `activeCatalog` 在跨场景检查期间持有目录及其依赖，并在 `finally` 释放引用。原配置、运行时选择与场景不修改；修复后从编译到构建、Player 流程重新验证。
+
+证据：[检查标记](../Logs/Merge20261024/checks.txt)、[选择结果](../Logs/Merge20261024/select/result.json)、[战斗结果](../Logs/Merge20261024/game/result.json)、[英雄选择](../Logs/Merge20261024/select/select-hero.png)、[战场选择](../Logs/Merge20261024/select/select-map.png)、[熔火裂谷](../Logs/Merge20261024/select/map-ember_rift.png)。完整原始日志仅在本机保留。
+
+本次未跑完整 30 波平衡、万敌性能或九场景 `--scene-ui-smoke`；未逐一人工查看新增 Inspector。Player 退出仍出现已有 ComputeBuffer 释放警告，没有将其算作已修复。下方为 10 月 23 日原始开发记录及当时的待验清单，以本节为最新验证状态。
+
+## 2026-10-23 原始开发记录
+
 日期：2026-10-23。环境：Linux 开发沙箱，**没有安装 Unity**。项目目标版本 Unity 6000.3.18f1、URP 17.3.0、Entities 1.4.8。
 
 用户要求、AI 选择的流程和数值见 [功能说明](hero-and-map-selection.md)。

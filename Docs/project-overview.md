@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.21 的 3D 俯视角肉鸽，目标是 PC 上同屏一万只可战斗敌人。主场景 `Assets/Scenes/Game.unity`，当前英雄“寒冰射手”，Q/W/E/R 为冰霜专注 / 冰霜扇击 / 冰霜冲击 / 冰晶巨箭。2026-10-23 起游戏从主菜单 `Main.unity` 进入选择场景 `SelectScene.unity`，先选英雄（寒冰射手、磐锋卫士），再选战场：`Game.unity`（幽暗荒原）或新增的 `EmberRift.unity`（熔火裂谷），两个战场的怪物不同（未经 Unity 验证）。
+Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.21 的 3D 俯视角肉鸽，目标是 PC 上同屏一万只可战斗敌人。主场景 `Assets/Scenes/Game.unity`，当前英雄“寒冰射手”，Q/W/E/R 为冰霜专注 / 冰霜扇击 / 冰霜冲击 / 冰晶巨箭。2026-10-23 起游戏从主菜单 `Main.unity` 进入选择场景 `SelectScene.unity`，先选英雄（寒冰射手、磐锋卫士），再选战场：`Game.unity`（幽暗荒原）或新增的 `EmberRift.unity`（熔火裂谷），两个战场的怪物不同（2026-10-24 已通过 Unity 构建与 Player 流程检查）。
 
 ## 目录与模块
 
@@ -44,7 +44,7 @@ Unity 6.3（6000.3.18f1）+ URP 17.3.0 + Entities 1.4.8 / Entities Graphics 1.4.
 | 组合技能 / Buff 架构、V2 配方、中文编辑器、技能工作台 | 已完成，见 [ability-foundation.md](ability-foundation.md)、[V2 实施记录](skill-composition-v2-implementation.md) |
 | 寒冰射手四技能与指示器 | 已完成，见 [ashe-game-integration.md](ashe-game-integration.md) |
 | Dota 2 式升级、技能点、技能等级、天赋、波次难度、胜负 | 2026-10-21 Unity 编译、89 项 Editor 规则、Windows 构建及 31 项 Player 集成检查通过；完整实玩和数值平衡未验收，见 [hero-progression.md](hero-progression.md) |
-| 开局选择英雄与战场、第二战场熔火裂谷 | 2026-10-23 新增选择场景（英雄卡、属性与技能详情、3D 展示台、战场卡与怪物列表）、熔火裂谷场景与 8 种新怪物、战斗内“返回选择”；**未经 Unity 编译或运行验证**，见 [hero-and-map-selection.md](hero-and-map-selection.md) 和 [验证记录](validation-hero-map-selection-2026-10-23.md) |
+| 开局选择英雄与战场、第二战场熔火裂谷 | 2026-10-23 新增选择场景（英雄卡、属性与技能详情、3D 展示台、战场卡与怪物列表）、熔火裂谷场景与 8 种新怪物、战斗内“返回选择”；2026-10-24 已通过 Unity 构建与 Player 流程检查，见 [hero-and-map-selection.md](hero-and-map-selection.md) 和 [验证记录](validation-hero-map-selection-2026-10-23.md) |
 | 万敌完整战斗性能 | 未在 Player 中实测 |
 | 经验掉落、敌人技能（复用技能组合）、局外成长、存档、音效、正式美术与动画 | 未开始 |
 

@@ -1,8 +1,12 @@
 # 架构与迁移方案
 
+## 2026-10-24 跨场景校验的资源生命周期
+
+`GameFlowValidation.activeCatalog` 仅在校验期间静态持有开局目录及其依赖，避免打开场景时卸载局部变量引用的资源；`finally` 清空，正常游戏仍由既有选择/会话持有状态。360 项战斗检查、345 项流程检查和 Windows 构建通过，见 [验证记录](validation-hero-map-selection-2026-10-23.md)。
+
 ## 2026-10-23 开局选择与多战场
 
-场景流程为 Main → SelectScene → 战场场景（Game 幽暗荒原 / EmberRift 熔火裂谷）。新增 `Roguelike.Flow`（`Assets/Game/Runtime/Flow`，属于 Roguelike.Runtime 程序集）。配置只存在 ScriptableObject 中：`StartSelectionCatalog` 存可选英雄与战场及其顺序，`GameMapDefinition` 存战场展示信息、场景 ID、敌人名册与难度曲线。跨场景只传 `GameSelection` 中的两个配置引用（只在内存中，不写存档），战斗状态仍归战场场景的 `GameCombatSession`。`SelectSceneController` 经场景 UIManager 发布展示键并处理 `select.*` 命令，`HeroShowcase` 只负责外形。`GameCombatController.ApplySelection` 在创建会话前换成所选英雄；只有所选战场属于当前场景时才替换战场，名册和难度统一由 `ActiveRoster` / `ActiveDifficulty` 读取。场景切换统一走 `SceneNavigation` 路由表（命令 → 加载场景 / 退出，可要求限时二次确认），面板不直接切换场景。Game 内的英雄切换组件 `HeroRoster` 已删除，战斗探针改用开局选择目录与 `SelectHero`。说明见 [开局选择](hero-and-map-selection.md)，未经 Unity 验证。
+场景流程为 Main → SelectScene → 战场场景（Game 幽暗荒原 / EmberRift 熔火裂谷）。新增 `Roguelike.Flow`（`Assets/Game/Runtime/Flow`，属于 Roguelike.Runtime 程序集）。配置只存在 ScriptableObject 中：`StartSelectionCatalog` 存可选英雄与战场及其顺序，`GameMapDefinition` 存战场展示信息、场景 ID、敌人名册与难度曲线。跨场景只传 `GameSelection` 中的两个配置引用（只在内存中，不写存档），战斗状态仍归战场场景的 `GameCombatSession`。`SelectSceneController` 经场景 UIManager 发布展示键并处理 `select.*` 命令，`HeroShowcase` 只负责外形。`GameCombatController.ApplySelection` 在创建会话前换成所选英雄；只有所选战场属于当前场景时才替换战场，名册和难度统一由 `ActiveRoster` / `ActiveDifficulty` 读取。场景切换统一走 `SceneNavigation` 路由表（命令 → 加载场景 / 退出，可要求限时二次确认），面板不直接切换场景。Game 内的英雄切换组件 `HeroRoster` 已删除，战斗探针改用开局选择目录与 `SelectHero`。说明见 [开局选择](hero-and-map-selection.md)，2026-10-24 已通过 Unity 构建与 Player 流程检查。
 
 ## 2026-10-23 散射与英雄切换
 

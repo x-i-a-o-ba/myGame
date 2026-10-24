@@ -29,6 +29,8 @@ namespace Roguelike.Editor
         public const string EmberRiftMap="map.ember_rift";
         private const string LedgerPath="Docs/游戏配置/编号登记.json";
         private static int checks;
+        // 切换场景会卸载未使用资源；静态引用在整个校验期间保留目录及其依赖。
+        private static StartSelectionCatalog activeCatalog;
 
         [MenuItem("Tools/Roguelike/维护/检查开局选择流程")]
         public static void Validate()
@@ -39,13 +41,17 @@ namespace Roguelike.Editor
             checks=0;
             try
             {
-                var catalog=ValidateCatalog();
+                var catalog=activeCatalog=ValidateCatalog();
                 ValidateLedger(catalog);
                 ValidateMain();
                 ValidateSelect(catalog);
                 foreach(var map in catalog.maps) ValidateBattlefield(catalog,map);
             }
-            finally { if(!Application.isBatchMode && setup.Length>0) EditorSceneManager.RestoreSceneManagerSetup(setup); }
+            finally
+            {
+                activeCatalog=null;
+                if(!Application.isBatchMode && setup.Length>0) EditorSceneManager.RestoreSceneManagerSetup(setup);
+            }
             Debug.Log("GAME_FLOW_VALIDATION_PASSED checks="+checks);
         }
 
