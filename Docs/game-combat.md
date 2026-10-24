@@ -1,5 +1,7 @@
 # Game 场景与组合技能
 
+**2026-10-24 当前覆盖说明：** 两张战场已经改为[持续刷怪导演](spawn-director.md)，存活上限统一来自 `刷怪导演.asset`（默认 4,000），在镜头外环带按时间与权重补充；本关 210 秒出现首领，击杀首领完成本关。下文的波次、30 波胜利和 `enemyCount` 配置属于历史。操作与成长暂保留，等待远征第 3 步。
+
 更新：2026-10-21（加入英雄成长与波次；同日加入敌人种类、Dota 2 式操作与新 HUD）。当前架构与完整合同见 [ability-foundation.md](ability-foundation.md)，成长规则见 [hero-progression.md](hero-progression.md)，敌人、操作与 HUD 见 [enemies-and-controls.md](enemies-and-controls.md)。
 
 ## 使用和配置

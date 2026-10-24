@@ -14,44 +14,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.EnemyRoster
   entries:
   - prefab: {fileID: 4127538355715876718, guid: 4664f792cbed49f7953b1642f94e67e3, type: 3}
-    weight: 10
-    firstWave: 1
-    lastWave: 0
+    weight: 55
+    firstSecond: 0
+    lastSecond: 0
+    specialElite: 0
     tiers: 3
   - prefab: {fileID: 327166426177962618, guid: 0148d39a1a66443eaf9ed41e4791e0c8, type: 3}
-    weight: 6
-    firstWave: 2
-    lastWave: 0
+    weight: 15
+    firstSecond: 45
+    lastSecond: 0
+    specialElite: 0
     tiers: 3
   - prefab: {fileID: 1162408049307120960, guid: baabf897d8bf4c46946a7573518ab17b, type: 3}
-    weight: 5
-    firstWave: 3
-    lastWave: 0
+    weight: 12
+    firstSecond: 90
+    lastSecond: 0
+    specialElite: 0
     tiers: 3
   - prefab: {fileID: 669259657311150719, guid: a80395477a0141219d8d3e7031a1646b, type: 3}
-    weight: 3
-    firstWave: 4
-    lastWave: 0
+    weight: 6
+    firstSecond: 210
+    lastSecond: 0
+    specialElite: 0
     tiers: 3
   - prefab: {fileID: 2122610207335516857, guid: 40e7adbea79446229c181e0673820e81, type: 3}
-    weight: 3
-    firstWave: 5
-    lastWave: 0
+    weight: 8
+    firstSecond: 150
+    lastSecond: 0
+    specialElite: 0
     tiers: 1
   - prefab: {fileID: 294869362402068463, guid: 7d1efde1513041b29c94568ef7ea9f79, type: 3}
-    weight: 1.5
-    firstWave: 6
-    lastWave: 0
+    weight: 4
+    firstSecond: 300
+    lastSecond: 0
+    specialElite: 0
     tiers: 3
   - prefab: {fileID: 627129538977734335, guid: bffe868347a64acabc9b9fed3c55cc8b, type: 3}
     weight: 1
-    firstWave: 1
-    lastWave: 0
+    firstSecond: 0
+    lastSecond: 0
+    specialElite: 0
     tiers: 4
   - prefab: {fileID: 140452038508195850, guid: f6c56a0a78cb442e8ff332b0fe34d457, type: 3}
     weight: 1
-    firstWave: 10
-    lastWave: 0
+    firstSecond: 0
+    lastSecond: 0
+    specialElite: 1
     tiers: 6
   eliteTint: {r: 1, g: 0.78, b: 0.28, a: 1}
   eliteTintStrength: 0.45

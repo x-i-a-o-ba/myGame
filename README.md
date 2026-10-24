@@ -8,6 +8,8 @@ Unity 6.3 + URP + ECS 的 3D 俯视角肉鸽游戏项目。
 - 开发约定：[AGENTS.md](AGENTS.md)。
 - 游戏入口：`Assets/Scenes/Main.unity`（主菜单 → 选择英雄 → 选择战场）。战场场景：`Assets/Scenes/Game.unity`（幽暗荒原）、`Assets/Scenes/EmberRift.unity`（熔火裂谷，2026-10-23 新增，2026-10-24 已通过 Unity 构建与 Player 流程检查），见 [开局选择](Docs/hero-and-map-selection.md)。
 
+当前已推进到远征重设计第 2 步：两张战场使用持续刷怪导演、潮涌与软分离，存活上限 4,000。玩法、中文配置与实际 Player 负载证据见 [刷怪导演](Docs/spawn-director.md) 和 [验证记录](Docs/validation-director-2026-10-24.md)。第 3–7 步（新操作/成长、英雄、怪物技能、三关营地与收尾）仍待实现。6000.3.18f1 的窗口模式无障碍退出问题及自动化运行方式也列在验证记录中。
+
 ## 恢复项目
 
 ```powershell

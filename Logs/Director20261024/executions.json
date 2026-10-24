@@ -1,0 +1,6 @@
+{
+  "name": "game-final",
+  "exitCode": -1073741819,
+  "arguments": "-screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --director-smoke --director-output D:/UnityProject/myGame/Logs/Director20261024/game-final -logFile D:/UnityProject/myGame/Logs/Director20261024/game-final-player.log",
+  "completed": "2026-10-24T18:44:52.6376370+08:00"
+}

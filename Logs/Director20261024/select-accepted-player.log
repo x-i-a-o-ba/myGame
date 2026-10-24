@@ -1,0 +1,139 @@
+Mono path[0] = 'D:/UnityProject/myGame/Builds/Game/Game_Data/Managed'
+Mono config path = 'D:/UnityProject/myGame/Builds/Game/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.3.18f1 (5ebeb53e4c07)
+[Subsystems] Discovering subsystems at path D:/UnityProject/myGame/Builds/Game/Game_Data/UnitySubsystems
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 4060 Laptop GPU (ID=0x28a0)
+    Vendor:   NVIDIA
+    VRAM:     7957 MB
+    Driver:   32.0.15.7628
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.158 seconds
+- Finished resetting the current domain, in  0.004 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+UnloadTime: 1.354400 ms
+SELECT_CHECK_PASSED: Flow starts at the main menu
+SELECT_CHECK_PASSED: Visible authored button main.start 0
+SCENE_NAVIGATION: main.start -> SelectScene
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 9.002800 ms
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 4783.
+Total: 4.675800 ms (FindLiveObjects: 0.332800 ms CreateObjectMapping: 0.246800 ms MarkObjects: 4.033600 ms  DeleteObjects: 0.062200 ms)
+
+SELECT_SCENE_READY heroes=2; maps=2; hero=hero.frost_archer; map=map.shadow_wastes
+SELECT_CHECK_PASSED: Main start opens the ready selection scene
+SELECT_CHECK_PASSED: Catalog offers at least two heroes and two battlefields
+SELECT_CHECK_PASSED: Fresh selection defaults to the first hero and battlefield
+SELECT_CHECK_PASSED: Hero step is shown first
+SELECT_CHECK_PASSED: Hero cards match the catalog
+SELECT_CHECK_PASSED: Hero details show the first hero
+SELECT_CHECK_PASSED: Hero details list the first skill
+SELECT_CHECK_PASSED: Visible authored button select.hero 1
+SELECT_CHECK_PASSED: Hero card selects the second hero and updates details
+SELECT_CHECK_PASSED: Showcase displays the selected hero model
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: select-hero.png
+SELECT_CHECK_PASSED: Visible authored button select.next 0
+SELECT_CHECK_PASSED: Next opens the battlefield step and hides the showcase
+SELECT_CHECK_PASSED: Visible authored button select.map 1
+SELECT_CHECK_PASSED: Battlefield card selects the second battlefield
+SELECT_CHECK_PASSED: Battlefield card lists its own monsters
+SELECT_CHECK_PASSED: Battlefields show different monsters
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: select-map.png
+SELECT_CHECK_PASSED: Visible authored button select.back 0
+SELECT_CHECK_PASSED: Back returns to the hero step and keeps both choices
+SELECT_CHECK_PASSED: Visible authored button select.next 0
+SELECT_CHECK_PASSED: Visible authored button select.start 0
+GAME_SELECTION hero=hero.stone_vanguard; map=map.ember_rift; scene=EmberRift
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 2.387000 ms
+Unloading 8 unused Assets to reduce memory usage. Loaded Objects now: 5259.
+Total: 3.448200 ms (FindLiveObjects: 0.449200 ms CreateObjectMapping: 0.299000 ms MarkObjects: 2.560500 ms  DeleteObjects: 0.139000 ms)
+
+GAME_STARTED maxAlive=4000; hero=hero.stone_vanguard; map=map.ember_rift; composedSkills=4; enemyKinds=8; directorCap=4000; shopItems=18; gold=300
+SELECT_CHECK_PASSED: Start records the selection
+SELECT_CHECK_PASSED: second battlefield: start loads the battlefield scene EmberRift
+SELECT_CHECK_PASSED: second battlefield: battle starts and spawns enemies
+SELECT_CHECK_PASSED: second battlefield: battle uses the selected hero
+SELECT_CHECK_PASSED: second battlefield: battle uses the battlefield roster and difficulty
+SELECT_CHECK_PASSED: second battlefield: enemy kinds come from the battlefield roster
+SELECT_CHECK_PASSED: second battlefield: every spawned enemy belongs to the battlefield roster
+SELECT_CHECK_PASSED: second battlefield: HUD shows the battlefield name
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-ember_rift.png
+SELECT_CHECK_PASSED: second battlefield: migrated indicator views are bound
+SELECT_CHECK_PASSED: second battlefield: compiled point preview opens
+SELECT_CHECK_PASSED: second battlefield: compiled point preview has a valid target
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-ember_rift-indicator.png
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: second battlefield: first leave click only asks for confirmation
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SCENE_NAVIGATION: game.leave -> SelectScene
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 6.716100 ms
+Unloading 61 unused Assets to reduce memory usage. Loaded Objects now: 4936.
+Total: 3.305200 ms (FindLiveObjects: 0.183600 ms CreateObjectMapping: 0.070100 ms MarkObjects: 2.917300 ms  DeleteObjects: 0.133800 ms)
+
+SELECT_SCENE_READY heroes=2; maps=2; hero=hero.stone_vanguard; map=map.ember_rift
+SELECT_CHECK_PASSED: second battlefield: confirmed leave returns to the selection scene
+SELECT_CHECK_PASSED: Leaving the battlefield returns to the selection scene
+SELECT_CHECK_PASSED: Returning preselects the previous hero and battlefield
+SELECT_CHECK_PASSED: Visible authored button select.hero 0
+SELECT_CHECK_PASSED: Visible authored button select.next 0
+SELECT_CHECK_PASSED: Visible authored button select.map 0
+SELECT_CHECK_PASSED: Visible authored button select.start 0
+GAME_SELECTION hero=hero.frost_archer; map=map.shadow_wastes; scene=Game
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.702500 ms
+Unloading 11 unused Assets to reduce memory usage. Loaded Objects now: 4754.
+Total: 3.120400 ms (FindLiveObjects: 0.322300 ms CreateObjectMapping: 0.086800 ms MarkObjects: 2.602600 ms  DeleteObjects: 0.108500 ms)
+
+GAME_STARTED maxAlive=4000; hero=hero.frost_archer; map=map.shadow_wastes; composedSkills=4; enemyKinds=8; directorCap=4000; shopItems=18; gold=300
+SELECT_CHECK_PASSED: first battlefield: start loads the battlefield scene Game
+SELECT_CHECK_PASSED: first battlefield: battle starts and spawns enemies
+SELECT_CHECK_PASSED: first battlefield: battle uses the selected hero
+SELECT_CHECK_PASSED: first battlefield: battle uses the battlefield roster and difficulty
+SELECT_CHECK_PASSED: first battlefield: enemy kinds come from the battlefield roster
+SELECT_CHECK_PASSED: first battlefield: every spawned enemy belongs to the battlefield roster
+SELECT_CHECK_PASSED: first battlefield: HUD shows the battlefield name
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-shadow_wastes.png
+SELECT_CHECK_PASSED: first battlefield: migrated indicator views are bound
+SELECT_CHECK_PASSED: first battlefield: compiled point preview opens
+SELECT_CHECK_PASSED: first battlefield: compiled point preview has a valid target
+SELECT_CHECK_PASSED: Offscreen render contains scene/UI pixels: map-shadow_wastes-indicator.png
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: first battlefield: first leave click only asks for confirmation
+SELECT_CHECK_PASSED: first battlefield: leave confirmation expires
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SELECT_CHECK_PASSED: Visible authored button game.leave 0
+SCENE_NAVIGATION: game.leave -> SelectScene
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.963900 ms
+Unloading 57 unused Assets to reduce memory usage. Loaded Objects now: 4935.
+Total: 3.133900 ms (FindLiveObjects: 0.345900 ms CreateObjectMapping: 0.087700 ms MarkObjects: 2.490900 ms  DeleteObjects: 0.209100 ms)
+
+SELECT_SCENE_READY heroes=2; maps=2; hero=hero.frost_archer; map=map.shadow_wastes
+SELECT_CHECK_PASSED: first battlefield: confirmed leave returns to the selection scene
+SELECT_CHECK_PASSED: Second leave returns to the selection scene
+SELECT_CHECK_PASSED: Visible authored button select.menu 0
+SCENE_NAVIGATION: select.menu -> Main
+Unloading 2 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.406700 ms
+Unloading 80 unused Assets to reduce memory usage. Loaded Objects now: 3399.
+Total: 4.879200 ms (FindLiveObjects: 0.233400 ms CreateObjectMapping: 0.228700 ms MarkObjects: 2.909900 ms  DeleteObjects: 1.507000 ms)
+
+SELECT_CHECK_PASSED: Selection returns to the main menu
+SELECT_SMOKE_PASSED checks=68
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.

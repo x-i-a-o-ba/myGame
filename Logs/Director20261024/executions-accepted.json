@@ -1,0 +1,50 @@
+[
+  {
+    "name": "game-accepted",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --director-smoke --director-output D:/UnityProject/myGame/Logs/Director20261024/game-accepted -logFile D:/UnityProject/myGame/Logs/Director20261024/game-accepted-player.log",
+    "completed": "2026-10-24T18:47:38.9450617+08:00"
+  },
+  {
+    "name": "ember-accepted",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --director-smoke --director-map ember --director-output D:/UnityProject/myGame/Logs/Director20261024/ember-accepted -logFile D:/UnityProject/myGame/Logs/Director20261024/ember-accepted-player.log",
+    "completed": "2026-10-24T18:47:46.8535852+08:00"
+  },
+  {
+    "name": "combat-accepted",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --game-smoke --game-output D:/UnityProject/myGame/Logs/Director20261024/combat-accepted -logFile D:/UnityProject/myGame/Logs/Director20261024/combat-accepted-player.log",
+    "completed": "2026-10-24T18:48:05.1150819+08:00"
+  },
+  {
+    "name": "select-accepted",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --select-smoke --select-output D:/UnityProject/myGame/Logs/Director20261024/select-accepted -logFile D:/UnityProject/myGame/Logs/Director20261024/select-accepted-player.log",
+    "completed": "2026-10-24T18:48:14.7884913+08:00"
+  },
+  {
+    "name": "baseline-accepted",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --combat-stress --stress-count 4000 --stress-seconds 60 --no-separation --director-output D:/UnityProject/myGame/Logs/Director20261024/baseline-accepted -logFile D:/UnityProject/myGame/Logs/Director20261024/baseline-accepted-player.log",
+    "completed": "2026-10-24T18:49:37.9100401+08:00"
+  },
+  {
+    "name": "pressure-1",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --combat-stress --stress-count 4000 --stress-seconds 60 --director-output D:/UnityProject/myGame/Logs/Director20261024/pressure-1 -logFile D:/UnityProject/myGame/Logs/Director20261024/pressure-1-player.log",
+    "completed": "2026-10-24T18:51:01.0612974+08:00"
+  },
+  {
+    "name": "pressure-2",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --combat-stress --stress-count 4000 --stress-seconds 60 --director-output D:/UnityProject/myGame/Logs/Director20261024/pressure-2 -logFile D:/UnityProject/myGame/Logs/Director20261024/pressure-2-player.log",
+    "completed": "2026-10-24T18:52:24.4323599+08:00"
+  },
+  {
+    "name": "pressure-3",
+    "exitCode": 0,
+    "arguments": "-batchmode -screen-fullscreen 0 -screen-width 1920 -screen-height 1080 --combat-stress --stress-count 4000 --stress-seconds 60 --director-output D:/UnityProject/myGame/Logs/Director20261024/pressure-3 -logFile D:/UnityProject/myGame/Logs/Director20261024/pressure-3-player.log",
+    "completed": "2026-10-24T18:53:47.6486336+08:00"
+  }
+]

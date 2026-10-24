@@ -55,7 +55,7 @@ namespace Roguelike.Editor
                 var manager=world.EntityManager;
                 var entity=manager.CreateEntity(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform),typeof(AutoAttackData),typeof(AutoAttackState),typeof(EnemyBehaviorData));
                 manager.SetComponentData(entity,new AbilityUnit{Team=1,Health=30,MaxHealth=120,BaseSpeed=2,Speed=1.4f,BaseAttack=10,Attack=10,AttackSpeedMultiplier=0.5f});
-                manager.SetComponentData(entity,new CombatEnemy{ConfigId=3950,Kind=1,Experience=40,Reach=0.5f,Tier=EnemyTier.Elite,Wave=4});
+                manager.SetComponentData(entity,new CombatEnemy{ConfigId=3950,Kind=1,Experience=40,Reach=0.5f,Tier=EnemyTier.Elite,Stage=4});
                 manager.SetComponentData(entity,LocalTransform.FromPositionRotationScale(new float3(6,0,0),quaternion.identity,1.5f));
                 manager.SetComponentData(entity,attack.Compile());
                 manager.SetComponentData(entity,new AutoAttackState{Phase=AttackPhase.Windup});
@@ -67,7 +67,7 @@ namespace Roguelike.Editor
                     Buffs=new[]{slow},HeroPosition=float3.zero,HeroAttackRange=5.4f,Now=10};
                 var view=new TargetInfoView();
                 Check(TargetInfoBuilder.Build(manager,entity,context,view) && view.Visible,"Target info builds from a live enemy entity");
-                Check(view.Name=="验证怪物" && view.Tier==EnemyTier.Elite && view.TierLabel=="精英" && view.Subtitle=="第 4 波 · 近战追击" &&
+                Check(view.Name=="验证怪物" && view.Tier==EnemyTier.Elite && view.TierLabel=="精英" && view.Subtitle=="第 4 关 · 近战追击" &&
                     view.Portrait==portrait && view.AttackName=="验证爪击" && view.Description=="说明文字",
                     "Target info shows kind name, tier, wave, behavior, portrait and attack module");
                 Check(Mathf.Approximately(view.HealthFraction,0.25f) && view.HealthText=="30 / 120","Target info reads authoritative health");

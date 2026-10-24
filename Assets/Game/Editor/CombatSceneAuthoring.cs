@@ -59,9 +59,10 @@ namespace Roguelike.Editor
         {
             var serialized = new SerializedObject(demo);
             foreach (var field in new[] { "playerView", "destinationMarker", "hud", "abilityIndicator",
-                         "hero", "skillCatalog", "enemyMesh", "projectileMesh" })
+                         "hero", "skillCatalog", "enemyMesh", "projectileMesh", "spawnDirector" })
                 if (serialized.FindProperty(field).objectReferenceValue == null)
                     throw new InvalidOperationException("缺少场景引用：" + field);
+            demo.spawnDirector.Compile();
             var hud = (CombatHud)serialized.FindProperty("hud").objectReferenceValue;
             if (!hud.HasBindings) throw new InvalidOperationException("HUD 序列化引用不完整。");
         }

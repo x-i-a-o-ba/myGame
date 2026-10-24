@@ -120,7 +120,7 @@ namespace Roguelike.SkillAuthoring.Editor
             if ((entry.tiers & EnemyTierMask.Normal) != 0) tiers.Add("普通");
             if ((entry.tiers & EnemyTierMask.Elite) != 0) tiers.Add("精英");
             if ((entry.tiers & EnemyTierMask.Boss) != 0) tiers.Add("首领");
-            string waves = entry.lastWave > 0 ? $"第 {entry.firstWave}–{entry.lastWave} 波" : $"第 {entry.firstWave} 波起";
+            string waves = entry.lastSecond > 0 ? $"强度时间 {entry.firstSecond}–{entry.lastSecond} 秒" : $"强度时间 {entry.firstSecond} 秒起";
             return $"{behavior}；{string.Join("/", tiers)}；{waves}；权重 {entry.weight:0.##}";
         }
 

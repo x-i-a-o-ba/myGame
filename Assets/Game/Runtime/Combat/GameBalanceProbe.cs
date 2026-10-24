@@ -15,8 +15,8 @@ namespace Roguelike.Combat
 {
     /// <summary>
     /// 显式 --game-balance 启用的整局观测。仅发出合法移动、学习、天赋与施法意图；
-    /// 不改生命、法力、经验、金币、敌人、波次或战斗时钟。正常游戏不创建此对象。
-    /// 输出逐波 CSV 和结局；自动走位不能代替玩家手感验收。
+    /// 不改生命、法力、经验、金币、敌人、导演进度或战斗时钟。正常游戏不创建此对象。
+    /// 输出逐关 CSV 和结局；自动走位不能代替玩家手感验收。
     /// </summary>
     public sealed class GameBalanceProbe : MonoBehaviour
     {
@@ -33,7 +33,7 @@ namespace Roguelike.Combat
         private float manaSpent;
         private float timeScale=1;
         private CombatPlayer lastPlayer;
-        private CombatWaveState lastWave;
+        private CombatDirectorState lastSecond;
         private AbilityUnit lastUnit;
         private HeroProgression lastProgression;
 
@@ -67,7 +67,7 @@ namespace Roguelike.Combat
             Time.timeScale=timeScale;
             QualitySettings.vSyncCount=0; Application.targetFrameRate=60;
             Application.runInBackground=true;
-            while(controller.Wave.Outcome==CombatOutcome.Running && controller.State.Elapsed<1200)
+            while(controller.Director.Outcome==CombatOutcome.Running && controller.State.Elapsed<1200)
             {
                 Observe();
                 if(controller.State.Elapsed>=nextThink) { Think(); nextThink=controller.State.Elapsed+.2f; }
@@ -75,11 +75,11 @@ namespace Roguelike.Combat
             }
             Observe(); WriteRow();
             File.WriteAllText(Path.Combine(output,"waves.csv"),rows.ToString(),Encoding.UTF8);
-            string result=$"结局：{controller.Wave.Outcome}\n波次：{controller.Wave.Wave}\n模拟秒：{controller.State.Elapsed:0.0}\n等级：{controller.Progression.Level}\n击杀：{controller.State.Kills}\n跳过敌人：{controller.Wave.Skipped}\n各槽成功施放：{string.Join(",",casts)}\n累计施法耗蓝：{manaSpent:0.0}\n观测方式：{timeScale:0.#} 倍游戏速度；自动环绕走位；合法学习、天赋、施法、用击杀金币到商店购买装备；未改写生命、法力、经验或刷怪状态。";
+            string result=$"结局：{controller.Director.Outcome}\n导演进度：{controller.Director.Stage}\n模拟秒：{controller.State.Elapsed:0.0}\n等级：{controller.Progression.Level}\n击杀：{controller.State.Kills}\n无合法刷怪位置次数：{controller.Director.PositionRejected}\n各槽成功施放：{string.Join(",",casts)}\n累计施法耗蓝：{manaSpent:0.0}\n观测方式：{timeScale:0.#} 倍游戏速度；自动环绕走位；合法学习、天赋、施法、用击杀金币到商店购买装备；未改写生命、法力、经验或刷怪状态。";
             File.WriteAllText(Path.Combine(output,"result.txt"),result,Encoding.UTF8);
             Time.timeScale=1;
             Debug.Log(result);
-            Application.Quit(controller.Wave.Outcome==CombatOutcome.Victory && controller.Wave.Wave==30 && controller.Wave.Skipped==0?0:1);
+            Application.Quit(controller.Director.Outcome==CombatOutcome.Victory && controller.Director.Stage>=1 && controller.Director.PositionRejected==0?0:1);
         }
         private void Observe()
         {
@@ -92,20 +92,20 @@ namespace Roguelike.Combat
                 manaSpent+=SkillLevels.ManaCost(ref runtime.Library.Value.Skills[slot.Definition],slot.Level);
             }
             lastSerial=runtime.CastSerial; pendingSlot=-1;
-            if(controller.Wave.Wave!=wave)
+            if(controller.Director.Stage!=wave)
             {
                 if(wave>0) WriteRow();
-                wave=controller.Wave.Wave; peak=0; samples=0; manaSum=0; minimumHealth=minimumMana=float.MaxValue; castsAtStart=lastSerial;
+                wave=controller.Director.Stage; peak=0; samples=0; manaSum=0; minimumHealth=minimumMana=float.MaxValue; castsAtStart=lastSerial;
             }
             var unit=manager.GetComponentData<AbilityUnit>(controller.SessionEntity);
             peak=math.max(peak,state.AliveEnemies); minimumHealth=math.min(minimumHealth,unit.Health); minimumMana=math.min(minimumMana,unit.Mana);
             manaSum+=unit.Mana; samples++;
-            lastPlayer=state; lastWave=controller.Wave; lastUnit=unit; lastProgression=controller.Progression;
+            lastPlayer=state; lastSecond=controller.Director; lastUnit=unit; lastProgression=controller.Progression;
         }
         private void WriteRow()
         {
-            var u=lastUnit; var s=lastPlayer; var w=lastWave;
-            rows.AppendLine(string.Join(",",new[]{wave.ToString(),F(s.Elapsed),lastProgression.Level.ToString(),w.SpawnedTotal.ToString(),s.Kills.ToString(),s.AliveEnemies.ToString(),peak.ToString(),F(u.Health),F(u.MaxHealth),F(minimumHealth),F(u.Mana),F(u.MaxMana),F(minimumMana),F(manaSum/math.max(1,samples)),F(AbilityEffects.BaseManaRegen+u.ManaRegenBonus),(lastSerial-castsAtStart).ToString(),w.Skipped.ToString(),lastProgression.SkillPoints.ToString(),casts[0].ToString(),casts[1].ToString(),casts[2].ToString(),casts[3].ToString(),F(manaSpent),F(controller.Equipment.Gold)}));
+            var u=lastUnit; var s=lastPlayer; var w=lastSecond;
+            rows.AppendLine(string.Join(",",new[]{wave.ToString(),F(s.Elapsed),lastProgression.Level.ToString(),w.SpawnedTotal.ToString(),s.Kills.ToString(),s.AliveEnemies.ToString(),peak.ToString(),F(u.Health),F(u.MaxHealth),F(minimumHealth),F(u.Mana),F(u.MaxMana),F(minimumMana),F(manaSum/math.max(1,samples)),F(AbilityEffects.BaseManaRegen+u.ManaRegenBonus),(lastSerial-castsAtStart).ToString(),w.PositionRejected.ToString(),lastProgression.SkillPoints.ToString(),casts[0].ToString(),casts[1].ToString(),casts[2].ToString(),casts[3].ToString(),F(manaSpent),F(controller.Equipment.Gold)}));
             File.WriteAllText(Path.Combine(output,"waves.csv"),rows.ToString(),Encoding.UTF8);
         }
         private static string F(float value)=>value.ToString("0.00",CultureInfo.InvariantCulture);
@@ -154,7 +154,7 @@ namespace Roguelike.Combat
             }
             if(nearby==0 || AbilityCastTiming.IsBusy(runtime,runtime.Time)) return;
             var unit=manager.GetComponentData<AbilityUnit>(entity);
-            bool bossAlive=manager.Exists(controller.Wave.Boss) && manager.HasComponent<AbilityUnit>(controller.Wave.Boss) && manager.GetComponentData<AbilityUnit>(controller.Wave.Boss).Health>0;
+            bool bossAlive=manager.Exists(controller.Director.Boss) && manager.HasComponent<AbilityUnit>(controller.Director.Boss) && manager.GetComponentData<AbilityUnit>(controller.Director.Boss).Health>0;
             foreach(int slot in new[]{3,0,1,2})
             {
                 var equipped=slots[slot]; ref var skill=ref runtime.Library.Value.Skills[equipped.Definition];
@@ -172,8 +172,8 @@ namespace Roguelike.Combat
                 }
                 if(slot==0 && (nearest>controller.attackRange*controller.attackRange || nearby<2)) continue;
                 float3 point=target;
-                if(slot==3 && bossAlive && manager.HasComponent<LocalTransform>(controller.Wave.Boss))
-                    point=manager.GetComponentData<LocalTransform>(controller.Wave.Boss).Position;
+                if(slot==3 && bossAlive && manager.HasComponent<LocalTransform>(controller.Director.Boss))
+                    point=manager.GetComponentData<LocalTransform>(controller.Director.Boss).Position;
                 float3 direction=math.normalizesafe(point-state.Position,new float3(1,0,0));
                 if(skill.Aim==AimMode.Point) point=state.Position+direction*math.min(math.distance(point,state.Position),skill.CastRange);
                 manager.GetBuffer<SkillCommand>(entity).Add(new SkillCommand{Slot=slot,Point=point,Direction=direction});

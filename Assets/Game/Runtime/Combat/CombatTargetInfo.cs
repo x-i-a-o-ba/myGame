@@ -66,7 +66,7 @@ namespace Roguelike.Combat
             view.Name = context.KindNames != null && enemy.Kind >= 0 && enemy.Kind < context.KindNames.Length ? context.KindNames[enemy.Kind]
                 : archetype ? archetype.Label : "敌人";
             view.TierLabel = TierLabel(enemy.Tier);
-            view.Subtitle = $"第 {math.max(1, enemy.Wave)} 波 · {EnemyArchetype.BehaviorLabel(behavior.Behavior)}";
+            view.Subtitle = $"第 {math.max(1, enemy.Stage)} 关 · {EnemyArchetype.BehaviorLabel(behavior.Behavior)}";
             view.Description = archetype && !string.IsNullOrWhiteSpace(archetype.description) ? archetype.description.Trim() : "";
             view.AttackIcon = attackModule ? attackModule.icon : null;
             view.Portrait = archetype && archetype.portrait ? archetype.portrait : view.AttackIcon;

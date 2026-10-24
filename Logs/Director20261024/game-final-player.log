@@ -1,0 +1,56 @@
+Mono path[0] = 'D:/UnityProject/myGame/Builds/Game/Game_Data/Managed'
+Mono config path = 'D:/UnityProject/myGame/Builds/Game/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.3.18f1 (5ebeb53e4c07)
+[Subsystems] Discovering subsystems at path D:/UnityProject/myGame/Builds/Game/Game_Data/UnitySubsystems
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 4060 Laptop GPU (ID=0x28a0)
+    Vendor:   NVIDIA
+    VRAM:     7957 MB
+    Driver:   32.0.15.7628
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.135 seconds
+- Finished resetting the current domain, in  0.003 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+UnloadTime: 12.225200 ms
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 8.518100 ms
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 4652.
+Total: 4.555900 ms (FindLiveObjects: 0.261700 ms CreateObjectMapping: 0.173300 ms MarkObjects: 4.071200 ms  DeleteObjects: 0.049300 ms)
+
+GAME_STARTED maxAlive=4000; hero=hero.frost_archer; map=map.shadow_wastes; composedSkills=4; enemyKinds=8; directorCap=4000; shopItems=18; gold=300
+DIRECTOR_PASS 战场与导演初始化
+DIRECTOR_PASS 开局按恢复比例补怪
+DIRECTOR_PASS 实际相机下开局怪物都在镜头外
+DIRECTOR_PASS 暂停不推进导演时钟
+DIRECTOR_PASS 90 秒首次精英
+DIRECTOR_PASS 150 秒潮涌分批开始
+DIRECTOR_PASS 实际 URP 画面：tide.png
+DIRECTOR_PASS 210 秒关底首领出现
+DIRECTOR_PASS 首关首领固定 6000 生命
+DIRECTOR_PASS 首领出现后停止精英并清空潮涌余量
+DIRECTOR_PASS 270 秒首领攻击翻倍一次
+DIRECTOR_PASS 狂暴不会反复翻倍
+DIRECTOR_PASS 首领死亡完成本关
+DIRECTOR_PASS 关卡完成后停止生成
+GAME_STARTED maxAlive=4000; hero=hero.frost_archer; map=map.shadow_wastes; composedSkills=4; enemyKinds=8; directorCap=4000; shopItems=18; gold=300
+DIRECTOR_PASS 重开清空导演与敌人运行态
+DIRECTOR_PASS 英雄死亡记录失败
+DIRECTOR_PASS 失败后停止补充
+DIRECTOR_PLAYER_RESULT passed=True checks=17 output=D:/UnityProject/myGame/Logs/Director20261024/game-final
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.

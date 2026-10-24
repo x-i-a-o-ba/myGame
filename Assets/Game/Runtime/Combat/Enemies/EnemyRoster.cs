@@ -4,23 +4,24 @@ using UnityEngine;
 
 namespace Roguelike.Combat
 {
-    /// <summary>名册中的一条出场规则：哪个敌人预制体、在哪些波次与档位出现、权重多少。</summary>
+    /// <summary>名册中的一条出场规则：哪个敌人预制体、在哪些强度时间与档位出现、权重多少。</summary>
     [Serializable]
     public sealed class EnemySpawnEntry
     {
         [Tooltip("带 EnemyArchetype 组件的敌人预制体。")] public EnemyArchetype prefab;
         [Min(0), Tooltip("同一档位内的抽取权重；0 表示暂不出场。")] public float weight=1;
-        [Min(1), Tooltip("最早出现的波次。")] public int firstWave=1;
-        [Min(0), Tooltip("最晚出现的波次；0 表示一直出现。")] public int lastWave;
+        [Min(0), Tooltip("最早出现的强度时间（秒），按累计关卡时间计算。") ] public float firstSecond;
+        [Min(0), Tooltip("最后出场的强度时间（秒）；0 表示一直出现。")] public float lastSecond;
+        [Tooltip("本图专属精英：每第 3 只精英与第 1 关首领使用此条目。") ] public bool specialElite;
         [Tooltip("允许以哪些档位出现，可多选。")] public EnemyTierMask tiers=EnemyTierMask.Normal;
 
-        public bool Allows(EnemyTier tier,int wave)=>weight>0 && (tiers&Mask(tier))!=0 && wave>=firstWave && (lastWave<=0 || wave<=lastWave);
+        public bool Allows(EnemyTier tier,float seconds)=>weight>0 && (tiers&Mask(tier))!=0 && seconds>=firstSecond && (lastSecond<=0 || seconds<=lastSecond);
         public static EnemyTierMask Mask(EnemyTier tier)=>tier==EnemyTier.Boss?EnemyTierMask.Boss:tier==EnemyTier.Elite?EnemyTierMask.Elite:EnemyTierMask.Normal;
     }
 
     /// <summary>
-    /// 敌人名册：列出本局可刷出的敌人种类与出场规则。CombatWaveDirector 每波按档位筛选可出场条目并按权重抽取；
-    /// 某档位在当前波次没有可出场条目时退回到允许该档位的第一个条目，再退回到普通档位。只存配置。
+    /// 敌人名册：列出本局可刷出的敌人种类与出场规则。CombatSpawnDirector 每次补充按档位筛选可出场条目并按权重抽取；
+    /// 没有合格条目就不生成；专属精英单独按节奏抽取。只存配置。
     /// </summary>
     [CreateAssetMenu(menuName="Roguelike/战斗/敌人名册")]
     public sealed class EnemyRoster : ScriptableObject
@@ -48,15 +49,15 @@ namespace Roguelike.Combat
                 if(ids.TryGetValue(entry.prefab.configId,out var owner) && owner!=entry.prefab) return $"怪物数字 ID 重复：{entry.prefab.configId}";
                 ids[entry.prefab.configId]=entry.prefab;
                 if(float.IsNaN(entry.weight) || float.IsInfinity(entry.weight) || entry.weight<0) return $"第 {i+1} 条权重无效。";
-                if(entry.firstWave<1 || (entry.lastWave>0 && entry.lastWave<entry.firstWave)) return $"第 {i+1} 条波次范围无效。";
+                if(entry.firstSecond<0 || float.IsNaN(entry.firstSecond) || float.IsInfinity(entry.firstSecond) || float.IsNaN(entry.lastSecond) || float.IsInfinity(entry.lastSecond) || entry.lastSecond<0 || (entry.lastSecond>0 && entry.lastSecond<entry.firstSecond)) return $"第 {i+1} 条强度时间范围无效。";
                 if((entry.tiers&(EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss))==0) return $"第 {i+1} 条没有选择任何档位。";
                 if(!entry.prefab.ResolveMaterial()) return $"第 {i+1} 条预制体缺少 MeshRenderer 材质。";
                 if(entry.prefab.GetComponentInChildren<MeshFilter>(true)==null) return $"第 {i+1} 条预制体缺少 MeshFilter 网格。";
-                firstNormal|=entry.Allows(EnemyTier.Normal,1);
+                firstNormal|=entry.Allows(EnemyTier.Normal,0);
                 elite|=entry.weight>0 && (entry.tiers&EnemyTierMask.Elite)!=0;
                 boss|=entry.weight>0 && (entry.tiers&EnemyTierMask.Boss)!=0;
             }
-            if(!firstNormal) return "敌人名册必须至少有一条从第 1 波开始的普通敌人。";
+            if(!firstNormal) return "敌人名册必须至少有一条从开局开始的普通敌人。";
             if(!elite) return "敌人名册必须至少有一条允许精英档位的条目。";
             if(!boss) return "敌人名册必须至少有一条允许首领档位的条目。";
             return null;

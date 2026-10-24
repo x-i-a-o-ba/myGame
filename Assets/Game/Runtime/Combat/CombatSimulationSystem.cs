@@ -10,7 +10,7 @@ namespace Roguelike.Combat
 {
     /// <summary>
     /// Game战斗宿主：Dota 2 式英雄指令（移动/攻击目标/攻击移动/待命/停止/拾取/丢弃）、自动攻击被动模块、多种敌人行为、死亡计数、
-    /// 经验升级、金币、商店范围内的装备买卖、装备换位 / 丢弃 / 拾取、波次刷怪。英雄属性由 HeroStatsLogic 统一合成；技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
+    /// 经验升级、金币、商店范围内的装备买卖、装备换位 / 丢弃 / 拾取、导演持续补怪。英雄属性由 HeroStatsLogic 统一合成；技能投递和Buff共用Abilities核心，不按技能或英雄身份分支。
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
@@ -26,6 +26,7 @@ namespace Roguelike.Combat
         private NativeQueue<float> pendingDamage;
         private NativeQueue<HostileShot> pendingShots;
         private AbilityExecution abilities;
+        private EnemySeparation separation;
         private EntityQuery enemies, projectiles, hostileProjectiles;
         public bool TryReplaceLibrary(Entity owner,BlobAssetReference<AbilityLibrary> replacement,out string failure)
         {
@@ -43,23 +44,33 @@ namespace Roguelike.Combat
             projectiles=GetEntityQuery(typeof(CombatProjectile),typeof(LocalTransform));
             hostileProjectiles=GetEntityQuery(typeof(HostileProjectile),typeof(LocalTransform));
             abilities=new AbilityExecution(EntityManager);
+            separation=new EnemySeparation();
             RequireForUpdate<CombatSettings>();
             RequireForUpdate<AbilityRuntime>();
         }
         protected override void OnDestroy()
-        { Dependency.Complete(); abilities.Dispose(); pendingDamage.Dispose(); pendingShots.Dispose(); }
+        { Dependency.Complete(); abilities.Dispose(); separation.Dispose(); pendingDamage.Dispose(); pendingShots.Dispose(); }
 
+        public double LastSimulationMilliseconds {get; private set;}
         protected override void OnUpdate()
+        {
+            long start=System.Diagnostics.Stopwatch.GetTimestamp();
+            try { StepCombat(); }
+            finally { LastSimulationMilliseconds=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*1000.0/System.Diagnostics.Stopwatch.Frequency; }
+        }
+        private void StepCombat()
         {
             var manager=EntityManager;
             Entity session=SystemAPI.GetSingletonEntity<CombatSettings>();
             var config=manager.GetComponentData<CombatSettings>(session);
             var player=manager.GetComponentData<CombatPlayer>(session);
             var runtime=manager.GetComponentData<AbilityRuntime>(session);
-            var waveState=manager.GetComponentData<CombatWaveState>(session);
+            var waveState=manager.GetComponentData<CombatDirectorState>(session);
+            var director=manager.GetComponentData<SpawnDirectorSettings>(session);
             // 胜利后冻结整局：不推进时间、不刷怪，等待玩家重开。
             if(waveState.Outcome==CombatOutcome.Victory) { ClearCommands(session); return; }
             float dt=math.min(SystemAPI.Time.DeltaTime,0.1f);
+            if(dt<=0) return;
             float now=runtime.Time+dt;
             Dependency=new TickBuffs {Library=runtime.Library,Now=now,Delta=dt}.ScheduleParallel(Dependency);
             Dependency.Complete();
@@ -73,6 +84,12 @@ namespace Roguelike.Combat
             if(rebuild) RebuildHeroStats(session,ref runtime.Library.Value);
             hero=manager.GetComponentData<AbilityUnit>(session);
             player.Elapsed+=dt;
+            waveState.StageElapsed+=dt;
+            if(waveState.BossSpawned && !waveState.BossEnraged && waveState.StageElapsed>=director.EnrageAt && Alive(waveState.Boss))
+            {
+                var boss=manager.GetComponentData<AbilityUnit>(waveState.Boss); boss.BaseAttack*=2; boss.Attack*=2;
+                manager.SetComponentData(waveState.Boss,boss); waveState.BossEnraged=true;
+            }
             // 英雄指令、转身、移动与自动攻击节奏；动作锁归技能持有者，施法前后摇期间不移动、不普攻。
             var order=manager.GetComponentData<HeroOrder>(session);
             var attack=manager.GetComponentData<AutoAttackState>(session);
@@ -81,9 +98,11 @@ namespace Roguelike.Combat
             Entity releaseTarget=attack.Target;
             manager.SetComponentData(session,order); manager.SetComponentData(session,attack);
             manager.SetComponentData(session,LocalTransform.FromPosition(player.Position));
+            separation.Prepare(enemies.CalculateEntityCount());
             var hostileCommands=new EntityCommandBuffer(Allocator.TempJob);
             Dependency=new EnemyJob {PlayerPosition=player.Position,DeltaTime=dt,Damage=pendingDamage.AsParallelWriter(),
                 Shots=pendingShots.AsParallelWriter()}.ScheduleParallel(Dependency);
+            Dependency=separation.Schedule(manager,enemies,director,dt,config.ArenaHalfSize,Dependency);
             Dependency=new HostileProjectileJob {Target=player.Position,DeltaTime=dt,HitRadius=HostileHitRadius,
                 Damage=pendingDamage.AsParallelWriter(),Commands=hostileCommands.AsParallelWriter()}.ScheduleParallel(Dependency);
             // 此处是所有并行单位写入与串行效果写入的明确交接点。
@@ -139,7 +158,7 @@ namespace Roguelike.Combat
                 else HeroAttackHit(session,releaseTarget,damage,critical,attackData.CountsAsBasicAttackHit,ref runtime.Library.Value,runtime.Time,ref player);
             }
             float experience=0,gold=0; bool victory=false;
-            var waves=manager.GetComponentData<CombatWaveSettings>(session);
+            var waves=manager.GetComponentData<CombatDifficultySettings>(session);
             using(var units=enemies.ToEntityArray(Allocator.Temp))
             using(var stats=enemies.ToComponentDataArray<AbilityUnit>(Allocator.Temp))
             using(var records=enemies.ToComponentDataArray<CombatEnemy>(Allocator.Temp))
@@ -151,7 +170,7 @@ namespace Roguelike.Combat
                     if(!enemy.SelfDestructed)
                     {
                         experience+=enemy.Experience; gold+=enemy.Gold; player.Kills++;
-                        if(enemy.Tier==EnemyTier.Boss && waves.FinalWave>0 && enemy.Wave==waves.FinalWave) victory=true;
+                        if(enemy.Tier==EnemyTier.Boss && units[i]==waveState.Boss) victory=true;
                     }
                     destroy.DestroyEntity(units[i]);
                 }
@@ -169,12 +188,12 @@ namespace Roguelike.Combat
             if(gained>0) RebuildHeroStats(session,ref runtime.Library.Value);
             hero=manager.GetComponentData<AbilityUnit>(session);
             if(victory) waveState.Outcome=CombatOutcome.Victory;
-            else if(CombatWaveDirector.ShouldSpawn(waves,waveState,player.Elapsed))
+            else if(waveState.StageElapsed>=waveState.NextTickAt)
             {
-                // 每帧最多刷一波，避免卡顿后集中补刷造成尖峰。实例化会使缓冲区失效，先复制种类表。
-                waveState.Wave++; waveState.NextWaveAt+=waves.WaveInterval;
-                using(var kinds=manager.GetBuffer<CombatEnemyKind>(session).ToNativeArray(Allocator.Temp))
-                    CombatWaveDirector.SpawnWave(manager,config,waves,ref waveState,player.Position,enemies.CalculateEntityCount(),kinds);
+                using var kinds=manager.GetBuffer<CombatEnemyKind>(session).ToNativeArray(Allocator.Temp);
+                using var curve=manager.GetBuffer<PopulationPoint>(session).ToNativeArray(Allocator.Temp);
+                CombatSpawnDirector.Tick(manager,config,waves,director,ref waveState,player.Position,enemies.CalculateEntityCount(),kinds,curve,
+                    manager.GetComponentData<CombatSpawnView>(session));
             }
             manager.SetComponentData(session,waveState);
             player.AliveEnemies=enemies.CalculateEntityCount();
@@ -182,7 +201,7 @@ namespace Roguelike.Combat
             player.Health=hero.Health; player.MaximumHealth=hero.MaxHealth;
             manager.SetComponentData(session,player);
         }
-        private void Die(Entity session,ref CombatPlayer player,ref CombatWaveState waveState,float now,float dt)
+        private void Die(Entity session,ref CombatPlayer player,ref CombatDirectorState waveState,float now,float dt)
         {
             abilities.Step(session,now,dt);
             EntityManager.DestroyEntity(projectiles); EntityManager.DestroyEntity(hostileProjectiles);
@@ -353,7 +372,7 @@ namespace Roguelike.Combat
             }
             spawn.Playback(EntityManager);
         }
-        private void Defeat(Entity session,ref CombatWaveState state)
+        private void Defeat(Entity session,ref CombatDirectorState state)
         {
             ClearCommands(session);
             if(state.Outcome!=CombatOutcome.Running) return;

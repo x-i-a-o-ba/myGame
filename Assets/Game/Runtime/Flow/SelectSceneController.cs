@@ -230,14 +230,13 @@ namespace Roguelike.Flow
         private static string MapInfo(GameMapDefinition map,List<(EnemyArchetype archetype,EnemySpawnEntry entry)> kinds)
         {
             int bosses=0; foreach(var kind in kinds) if((kind.entry.tiers&EnemyTierMask.Boss)!=0) bosses++;
-            int finalWave=map.difficulty?map.difficulty.finalWave:0;
-            return (finalWave>0?$"共 {finalWave} 波":"无尽波次")+$"  ·  {kinds.Count} 种怪物  ·  {bosses} 种首领";
+            return "持续补怪 · 3:30 首领"+$"  ·  {kinds.Count} 种怪物  ·  {bosses} 种首领";
         }
         private static string Tag(EnemySpawnEntry entry)
         {
             bool normal=(entry.tiers&EnemyTierMask.Normal)!=0, elite=(entry.tiers&EnemyTierMask.Elite)!=0, boss=(entry.tiers&EnemyTierMask.Boss)!=0;
             if(!normal) return elite && boss?"精英 · 首领":boss?"首领":"精英";
-            return entry.firstWave>1?$"第 {entry.firstWave} 波起":"开局出现";
+            return entry.firstSecond>0?$"强度 {entry.firstSecond/60:0.##} 分钟起":"开局出现";
         }
         private static string SkillMeta(SkillDefinition skill,int slot)
         {

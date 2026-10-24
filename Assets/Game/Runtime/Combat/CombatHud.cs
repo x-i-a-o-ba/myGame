@@ -244,8 +244,8 @@ namespace Roguelike.Combat
                 TalentTreeOpen = false;
                 string clock = Clock(s.Elapsed);
                 Text("combat.resultText", s.Outcome == CombatOutcome.Victory
-                    ? $"胜利！击败第 {s.Wave} 波最终首领\n等级 {s.Level}  ·  击杀 {s.Kills:N0}  ·  用时 {clock}"
-                    : $"倒在第 {s.Wave} 波  ·  等级 {s.Level}\n生存 {clock}  ·  击杀 {s.Kills:N0}");
+                    ? $"本关完成！击败第 {s.Stage} 关首领\n等级 {s.Level}  ·  击杀 {s.Kills:N0}  ·  用时 {clock}"
+                    : $"倒在第 {s.Stage} 关  ·  等级 {s.Level}\n生存 {clock}  ·  击杀 {s.Kills:N0}");
             }
             // 英雄头像、等级与经验环
             Picture("hero.portrait", s.Portrait);
@@ -291,8 +291,8 @@ namespace Roguelike.Combat
             Toggle("order.attackArmed", s.AttackArmed);
             // 顶栏
             Text("top.clock", Clock(s.Elapsed));
-            Text("top.wave", s.FinalWave > 0 ? $"第 {s.Wave} / {s.FinalWave} 波" : $"第 {s.Wave} 波（无尽）");
-            Text("top.next", s.NextWave);
+            Text("top.wave", $"第 {s.Stage} 关 · 持续战斗");
+            Text("top.next", s.SpawnStatus);
             Text("top.kills", $"{s.Kills:N0}");
             Text("top.alive", $"{s.Alive:N0}");
             Text("top.fps", $"{s.Fps:0} FPS");
@@ -633,8 +633,8 @@ namespace Roguelike.Combat
         public string PassiveName, PassiveStatus; public Texture PassiveIcon;
         public readonly AbilityView[] Abilities = new AbilityView[CombatHud.AbilitySlots];
         public string Order; public bool AttackArmed, Aiming;
-        public float Elapsed, Fps; public int Wave, FinalWave, Kills, Alive, Projectiles;
-        public string NextWave;
+        public float Elapsed, Fps; public int Stage, Kills, Alive, Projectiles;
+        public string SpawnStatus;
         public bool BossAlive; public string BossName; public float BossFraction;
         public string Hint;
         /// <summary>当前待选天赋层下标；-1 表示没有待选天赋。</summary>

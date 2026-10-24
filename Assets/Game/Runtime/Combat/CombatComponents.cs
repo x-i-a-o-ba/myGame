@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Roguelike.Combat
 {
     public struct CombatOwned : IComponentData { }
-    /// <summary>敌人等级档位：决定刷怪倍率；最终波首领被击杀时判定胜利。</summary>
+    /// <summary>敌人等级档位：决定刷怪倍率；本关首领被击杀时判定胜利。</summary>
     public enum EnemyTier { Normal,Elite,Boss }
     /// <summary>敌人名册条目允许出现的档位，可多选。</summary>
     [Flags] public enum EnemyTierMask
@@ -22,7 +22,7 @@ namespace Roguelike.Combat
         public int ConfigId,Kind;
         /// <summary>击杀奖励经验与金币；Reach 为体型带来的额外攻击距离（米）。</summary>
         public float Experience,Gold,Reach;
-        public EnemyTier Tier; public int Wave;
+        public EnemyTier Tier; public int Stage;
         /// <summary>冲锋运行状态：方向、剩余冲锋时间、冲锋冷却与本次冲锋是否已经撞到英雄。</summary>
         public float3 ChargeDirection; public float ChargeTimer,ChargeReadyIn; public bool ChargeHit;
         /// <summary>自爆死亡不给经验和金币、不计击杀。</summary>
@@ -44,7 +44,7 @@ namespace Roguelike.Combat
     public struct CombatEnemyKind : IBufferElementData
     {
         public Entity Prefab; public int ConfigId;
-        public EnemyTierMask Tiers; public int FirstWave,LastWave; public float Weight;
+        public EnemyTierMask Tiers; public float FirstSecond,LastSecond,Weight; public bool SpecialElite;
         public float Health,Damage,Speed,Experience,Gold,Scale;
         /// <summary>普通、精英、首领三档的基础颜色（已混入档位色调）。</summary>
         public float4 Color,EliteColor,BossColor;
@@ -79,29 +79,27 @@ namespace Roguelike.Combat
         public float EnemyHealth, EnemySpeed, SafeSpawnRadius;
         public int MaxAlive;
     }
-    /// <summary>由 CombatDifficultyDefinition 生成的难度曲线快照；会话期间只读。</summary>
-    public struct CombatWaveSettings : IComponentData
+    /// <summary>只读的分钟难度快照。</summary>
+    public struct CombatDifficultySettings : IComponentData
     {
-        public float WaveInterval, FirstWaveAt, SpawnRingWidth;
-        public int BaseCount, MaxPerWave; public float CountGrowth;
-        public float HealthGrowth, DamageGrowth, SpeedPerWave, MaxSpeed;
-        public float BaseExperience, ExperienceGrowth, BaseGold, GoldGrowth;
-        public int EliteEvery, EliteBaseCount, EliteWavesPerExtra;
-        public float EliteHealth, EliteDamage, EliteScale, EliteExperience, EliteGold;
-        public int BossEvery;
-        public float BossHealth, BossDamage, BossScale, BossExperience, BossGold, BossSpeed;
-        public int FinalWave;
+        public float HealthGrowth,DamageGrowth,SpeedPerMinute,MaxSpeed,BaseExperience,BaseGold;
+        public float EliteHealth,EliteDamage,EliteScale,EliteExperience,EliteGold;
+        public float3 BossHealth,BossExperience,BossGold;
+        public float BossDamage,BossScale,BossSpeed;
     }
     public enum CombatOutcome { Running, Victory, Defeat }
-    /// <summary>本局波次运行状态；Wave 为已刷出的最后一波，Boss 为最近刷出的首领实体（供 HUD 首领血条）。</summary>
-    public struct CombatWaveState : IComponentData
+    /// <summary>会话拥有的导演进度；Stage 从 1 开始，本关时钟不含营地。第六步接入跨关前，一次会话是一关。</summary>
+    public struct CombatDirectorState : IComponentData
     {
-        public int Wave, LastWaveSpawned, SpawnedTotal, Skipped;
-        public float NextWaveAt;
+        public int Stage,LastBatchSpawned,SpawnedTotal,PositionRejected,TargetAlive,PendingTide,ElitesSpawned;
+        public float NextTickAt,NextEliteAt,StageElapsed,TideNoticeUntil;
+        public float2 TideDirection;
         public CombatOutcome Outcome;
         public uint Seed;
-        public bool FinalBossSpawned;
+        public bool BossSpawned,TideStarted,BossEnraged;
         public Entity Boss;
+        public static CombatDirectorState Begin(in SpawnDirectorSettings settings,int stage,uint seed)
+            =>new CombatDirectorState {Stage=math.clamp(stage,1,3),NextEliteAt=settings.EliteFirstAt[math.clamp(stage-1,0,2)],Seed=seed==0?1:seed};
     }
     /// <summary>Dota 2 式英雄指令。输入层只写意图，模拟系统决定移动、索敌与攻击。</summary>
     public enum HeroOrderKind

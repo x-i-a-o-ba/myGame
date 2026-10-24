@@ -1,0 +1,42 @@
+Mono path[0] = 'D:/UnityProject/myGame/Builds/Game/Game_Data/Managed'
+Mono config path = 'D:/UnityProject/myGame/Builds/Game/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.3.18f1 (5ebeb53e4c07)
+[Subsystems] Discovering subsystems at path D:/UnityProject/myGame/Builds/Game/Game_Data/UnitySubsystems
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 4060 Laptop GPU (ID=0x28a0)
+    Vendor:   NVIDIA
+    VRAM:     7957 MB
+    Driver:   32.0.15.7628
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.155 seconds
+- Finished resetting the current domain, in  0.003 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+UnloadTime: 1.053700 ms
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 8.155300 ms
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 4649.
+Total: 4.512600 ms (FindLiveObjects: 0.290100 ms CreateObjectMapping: 0.169600 ms MarkObjects: 3.982800 ms  DeleteObjects: 0.069900 ms)
+
+GAME_STARTED maxAlive=4000; hero=hero.frost_archer; map=map.shadow_wastes; composedSkills=4; enemyKinds=8; directorCap=4000; shopItems=18; gold=300
+DIRECTOR_PASS 战场与导演初始化
+DIRECTOR_PASS 导演填充目标压力负载
+DIRECTOR_PASS 压力帧包含实际场景和界面像素
+DIRECTOR_PASS 采样期间存活数量保持在目标附近且不超硬上限
+DIRECTOR_PASS 压力期间实际执行攻击、技能、弹体、击杀与补怪
+COMBAT_STRESS_DONE samples=12964 alive=3307-4000 visible=3417-4000 frameP95=5.93 simP95=1.78 kills=15971
+DIRECTOR_PLAYER_RESULT passed=True checks=5 output=D:/UnityProject/myGame/Logs/Director20261024/pressure-2
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.

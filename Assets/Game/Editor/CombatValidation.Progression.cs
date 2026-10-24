@@ -10,14 +10,14 @@ using UnityEngine;
 
 namespace Roguelike.Editor
 {
-    /// <summary>英雄成长、技能等级与波次难度的编辑器验证；使用真实编译库与 ECS 执行入口，不加载 Game 场景。</summary>
+    /// <summary>英雄成长与技能等级的编辑器验证；使用真实编译库与 ECS 执行入口，不加载 Game 场景。</summary>
     public static partial class CombatValidation
     {
         [MenuItem("Tools/Roguelike/验证/战斗与成长（不构建）")]
         public static void ValidateFromMenu()
         {
             Validate();
-            EditorUtility.DisplayDialog("验证通过","战斗、技能等级、英雄成长、属性与装备、波次难度检查全部通过（共 "+checks+" 项）。详见 Console。","确定");
+            EditorUtility.DisplayDialog("验证通过","战斗、技能等级、英雄成长、属性与装备、刷怪导演检查全部通过（共 "+checks+" 项）。详见 Console。","确定");
         }
 
         private static void ValidateSkillLevels()
@@ -192,64 +192,6 @@ namespace Roguelike.Editor
                 RejectProgression(rules,hero,"Unknown extra base stat rejected");
                 hero.baseStats=new[]{new StatModifier(StatKind.CriticalChance,float.PositiveInfinity)};
                 RejectProgression(rules,hero,"Infinite extra base stat rejected");
-            }
-        }
-
-        private static void ValidateWaves()
-        {
-            using(var assets=new Resources())
-            {
-                var difficulty=assets.New<CombatDifficultyDefinition>();
-                var inspector=UnityEditor.Editor.CreateEditor(difficulty);
-                try { Check(inspector is CombatDifficultyChineseInspector,"Difficulty curve uses the Chinese inspector"); }
-                finally { UnityEngine.Object.DestroyImmediate(inspector); }
-                var waves=difficulty.ToSettings();
-                var schedule=new CombatWaveState {Wave=29,NextWaveAt=580,Outcome=CombatOutcome.Running};
-                Check(!CombatWaveDirector.ShouldSpawn(waves,schedule,579) && CombatWaveDirector.ShouldSpawn(waves,schedule,580),"最终波仍按正常时间生成");
-                schedule.Wave=30;
-                Check(!CombatWaveDirector.ShouldSpawn(waves,schedule,10000),"有限关卡在最终首领存活时也不再刷第 31 波");
-                var endless=waves; endless.FinalWave=0;
-                Check(CombatWaveDirector.ShouldSpawn(endless,schedule,10000),"无尽模式仍可继续刷怪");
-                schedule.Outcome=CombatOutcome.Defeat;
-                Check(!CombatWaveDirector.ShouldSpawn(endless,schedule,10000),"阵亡结局不继续刷怪");
-                var combat=new CombatSettings{EnemyHealth=30,EnemySpeed=2,EnemyAttackDamage=4,EnemyAttackInterval=1,ArenaHalfSize=125,SafeSpawnRadius=30,MaxAlive=3000};
-                var first=CombatWaveDirector.Stats(waves,combat,1,EnemyTier.Normal);
-                var eleventh=CombatWaveDirector.Stats(waves,combat,11,EnemyTier.Normal);
-                Check(first.Count==80 && first.Health==30 && first.Damage==4 && first.Speed==2 && first.Experience==3,"Wave 1 uses scene base enemy values");
-                Check(eleventh.Count==200 && Mathf.Approximately(eleventh.Health,30*Mathf.Pow(1.07f,10)) && eleventh.Speed>first.Speed && eleventh.Experience>first.Experience,
-                    "Later waves grow count, health, speed and experience");
-                Check(CombatWaveDirector.IsEliteWave(waves,5) && !CombatWaveDirector.IsEliteWave(waves,6) && CombatWaveDirector.IsBossWave(waves,10) &&
-                    CombatWaveDirector.IsBossWave(waves,30) && !CombatWaveDirector.IsBossWave(waves,29),"Elites every 5 waves, bosses every 10 waves and on the final wave");
-                var boss=CombatWaveDirector.Stats(waves,combat,10,EnemyTier.Boss);
-                Check(boss.Count==1 && Mathf.Approximately(boss.Health,eleventh.Health/1.07f*60) && boss.Scale>first.Scale,"Boss multiplies same-wave health and size");
-                using(var world=new World("WaveValidation"))
-                {
-                    var manager=world.EntityManager;
-                    var prefab=manager.CreateEntity(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform),typeof(Prefab));
-                    manager.AddBuffer<ActiveBuff>(prefab);
-                    combat.EnemyPrefab=prefab; combat.MaxAlive=5;
-                    var state=new CombatWaveState{Wave=30,Seed=7};
-                    int spawned=CombatWaveDirector.SpawnWave(manager,combat,waves,ref state,float3.zero,0);
-                    using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform)))
-                    using(var enemies=query.ToEntityArray(Allocator.Temp))
-                    {
-                        bool bossFound=false,inRing=true;
-                        foreach(var enemy in enemies)
-                        {
-                            var data=manager.GetComponentData<CombatEnemy>(enemy);
-                            bossFound|=data.Tier==EnemyTier.Boss && data.Wave==30;
-                            float distance=math.length(manager.GetComponentData<LocalTransform>(enemy).Position.xz);
-                            inRing&=distance>=29.9f && distance<=55.1f;
-                        }
-                        Check(spawned==5 && enemies.Length==5 && bossFound && state.FinalBossSpawned,"Final wave always spawns the boss and respects the alive cap");
-                        Check(inRing,"Enemies spawn in the safe ring around the player");
-                        Check(state.Skipped>0 && state.SpawnedTotal==5,"Capped spawns are counted as skipped");
-                    }
-                }
-                difficulty.healthGrowth=0.9f;
-                bool rejected=false;
-                try { difficulty.ToSettings(); } catch(InvalidOperationException) { rejected=true; }
-                Check(rejected,"Difficulty curve that weakens enemies over time is rejected");
             }
         }
 

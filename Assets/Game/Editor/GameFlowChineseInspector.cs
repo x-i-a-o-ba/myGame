@@ -74,7 +74,7 @@ namespace Roguelike.Editor
             GameFlowInspectorLayout.Section("战斗");
             Field("sceneId","战场场景 ID","资源清单（Resources/ProjectResourceCatalog.json）中的场景 ID，格式 Scene.<场景名>；开始战斗时加载，场景须在 Build Settings 中启用。");
             Field("enemyRoster","敌人名册",$"本战场刷出的怪物（必填）；选择界面列出其中的怪物种类，最多显示 {SelectSceneController.EnemySlots} 种。");
-            Field("difficulty","关卡难度曲线","波次节奏、数量与成长、精英与首领、最终波；开局选择目录要求必填。为空时使用战场场景控制器上的曲线。");
+            Field("difficulty","关卡难度曲线","分钟难度成长、精英与首领数值；开局选择目录要求必填。为空时使用战场场景控制器上的曲线。");
             serializedObject.ApplyModifiedProperties();
             if(targets.Length==1) Report((GameMapDefinition)target);
         }
@@ -90,8 +90,7 @@ namespace Roguelike.Editor
             if(!map.preview) errors.Add("缺少预览图（开局选择目录要求必填）。");
             if(errors.Count>0) { GameFlowInspectorLayout.Errors(errors,null); return; }
             var kinds=SelectSceneController.Kinds(map.enemyRoster);
-            int final=map.difficulty.finalWave;
-            EditorGUILayout.HelpBox($"配置有效。场景 {SceneCatalogLookup.Resolve(map.sceneId)}；{(final>0?$"共 {final} 波":"无尽波次")}；"+
+            EditorGUILayout.HelpBox($"配置有效。场景 {SceneCatalogLookup.Resolve(map.sceneId)}；持续补怪 / 计时首领；"+
                 $"{kinds.Count} 种怪物：{string.Join("、",kinds.Select(k=>k.archetype.Label))}。",MessageType.None);
             if(kinds.Count>SelectSceneController.EnemySlots)
                 EditorGUILayout.HelpBox($"名册有 {kinds.Count} 种怪物，选择界面只显示前 {SelectSceneController.EnemySlots} 种（战斗仍按完整名册刷怪）。",MessageType.Warning);
@@ -226,17 +225,17 @@ namespace Roguelike.Editor
             ["hero"]=("默认英雄","直接打开本场景时出战的英雄；从选择界面进入时替换为所选英雄。"),
             ["skillCatalog"]=("技能库","英雄技能槽引用的技能必须都在这里登记。"),
             ["progressionRules"]=("经验与等级规则",null),
+            ["spawnDirector"]=("刷怪导演","目标存活数、潮涌、精英节奏与软分离，重开生效。"),
             ["difficulty"]=("关卡难度曲线（无战场定义时）","战场定义没有难度曲线时使用；两者都为空时使用默认曲线并输出警告。"),
             ["enemyRoster"]=("敌人名册（无战场定义时）","战场定义没有名册时使用；两者都为空时只刷场景统一敌人（近战，使用下方攻击距离与间隔）。"),
             ["equipmentCatalog"]=("装备库",null),
             ["shop"]=("商店位置",null),
-            ["enemyCount"]=("同屏敌人上限",null),
             ["arenaHalfSize"]=("场地半宽（米）","场地是以原点为中心的正方形，边长为该值的两倍；英雄移动与指示器限制在边界内。"),
             ["safeSpawnRadius"]=("安全刷怪半径（米）","敌人不会刷在离英雄这个距离以内。"),
-            ["enemyHealth"]=("敌人基础生命（无难度曲线时）","仅在没有任何难度曲线时作为默认曲线的第 1 波基础生命。"),
-            ["enemySpeed"]=("敌人基础移速（米/秒，无难度曲线时）","仅在没有任何难度曲线时作为默认曲线的第 1 波基础移速。"),
+            ["enemyHealth"]=("敌人基础生命（无难度曲线时）","仅在没有任何难度曲线时作为默认曲线的t=0基础生命。"),
+            ["enemySpeed"]=("敌人基础移速（米/秒，无难度曲线时）","仅在没有任何难度曲线时作为默认曲线的t=0基础移速。"),
             ["enemyAttackRange"]=("统一敌人攻击距离（米）",null),
-            ["enemyAttackDamage"]=("敌人基础攻击力（无难度曲线时）","仅在没有任何难度曲线时作为默认曲线的第 1 波基础攻击力。"),
+            ["enemyAttackDamage"]=("敌人基础攻击力（无难度曲线时）","仅在没有任何难度曲线时作为默认曲线的t=0基础攻击力。"),
             ["enemyAttackInterval"]=("统一敌人攻击间隔（秒）",null),
             ["projectileSpeed"]=("默认弹道速度（米/秒）",null),
             ["cameraZoom"]=("相机缩放（正交尺寸）","数值越大看到的范围越大；运行中可用鼠标滚轮调整（12–160）。"),

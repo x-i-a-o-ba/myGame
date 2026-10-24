@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed5e93ad94b495c8788aa78fd73bcbf, type: 3}
+  m_Name: 刷怪导演
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.SpawnDirectorDefinition
+  population:
+  - minute: 0
+    alive: 60
+  - minute: 1
+    alive: 150
+  - minute: 3
+    alive: 500
+  - minute: 4.5
+    alive: 800
+  - minute: 6
+    alive: 1200
+  - minute: 9
+    alive: 2200
+  - minute: 12
+    alive: 3500
+  - minute: 13.5
+    alive: 4000
+  tickSeconds: 0.25
+  aliveLimit: 4000
+  batchBudget: 128
+  stageSeconds: 270
+  openingFraction: 0.4
+  recoverySeconds: 60
+  bossAt: 210
+  bossPopulationFraction: 0.5
+  enrageAt: 270
+  tideAt: 150
+  tideCounts: {x: 300, y: 800, z: 1500}
+  eliteFirstAt: {x: 90, y: 30, z: 20}
+  eliteIntervals: {x: 60, y: 30, z: 20}
+  ringWidth: 20
+  cameraPadding: 3
+  forwardBias: 0.7
+  separationCell: 1.5
+  separationSpeed: 2.5
+  separationChecks: 48

@@ -16,7 +16,7 @@ namespace Roguelike.Editor
         {
             serializedObject.Update();
             EditorGUILayout.HelpBox("敌人种类预制体：子物体的网格会在开局合并成一个 ECS 网格（第一个 MeshRenderer 的材质与颜色为该种类的颜色），"+
-                "预制体不会被实例化成 GameObject。数值是乘在当前波次基础值上的倍率。加入“敌人名册”后才会出场，重开 Game 生效。",MessageType.Info);
+                "预制体不会被实例化成 GameObject。数值是乘在当前强度时间基础值上的倍率。加入“敌人名册”后才会出场，重开 Game 生效。",MessageType.Info);
             Section("身份");
             Field("configId","数字配置 ID","怪物使用 3000–3999，需登记在 Docs/游戏配置/编号登记.json。");
             Field("stableId","内部兼容键");
@@ -26,7 +26,7 @@ namespace Roguelike.Editor
             Section("行为与攻击");
             Field("behavior","行为");
             Field("attack","自动攻击模块","与英雄共用的被动攻击模块：距离、前摇、后摇、基础攻击间隔。");
-            Section("数值倍率（乘以当前波次基础值）");
+            Section("数值倍率（乘以当前强度时间基础值）");
             Field("healthMultiplier","生命倍率");
             Field("damageMultiplier","攻击力倍率");
             Field("speedMultiplier","移动速度倍率");
@@ -87,17 +87,17 @@ namespace Roguelike.Editor
         internal static void Section(string text) { EditorGUILayout.Space(7); EditorGUILayout.LabelField(text,EditorStyles.boldLabel); }
     }
 
-    /// <summary>敌人名册的中文 Inspector：逐条编辑出场规则，校验名册，并预览关键波次各档位的出场概率。</summary>
+    /// <summary>敌人名册的中文 Inspector：逐条编辑出场规则，校验名册，并预览关键强度时间各档位的出场概率。</summary>
     [CustomEditor(typeof(EnemyRoster))]
     internal sealed class EnemyRosterChineseInspector : UnityEditor.Editor
     {
-        private static readonly int[] PreviewWaves={1,3,5,10,20};
+        private static readonly int[] PreviewSeconds={0,45,90,150,210,300};
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.HelpBox("每波刷怪时，按档位（普通/精英/首领）筛选当前波次允许出场的条目，再按权重抽取种类。"+
-                "某档位在当前波次没有可出场条目时，退回到允许该档位的第一个条目。至少需要一条第 1 波普通、一条精英、一条首领条目。重开 Game 生效。",MessageType.Info);
+            EditorGUILayout.HelpBox("每次补充刷怪时，按档位（普通/精英/首领）筛选当前强度时间允许出场的条目，再按权重抽取种类。"+
+                "没有合格条目就不生成；专属精英单独按节奏抽取。至少需要一条开局普通、一条精英、一条首领条目。重开 Game 生效。",MessageType.Info);
             var entries=serializedObject.FindProperty("entries");
             EnemyArchetypeChineseInspector.Section($"出场条目（{entries.arraySize}）");
             int remove=-1;
@@ -115,9 +115,10 @@ namespace Roguelike.Editor
                     }
                     Relative(entry,"prefab","敌人预制体");
                     Relative(entry,"weight","权重");
-                    Relative(entry,"firstWave","最早波次");
-                    Relative(entry,"lastWave","最晚波次（0=不限）");
+                    Relative(entry,"firstSecond","最早强度时间（秒）");
+                    Relative(entry,"lastSecond","最晚强度时间（秒，0=不限）");
                     Relative(entry,"tiers","允许档位");
+                    Relative(entry,"specialElite","本图专属精英");
                 }
             }
             if(remove>=0) entries.DeleteArrayElementAtIndex(remove);
@@ -127,8 +128,8 @@ namespace Roguelike.Editor
                 var added=entries.GetArrayElementAtIndex(entries.arraySize-1);
                 added.FindPropertyRelative("prefab").objectReferenceValue=null;
                 added.FindPropertyRelative("weight").floatValue=1;
-                added.FindPropertyRelative("firstWave").intValue=1;
-                added.FindPropertyRelative("lastWave").intValue=0;
+                added.FindPropertyRelative("firstSecond").floatValue=0;
+                added.FindPropertyRelative("lastSecond").floatValue=0;
                 added.FindPropertyRelative("tiers").intValue=(int)EnemyTierMask.Normal;
             }
             EnemyArchetypeChineseInspector.Section("档位色调");
@@ -140,23 +141,18 @@ namespace Roguelike.Editor
             string failure=roster.Validate();
             if(failure!=null) { EditorGUILayout.HelpBox(failure,MessageType.Error); return; }
             EditorGUILayout.HelpBox("名册有效。",MessageType.None);
-            foreach(int wave in PreviewWaves)
-                EditorGUILayout.LabelField($"第 {wave} 波：普通 {Odds(roster,EnemyTier.Normal,wave)}；精英 {Odds(roster,EnemyTier.Elite,wave)}；首领 {Odds(roster,EnemyTier.Boss,wave)}",
+            foreach(int seconds in PreviewSeconds)
+                EditorGUILayout.LabelField($"强度 {seconds} 秒：普通 {Odds(roster,EnemyTier.Normal,seconds)}；精英 {Odds(roster,EnemyTier.Elite,seconds)}；首领 {Odds(roster,EnemyTier.Boss,seconds)}",
                     EditorStyles.wordWrappedMiniLabel);
         }
 
-        /// <summary>与 CombatWaveDirector.Pick 相同的规则：按波次与档位筛选后按权重抽取；没有时退回允许该档位的第一个条目，再退回普通档。</summary>
-        internal static string Odds(EnemyRoster roster,EnemyTier tier,int wave)
+        /// <summary>与 CombatSpawnDirector.Pick 相同的规则：按强度时间与档位筛选后按权重抽取；没有可出场条目就不生成。</summary>
+        internal static string Odds(EnemyRoster roster,EnemyTier tier,int seconds)
         {
             var weights=new Dictionary<string,float>(); float total=0;
             foreach(var entry in roster.entries)
-                if(entry.Allows(tier,wave)) { Add(weights,entry); total+=entry.weight; }
-            if(total<=0)
-            {
-                foreach(var entry in roster.entries)
-                    if(entry.prefab && (entry.tiers&EnemySpawnEntry.Mask(tier))!=0) return entry.prefab.Label+" 100%（退回）";
-                return tier==EnemyTier.Normal?"无":Odds(roster,EnemyTier.Normal,wave);
-            }
+                if(entry.Allows(tier,seconds) && !entry.specialElite) { Add(weights,entry); total+=entry.weight; }
+            if(total<=0) return "无可出场条目（不提前解锁）";
             var parts=new List<string>();
             foreach(var pair in weights) parts.Add($"{pair.Key} {pair.Value/total:P0}");
             return string.Join("、",parts);

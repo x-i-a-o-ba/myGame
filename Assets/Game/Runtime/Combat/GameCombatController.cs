@@ -34,9 +34,10 @@ namespace Roguelike.Combat
         [Header("成长与难度（重开生效）")]
         [Tooltip("经验与等级规则：经验表、最高等级、技能点。为空时使用 Dota 2 默认值并输出警告。")]
         public HeroProgressionRules progressionRules;
-        [Tooltip("关卡难度曲线：波次间隔、数量/生命/伤害增长、精英与首领、最终波。为空时使用默认曲线并输出警告。")]
+        [Tooltip("关卡难度曲线：按分钟增长的生命/伤害/移速与精英/首领数值。为空时使用默认曲线并输出警告。")]
         public CombatDifficultyDefinition difficulty;
-        [Tooltip("敌人名册：引用敌人预制体并配置出场波次、权重与档位。为空时只刷场景统一敌人（近战，使用下方攻击距离与间隔）。")]
+        [Tooltip("持续补怪、潮涌、精英、首领时刻与软分离；重开生效。") ] public SpawnDirectorDefinition spawnDirector;
+        [Tooltip("敌人名册：引用敌人预制体并配置出场强度时间（秒）、权重与档位。为空时只刷场景统一敌人（近战，使用下方攻击距离与间隔）。")]
         public EnemyRoster enemyRoster;
         [Header("装备与商店（重开生效）")]
         [Tooltip("装备库：商店出售的装备、装备栏格数、开局金币、出售返还比例与丢弃 / 拾取距离。为空时商店为空（装备栏仍为 6 格）并输出警告。")]
@@ -44,13 +45,14 @@ namespace Roguelike.Combat
         [Tooltip("场景中的商店（GameShop）：英雄走进它的范围（地面金色圆圈）后才能打开商店购买与出售。为空时任何位置都能打开商店并输出警告。")]
         public GameShop shop;
         [Header("场地与敌人基础数值（重开生效）")]
-        [Range(1,30000), Tooltip("同屏存活敌人上限；波次刷怪超过上限的部分会被跳过（首领除外）。")] public int enemyCount=10000;
+        /// <summary>只读展示兼容入口，上限唯一配置在刷怪导演。</summary>
+        public int enemyCount=>spawnDirector?spawnDirector.aliveLimit:0;
         [Min(30)] public float arenaHalfSize=125;
         [Min(3)] public float safeSpawnRadius=9;
-        [Min(1), Tooltip("第 1 波普通敌人的基础生命；敌人种类再乘自身倍率，之后按难度曲线逐波增长。")] public float enemyHealth=30;
-        [Min(0), Tooltip("第 1 波普通敌人的基础移动速度（米/秒）；敌人种类再乘自身倍率。")] public float enemySpeed=2;
+        [Min(1), Tooltip("t=0普通敌人的基础生命；敌人种类再乘自身倍率，之后按难度曲线逐分钟增长。")] public float enemyHealth=30;
+        [Min(0), Tooltip("t=0普通敌人的基础移动速度（米/秒）；敌人种类再乘自身倍率。")] public float enemySpeed=2;
         [Min(0.1f), Tooltip("仅未配置名册时的统一敌人使用：近战攻击距离（米）。")] public float enemyAttackRange=1.25f;
-        [Min(0), Tooltip("第 1 波普通敌人的基础攻击伤害；敌人种类再乘自身倍率，之后按难度曲线逐波增长。")] public float enemyAttackDamage=4;
+        [Min(0), Tooltip("t=0普通敌人的基础攻击伤害；敌人种类再乘自身倍率，之后按难度曲线逐分钟增长。")] public float enemyAttackDamage=4;
         [Min(0.1f), Tooltip("仅未配置名册时的统一敌人使用：攻击间隔（秒）。")] public float enemyAttackInterval=1;
         [Min(0.1f), Tooltip("英雄未配置自动攻击模块时的弹道速度（米/秒）。")] public float projectileSpeed=38;
         [Header("相机")]
@@ -99,7 +101,7 @@ namespace Roguelike.Combat
         public Entity SessionEntity=>IsReady?session.Entity:Entity.Null;
         public SkillDefinition SkillAt(int slot)=>hero && slot>=0 && slot<hero.skills.Length?hero.skills[slot]:null;
         public HeroProgression Progression=>IsReady?session.World.EntityManager.GetComponentData<HeroProgression>(session.Entity):default;
-        public CombatWaveState Wave=>IsReady?session.World.EntityManager.GetComponentData<CombatWaveState>(session.Entity):default;
+        public CombatDirectorState Director=>IsReady?session.World.EntityManager.GetComponentData<CombatDirectorState>(session.Entity):default;
         /// <summary>当前英雄指令（输入层写入，模拟系统推进）。</summary>
         public HeroOrder Order=>IsReady?session.World.EntityManager.GetComponentData<HeroOrder>(session.Entity):default;
         /// <summary>英雄自动攻击运行状态：当前目标、前后摇阶段与冷却。</summary>
@@ -174,7 +176,7 @@ namespace Roguelike.Combat
         public CombatDifficultyDefinition ActiveDifficulty=>map && map.difficulty?map.difficulty:difficulty?difficulty:fallbackDifficulty;
         /// <summary>本局使用的敌人名册：战场定义优先，其次本控制器的配置；都为空时只刷统一敌人。</summary>
         public EnemyRoster ActiveRoster=>map && map.enemyRoster?map.enemyRoster:enemyRoster;
-        private bool Running=>IsReady && State.Health>0 && Wave.Outcome==CombatOutcome.Running;
+        private bool Running=>IsReady && State.Health>0 && Director.Outcome==CombatOutcome.Running;
         private void Start()
         {
             try
@@ -230,11 +232,12 @@ namespace Roguelike.Combat
             abilityIndicator.HideSelection(); hud.CloseShop();
             hoveredGround=0; inspectedGround=0; hud.HideGroundTooltip(); groundViews?.Clear();
             session.Reset(this,ActiveRules,ActiveDifficulty,enemyMesh,projectileMesh);
+            previousSpawnCenter=State.Position;
             destinationMarker.gameObject.SetActive(false); nextHudUpdate=0;
             observedLevelUps=0; observedCommands=0; observedEquipment=0;
             ShowNotice(shop?"按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习技能；商店在上方的金色圆圈里，走进去按 B 购买装备":
                 "按 Ctrl+Q/W/E/R 或点击技能上方的“+”学习第一个技能；按 B 打开商店购买装备",6);
-            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; map={(map?map.stableId:"none")}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; finalWave={ActiveDifficulty.finalWave}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
+            Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; map={(map?map.stableId:"none")}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; directorCap={spawnDirector.aliveLimit}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
         }
         /// <summary>
         /// 应用开局选择（GameSelection）：英雄总是替换；战场只在所选战场的场景就是本场景时替换，否则保留场景配置并警告。
@@ -689,6 +692,7 @@ namespace Roguelike.Combat
             gameCamera.orthographicSize=cameraZoom;
             var rotation=Quaternion.Euler(58,0,0);
             gameCamera.transform.SetPositionAndRotation((Vector3)state.Position+rotation*new Vector3(0,-cameraZoom*0.13f,-300),rotation);
+            UpdateSpawnView(state);
             UpdateOrderPreview(state,order);
             UpdateSelection();
             UpdateShop(state);
@@ -722,6 +726,27 @@ namespace Roguelike.Combat
             nextHudUpdate=Time.unscaledTime+0.1f;
             hud.Refresh(BuildSnapshot(state,order));
         }
+        private Vector3 previousSpawnCenter;
+        private void UpdateSpawnView(in CombatPlayer state)
+        {
+            // 取地面与模型高度两层投影的并集；相机旋转/宽高比变化仍保持保守的不可刷矩形。
+            var view=new CombatSpawnView{Min=new float2(float.MaxValue),Max=new float2(float.MinValue),Valid=true};
+            for(int height=0;height<2;height++)
+            {
+                var plane=new Plane(Vector3.up,new Vector3(0,height*6,0));
+                for(int corner=0;corner<4;corner++)
+                {
+                    var ray=gameCamera.ViewportPointToRay(new Vector3(corner%2,corner/2,0));
+                    if(!plane.Raycast(ray,out float distance)) { view.Valid=false; continue; }
+                    Vector3 point=ray.GetPoint(distance); float2 p=new float2(point.x,point.z);
+                    view.Min=math.min(view.Min,p); view.Max=math.max(view.Max,p);
+                }
+            }
+            Vector3 delta=(Vector3)state.Position-previousSpawnCenter; previousSpawnCenter=state.Position;
+            view.Heading=math.normalizesafe(new float2(delta.x,delta.z));
+            session.World.EntityManager.SetComponentData(session.Entity,view);
+        }
+
         /// <summary>攻击瞄准显示攻击距离圈；悬停敌人显示红圈，否则标出当前攻击目标。技能瞄准优先。</summary>
         private void UpdateOrderPreview(in CombatPlayer state,in HeroOrder order)
         {
@@ -803,7 +828,7 @@ namespace Roguelike.Combat
         private CombatHudSnapshot BuildSnapshot(in CombatPlayer state,in HeroOrder order)
         {
             var manager=session.World.EntityManager;
-            var progression=Progression; var wave=Wave; var s=snapshot;
+            var progression=Progression; var wave=Director; var s=snapshot;
             var unit=manager.GetComponentData<AbilityUnit>(session.Entity);
             var runtime=manager.GetComponentData<AbilityRuntime>(session.Entity);
             var attackState=manager.GetComponentData<AutoAttackState>(session.Entity);
@@ -823,7 +848,7 @@ namespace Roguelike.Combat
             s.CriticalChance=Mathf.Clamp(heroStats.Total.CriticalChance,0,100);
             BuildEquipment(s,equipment,equipped);
             s.Elapsed=state.Elapsed; s.Kills=state.Kills; s.Alive=state.AliveEnemies; s.Projectiles=state.ActiveProjectiles;
-            s.Fps=smoothFrameTime>0?1/smoothFrameTime:0; s.Wave=wave.Wave;
+            s.Fps=smoothFrameTime>0?1/smoothFrameTime:0; s.Stage=wave.Stage;
             s.Order=OrderLabel(order.Kind); s.AttackArmed=AttackArmed; s.Aiming=abilityIndicator.IsAiming;
             var basic=hero.basicAttack;
             s.PassiveName=basic?basic.Label:"普通攻击"; s.PassiveIcon=basic?basic.icon:null;
@@ -835,15 +860,15 @@ namespace Roguelike.Combat
                 s.ExperienceFraction=progress.y>0?progress.x/progress.y:1;
                 s.ExperienceText=progress.y>0?$"经验 {progress.x:0} / {progress.y:0}":"已满级";
             }
-            var settings=manager.GetComponentData<CombatWaveSettings>(session.Entity);
-            s.FinalWave=settings.FinalWave;
-            s.NextWave=settings.FinalWave>0 && wave.FinalBossSpawned?"击杀最终首领获胜":$"下一波 {Mathf.Max(0,wave.NextWaveAt-state.Elapsed):0} 秒";
+            var settings=manager.GetComponentData<SpawnDirectorSettings>(session.Entity);
+            s.SpawnStatus=wave.StageElapsed<wave.TideNoticeUntil?"潮涌来袭！":wave.BossEnraged?"首领狂暴 · 伤害翻倍":wave.BossSpawned?"击败首领完成本关":
+                $"目标 {wave.TargetAlive}  ·  首领 {Mathf.Max(0,settings.BossAt-wave.StageElapsed):0} 秒";
             s.BossAlive=Alive(wave.Boss) && manager.HasComponent<CombatEnemy>(wave.Boss);
             if(s.BossAlive)
             {
                 var boss=manager.GetComponentData<AbilityUnit>(wave.Boss); var record=manager.GetComponentData<CombatEnemy>(wave.Boss);
                 string name=record.Kind>=0 && record.Kind<session.EnemyNames.Length?session.EnemyNames[record.Kind]:"首领";
-                s.BossName=$"首领 · {name}（第 {record.Wave} 波）"; s.BossFraction=boss.Health/Mathf.Max(1,boss.MaxHealth);
+                s.BossName=$"首领 · {name}（第 {record.Stage} 关）"; s.BossFraction=boss.Health/Mathf.Max(1,boss.MaxHealth);
             }
             var slots=manager.GetBuffer<AbilitySlot>(session.Entity);
             float now=runtime.Time; bool busy=AbilityCastTiming.IsBusy(runtime,now);

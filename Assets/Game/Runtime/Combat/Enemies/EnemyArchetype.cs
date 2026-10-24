@@ -28,7 +28,7 @@ namespace Roguelike.Combat
         [Tooltip("选中敌人时左上角信息面板显示的头像；为空时使用攻击模块图标。")] public Texture2D portrait;
         [Tooltip("行为决定移动与出手方式。")] public EnemyBehavior behavior;
         [Tooltip("自动攻击被动模块，与英雄共用同一套前摇/后摇/攻击间隔规则。")] public AutoAttackDefinition attack;
-        [Header("数值倍率（乘以当前波次的基础数值）")]
+        [Header("数值倍率（乘以当前强度时间的基础数值）")]
         [Min(0.01f)] public float healthMultiplier=1;
         [Min(0)] public float damageMultiplier=1;
         [Min(0)] public float speedMultiplier=1;

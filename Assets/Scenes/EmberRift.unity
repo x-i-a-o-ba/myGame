@@ -1713,10 +1713,10 @@ MonoBehaviour:
   skillCatalog: {fileID: 11400000, guid: 5e67ebe04ba6d654982d4f2b91600903, type: 2}
   progressionRules: {fileID: 11400000, guid: 3ce276e01428475c9caa287b3cbc51df, type: 2}
   difficulty: {fileID: 11400000, guid: fcd4cda1ade141bcbe637cfce6b43d87, type: 2}
+  spawnDirector: {fileID: 11400000, guid: acb5661c470d43368e882814ca67bfe5, type: 2}
   enemyRoster: {fileID: 11400000, guid: f202e1d6a6384a49a0a20e49bba2d1a4, type: 2}
   equipmentCatalog: {fileID: 11400000, guid: c90d0951a451453599c00c7c8895f5bc, type: 2}
   shop: {fileID: 3200000002}
-  enemyCount: 3000
   arenaHalfSize: 125
   safeSpawnRadius: 30
   enemyHealth: 30

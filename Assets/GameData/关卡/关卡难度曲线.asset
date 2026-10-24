@@ -12,36 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e64113140ea4db08c223c6cb220d39e, type: 3}
   m_Name: "\u5173\u5361\u96BE\u5EA6\u66F2\u7EBF"
   m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.CombatDifficultyDefinition
-  waveInterval: 20
-  firstWaveAt: 0
-  finalWave: 30
-  spawnRingWidth: 25
-  baseCount: 45
-  countGrowthPerWave: 0.1
-  maxPerWave: 2000
-  healthGrowth: 1.075
-  damageGrowth: 1.045
-  speedPerWave: 0.025
-  maxSpeed: 4
-  baseExperience: 5
-  experienceGrowth: 1.03
-  baseGold: 2
-  goldGrowth: 1.025
-  eliteEvery: 5
-  eliteBaseCount: 2
-  eliteWavesPerExtra: 5
-  eliteHealth: 5
-  eliteDamage: 1.6
-  eliteScale: 1.6
-  eliteExperience: 12
-  eliteGold: 15
-  bossEvery: 10
-  bossHealth: 22
-  bossDamage: 2.5
-  bossScale: 2.6
-  bossExperience: 80
-  bossGold: 150
-  bossSpeed: 0.8
-  baseEnemyHealth: 50
+  baseEnemyHealth: 30
   baseEnemyDamage: 6
-  baseEnemySpeed: 2.5
+  baseEnemySpeed: 3.5
+  healthGrowth: 1.15
+  damageGrowth: 1.07
+  speedPerMinute: 0.08
+  maxSpeed: 4.7
+  baseExperience: 1
+  baseGold: 0.5
+  eliteHealth: 15
+  eliteDamage: 2
+  eliteScale: 1.5
+  eliteExperience: 30
+  eliteGold: 30
+  bossHealth: {x: 6000, y: 25000, z: 100000}
+  bossDamage: 5
+  bossScale: 2.6
+  bossExperience: {x: 150, y: 300, z: 0}
+  bossGold: {x: 500, y: 800, z: 0}
+  bossSpeed: 0.8

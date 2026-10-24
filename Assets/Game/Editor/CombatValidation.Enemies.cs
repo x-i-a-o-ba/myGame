@@ -93,9 +93,9 @@ namespace Roguelike.Editor
                 var boss=Archetype(3903,EnemyBehavior.Melee,melee);
                 var roster=assets.New<EnemyRoster>();
                 roster.entries=new[]{
-                    new EnemySpawnEntry{prefab=ghoul,weight=3,firstWave=1,tiers=EnemyTierMask.Normal|EnemyTierMask.Elite},
-                    new EnemySpawnEntry{prefab=archer,weight=1,firstWave=3,tiers=EnemyTierMask.Normal},
-                    new EnemySpawnEntry{prefab=boss,weight=1,firstWave=1,tiers=EnemyTierMask.Boss}};
+                    new EnemySpawnEntry{prefab=ghoul,weight=3,firstSecond=0,tiers=EnemyTierMask.Normal|EnemyTierMask.Elite},
+                    new EnemySpawnEntry{prefab=archer,weight=1,firstSecond=3,tiers=EnemyTierMask.Normal},
+                    new EnemySpawnEntry{prefab=boss,weight=1,firstSecond=0,tiers=EnemyTierMask.Boss}};
                 Check(roster.Validate()==null,"Valid roster with normal, elite and boss entries passes");
                 var inspector=UnityEditor.Editor.CreateEditor(roster);
                 try { Check(inspector is EnemyRosterChineseInspector,"Enemy roster uses the Chinese inspector"); }
@@ -142,28 +142,34 @@ namespace Roguelike.Editor
                         manager.AddBuffer<ActiveBuff>(prefab);
                         return prefab;
                     }
-                    kinds[0]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3901,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite,FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1};
-                    kinds[1]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3902,Tiers=EnemyTierMask.Normal,FirstWave=3,Weight=1,Health=0.5f,Damage=1,Speed=2,Experience=1,Scale=1};
-                    kinds[2]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3903,Tiers=EnemyTierMask.Boss,FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1.5f};
+                    kinds[0]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3901,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite,FirstSecond=0,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1};
+                    kinds[1]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3902,Tiers=EnemyTierMask.Normal,FirstSecond=3,Weight=1,Health=0.5f,Damage=1,Speed=2,Experience=1,Scale=1};
+                    kinds[2]=new CombatEnemyKind{Prefab=MakePrefab(),ConfigId=3903,Tiers=EnemyTierMask.Boss,FirstSecond=0,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Scale=1.5f};
                     var random=Unity.Mathematics.Random.CreateFromIndex(11);
                     bool earlyOnlyFirst=true,laterBoth=false,laterSecond=false;
                     for(int i=0;i<64;i++)
                     {
-                        earlyOnlyFirst&=CombatWaveDirector.Pick(kinds,EnemyTier.Normal,1,ref random)==0;
-                        int later=CombatWaveDirector.Pick(kinds,EnemyTier.Normal,3,ref random);
+                        earlyOnlyFirst&=CombatSpawnDirector.Pick(kinds,EnemyTier.Normal,1,ref random)==0;
+                        int later=CombatSpawnDirector.Pick(kinds,EnemyTier.Normal,3,ref random);
                         laterSecond|=later==1; laterBoth|=later==0;
                     }
                     Check(earlyOnlyFirst && laterBoth && laterSecond,"Weighted pick only offers kinds whose first wave has arrived");
-                    Check(CombatWaveDirector.Pick(kinds,EnemyTier.Boss,10,ref random)==2 && CombatWaveDirector.Pick(kinds,EnemyTier.Elite,5,ref random)==0,
+                    Check(CombatSpawnDirector.Pick(kinds,EnemyTier.Boss,10,ref random)==2 && CombatSpawnDirector.Pick(kinds,EnemyTier.Elite,5,ref random)==0,
                         "Boss and elite tiers pick kinds that allow the tier");
                     var difficulty=ScriptableObject.CreateInstance<CombatDifficultyDefinition>();
                     try
                     {
                         var waves=difficulty.ToSettings();
                         var combat=new CombatSettings{EnemyHealth=30,EnemySpeed=2,EnemyAttackDamage=4,EnemyAttackInterval=1,ArenaHalfSize=125,SafeSpawnRadius=30,MaxAlive=3000};
-                        var state=new CombatWaveState{Wave=10,Seed=3};
-                        int spawned=CombatWaveDirector.SpawnWave(manager,combat,waves,ref state,float3.zero,0,kinds);
-                        var normal=CombatWaveDirector.Stats(waves,combat,10,EnemyTier.Normal);
+                        var directorAsset=ScriptableObject.CreateInstance<SpawnDirectorDefinition>();
+                        var director=directorAsset.Compile();
+                        UnityEngine.Object.DestroyImmediate(directorAsset);
+                        var state=CombatDirectorState.Begin(director,2,3); state.StageElapsed=210;
+                        using var storage_curve=new NativeArray<PopulationPoint>(2,Allocator.Temp); var curve=storage_curve;
+                        curve[0]=new PopulationPoint{Minute=0,Alive=200}; curve[1]=new PopulationPoint{Minute=14,Alive=200};
+                        var view=new CombatSpawnView{Valid=true,Min=new float2(-20),Max=new float2(20)};
+                        int spawned=CombatSpawnDirector.Tick(manager,combat,waves,director,ref state,float3.zero,0,kinds,curve,view);
+                        var normal=CombatSpawnDirector.Stats(waves,combat,CombatSpawnDirector.Minutes(director,2,210),2,EnemyTier.Normal);
                         using(var query=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(AbilityUnit)))
                         using(var enemies=query.ToEntityArray(Allocator.Temp))
                         {
@@ -175,9 +181,9 @@ namespace Roguelike.Editor
                                 if(data.Tier==EnemyTier.Normal && data.ConfigId==3902) scaled&=Mathf.Approximately(unit.MaxHealth,math.max(1,normal.Health*0.5f)) && Mathf.Approximately(unit.Speed,normal.Speed*2);
                                 if(data.Tier==EnemyTier.Boss) bossKind|=data.ConfigId==3903 && state.Boss==enemy;
                             }
-                            Check(spawned==enemies.Length && seen.Count==3,"One wave spawns several enemy kinds from the roster");
-                            Check(scaled,"Enemy kind multiplies wave health and speed");
-                            Check(bossKind,"Boss wave spawns the boss kind and tracks it for the HUD");
+                            Check(spawned==enemies.Length && seen.Count==3,"Director batch spawns several eligible enemy kinds");
+                            Check(scaled,"Enemy kind multiplies time-scaled health and speed");
+                            Check(bossKind,"Director spawns the boss kind and tracks it for the HUD");
                         }
                     }
                     finally { UnityEngine.Object.DestroyImmediate(difficulty); }

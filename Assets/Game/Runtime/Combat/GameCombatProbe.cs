@@ -38,7 +38,7 @@ namespace Roguelike.Combat
             var indicator=UnityEngine.Object.FindFirstObjectByType<GameAbilityIndicator>();
             Check(indicator && indicator.HasBindings,"Authored indicator references");
             yield return null; yield return null;
-            Check(controller.Wave.Wave==1 && controller.State.AliveEnemies>0 && controller.State.AliveEnemies<=controller.enemyCount,"First difficulty wave spawns within alive cap");
+            Check(controller.Director.Stage==1 && controller.State.AliveEnemies>0 && controller.State.AliveEnemies<=controller.enemyCount,"Director starts within alive cap");
             Check(controller.Progression.Level==1 && controller.Progression.SkillPoints==1,"Hero starts at level 1 with one skill point");
             Check(manager.GetBuffer<AbilitySlot>(controller.SessionEntity)[0].Level==0,"Skills start unlearned");
             Click(1);
@@ -61,10 +61,13 @@ namespace Roguelike.Combat
             Check(!controller.TryMoveFromScreen(new Vector2(Screen.width*0.5f,5)),"HUD blocks movement");
             Check(controller.EnemyKinds.Length>1,"Enemy roster provides several enemy kinds");
             // 攻击移动：走向远处并自动攻击途中索敌距离内的敌人（Dota 2 的 A + 左键地面）。
-            controller.IssueAttackMove(new Vector3(controller.safeSpawnRadius+12,0,0));
+            var approach=NearestEnemy(controller,manager,true);
+            Check(approach!=Entity.Null,"Attack-move check has a spawned enemy");
+            controller.IssueAttackMove(approach!=Entity.Null?(Vector3)manager.GetComponentData<Unity.Transforms.LocalTransform>(approach).Position:new Vector3(controller.safeSpawnRadius+12,0,0));
             yield return null;
             Check(controller.Order.Kind==HeroOrderKind.AttackMove,"Attack-move order is recorded");
-            yield return new WaitForSeconds(3);
+            float approachDeadline=Time.realtimeSinceStartup+15;
+            while(controller.State.Hits==0 && Time.realtimeSinceStartup<approachDeadline) yield return null;
             Check(controller.State.ShotsFired>0 && controller.State.Hits>0,"Auto attack module fires through the shared effect pipeline");
             yield return OrderChecks(controller,manager);
             var slots=manager.GetBuffer<AbilitySlot>(controller.SessionEntity);
@@ -97,13 +100,13 @@ namespace Roguelike.Combat
             yield return WaitForAction("combat.talent",0);
             ClickTalent(0); yield return null; yield return null;
             Check(HeroProgressionLogic.PendingTalent(controller.Progression)<0 && manager.GetComponentData<AbilityUnit>(controller.SessionEntity).BaseAttack>attackBefore,"Talent button applies left option");
-            // 把下一波时间提前到当前，验证计时触发与逐波数值，而不是让探针等待完整波次间隔。
-            var waveState=manager.GetComponentData<CombatWaveState>(controller.SessionEntity);
-            int spawnedBefore=waveState.SpawnedTotal; waveState.NextWaveAt=0;
+            // 跳转导演强度时间并开放下一补充批次，验证解锁种类与目标存活数。
+            var waveState=manager.GetComponentData<CombatDirectorState>(controller.SessionEntity);
+            int spawnedBefore=waveState.SpawnedTotal; waveState.NextTickAt=0; waveState.StageElapsed=100;
             manager.SetComponentData(controller.SessionEntity,waveState);
             yield return null; yield return null;
-            Check(controller.Wave.Wave==2 && controller.Wave.SpawnedTotal>spawnedBefore,"Next difficulty wave spawns when its timer elapses");
-            Check(DistinctEnemyKinds(manager)>1,"Waves mix several enemy kinds from the roster");
+            Check(controller.Director.Stage==1 && controller.Director.SpawnedTotal>spawnedBefore,"Director replenishes after advancing intensity time");
+            Check(DistinctEnemyKinds(manager)>1,"Director mixes time-unlocked enemy kinds");
             // 换序的英雄证明输入槽不是技能身份；克隆仅供探针，不修改项目资源。
             var alternate=Instantiate(originalHero);
             alternate.stableId="probe.reordered"; alternate.skills=(SkillDefinition[])originalHero.skills.Clone();
@@ -121,7 +124,7 @@ namespace Roguelike.Combat
             var unit=manager.GetComponentData<AbilityUnit>(controller.SessionEntity); unit.Health=0; manager.SetComponentData(controller.SessionEntity,unit);
             yield return null; yield return null;
             Check(controller.State.Health==0,"Death snapshot comes from authoritative unit");
-            Check(controller.Wave.Outcome==CombatOutcome.Defeat,"Hero death records defeat outcome");
+            Check(controller.Director.Outcome==CombatOutcome.Defeat,"Hero death records defeat outcome");
             controller.RestartRun(); yield return null;
             Check(controller.State.Health==originalHero.health,"Restart restores configured hero");
             yield return Capture("foundation-game.png");
@@ -664,7 +667,7 @@ namespace Roguelike.Combat
         private void Finish(GameCombatController controller)
         {
             File.WriteAllText(Path.Combine(output,"result.json"),JsonUtility.ToJson(new Report{passed=!failed,enemies=controller.IsReady?controller.State.AliveEnemies:0,
-                wave=controller.IsReady?controller.Wave.Wave:0,level=controller.IsReady?controller.Progression.Level:0},true));
+                wave=controller.IsReady?controller.Director.Stage:0,level=controller.IsReady?controller.Progression.Level:0},true));
             Debug.Log(failed?"GAME_SMOKE_FAILED":"GAME_SMOKE_PASSED"); Application.Quit(failed?1:0);
         }
         [Serializable] private class Report { public bool passed; public int enemies,wave,level; }

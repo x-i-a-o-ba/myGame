@@ -63,6 +63,8 @@ namespace Roguelike.Combat
             if(loadout.Length>4) throw new InvalidOperationException("当前Game输入/HUD支持4个槽，英雄槽数不能超过4。");
             if(!rules || !difficulty) throw new InvalidOperationException("Game缺少经验规则或难度曲线。");
             var waves=difficulty.ToSettings();
+            if(!config.spawnDirector) throw new InvalidOperationException("Game 缺少刷怪导演配置。");
+            var director=config.spawnDirector.Compile();
             var heroAttack=config.hero.ResolveAttack(config.projectileSpeed);
             var roster=PlanRoster(config.ActiveRoster);
             var nextProgression=HeroProgressionLogic.Compile(rules,config.hero);
@@ -115,7 +117,7 @@ namespace Roguelike.Combat
                 }
                 var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=config.ActiveRoster;
                 Color baseColor=MaterialColor(plan.Material);
-                kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstWave=entry.firstWave,LastWave=entry.lastWave,
+                kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstSecond=entry.firstSecond,LastSecond=entry.lastSecond,SpecialElite=entry.specialElite,
                     Weight=entry.weight,Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
                     Experience=archetype.experienceMultiplier,Gold=archetype.goldMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
                     EliteColor=Linear(Color.Lerp(baseColor,rosterAsset.eliteTint,rosterAsset.eliteTintStrength)),
@@ -125,12 +127,12 @@ namespace Roguelike.Combat
             if(kinds.Count==0)
             {
                 kinds.Add(new CombatEnemyKind {Prefab=enemy,ConfigId=GameCombatController.EnemyConfigId,Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss,
-                    FirstWave=1,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Gold=1,Scale=1,Color=legacyColor,EliteColor=legacyColor,BossColor=legacyColor});
+                    FirstSecond=0,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Gold=1,Scale=1,Color=legacyColor,EliteColor=legacyColor,BossColor=legacyColor});
                 names.Add("普通怪物"); archetypes.Add(null);
             }
             EnemyNames=names.ToArray(); EnemyArchetypes=archetypes.ToArray();
-            // 敌人原型保留到重开：CombatWaveDirector 按难度曲线逐波实例化，enemyCount 只作同屏存活上限。
-            int maxAlive=Mathf.Clamp(config.enemyCount,1,30000);
+            // 敌人原型保留到重开：CombatSpawnDirector 按目标存活数持续补充。上限统一来自导演配置。
+            int maxAlive=director.AliveLimit;
             float safe=Mathf.Clamp(config.safeSpawnRadius,3,config.arenaHalfSize*0.5f);
             Entity=manager.CreateEntity(typeof(CombatOwned),typeof(CombatPlayer),typeof(CombatSettings),typeof(AbilityRuntime),typeof(AbilityUnit),typeof(LocalTransform));
             manager.AddBuffer<ActiveBuff>(Entity); manager.AddBuffer<SkillCommand>(Entity); manager.AddBuffer<ScheduledSkillStage>(Entity);
@@ -165,8 +167,11 @@ namespace Roguelike.Combat
             var shop=config.shop;
             manager.AddComponentData(Entity,shop?new ShopSite{Position=shop.Position,Radius=shop.Radius,Limited=true}:new ShopSite{Limited=false});
             manager.AddComponentData(Entity,waves);
-            manager.AddComponentData(Entity,new CombatWaveState {NextWaveAt=waves.FirstWaveAt,Outcome=CombatOutcome.Running,
-                Seed=(uint)Environment.TickCount|1u});
+            manager.AddComponentData(Entity,director);
+            manager.AddComponentData(Entity,CombatDirectorState.Begin(director,1,(uint)Environment.TickCount|1u));
+            manager.AddComponentData(Entity,new CombatSpawnView());
+            var population=manager.AddBuffer<PopulationPoint>(Entity);
+            foreach(var key in config.spawnDirector.population) population.Add(new PopulationPoint{Minute=key.minute,Alive=key.alive});
             float3 origin=new float3(0,0.55f,0);
             manager.SetComponentData(Entity,LocalTransform.FromPosition(origin));
             manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=heroUnit.Health,MaximumHealth=heroUnit.MaxHealth});

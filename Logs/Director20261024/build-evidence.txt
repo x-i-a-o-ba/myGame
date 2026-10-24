@@ -1,0 +1,8 @@
+最终构建日志摘录（按原日志筛选，完整日志保留本地）
+原始文件：Logs\Director20261024\build-clean-exit.log
+SHA256：a13df25b340b82b6c1599471d52e34923bc3d532178bdf61cc3ee67c4d9afd69
+
+COMBAT_VALIDATION_PASSED ability foundation checks=380
+GAME_FLOW_VALIDATION_PASSED checks=345
+GAME_BUILD_SUCCEEDED
+Exiting without the bug reporter. Application will terminate with return code 0
