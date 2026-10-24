@@ -13,16 +13,7 @@ namespace Roguelike.Editor
     public static partial class CombatValidation
     {
         private static int checks;
-        public static void Validate()
-        {
-            checks=0;
-            Check(SkillTargeting.FirstContact(float3.zero,new float3(10,0,0),new float3(5,0,0),1,out float first) && Mathf.Approximately(first,0.4f),"Swept collision uses entry point, not target center");
-            Check(SkillTargeting.FirstContact(float3.zero,new float3(10,0,0),new float3(4.8f,0,0.99f),1,out float grazing) && grazing>first,"Grazing target with nearer center does not steal earlier collision");
-            ValidateSlotsAndStages(); ValidateSourceAndDelay(); ValidateProjectiles(); ValidateBuffs(); ValidateHitGate(); ValidateInvalidConfiguration();
-            ValidateSkillLevels(); ValidateHeroProgression(); ValidateDirector(); ValidateAutoAttack(); ValidateEnemyRoster(); ValidateTargetInfo();
-            ValidateMoveAttack(); ValidateAbilityTooltip(); ValidateEquipment(); ValidateItemDrop(); ValidateFrostArcherData(); ValidateVanguardAndVolley();
-            Debug.Log("COMBAT_VALIDATION_PASSED ability foundation checks="+checks);
-        }
+        public static void Validate()=>ValidateExpeditionCore();
 
         private static void ValidateSlotsAndStages()
         {

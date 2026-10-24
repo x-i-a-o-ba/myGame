@@ -17,10 +17,11 @@ MonoBehaviour:
   displayName: "\u94C1\u5251"
   icon: {fileID: 2800000, guid: f5586a3608d446039f0fc68741e92bda, type: 3}
   quality: 0
-  price: 350
+  price: 500
   unique: 0
-  description: "\u6734\u5B9E\u53EF\u9760\u7684\u94C1\u5251\uFF0C\u76F4\u63A5\u63D0\u9AD8\u653B\u51FB\u529B\u3002"
+  description: "+15 \u653B\u51FB\u529B"
   stats:
   - stat: 1
-    value: 12
+    value: 15
   onHitEffects: []
+  procs: []

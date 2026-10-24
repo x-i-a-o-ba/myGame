@@ -12,15 +12,17 @@ namespace Roguelike.Abilities
     {
         public const int MaximumLevel=100;
         [Range(1,MaximumLevel), Tooltip("英雄最高等级。Dota 2 默认 30。")]
-        public int maxLevel=30;
+        public int maxLevel=15;
         [Tooltip("第 1 项是 1→2 级所需经验，第 2 项是 2→3 级所需经验，依此类推；数量至少为最高等级 - 1。")]
-        public int[] experienceToNextLevel=DotaExperienceTable();
+        public int[] experienceToNextLevel=ExpeditionExperienceTable();
         [Min(0), Tooltip("开局时拥有的技能点。Dota 2 英雄 1 级有 1 点。")]
         public int startingSkillPoints=1;
         [Min(0), Tooltip("每升 1 级获得的技能点。")]
         public int skillPointsPerLevel=1;
 
-        /// <summary>Dota 2 的逐级经验增量（2→30 级）。</summary>
+        public static int[] ExpeditionExperienceTable()=>new[]{15,45,80,130,190,280,480,800,1200,1800,2600,3600,4300,4500};
+
+        /// <summary>旧版 30 级数据，只供历史内容迁移。</summary>
         public static int[] DotaExperienceTable()=>new[]
         {
             240,400,520,600,680,760,800,900,1000,1100,

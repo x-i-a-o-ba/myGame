@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cc422bfd635fd741a1ec1319385aac9, type: 3}
   m_Name: "1008_\u7834\u9635\u91CD\u5288"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.SkillDefinition
+  autoTriggerEveryHits: 3
+  forms:
+  - {fileID: 11400000, guid: 2411d1b44c57d794296a8dbe522bf8f2, type: 2}
+  - {fileID: 11400000, guid: 951253b2fbe7cc14cae74c64ba0f1ebe, type: 2}
   configId: 1008
   stableId: ability.vanguard_cleave
   displayName: "\u7834\u9635\u91CD\u5288"
   icon: {fileID: 2800000, guid: 8d662587b13a61d44a43de69edc5b8c7, type: 3}
-  description: "\u666E\u653B\u547D\u4E2D\u4E09\u6B21\u84C4\u6EE1\u540E\uFF0C\u6D88\u8017\u84C4\u52BF\u5411\u524D\u91CD\u5288\uFF1B\u538B\u4F4E\u654C\u4EBA\u653B\u51FB\u529B
-    20% \u4E0E\u79FB\u901F 35%\uFF0C\u6301\u7EED 3 \u79D2\u3002"
+  description: "\u88AB\u52A8\uFF1A\u6BCF\u7B2C\u4E09\u6B21\u4E3B\u666E\u653B\u547D\u4E2D\uFF0C\u5411\u524D\u65B9
+    120\xB0\u30016 \u7C73\u8303\u56F4\u91CA\u653E\u91CD\u5288\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1
@@ -26,10 +30,16 @@ MonoBehaviour:
     revision: 1
     recipeId: 1008
     authorNamespace: official
-    maxDerivedExecutions: 32
-    maxLifetime: 10
+    maxDerivedExecutions: 128
+    maxLifetime: 20
     nodes:
-    - nodeId: 1
+    - pierce: 0
+      followOwner: 0
+      seekDense: 0
+      innerRadius: 0
+      repeatAdvance: 0
+      forwardOffset: 0
+      nodeId: 1
       parentNodeId: 0
       trigger: 0
       deliveryModuleId: 10000
@@ -49,14 +59,9 @@ MonoBehaviour:
       launchHeight: 1
       arrivalHeight: 0
       effects:
-      - effectId: 4004
+      - effectId: 4050
         overrideAmount: 1
         amount: 90
-        overrideBuffScale: 0
-        buffScale: 1
-      - effectId: 4012
-        overrideAmount: 0
-        amount: 0
         overrideBuffScale: 0
         buffScale: 1
       impactEffects: []
@@ -64,20 +69,56 @@ MonoBehaviour:
   stages: []
   maxCharges: 1
   rechargeSeconds: 0
-  requiredHits: 3
-  castRange: 6
-  cooldown: 5
+  requiredHits: 0
+  castRange: 10
+  cooldown: 0
   castTime: 0
   recoveryTime: 0
-  manaCost: 25
+  manaCost: 0
   levelPower: 0.25
   growth:
-    track: 0
+    track: 2
     effectPerLevel: 0.9
     buffPerLevel: 0.15
     cooldownReductionPerLevel: 0.08
     manaCostPerLevel: 0.1
-    customLevels: []
+    customLevels:
+    - requiredHeroLevel: 1
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 1
+      buffScale: 1
+      cooldownScale: 1
+      manaCostScale: 1
+    - requiredHeroLevel: 3
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 1.6666666
+      buffScale: 1
+      cooldownScale: 1
+      manaCostScale: 1
+    - requiredHeroLevel: 5
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 2.3333333
+      buffScale: 1
+      cooldownScale: 1
+      manaCostScale: 1
+    - requiredHeroLevel: 7
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 3
+      buffScale: 1
+      cooldownScale: 1
+      manaCostScale: 1
   indicatorColor: {r: 1, g: 0.68, b: 0.2, a: 1}
   delivery: 0
   targets: 0

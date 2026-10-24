@@ -20,6 +20,8 @@ namespace Roguelike.Combat
         [Tooltip("本战场的敌人名册（必填）：选择界面展示这些怪物，战斗按它刷怪，覆盖战场场景控制器上的名册。")] public EnemyRoster enemyRoster;
         [Tooltip("本战场的关卡难度曲线；为空时使用战场场景控制器上的曲线。")] public CombatDifficultyDefinition difficulty;
 
+        [Tooltip("间歇生成有预警的熔岩区域，伤害双方单位。")] public bool lavaHazards;
+        [Min(.01f)] public float enemyHealthMultiplier=1,enemyDamageMultiplier=1;
         public string Label=>string.IsNullOrWhiteSpace(displayName)?name:displayName;
 
         /// <summary>校验编号、展示字段、场景 ID 与敌人名册；返回第一个错误，没有错误时返回 null。不修改资源。</summary>
@@ -30,6 +32,9 @@ namespace Roguelike.Combat
             if(string.IsNullOrWhiteSpace(displayName)) return "战场名称不能为空："+name;
             if(string.IsNullOrWhiteSpace(sceneId) || !sceneId.StartsWith("Scene.",StringComparison.Ordinal) || sceneId.Trim()!=sceneId)
                 return "战场场景 ID 必须是资源清单中的 Scene.<场景名>："+name;
+            if(float.IsNaN(enemyHealthMultiplier) || float.IsInfinity(enemyHealthMultiplier) || enemyHealthMultiplier<=0 ||
+                float.IsNaN(enemyDamageMultiplier) || float.IsInfinity(enemyDamageMultiplier) || enemyDamageMultiplier<=0)
+                return "战场生命和伤害倍率必须是大于零的有限数值："+name;
             if(!enemyRoster) return "战场缺少敌人名册："+name;
             string roster=enemyRoster.Validate();
             return roster==null?null:name+" 的敌人名册无效："+roster;

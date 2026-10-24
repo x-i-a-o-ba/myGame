@@ -132,7 +132,7 @@ namespace Roguelike.Combat
                 bool special=(state.ElitesSpawned+1)%3==0;
                 int kind=Pick(kinds,EnemyTier.Elite,minute*60,ref random,special);
                 if(kind<0 && special) kind=Pick(kinds,EnemyTier.Elite,minute*60,ref random);
-                int n=Spawn(manager,combat,difficulty,settings,view,ref state,minute,EnemyTier.Elite,kind,kinds,1,center,view.Heading,false,ref random);
+                int n=Spawn(manager,combat,difficulty,settings,view,ref state,minute,EnemyTier.Elite,kind,kinds,math.min(room,math.max(1,combat.EliteCount)),center,view.Heading,false,ref random);
                 if(n>0) { state.ElitesSpawned++; state.NextEliteAt=state.StageElapsed+settings.EliteIntervals[index]; room-=n; alive+=n; }
             }
             state.TargetAlive=Target(settings,state,curve);
@@ -168,29 +168,42 @@ namespace Roguelike.Combat
                 if(TryPosition(combat,settings,view,center.xz,heading,tide,ref random,out var point)) positions[accepted++]=point;
                 else state.PositionRejected++;
             if(accepted==0) return 0;
-            float scale=stats.Scale*kind.Scale,health=math.max(1,stats.Health*(tier==EnemyTier.Boss?1:kind.Health));
-            float4 color=tier==EnemyTier.Boss?kind.BossColor:tier==EnemyTier.Elite?kind.EliteColor:kind.Color;
-            bool hasAttack=manager.HasComponent<AutoAttackState>(kind.Prefab) && manager.HasComponent<AutoAttackData>(kind.Prefab);
-            bool hasColor=manager.HasComponent<URPMaterialPropertyBaseColor>(kind.Prefab);
-            float interval=hasAttack?manager.GetComponentData<AutoAttackData>(kind.Prefab).BaseAttackTime:combat.EnemyAttackInterval;
             using var units=new NativeArray<Entity>(accepted,Allocator.Temp);
             manager.Instantiate(kind.Prefab,units);
             for(int i=0;i<accepted;i++)
             {
-                float3 position=new float3(positions[i].x,0.125f+scale*0.5f,positions[i].y);
-                float3 facing=center-position; facing.y=0;
-                manager.SetComponentData(units[i],LocalTransform.FromPositionRotationScale(position,quaternion.LookRotationSafe(facing,math.up()),scale));
-                manager.SetComponentData(units[i],new AbilityUnit {Team=1,Health=health,MaxHealth=health,BaseSpeed=stats.Speed*kind.Speed,Speed=stats.Speed*kind.Speed,
-                    BaseAttack=stats.Damage*kind.Damage,Attack=stats.Damage*kind.Damage,AttackSpeedMultiplier=1});
-                manager.SetComponentData(units[i],new CombatEnemy {ConfigId=kind.ConfigId,Kind=kindIndex,Stage=state.Stage,Tier=tier,
-                    Experience=stats.Experience*(tier==EnemyTier.Normal?kind.Experience:1),Gold=stats.Gold*(tier==EnemyTier.Normal?kind.Gold:1),
-                    Reach=math.max(0,(scale-NormalScale)*0.5f),LastHealth=health,BaseColor=color,ChargeReadyIn=random.NextFloat()*1.5f});
-                if(hasAttack) manager.SetComponentData(units[i],new AutoAttackState {Cooldown=random.NextFloat()*interval});
-                if(hasColor) manager.SetComponentData(units[i],new URPMaterialPropertyBaseColor {Value=color});
+                Initialize(manager,units[i],combat,kind,kindIndex,stats,tier,state.Stage,positions[i],center,ref random);
                 if(tier==EnemyTier.Boss) state.Boss=units[i];
             }
             state.LastBatchSpawned+=accepted;
             return accepted;
+        }
+        /// <summary>导演与召唤共用初始化：只覆写实例，不更改原型或资源。召唤方额外设置无递归分裂标记。</summary>
+        public static void Initialize(EntityManager manager,Entity entity,in CombatSettings combat,in CombatEnemyKind kind,int kindIndex,
+            in EnemySpawnStats stats,EnemyTier tier,int stage,float2 point,float3 facingPoint,ref Random random)
+        {
+            float scale=stats.Scale*kind.Scale,health=math.max(1,stats.Health*(tier==EnemyTier.Boss?1:kind.Health)*(combat.HealthMultiplier>0?combat.HealthMultiplier:1));
+            float4 color=tier==EnemyTier.Boss?kind.BossColor:tier==EnemyTier.Elite?kind.EliteColor:kind.Color;
+            float3 position=new float3(point.x,.125f+scale*.5f,point.y),facing=facingPoint-position;facing.y=0;
+            manager.SetComponentData(entity,LocalTransform.FromPositionRotationScale(position,quaternion.LookRotationSafe(facing,math.up()),scale));
+            manager.SetComponentData(entity,new AbilityUnit{Team=1,Kind=(int)tier,Health=health,MaxHealth=health,BaseSpeed=stats.Speed*kind.Speed,Speed=stats.Speed*kind.Speed,
+                BaseAttack=stats.Damage*kind.Damage*(combat.DamageMultiplier>0?combat.DamageMultiplier:1),Attack=stats.Damage*kind.Damage*(combat.DamageMultiplier>0?combat.DamageMultiplier:1),AttackSpeedMultiplier=1});
+            manager.SetComponentData(entity,new CombatEnemy{ConfigId=kind.ConfigId,Kind=kindIndex,Stage=stage,Tier=tier,
+                Experience=stats.Experience*(tier==EnemyTier.Normal?kind.Experience:1),Gold=stats.Gold*(tier==EnemyTier.Normal?kind.Gold:1)*(combat.GoldMultiplier>0?combat.GoldMultiplier:1),
+                Reach=math.max(0,(scale-NormalScale)*.5f),LastHealth=health,BaseColor=color});
+            if(manager.HasComponent<AutoAttackState>(entity))
+                manager.SetComponentData(entity,new AutoAttackState{Cooldown=random.NextFloat()*manager.GetComponentData<AutoAttackData>(entity).BaseAttackTime});
+            if(manager.HasComponent<URPMaterialPropertyBaseColor>(entity)) manager.SetComponentData(entity,new URPMaterialPropertyBaseColor{Value=color});
+            if(manager.HasComponent<MonsterBrain>(entity))
+            {
+                var brain=manager.GetComponentData<MonsterBrain>(entity);brain.ReadyAt=new float4(-1);brain.ShieldAt=-1;brain.SummonAt=-1;
+                if(tier==EnemyTier.Elite)
+                {
+                    int first=random.NextInt(6);brain.Affixes=(MonsterAffix)(1<<first);
+                    if(stage==3) {int second=(first+random.NextInt(1,6))%6;brain.Affixes|=(MonsterAffix)(1<<second);}
+                }
+                manager.SetComponentData(entity,brain);
+            }
         }
     }
 }

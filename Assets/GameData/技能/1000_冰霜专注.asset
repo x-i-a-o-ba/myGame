@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cc422bfd635fd741a1ec1319385aac9, type: 3}
   m_Name: "1000_\u51B0\u971C\u4E13\u6CE8"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.SkillDefinition
+  autoTriggerEveryHits: 0
+  forms:
+  - {fileID: 11400000, guid: 7e24ba6854822c441bcf0decd978c983, type: 2}
+  - {fileID: 11400000, guid: 0d5cd9f065d501545a9e04fb84331fc1, type: 2}
   configId: 1000
   stableId: ability.frost_focus
   displayName: "\u51B0\u971C\u4E13\u6CE8"
   icon: {fileID: 2800000, guid: be40d97575ce408eb193743ca5857a20, type: 3}
-  description: "\u666E\u653B\u547D\u4E2D 4 \u6B21\u540E\u53EF\u4E3B\u52A8\u65BD\u653E\uFF0C\u6D88\u8017\u5C42\u6570\u5E76\u63D0\u9AD8\u81EA\u8EAB\u653B\u901F\uFF0C\u6301\u7EED
-    5 \u79D2\u3002\u7B49\u7EA7\u63D0\u5347\u589E\u52A0\u653B\u901F\u6536\u76CA\uFF1B\u4E0D\u9644\u52A0\u591A\u7BAD\u6216\u989D\u5916\u4F24\u5BB3\u3002"
+  description: "\u63D0\u9AD8\u653B\u51FB\u901F\u5EA6\u5E76\u589E\u52A0\u5206\u88C2\u7BAD\u76EE\u6807\uFF0C\u6301\u7EED
+    6 \u79D2\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1
@@ -26,10 +30,16 @@ MonoBehaviour:
     revision: 1
     recipeId: 1000
     authorNamespace: official
-    maxDerivedExecutions: 32
-    maxLifetime: 10
+    maxDerivedExecutions: 128
+    maxLifetime: 20
     nodes:
-    - nodeId: 1
+    - pierce: 0
+      followOwner: 0
+      seekDense: 0
+      innerRadius: 0
+      repeatAdvance: 0
+      forwardOffset: 0
+      nodeId: 1
       parentNodeId: 0
       trigger: 0
       deliveryModuleId: 10000
@@ -37,51 +47,34 @@ MonoBehaviour:
       delay: 0
       repeatInterval: 0
       repeatCount: 1
-      range: 0
+      range: 18
       radius: 5
       hitRadius: 0.5
       halfAngleDegrees: 35
       speed: 40
+      projectileCount: 1
+      spreadDegrees: 0
       arcHeight: 3
       flightSeconds: 1
       launchHeight: 1
       arrivalHeight: 0
       effects:
-      - effectId: 4007
+      - effectId: 4059
         overrideAmount: 0
         amount: 0
         overrideBuffScale: 0
         buffScale: 1
       impactEffects: []
   aim: 0
-  stages:
-  - delay: 0
-    repeatCount: 1
-    repeatInterval: 0
-    delivery: 0
-    scope: 0
-    shape: 0
-    targets: 1
-    range: 0
-    radius: 5
-    hitRadius: 0.5
-    halfAngleDegrees: 35
-    speed: 40
-    arcHeight: 3
-    flightSeconds: 1
-    launchHeight: 1
-    arrivalHeight: 0
-    effects:
-    - {fileID: 11400000, guid: e5d9c5d164c6cd04981fa8b845c0239c, type: 2}
-    impactEffects: []
+  stages: []
   maxCharges: 1
-  rechargeSeconds: 0
-  requiredHits: 4
+  rechargeSeconds: 14
+  requiredHits: 0
   castRange: 0
-  cooldown: 10
+  cooldown: 14
   castTime: 0
   recoveryTime: 0
-  manaCost: 20
+  manaCost: 25
   levelPower: 0
   growth:
     track: 2
@@ -91,25 +84,41 @@ MonoBehaviour:
     manaCostPerLevel: 0.1
     customLevels:
     - requiredHeroLevel: 1
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 1
       effectScale: 1
       buffScale: 1
       cooldownScale: 1
       manaCostScale: 1
     - requiredHeroLevel: 3
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 1
       effectScale: 1
-      buffScale: 1.25
-      cooldownScale: 0.9
-      manaCostScale: 1.1
-    - requiredHeroLevel: 5
-      effectScale: 1
-      buffScale: 1.5
-      cooldownScale: 0.8
+      buffScale: 1.4
+      cooldownScale: 0.9285714
       manaCostScale: 1.2
-    - requiredHeroLevel: 7
+    - requiredHeroLevel: 5
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 2
       effectScale: 1
-      buffScale: 1.75
-      cooldownScale: 0.7
-      manaCostScale: 1.3
+      buffScale: 1.8
+      cooldownScale: 0.85714287
+      manaCostScale: 1.4
+    - requiredHeroLevel: 7
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 2
+      effectScale: 1
+      buffScale: 2.2
+      cooldownScale: 0.78571427
+      manaCostScale: 1.6
   indicatorColor: {r: 0, g: 1, b: 1, a: 1}
   delivery: 0
   targets: 0

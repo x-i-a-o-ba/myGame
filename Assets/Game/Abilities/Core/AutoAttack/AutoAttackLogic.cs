@@ -7,6 +7,7 @@ namespace Roguelike.Abilities
     public struct AutoAttackData : IComponentData
     {
         public AttackDelivery Delivery;
+        public int SplitTargets,CleaveTargets; public float SplitDamageRatio,CleaveRadius,CleaveHalfAngle,CleaveDamageRatio;
         public float Range,AcquisitionRange,BaseAttackTime,AttackPoint,Backswing,ProjectileSpeed,RangeBuffer;
         public bool AutoAcquire,CountsAsBasicAttackHit;
     }

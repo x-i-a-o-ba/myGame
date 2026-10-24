@@ -103,7 +103,7 @@ namespace Roguelike.Abilities.Editor
                     if(node==null || !definition.modules || !definition.modules.deliveries.Any(d=>d.id==node.deliveryModuleId && d.kind==DeliveryKind.LinearProjectile)) continue;
                     Section("步骤 "+(i+1)+" · 直线首碰投递");
                     Field("recipe.nodes.Array.data["+i+"].projectileCount","每次发射数量（支）","1–32 支；每支首次命中后独立消失。重开生效。");
-                    Field("recipe.nodes.Array.data["+i+"].spreadDegrees","完整散射张角（度）","0–180 度；一支时始终沿中心方向。重开生效。");
+                    Field("recipe.nodes.Array.data["+i+"].spreadDegrees","完整散射张角（度）","0–360 度；一支时始终沿中心方向。重开生效。");
                 }
                 EditorGUILayout.HelpBox("当前使用数字配方。旧阶段仅用于回退，不参与执行。请在技能设计器中编辑步骤卡片。",MessageType.Info);
                 if(GUILayout.Button("打开技能配方设计器")) Roguelike.SkillAuthoring.Editor.SkillAuthoringWindow.Edit((SkillDefinition)target);
@@ -111,6 +111,8 @@ namespace Roguelike.Abilities.Editor
             else Array("stages", "技能阶段", "阶段", "按顺序执行；每段可独立配置投递、目标和效果。");
             Field("maxCharges", "最大充能次数", "每个英雄独立保存当前充能。");
             Field("rechargeSeconds", "单次充能恢复时间（秒）", "设为 0 时使用技能冷却时间。");
+            Field("autoTriggerEveryHits","自动触发所需主普攻命中数（0 关闭）","大于 0 时技能作为被动，拒绝手动施放。学习后才计数。");
+            Array("forms","满级形态（二选一）","形态","选择后继承原槽等级和冷却；资源仅保存配置。");
             Field("requiredHits", "施放所需普攻命中次数", "仅普攻命中积累；成功施放后清零。");
             Field("castRange", "施法距离（Unity 单位）", "1 单位等于 1 世界坐标单位；目标点和单位目标的最大距离，重开 Game 后生效。");
             Field("cooldown", "冷却时间（秒）", "成功提交施法后开始计算；每个英雄独立保存。");
@@ -150,6 +152,7 @@ namespace Roguelike.Abilities.Editor
             Section("持续与叠层");
             Field("duration", "持续时间（秒）", "0 表示永久，须显式移除或重开会话。");
             Field("interval", "周期结算间隔（秒）", "刷新 Buff 不重置下一次周期时间。");
+            Field("periodicAttackRatio","每周期来源攻击力倍率","按施加状态时的攻击力快照结算。");
             Field("periodicDamage", "每周期伤害", "0 表示没有周期伤害。");
             Field("stacking", "叠层规则");
             Field("maxStacks", "最大层数");
@@ -157,6 +160,15 @@ namespace Roguelike.Abilities.Editor
             Field("sourcePolicy", "来源合并方式", "按定义、按来源或每次独立保存状态。");
             Section("属性与控制");
             Array("modifiers", "属性修饰", "修饰", "多个有效 Buff 共同参与属性重算。");
+            Field("damageReduction","额外伤害减免（0–1，总上限 70%）");
+            Field("regenMaxHealth","每秒最大生命回复比例（0–1）");
+            Field("damageTaken","受到伤害增幅（0–1）");
+            Field("reflect","实际近战伤害反射比例（0–1）");
+            Field("extraTargets","普攻附加目标数");
+            Field("controlImmune","免疫控制（状态期间）");
+            Field("pierceBasics","普攻弹体穿透（每目标一次）");
+            Field("attackSplashRadius","主普攻溅射半径（米）");
+            Field("attackSplashRatio","溅射攻击力倍率");
             Field("controls", "控制限制", "不同 Buff 的限制会合并；各自到期后重新计算。");
             LegacyFoldout = EditorGUILayout.Foldout(LegacyFoldout, "旧独立示例兼容参数", true);
             if (LegacyFoldout)
@@ -189,24 +201,23 @@ namespace Roguelike.Abilities.Editor
             Field("attackInterval", "普攻间隔（秒）", "旧字段：未指定自动攻击模块时作为基础攻击间隔。");
             Field("range", "普攻距离（米）", "旧字段：未指定自动攻击模块时使用。");
             Field("basicAttack", "自动攻击（被动模块）", "攻击距离、索敌距离、基础攻击间隔、前后摇与弹道；可与敌人共用同一模块。");
-            Field("turnRate", "转身速度（度/秒）", "移动与开始攻击前先转向；0 表示瞬间转身。");
-            Field("attackWhileMoving", "移动中攻击", "开启：右键移动途中自动攻击攻击距离内的敌人且不停下，前摇不定身，按住右键拖动也能持续出手。关闭：Dota 2 式移动取消攻击。重开后生效。");
+            // WASD 移动中自动攻击是现行固定规则。
             Field("visualPrefab", "英雄展示预制体");
             Field("portrait", "头像", "Game 底部 HUD 与开局选择界面显示。");
-            Section("等级成长（Dota 2 式，每升 1 级累加，重开后生效）");
+            Section("等级成长（每级直接累加，重开生效）");
             Field("baseMana", "开局最大法力");
             Field("baseHealthRegen", "开局生命回复（点/秒）");
             Field("baseManaRegen", "开局法力回复（点/秒）");
             Field("healthPerLevel", "每级最大生命", "升级时当前生命同步增加。");
             Field("manaPerLevel", "每级最大法力");
             Field("attackPerLevel", "每级普攻伤害");
-            Field("attackSpeedPerLevel", "每级攻击速度（%）", "百分点：2.5 表示每级 +2.5% 攻击速度，与天赋、装备的攻击速度直接相加。");
+            Field("attackSpeedPerLevel", "每级攻击速度（%）", "百分点：2.5 表示每级 +2.5% 攻击速度，与装备的攻击速度直接相加。");
             Field("moveSpeedPerLevel", "每级移动速度（米/秒）");
             Field("regenPerLevel", "每级生命回复（点/秒）");
             Field("manaRegenPerLevel", "每级法力回复（点/秒）");
-            Array("talents", "天赋树", "天赋层", "按英雄等级升序排列；到达等级后二选一，不消耗技能点。最多 31 层。");
+            // Array("talents", "天赋树", "天赋层", "按英雄等级升序排列；到达等级后二选一，不消耗技能点。最多 31 层。");
             Section("额外基础属性（重开后生效）");
-            Array("baseStats", "额外基础属性", "属性", "直接加到英雄基础属性上（不换算），例如 +10 暴击几率、+5 普攻吸血；百分比类属性填写百分点（25 = +25%）。最多 16 条。");
+            Array("baseStats", "额外基础属性", "属性", "直接加到英雄基础属性上（不换算），例如 +12 伤害减免、+5 普攻吸血；百分比类属性填写百分点（25 = +25%）。最多 16 条。");
             End();
         }
     }
@@ -239,6 +250,9 @@ namespace Roguelike.Abilities.Editor
             Field("icon", "图标", "HUD 被动栏显示。");
             Field("description", "说明");
             Section("攻击方式");
+            Field("splitTargets","分裂弹体附加目标数");Field("splitDamageRatio","分裂箭攻击力倍率");
+            Field("cleaveRadius","顺劈范围（米）");Field("cleaveHalfAngle","顺劈半角（度）");
+            Field("cleaveDamageRatio","顺劈攻击力倍率");Field("cleaveTargets","顺劈最多附加目标数");
             Field("delivery", "结算方式", "近战前摇结束立即命中；弹道前摇结束发射追踪弹体。");
             Field("projectileSpeed", "弹道速度（米/秒）", "仅弹道使用。");
             Field("countsAsBasicAttackHit", "触发普攻命中事件", "命中时为需要普攻叠层的技能计数，例如冰霜专注。");
@@ -288,6 +302,9 @@ namespace Roguelike.Abilities.Editor
             else if (target is ApplyBuffEffect) Section("施加 Buff 效果");
             else if (target is DispelEffect) Section("驱散效果");
             Field("target", "作用对象", "选中目标，或每段只结算一次的施法者。");
+            if(target is DamageEffect || target is HealEffect)
+            {Field("sourceAttackRatio","来源攻击力倍率");Field("targetMaxHealthRatio","目标最大生命比例（0–1）");}
+            if(target is DisplacementEffect) {Field("pull","向来源拉拽（关闭为推离）");Field("distance","位移距离（米）");Field("stopDistance","拉拽保留中心距离（米）");}
             if (target is DamageEffect) Field("amount", "伤害值");
             else if (target is HealEffect) Field("amount", "治疗值");
             else if (target is ApplyBuffEffect)
@@ -354,6 +371,12 @@ namespace Roguelike.Abilities.Editor
     {
         private static readonly (string name, string label, string hint)[] Fields =
         {
+            ("pierce","弹体穿透","每个目标在同一弹体生命周期只命中一次。"),
+            ("followOwner","区域跟随拥有者","每次重复查询时更新中心。"),
+            ("seekDense","寻找密集敌群","在查询距离内选取密集中心。"),
+            ("innerRadius","圆环内半径（米）","只用于圆环。"),
+            ("repeatAdvance","每次重复沿方向前进（米）","相对首次中心计算。"),
+            ("forwardOffset","首次中心沿方向偏移（米）","施放时计算。"),
             ("delay", "释放后延迟（秒）", "从前摇结束、正式释放时计算；不包含前摇和后摇。"),
             ("repeatCount", "执行次数", "同一阶段可按间隔重复执行。"),
             ("projectileCount", "每次发射数量（支）", "仅直线弹体；每支首碰造成效果后消失。"),

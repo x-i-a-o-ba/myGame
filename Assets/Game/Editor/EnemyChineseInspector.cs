@@ -17,14 +17,17 @@ namespace Roguelike.Editor
             serializedObject.Update();
             EditorGUILayout.HelpBox("敌人种类预制体：子物体的网格会在开局合并成一个 ECS 网格（第一个 MeshRenderer 的材质与颜色为该种类的颜色），"+
                 "预制体不会被实例化成 GameObject。数值是乘在当前强度时间基础值上的倍率。加入“敌人名册”后才会出场，重开 Game 生效。",MessageType.Info);
+            Field("abilities","组合技能模块（最多四个）");Field("elementalSlow","寒霜词缀命中状态");Field("fireElement","元素词缀使用死亡火区");Field("armoredAboveHalf","半血以上减伤比例（0–1）");
             Section("身份");
             Field("configId","数字配置 ID","怪物使用 3000–3999，需登记在 Docs/游戏配置/编号登记.json。");
             Field("stableId","内部兼容键");
             Field("displayName","显示名称");
             Field("description","说明");
-            Field("portrait","头像","选中敌人时左上角信息面板显示的头像；为空时使用攻击模块图标。");
+            Field("portrait","头像","开局选图界面展示怪物头像。");
             Section("行为与攻击");
-            Field("behavior","行为");
+            var move=serializedObject.FindProperty("behavior");
+            EditorGUI.BeginChangeCheck();int nextMove=EditorGUILayout.Popup("普通移动方式",Mathf.Clamp(move.intValue,0,1),new[]{"近战追击","远程游击"});
+            if(EditorGUI.EndChangeCheck()) move.intValue=nextMove;
             Field("attack","自动攻击模块","与英雄共用的被动攻击模块：距离、前摇、后摇、基础攻击间隔。");
             Section("数值倍率（乘以当前强度时间基础值）");
             Field("healthMultiplier","生命倍率");
@@ -32,7 +35,7 @@ namespace Roguelike.Editor
             Field("speedMultiplier","移动速度倍率");
             Field("experienceMultiplier","击杀经验倍率");
             Field("goldMultiplier","击杀金币倍率");
-            Field("bodyScale","体型倍率","影响模型缩放、碰撞半径与点选范围。");
+            Field("bodyScale","体型倍率","影响模型缩放、碰撞半径与分离。");
             var behavior=serializedObject.FindProperty("behavior");
             bool mixed=behavior==null || behavior.hasMultipleDifferentValues;
             int value=behavior?.enumValueIndex??0;
@@ -41,21 +44,6 @@ namespace Roguelike.Editor
                 Section("远程游击");
                 Field("preferredDistance","站位比例","停在攻击距离 × 该比例处射击。");
                 Field("retreatDistance","后撤距离（米）","英雄靠近到该距离以内时后退。");
-            }
-            if(mixed || value==(int)EnemyBehavior.Charger)
-            {
-                Section("冲锋");
-                Field("chargeTriggerRange","触发距离（米）");
-                Field("chargeSpeedMultiplier","冲锋速度倍率");
-                Field("chargeDuration","冲锋时长（秒）");
-                Field("chargeCooldown","冲锋冷却（秒）");
-                Field("chargeDamageMultiplier","撞击伤害倍率");
-            }
-            if(mixed || value==(int)EnemyBehavior.Exploder)
-            {
-                Section("自爆");
-                Field("explosionRadius","爆炸半径（米）");
-                Field("explosionDamageMultiplier","爆炸伤害倍率");
             }
             serializedObject.ApplyModifiedProperties();
             if(targets.Length==1) Report((EnemyArchetype)target);

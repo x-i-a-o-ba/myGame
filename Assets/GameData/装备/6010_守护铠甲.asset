@@ -16,13 +16,14 @@ MonoBehaviour:
   stableId: item.guardian_armor
   displayName: "\u5B88\u62A4\u94E0\u7532"
   icon: {fileID: 2800000, guid: f1ad3053ad0e4600ba6653c857607319, type: 3}
-  quality: 1
-  price: 900
+  quality: 2
+  price: 2000
   unique: 0
-  description: "\u539A\u91CD\u7684\u94A2\u5236\u80F8\u7532\uFF0C\u51CF\u514D\u53D7\u5230\u7684\u6240\u6709\u4F24\u5BB3\u3002"
+  description: "+450 \u6700\u5927\u751F\u547D\n+12% \u4F24\u5BB3\u51CF\u514D"
   stats:
-  - stat: 11
-    value: 10
   - stat: 0
-    value: 100
+    value: 450
+  - stat: 11
+    value: 12
   onHitEffects: []
+  procs: []

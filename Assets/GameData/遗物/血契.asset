@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b646fbddf2c79504c94295460e901a3f, type: 3}
+  m_Name: "\u8840\u5951"
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Flow.RelicDefinition
+  stableId: relic.blood
+  displayName: "\u8840\u5951"
+  description: "\u51FB\u6740\u56DE\u590D 0.3% \u6700\u5927\u751F\u547D\u3002"
+  icon: {fileID: 2800000, guid: 1687338056514b73a8a3993d040a6fa2, type: 3}
+  extraBasicTargets: 0
+  echoChance: 0
+  killHealMaxHealth: 0.003
+  skillHitBuff: {fileID: 0}
+  controlDurationMultiplier: 1
+  bodyScale: 1
+  maxHealthMultiplier: 1
+  basicRangeMultiplier: 1
+  eliteGoldMultiplier: 1
+  cooldownReduction: 0
+  cooldownCap: 50

@@ -8,7 +8,7 @@ namespace Roguelike.Abilities
     public enum SkillLevelTrack
     {
         [InspectorName("普通技能（4 级，英雄 1/3/5/7 级可学）")] Basic,
-        [InspectorName("终极技能（3 级，英雄 6/12/18 级可学）")] Ultimate,
+        [InspectorName("终极技能（3 级，英雄 6/10/14 级可学）")] Ultimate,
         [InspectorName("自定义逐级表")] Custom
     }
 
@@ -17,6 +17,10 @@ namespace Roguelike.Abilities
     public sealed class SkillLevelRow
     {
         [Min(1), Tooltip("学习到这一级所需的最低英雄等级。")] public int requiredHeroLevel=1;
+        [Min(0.01f)] public float radiusScale=1;
+        [Min(0)] public int projectileBonus;
+        [Min(0)] public float spreadBonus;
+        [Min(0)] public int extraTargets;
         [Min(0), Tooltip("伤害与治疗倍率；1 表示与配置数值相同。")] public float effectScale=1;
         [Min(0), Tooltip("Buff 强度倍率：乘到修饰值、周期伤害和回复上，不改变持续时间与控制类型。")] public float buffScale=1;
         [Min(0.05f), Tooltip("冷却与充能恢复时间倍率；0.8 表示缩短 20%。")] public float cooldownScale=1;
@@ -34,9 +38,9 @@ namespace Roguelike.Abilities
     {
         public const int MaximumLevels=10;
         public static readonly int[] BasicGates={1,3,5,7};
-        public static readonly int[] UltimateGates={6,12,18};
+        public static readonly int[] UltimateGates={6,10,14};
 
-        [Tooltip("普通技能 4 级（英雄 1/3/5/7 级可学），终极技能 3 级（英雄 6/12/18 级可学），或使用自定义逐级表。")]
+        [Tooltip("普通技能 4 级（英雄 1/3/5/7 级可学），终极技能 3 级（英雄 6/10/14 级可学），或使用自定义逐级表。")]
         public SkillLevelTrack track=SkillLevelTrack.Basic;
         [Min(0), Tooltip("每升 1 级增加的伤害/治疗倍率；0.9 表示 4 级为 1 级的 3.7 倍。")]
         public float effectPerLevel=0.9f;
@@ -93,6 +97,8 @@ namespace Roguelike.Abilities
         {
             if(row.requiredHeroLevel<1 || row.requiredHeroLevel>HeroProgressionRules.MaximumLevel)
                 throw new InvalidOperationException("技能等级门槛必须在 1–"+HeroProgressionRules.MaximumLevel+"："+context);
+            NonNegative(row.radiusScale,"范围倍率",context); NonNegative(row.spreadBonus,"散射增量",context);
+            if(row.radiusScale<=0 || row.projectileBonus<0 || row.projectileBonus>31 || row.extraTargets<0 || row.extraTargets>32) throw new InvalidOperationException("逐级范围或目标数量非法："+context);
             NonNegative(row.effectScale,"伤害倍率",context); NonNegative(row.buffScale,"Buff 倍率",context);
             NonNegative(row.manaCostScale,"消耗倍率",context); NonNegative(row.cooldownScale,"冷却倍率",context);
             if(row.cooldownScale<0.05f) throw new InvalidOperationException("冷却倍率不能低于 0.05："+context);
@@ -108,6 +114,7 @@ namespace Roguelike.Abilities
     public struct SkillLevelData
     {
         public int RequiredHeroLevel;
+        public float RadiusScale,SpreadBonus; public int ProjectileBonus,ExtraTargets;
         public float EffectScale,BuffScale,CooldownScale,ManaCostScale;
     }
 
@@ -115,8 +122,8 @@ namespace Roguelike.Abilities
     public static class SkillLevels
     {
         /// <summary>技能冷却缩减的上限，避免天赋叠加后冷却归零。</summary>
-        public const float MaximumCooldownReduction=0.8f;
-        public static SkillLevelData Identity=>new SkillLevelData {RequiredHeroLevel=1,EffectScale=1,BuffScale=1,CooldownScale=1,ManaCostScale=1};
+        public const float MaximumCooldownReduction=0.6f;
+        public static SkillLevelData Identity=>new SkillLevelData {RequiredHeroLevel=1,RadiusScale=1,EffectScale=1,BuffScale=1,CooldownScale=1,ManaCostScale=1};
 
         public static int MaxLevel(ref SkillData skill)=>math.max(1,skill.Levels.Length);
 

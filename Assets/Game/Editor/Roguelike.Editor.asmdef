@@ -11,7 +11,9 @@
     "Unity.RenderPipelines.Universal.Runtime",
     "Roguelike.Foundation",
     "Roguelike.Foundation.Editor",
-    "Roguelike.Abilities.Core"
+    "Roguelike.Abilities.Core",
+    "Roguelike.SkillAuthoring.Editor",
+    "Roguelike.Abilities.Editor"
   ],
   "includePlatforms": [
     "Editor"

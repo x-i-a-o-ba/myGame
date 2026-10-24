@@ -117,17 +117,24 @@ namespace Roguelike.Combat
 
         private IEnumerator Stress()
         {
+            var run=controller.Run;run.Stage=3;run.Level=15;run.Experience=20020;run.SkillPoints=0;
+            for(int i=0;i<4;i++) {run.SkillLevels[i]=i==3?3:4;run.Forms[i]=1;}
+            controller.RestartRun();
             int requested=int.Parse(Arg("--stress-count","4000"),CultureInfo.InvariantCulture);
             requested=Mathf.Clamp(requested,100,4000);
             float duration=float.Parse(Arg("--stress-seconds","60"),CultureInfo.InvariantCulture);
             duration=Mathf.Clamp(duration,5,180);
+            float healthScale=float.Parse(Arg("--stress-health-scale","1"),CultureInfo.InvariantCulture);
+            if(!float.IsFinite(healthScale) || healthScale<1 || healthScale>100) throw new ArgumentOutOfRangeException("--stress-health-scale","压力生命倍率须为 1–100。");
+            var combat=manager.GetComponentData<CombatSettings>(controller.SessionEntity);
+            combat.HealthMultiplier*=healthScale;manager.SetComponentData(controller.SessionEntity,combat);
             var settings=manager.GetComponentData<SpawnDirectorSettings>(controller.SessionEntity);
             settings.BossPopulationFraction=1;
             if(Has("--no-separation")) settings.SeparationSpeed=0;
             manager.SetComponentData(controller.SessionEntity,settings);
             var curve=manager.GetBuffer<PopulationPoint>(controller.SessionEntity); curve.Clear();
             curve.Add(new PopulationPoint{Minute=0,Alive=requested}); curve.Add(new PopulationPoint{Minute=100,Alive=requested});
-            var state=CombatDirectorState.Begin(settings,3,20261024); state.StageElapsed=180; state.BossSpawned=true; state.TideStarted=true;
+            var state=CombatDirectorState.Begin(settings,3,20261024); state.StageElapsed=211; state.BossSpawned=false; state.TideStarted=true;
             manager.SetComponentData(controller.SessionEntity,state);
             // 先让真正的导演分批填充，再把初始群体放进镜头以验证渲染负载；采样中不再搬运怪物。
             float deadline=Time.realtimeSinceStartup+45;
@@ -141,6 +148,7 @@ namespace Roguelike.Combat
                 {
                     var t=manager.GetComponentData<LocalTransform>(units[i]);
                     t.Position.x=(i%side-side/2f)*1.1f; t.Position.z=(i/side-side/2f)*1.1f;
+                    if(manager.GetComponentData<CombatEnemy>(units[i]).Tier==EnemyTier.Boss) t.Position=new float3(8,0,6);
                     manager.SetComponentData(units[i],t);
                 }
             }
@@ -185,11 +193,11 @@ namespace Roguelike.Combat
             Check(maxAlive<=4000 && maxAlive>=requested-20 && minAlive>=requested*0.8f,"采样期间存活数量保持在目标附近且不超硬上限");
             Check(kills>0 && controller.State.Hits>0 && peakProjectiles>0,"压力期间实际执行攻击、技能、弹体、击杀与补怪");
             var report=new StressReport {unity=Application.unityVersion,cpu=SystemInfo.processorType,gpu=SystemInfo.graphicsDeviceName,api=SystemInfo.graphicsDeviceType.ToString(),
-                os=SystemInfo.operatingSystem,development=Debug.isDebugBuild,width=Screen.width,height=Screen.height,requested=requested,separation=settings.SeparationSpeed>0,
-                samples=frames.Count,seconds=duration,minAlive=minAlive,maxAlive=maxAlive,minVisible=minVisible,maxVisible=maxVisible,peakProjectiles=peakProjectiles,kills=kills,
+                os=SystemInfo.operatingSystem,development=Debug.isDebugBuild,width=Screen.width,height=Screen.height,requested=requested,separation=settings.SeparationSpeed>0,naturalCooldowns=Has("--stress-natural-cooldowns"),
+                samples=frames.Count,seconds=duration,enemyHealthScale=healthScale,minAlive=minAlive,maxAlive=maxAlive,minVisible=minVisible,maxVisible=maxVisible,peakProjectiles=peakProjectiles,kills=kills,monsterCasts=simulation.Monsters.CastCount,deferredCasts=simulation.Monsters.DeferredCount,
                 frameP50=Percentile(frames,.5f),frameP95=Percentile(frames,.95f),frameP99=Percentile(frames,.99f),simP95=Percentile(simulations,.95f),gpuP95=gpu.Count>0?Percentile(gpu,.95f):0,
                 gcRecorderValid=maxGc>0,gcMean=maxGc>0?totalGc/Math.Max(1,frames.Count):-1,gcMax=maxGc>0?maxGc:-1,peakUnityBytes=peakMemory,
-                load="现有 Game 战斗、模型、导演、敌人攻击、循环英雄技能；补英雄生命/法力/冷却。游戏镜头维持原设置，另用正交尺寸 160 的全场相机逐帧提交 1920x1080 URP 离屏渲染并等待 GPU 单像素读回；帧墙钟包含该同步开销，不是前台呈现帧率。初始群体一次性铺设，之后自由模拟。可见数为全场相机视锥与包围盒相交，非 GPU 遮挡。GC 是主线程分配，含探针记录；计数始终为零时视为计数器不支持，汇总记 -1，不代表零分配。未实现的远征机制不计入。"};
+                load="现有 Game 战斗、模型、导演、敌人攻击、循环英雄技能；补英雄生命/法力，naturalCooldowns=true 时保留正常技能冷却，否则强制重置冷却。enemyHealthScale 是仅本次探针施加的敌人生命倍率，用于避免超频技能清场造成负载下降，不修改正式资源。游戏镜头维持原设置，另用正交尺寸 160 的全场相机逐帧提交 1920x1080 URP 离屏渲染并等待 GPU 单像素读回；帧墙钟包含该同步开销，不是前台呈现帧率。初始群体一次性铺设，之后自由模拟。可见数为全场相机视锥与包围盒相交，非 GPU 遮挡。GC 是主线程分配，含探针记录；计数始终为零时视为计数器不支持，汇总记 -1，不代表零分配。包括真实深渊首领（补首领生命以免提前结束）、远征怪物预警技能、词缀和合并反馈；不代表未经补给的正常难度。"};
             File.WriteAllText(Path.Combine(output,"stress.json"),JsonUtility.ToJson(report,true));
             File.WriteAllText(Path.Combine(output,"frames.csv"),csv.ToString());
             Debug.Log($"COMBAT_STRESS_DONE samples={frames.Count} alive={minAlive}-{maxAlive} visible={minVisible}-{maxVisible} frameP95={report.frameP95:F2} simP95={report.simP95:F2} kills={kills}");
@@ -197,13 +205,18 @@ namespace Roguelike.Combat
         private float nextCast;
         private void DriveStress()
         {
-            KeepHero(); float t=Time.realtimeSinceStartup;
-            controller.SetDestination(new Vector3(Mathf.Cos(t*0.3f)*10,0,Mathf.Sin(t*0.3f)*10));
+            KeepHero();
+            var boss=controller.Director.Boss;
+            if(manager.Exists(boss) && manager.HasComponent<AbilityUnit>(boss))
+            {var unit=manager.GetComponentData<AbilityUnit>(boss);unit.Health=unit.MaxHealth=10000000;manager.SetComponentData(boss,unit);}
+            float t=Time.realtimeSinceStartup;
+            controller.ExternalMovementInput=true;controller.SetMovement(new Vector2(-Mathf.Sin(t*.3f),Mathf.Cos(t*.3f)));
             if(t<nextCast) return; nextCast=t+0.7f;
             var runtime=manager.GetComponentData<AbilityRuntime>(controller.SessionEntity);
             if(AbilityCastTiming.IsBusy(runtime,runtime.Time)) return;
             var slots=manager.GetBuffer<AbilitySlot>(controller.SessionEntity); int slotIndex=((int)(t/0.7f))%slots.Length;
-            var slot=slots[slotIndex]; slot.ReadyAt=0; slot.Charges=2; slot.HitStacks=100; slots[slotIndex]=slot;
+            if(!Has("--stress-natural-cooldowns"))
+            {var slot=slots[slotIndex]; slot.ReadyAt=0; slot.Charges=2; slot.HitStacks=100; slots[slotIndex]=slot;}
             float3 center=controller.State.Position;
             manager.GetBuffer<SkillCommand>(controller.SessionEntity).Add(new SkillCommand{Slot=slotIndex,Point=center+new float3(6,0,0),Direction=new float3(1,0,0)});
         }
@@ -219,9 +232,10 @@ namespace Roguelike.Combat
         [Serializable] private class StressReport
         {
             public string unity,cpu,gpu,api,os,load;
-            public bool development,separation,gcRecorderValid;
+            public bool development,separation,gcRecorderValid,naturalCooldowns;
+            public int monsterCasts,deferredCasts;
             public int width,height,requested,samples,minAlive,maxAlive,minVisible,maxVisible,peakProjectiles,kills;
-            public float seconds,frameP50,frameP95,frameP99,simP95,gpuP95;
+            public float seconds,enemyHealthScale,frameP50,frameP95,frameP99,simP95,gpuP95;
             public long gcMean,gcMax,peakUnityBytes;
         }
     }

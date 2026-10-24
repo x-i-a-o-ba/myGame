@@ -68,10 +68,11 @@ namespace Roguelike.Abilities
                 {
                     var d=buffs[i]; if(!d) throw new InvalidOperationException("Buff 引用为空，索引 "+i); Id(d.stableId);
                     ValidateBuff(d);
-                    b[i]=new BuffData { ConfigId=d.configId,Duration=d.duration, Interval=d.interval, PeriodicDamage=d.periodicDamage,
+                    b[i]=new BuffData { ConfigId=d.configId,Duration=d.duration, Interval=d.interval, PeriodicDamage=d.periodicDamage,PeriodicAttackRatio=d.periodicAttackRatio,
                         SpeedPercent=d.moveSpeedPercent, AttackFlat=d.attackDamageFlat, Regen=d.healthRegen,
                         Stacking=d.stacking, MaxStacks=d.maxStacks, Dispellable=d.dispellable,
-                        Controls=d.controls, SourcePolicy=d.sourcePolicy };
+                        Controls=d.controls, SourcePolicy=d.sourcePolicy,DamageReduction=d.damageReduction,RegenMaxHealth=d.regenMaxHealth,
+                        DamageTaken=d.damageTaken,Reflect=d.reflect,ExtraTargets=d.extraTargets,ControlImmune=d.controlImmune,PierceBasics=d.pierceBasics,AttackSplashRadius=d.attackSplashRadius,AttackSplashRatio=d.attackSplashRatio };
                     var input=d.modifiers ?? Array.Empty<AttributeModifier>();
                     var modifiers=builder.Allocate(ref b[i].Modifiers,input.Length);
                     for(int m=0;m<input.Length;m++)
@@ -104,7 +105,7 @@ namespace Roguelike.Abilities
                     if(d.maxCharges<1 || d.maxCharges>32 || d.requiredHits<0 || d.requiredHits>100000)
                         throw new InvalidOperationException("技能充能必须 1..32，所需命中层数必须 0..100000："+d.name);
                     EnumValue(d.aim,"技能瞄准："+d.name);
-                    s[i]=new SkillData { ConfigId=d.configId,Aim=d.aim,MaxCharges=d.maxCharges,
+                    s[i]=new SkillData { ConfigId=d.configId,Aim=d.aim,MaxCharges=d.maxCharges,AutoTriggerEveryHits=d.autoTriggerEveryHits,
                         UsesRecipe=usesRecipe,MaxDerivedExecutions=usesRecipe?d.recipe.maxDerivedExecutions:0,
                         MaxLifetime=usesRecipe?d.recipe.maxLifetime:0,
                         RechargeSeconds=d.rechargeSeconds>0?d.rechargeSeconds:d.cooldown,RequiredHits=d.requiredHits,
@@ -119,7 +120,8 @@ namespace Roguelike.Abilities
                     var levels=builder.Allocate(ref s[i].Levels,levelRows.Length);
                     for(int level=0;level<levelRows.Length;level++)
                         levels[level]=new SkillLevelData {RequiredHeroLevel=levelRows[level].requiredHeroLevel,
-                            EffectScale=levelRows[level].effectScale,BuffScale=levelRows[level].buffScale,
+                            EffectScale=levelRows[level].effectScale,BuffScale=levelRows[level].buffScale,RadiusScale=levelRows[level].radiusScale,
+                            ProjectileBonus=levelRows[level].projectileBonus,SpreadBonus=levelRows[level].spreadBonus,ExtraTargets=levelRows[level].extraTargets,
                             CooldownScale=levelRows[level].cooldownScale,ManaCostScale=levelRows[level].manaCostScale};
                     if(inputStages!=null && inputStages.Length>0)
                     {
@@ -180,9 +182,12 @@ namespace Roguelike.Abilities
             if(input==null) throw new InvalidOperationException("空技能阶段："+context);
             EnumValue(input.delivery,context+" 投递"); EnumValue(input.scope,context+" 目标范围");
             EnumValue(input.shape,context+" 几何"); EnumValue(input.targets,context+" 目标关系");
+            NonNegative(input.innerRadius,context+" 内半径"); NonNegative(input.repeatAdvance,context+" 重复前移"); NonNegative(input.forwardOffset,context+" 起点前移");
+            if(input.pierce && input.delivery!=DeliveryKind.LinearProjectile) throw new InvalidOperationException(context+"：穿透仅支持直线弹体。");
+            if(input.shape==AreaShape.Ring && input.innerRadius>=input.radius) throw new InvalidOperationException(context+"：圆环内半径必须小于外半径。");
             NonNegative(input.delay,context+" 延迟"); NonNegative(input.repeatInterval,context+" 重复间隔");
             NonNegative(input.range,context+" 距离"); NonNegative(input.radius,context+" 半径");
-            if(input.projectileCount<1 || input.projectileCount>32 || !float.IsFinite(input.spreadDegrees) || input.spreadDegrees<0 || input.spreadDegrees>180)
+            if(input.projectileCount<1 || input.projectileCount>32 || !float.IsFinite(input.spreadDegrees) || input.spreadDegrees<0 || input.spreadDegrees>360)
                 throw new InvalidOperationException(context+"：弹体数量须为 1–32，散射角须为 0–180 度。");
             if(input.delivery!=DeliveryKind.LinearProjectile && (input.projectileCount!=1 || input.spreadDegrees!=0))
                 throw new InvalidOperationException(context+"：多弹体散射仅支持直线首碰投递。");
@@ -193,7 +198,7 @@ namespace Roguelike.Abilities
                 throw new InvalidOperationException("重复次数、间隔或扇形半角无效："+context);
             if(input.scope==TargetScope.Area &&
                 ((input.shape!=AreaShape.Cone && input.radius<=0) ||
-                 (input.shape!=AreaShape.Circle && input.range<=0)))
+                 (input.shape!=AreaShape.Circle && input.shape!=AreaShape.Ring && input.range<=0)))
                 throw new InvalidOperationException("圆/线需要正半径，扇形/线需要正长度："+context);
             if((input.delivery==DeliveryKind.PointProjectile || input.delivery==DeliveryKind.LinearProjectile) && input.speed<=0)
                 throw new InvalidOperationException("弹体必须具有正速度："+context);
@@ -215,6 +220,7 @@ namespace Roguelike.Abilities
             output=new StageData { ParentStage=-1,Trigger=RecipeTrigger.OnRelease,Delay=input.delay,RepeatCount=input.repeatCount,RepeatInterval=input.repeatInterval,
                 Delivery=input.delivery,Scope=input.scope,Shape=input.shape,Targets=input.targets,
                 ProjectileCount=input.projectileCount,SpreadDegrees=input.spreadDegrees,
+                Pierce=input.pierce,FollowOwner=input.followOwner,SeekDense=input.seekDense,InnerRadius=input.innerRadius,RepeatAdvance=input.repeatAdvance,ForwardOffset=input.forwardOffset,
                 Range=input.range,Radius=input.radius,HitRadius=input.hitRadius,HalfAngleDegrees=input.halfAngleDegrees,Speed=input.speed,
                 ArcHeight=input.arcHeight,FlightSeconds=input.flightSeconds,LaunchHeight=input.launchHeight,ArrivalHeight=input.arrivalHeight };
             CompileModules(builder,ref output.Effects,input.effects,true,context,uses);
@@ -270,6 +276,7 @@ namespace Roguelike.Abilities
         }
         private static void ValidateEffect(EffectData e,string context)
         {
+            NonNegative(e.SourceAttackRatio,context+" 攻击系数"); NonNegative(e.TargetMaxHealthRatio,context+" 最大生命系数");
             EnumValue(e.Kind,context+" 效果类型"); EnumValue(e.Target,context+" 效果目标");
             NonNegative(e.Amount,context+" 数值"); NonNegative(e.BuffScale,context+" Buff 强度");
             if(e.Kind==EffectKind.ApplyBuff && (e.Buff<0 || e.BuffScale<=0))
@@ -277,8 +284,12 @@ namespace Roguelike.Abilities
         }
         private static void ValidateBuff(BuffDefinition d)
         {
+            NonNegative(d.damageReduction,"Buff 减伤："+d.name); NonNegative(d.regenMaxHealth,"Buff 百分比回复："+d.name);
+            NonNegative(d.damageTaken,"Buff 易伤："+d.name); NonNegative(d.reflect,"Buff 反伤："+d.name);
+            NonNegative(d.attackSplashRadius,"Buff 溅射半径："+d.name); NonNegative(d.attackSplashRatio,"Buff 溅射系数："+d.name);
+            if(d.extraTargets<0 || d.extraTargets>32) throw new InvalidOperationException("Buff 额外目标须在 0–32："+d.name);
             NonNegative(d.duration,"Buff 时长："+d.name); Finite(d.interval,"Buff 周期："+d.name);
-            NonNegative(d.periodicDamage,"Buff 周期伤害："+d.name); NonNegative(d.healthRegen,"Buff 恢复："+d.name);
+            NonNegative(d.periodicAttackRatio,"Buff 周期攻击系数："+d.name); NonNegative(d.periodicDamage,"Buff 周期伤害："+d.name); NonNegative(d.healthRegen,"Buff 恢复："+d.name);
             Finite(d.moveSpeedPercent,"Buff 移速："+d.name); Finite(d.attackDamageFlat,"Buff 攻击："+d.name);
             EnumValue(d.stacking,"Buff 叠层："+d.name); EnumValue(d.sourcePolicy,"Buff 来源："+d.name);
             if(d.interval<0.05f || d.maxStacks<1 || d.maxStacks>20 ||

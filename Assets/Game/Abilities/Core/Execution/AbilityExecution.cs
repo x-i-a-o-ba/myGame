@@ -14,6 +14,9 @@ namespace Roguelike.Abilities
     public sealed partial class AbilityExecution : IDisposable
     {
         private const float CellSize=8;
+        private int nextFlightId;
+        private readonly List<(Entity owner,int id)> retiredHits=new List<(Entity owner,int id)>();
+        private readonly Dictionary<(Entity owner,int id),HashSet<Entity>> pierced=new Dictionary<(Entity,int),HashSet<Entity>>();
         private NativeParallelMultiHashMap<int2,Entity> grid;
         private NativeList<Entity> candidates;
         private readonly EntityQuery targets;
@@ -140,15 +143,21 @@ namespace Roguelike.Abilities
                 bool finished=false;
                 if(stage.Delivery==DeliveryKind.LinearProjectile)
                 {
-                    Entity hit=FirstOnSegment(owner,flight.Position,end,stage.HitRadius,stage.Targets,out float fraction);
-                    if(hit!=Entity.Null)
+                    HashSet<Entity> hits=null;
+                    if(stage.Pierce && !pierced.TryGetValue((owner,flight.FlightId),out hits))
+                        pierced[(owner,flight.FlightId)]=hits=new HashSet<Entity>();
+                    // 同一段依首碰距离逐一结算；查询临时表可能被 Resolve 改写，因此每次重新查询并排除已命中目标。
+                    while(true)
                     {
+                        Entity hit=FirstOnSegment(owner,flight.Position,end,stage.HitRadius,stage.Targets,out float fraction,hits);
+                        if(hit==Entity.Null) break;
+                        hits?.Add(hit);
                         context.NextAt=flight.StartedAt+elapsed-flightDt+step*fraction/math.max(.001f,stage.Speed);
-                        end=math.lerp(flight.Position,end,fraction);
-                        Emit(owner,context,RecipeTrigger.OnProjectileHit,end,flight.Direction,hit,ref plan,now,ref runtime);
+                        float3 contact=math.lerp(flight.Position,end,fraction);
+                        Emit(owner,context,RecipeTrigger.OnProjectileHit,contact,flight.Direction,hit,ref plan,now,ref runtime);
                         ApplyList(owner,hit,context,ref stage.ImpactEffects,ref plan,now,ref runtime);
-                        Resolve(owner,context,end,flight.Direction,hit,ref plan,now,ref runtime);
-                        finished=true;
+                        Resolve(owner,context,contact,flight.Direction,hit,ref plan,now,ref runtime);
+                        if(!stage.Pierce) {end=contact;finished=true;break;}
                     }
                 }
                 else if(distance<=step+0.0001f)
@@ -157,7 +166,7 @@ namespace Roguelike.Abilities
                     finished=true;
                 }
                 flight.Position=end; flight.RemainingRange-=step;
-                if(finished || flight.RemainingRange<=0.0001f) flights.RemoveAt(i);
+                if(finished || flight.RemainingRange<=0.0001f) {pierced.Remove((owner,flight.FlightId)); flights.RemoveAt(i);}
                 else { flights[i]=flight; i++; }
             }
             if(!IsAlive(owner)) { ClearCastTiming(ref runtime,now); runtime.LastFailure=CastFailure.Dead; }
@@ -178,6 +187,7 @@ namespace Roguelike.Abilities
             var unit=manager.GetComponentData<AbilityUnit>(owner);
             if(unit.Health<=0) { runtime.LastFailure=CastFailure.Dead; return; }
             if(slot.Level<=0) { runtime.LastFailure=CastFailure.NotLearned; return; }
+            if(skill.AutoTriggerEveryHits>0 && !command.Automatic) return;
             if(AbilityCastTiming.IsBusy(runtime,runtime.Time)) { runtime.LastFailure=CastFailure.Busy; return; }
             if((unit.Controls&ControlFlags.CastBlocked)!=0) return;
             if(slot.ReadyAt>runtime.Time || slot.Charges<=0) { runtime.LastFailure=CastFailure.Cooldown; return; }
@@ -206,8 +216,16 @@ namespace Roguelike.Abilities
             slot.ReadyAt=runtime.Time+skill.Cooldown*cooldownScale;
             if(slot.Charges==skill.MaxCharges) slot.RechargeAt=runtime.Time+skill.RechargeSeconds*cooldownScale;
             slot.Charges--; slot.HitStacks=0;
+            if(skill.AutoTriggerEveryHits==0 && manager.HasComponent<AbilityTraits>(owner))
+            {
+                var traits=manager.GetComponentData<AbilityTraits>(owner);
+                uint roll=math.hash(new uint3((uint)owner.Index,(uint)runtime.CastSerial+1,(uint)slot.Definition+17));
+                if((roll&0xffffff)/16777216f<traits.FreeCooldownChance) {slot.ReadyAt=runtime.Time;slot.Charges++;}
+            }
             slots[command.Slot]=slot; manager.SetComponentData(owner,unit);
             runtime.CastSerial++; runtime.LastFailure=CastFailure.None;
+            if(manager.HasBuffer<AbilityCastEvent>(owner))
+                manager.GetBuffer<AbilityCastEvent>(owner).Add(new AbilityCastEvent{Slot=command.Slot,Skill=slot.Definition,Serial=runtime.CastSerial,Position=origin,Automatic=command.Automatic});
             runtime.ReleaseAt=releaseAt; runtime.ActionReadyAt=readyAt;
             runtime.CastSlot=command.Slot; runtime.AwaitingRelease=skill.CastTime>0;
             for(int i=0;i<skill.Stages.Length;i++)
@@ -222,7 +240,11 @@ namespace Roguelike.Abilities
         private void BeginStage(Entity owner,ScheduledSkillStage pending,ref AbilityLibrary library,float now,ref AbilityRuntime runtime)
         {
             ref var skill=ref library.Skills[pending.Skill]; ref var stage=ref skill.Stages[pending.Stage];
+            if(stage.FollowOwner) {pending.Origin=manager.GetComponentData<LocalTransform>(owner).Position; pending.Point=pending.Origin;}
             float3 center=skill.Aim==AimMode.Point || skill.Aim==AimMode.Unit ?pending.Point:pending.Origin;
+            center+=pending.Direction*(stage.ForwardOffset+stage.RepeatAdvance*(stage.RepeatCount-pending.Remaining));
+            var levelRow=SkillLevels.Row(ref skill,pending.Level);
+            if(stage.SeekDense) center=DensePoint(owner,center,stage.Range,stage.Radius*levelRow.RadiusScale);
             Emit(owner,pending,RecipeTrigger.OnRelease,pending.Origin,pending.Direction,pending.Target,ref library,now,ref runtime);
             if(stage.Delivery==DeliveryKind.Instant)
             { Resolve(owner,pending,center,pending.Direction,pending.Target,ref library,now,ref runtime); return; }
@@ -233,22 +255,23 @@ namespace Roguelike.Abilities
                 float3 planar=pending.Point-pending.Origin; planar.y=0;
                 float3 fallback=pending.Direction; fallback.y=0;
                 manager.GetBuffer<SkillFlight>(owner).Add(new SkillFlight {Skill=pending.Skill,Stage=pending.Stage,Cast=pending.Cast,
-                    ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
+                    FlightId=++nextFlightId,ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
                     Target=pending.Target,Start=start,Position=start,Destination=end,
                     Direction=math.normalizesafe(planar,math.normalizesafe(fallback,new float3(0,0,1))),StartedAt=pending.NextAt,Elapsed=0});
                 return;
             }
-            int count=stage.Delivery==DeliveryKind.LinearProjectile?stage.ProjectileCount:1;
+            int count=stage.Delivery==DeliveryKind.LinearProjectile?math.clamp(stage.ProjectileCount+levelRow.ProjectileBonus,1,32):1;
+            float spread=math.min(360,stage.SpreadDegrees+levelRow.SpreadBonus);
             for(int arrow=0;arrow<count;arrow++)
             {
-                float angle=count==1?0:math.radians(stage.SpreadDegrees*(arrow/(float)(count-1)-.5f));
+                float angle=count==1?0:math.radians(spread*(arrow/(float)(spread>=360?count:count-1)-.5f));
                 float3 direction=math.mul(quaternion.RotateY(angle),pending.Direction);
                 float3 destination=stage.Delivery==DeliveryKind.PointProjectile?pending.Point:pending.Origin+direction*stage.Range;
                 float distance=math.distance(pending.Origin,destination);
                 if(distance<0.0001f)
                 { Resolve(owner,pending,destination,pending.Direction,pending.Target,ref library,now,ref runtime); return; }
                 manager.GetBuffer<SkillFlight>(owner).Add(new SkillFlight {Skill=pending.Skill,Stage=pending.Stage,Cast=pending.Cast,
-                    ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
+                    FlightId=++nextFlightId,ProgramVersion=pending.ProgramVersion,Depth=pending.Depth,Level=pending.Level,RootReleasedAt=pending.RootReleasedAt,
                     Target=pending.Target,Position=pending.Origin,Destination=destination,Direction=(destination-pending.Origin)/distance,RemainingRange=distance,
                     StartedAt=pending.NextAt,Elapsed=0});
             }
@@ -258,6 +281,7 @@ namespace Roguelike.Abilities
         {
             if(!IsAlive(owner)) return;
             ref var skill=ref library.Skills[context.Skill]; ref var stage=ref skill.Stages[context.Stage];
+            var row=SkillLevels.Row(ref skill,context.Level); float radius=stage.Radius*row.RadiusScale;
             bool damageEvents=HasTrigger(ref skill,context.Stage,RecipeTrigger.OnDamage);
             bool killEvents=HasTrigger(ref skill,context.Stage,RecipeTrigger.OnKill);
             if(stage.Scope==TargetScope.Self) { candidates.Clear(); candidates.Add(owner); }
@@ -265,7 +289,7 @@ namespace Roguelike.Abilities
             { candidates.Clear(); if(IsAlive(selected) && Matches(owner,selected,stage.Targets)) candidates.Add(selected); }
             else
             {
-                Collect(center,stage.Shape==AreaShape.Circle?stage.Radius:stage.Range+stage.Radius,stage.Scope==TargetScope.All);
+                Collect(center,stage.Shape==AreaShape.Circle || stage.Shape==AreaShape.Ring?radius:stage.Range+radius,stage.Scope==TargetScope.All);
             }
             // 效果按配置顺序执行；Source效果仅一次，Selected效果按稳定目标顺序分发。
             for(int e=0;e<stage.Effects.Length && IsAlive(owner);e++)
@@ -278,12 +302,12 @@ namespace Roguelike.Abilities
                     Entity target=candidates[i];
                     if(!IsAlive(target)) continue;
                     if(stage.Scope!=TargetScope.Self && !Matches(owner,target,stage.Targets)) continue;
-                    if(stage.Scope==TargetScope.Area && !SkillTargeting.Contains(ref stage,center,direction,manager.GetComponentData<LocalTransform>(target).Position)) continue;
+                    if(stage.Scope==TargetScope.Area && !SkillTargeting.Contains(stage.Shape,radius,stage.Range,stage.HalfAngleDegrees,stage.InnerRadius*row.RadiusScale,center,direction,manager.GetComponentData<LocalTransform>(target).Position)) continue;
                     ApplyWithEvents(owner,target,context,effect,damageEvents,killEvents,ref library,now,ref runtime);
                 }
             }
             Emit(owner,context,RecipeTrigger.OnResolved,center,direction,selected,ref library,now,ref runtime);
-            manager.GetBuffer<SkillCue>(owner).Add(new SkillCue{Skill=context.Skill,Stage=context.Stage,ProgramVersion=context.ProgramVersion,Position=center,Direction=direction});
+            manager.GetBuffer<SkillCue>(owner).Add(new SkillCue{Skill=context.Skill,Stage=context.Stage,ProgramVersion=context.ProgramVersion,Position=center,Direction=direction,Radius=radius,Range=stage.Range,InnerRadius=stage.InnerRadius*row.RadiusScale});
         }
         private void ApplyList(Entity owner,Entity selected,in ScheduledSkillStage context,ref BlobArray<EffectData> effects,
             ref AbilityLibrary library,float now,ref AbilityRuntime runtime)
@@ -303,7 +327,12 @@ namespace Roguelike.Abilities
             // 没有监听分支时不采集每个目标的位置，也不进入派生扫描。
             float3 position=default;
             if((damageEvents || killEvents) && IsAlive(target)) position=manager.GetComponentData<LocalTransform>(target).Position;
-            var outcome=Apply(source,target,context.Skill,effect,ref library,now,SkillPower(source,ref library.Skills[context.Skill],context.Level,effect));
+            var outcome=Apply(source,target,context.Skill,effect,ref library,now,SkillPower(source,ref library.Skills[context.Skill],context.Level,effect),SkillLevels.Row(ref library.Skills[context.Skill],context.Level).ExtraTargets);
+            if(outcome.ActualDamage>0 && manager.HasComponent<AbilityTraits>(source))
+            {
+                var traits=manager.GetComponentData<AbilityTraits>(source);
+                if(traits.HasSkillHitEffect) Apply(source,target,context.Skill,traits.SkillHitEffect,ref library,now,1);
+            }
             if(damageEvents && outcome.ActualDamage>0)
                 Emit(source,context,RecipeTrigger.OnDamage,position,context.Direction,target,ref library,now,ref runtime);
             if(killEvents && outcome.Killed)
@@ -326,33 +355,67 @@ namespace Roguelike.Abilities
         /// <summary>普攻、敌人攻击等非技能来源使用强度 1。</summary>
         public EffectOutcome Apply(Entity source,Entity target,int origin,EffectData effect,ref AbilityLibrary library,float now)
             =>Apply(source,target,origin,effect,ref library,now,1);
-        public EffectOutcome Apply(Entity source,Entity target,int origin,EffectData effect,ref AbilityLibrary library,float now,float power)
+        public EffectOutcome Apply(Entity source,Entity target,int origin,EffectData effect,ref AbilityLibrary library,float now,float power,int extraTargets=0)
         {
             if(!IsAlive(target)) return default;
             var unit=manager.GetComponentData<AbilityUnit>(target);
+            var sourceUnit=manager.Exists(source) && manager.HasComponent<AbilityUnit>(source)?manager.GetComponentData<AbilityUnit>(source):default;
+            if(effect.Kind==EffectKind.Pull || effect.Kind==EffectKind.Knockback)
+            {
+                if(!unit.ControlImmune && !unit.DisplacementImmune && manager.HasComponent<LocalTransform>(source) && manager.HasComponent<LocalTransform>(target))
+                {
+                    var t=manager.GetComponentData<LocalTransform>(target);
+                    float3 away=t.Position-manager.GetComponentData<LocalTransform>(source).Position; away.y=0;
+                    float distance=effect.Kind==EffectKind.Pull?-math.min(effect.Amount,math.max(0,math.length(away)-effect.StopDistance)):effect.Amount;
+                    t.Position+=math.normalizesafe(away)*distance; manager.SetComponentData(target,t);
+                }
+                return default;
+            }
+            effect.Amount+=sourceUnit.Attack*effect.SourceAttackRatio+unit.MaxHealth*effect.TargetMaxHealthRatio;
+            float durationScale=1;
+            if(effect.Kind==EffectKind.ApplyBuff && manager.HasComponent<AbilityTraits>(source))
+            {
+                ref var buff=ref library.Buffs[effect.Buff];
+                if(buff.SpeedPercent<0 || buff.Controls!=ControlFlags.None) durationScale=math.max(1,manager.GetComponentData<AbilityTraits>(source).ControlDurationMultiplier);
+            }
             var outcome=AbilityEffects.Apply(ref unit,manager.GetBuffer<ActiveBuff>(target),ref library,
-                new EffectRequest{Source=source,Target=target,Origin=origin,Effect=effect,Power=math.max(0,power)},now);
+                new EffectRequest{Source=source,Target=target,Origin=origin,Effect=effect,Power=math.max(0,power),SourceAttack=sourceUnit.Attack,ExtraTargets=extraTargets,DurationScale=durationScale},now);
             manager.SetComponentData(target,unit);
+            if(outcome.ActualDamage>0 && manager.Exists(source) && manager.HasBuffer<AbilityFeedback>(source))
+            {
+                var feedback=manager.GetBuffer<AbilityFeedback>(source);
+                if(feedback.Length<256) feedback.Add(new AbilityFeedback{Target=target,Position=manager.GetComponentData<LocalTransform>(target).Position,
+                    Damage=outcome.ActualDamage,Origin=origin,TargetKind=unit.Kind,Killed=outcome.Killed});
+            }
             return outcome;
         }
-        public void RecordBasicAttackHit(Entity owner)
+        public void RecordBasicAttackHit(Entity owner,Entity target=default)
         {
             var slots=manager.GetBuffer<AbilitySlot>(owner);
             var runtime=manager.GetComponentData<AbilityRuntime>(owner);
             for(int i=0;i<slots.Length;i++)
             {
                 var slot=slots[i]; if(slot.Level<=0) continue; // 未学习的技能不积累普攻层数。
-                int maximum=runtime.Library.Value.Skills[slot.Definition].RequiredHits;
+                ref var skill=ref runtime.Library.Value.Skills[slot.Definition];
+                int maximum=math.max(skill.RequiredHits,skill.AutoTriggerEveryHits);
                 slot.HitStacks=math.min(maximum,slot.HitStacks+1); slots[i]=slot;
+                if(skill.AutoTriggerEveryHits>0 && slot.HitStacks>=skill.AutoTriggerEveryHits)
+                {
+                    var point=manager.GetComponentData<LocalTransform>(owner).Position;
+                    var direction=manager.Exists(target) && manager.HasComponent<LocalTransform>(target)?math.normalizesafe(manager.GetComponentData<LocalTransform>(target).Position-point):new float3(0,0,1);
+                    manager.GetBuffer<SkillCommand>(owner).Add(new SkillCommand{Slot=i,Point=point,Direction=direction,Target=target,Automatic=true});
+                    slot.HitStacks=0; slots[i]=slot;
+                }
             }
         }
-        private Entity FirstOnSegment(Entity owner,float3 start,float3 end,float radius,TargetRelation relation,out float fraction)
+        private Entity FirstOnSegment(Entity owner,float3 start,float3 end,float radius,TargetRelation relation,out float fraction,HashSet<Entity> excluded=null)
         {
             Collect((start+end)*0.5f,math.distance(start,end)*0.5f+radius,false);
             fraction=float.MaxValue; Entity hit=Entity.Null;
             for(int i=0;i<candidates.Length;i++)
             {
-                Entity target=candidates[i]; if(target==owner || !IsAlive(target) || !Matches(owner,target,relation)) continue;
+                Entity target=candidates[i];
+                if(target==owner || (excluded!=null && excluded.Contains(target)) || !IsAlive(target) || !Matches(owner,target,relation)) continue;
                 if(SkillTargeting.FirstContact(start,end,manager.GetComponentData<LocalTransform>(target).Position,radius,out float along) && along<fraction)
                 { fraction=along; hit=target; }
             }
@@ -386,7 +449,7 @@ namespace Roguelike.Abilities
         }
         private struct EntityOrder : IComparer<Entity>
         { public int Compare(Entity x,Entity y) { int c=x.Index.CompareTo(y.Index); return c!=0?c:x.Version.CompareTo(y.Version); } }
-        public void Dispose() { programs.Dispose(); derivedCounts.Clear(); grid.Dispose(); candidates.Dispose(); targets.Dispose(); }
+        public void Dispose() { programs.Dispose(); derivedCounts.Clear(); pierced.Clear(); grid.Dispose(); candidates.Dispose(); targets.Dispose(); }
     }
 }
 

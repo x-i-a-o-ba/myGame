@@ -36,7 +36,7 @@ namespace Roguelike.Abilities
         [Min(0), Tooltip("每级增加的每秒生命回复。")] public float regenPerLevel=0.1f;
         [Min(0), Tooltip("每升一级增加的法力回复（点/秒），与天赋和装备直接相加。")] public float manaRegenPerLevel;
         [Tooltip("按英雄等级升序排列的天赋层；每层二选一，不消耗技能点。最多 31 层。")]
-        public HeroTalentTier[] talents=HeroTalentTier.Defaults();
+        [HideInInspector] public HeroTalentTier[] talents=Array.Empty<HeroTalentTier>();
         [Tooltip("直接加到英雄基础属性上的数值，例如 +10 暴击几率、+5 普攻吸血；与上方基础生命、普攻伤害等字段相加。最多 16 条。")]
         public StatModifier[] baseStats=Array.Empty<StatModifier>();
 
@@ -44,7 +44,7 @@ namespace Roguelike.Abilities
         public StatSheet BaseSheet(in AutoAttackData attack)
         {
             var sheet=new StatSheet {MaxHealth=health,AttackDamage=attackDamage,MoveSpeed=speed,HealthRegen=baseHealthRegen,
-                MaxMana=baseMana,ManaRegen=baseManaRegen,AttackRange=attack.Range,CriticalDamage=HeroStatsLogic.DefaultCriticalDamage};
+                MaxMana=baseMana,ManaRegen=baseManaRegen};
             if(baseStats!=null) foreach(var modifier in baseStats) sheet.Add(modifier.stat,modifier.value);
             return sheet;
         }
@@ -90,7 +90,7 @@ namespace Roguelike.Abilities
             {
                 if(baseStats.Length>16) throw new InvalidOperationException("额外基础属性最多 16 条："+name);
                 foreach(var modifier in baseStats)
-                    if(!Enum.IsDefined(typeof(StatKind),modifier.stat) || !Finite(modifier.value))
+                    if(!StatText.IsCurrent(modifier.stat) || !Finite(modifier.value))
                         throw new InvalidOperationException("额外基础属性未知或数值非法："+name);
             }
             var tiers=talents??Array.Empty<HeroTalentTier>();

@@ -1,0 +1,12 @@
+{
+  "duplicateGuids": [],
+  "assetsWithoutMeta": [],
+  "referencesToDeletedAssets": [],
+  "scope": [
+    "Assets/Game",
+    "Assets/GameData",
+    "Assets/Resources",
+    "Assets/Scenes"
+  ],
+  "note": "基于当前文件与本次删除 meta 的静态引用检查；不替代 Unity 加载。"
+}

@@ -143,6 +143,14 @@ MonoBehaviour:
     targets: 1
     maxRange: 150
     maxRadius: 40
+  - id: 10112
+    displayName: "\u654C\u65B9\u5706\u73AF"
+    playerAllowed: 1
+    scope: 2
+    shape: 3
+    targets: 0
+    maxRange: 150
+    maxRadius: 40
   effects:
   - definition: {fileID: 11400000, guid: 12a4173b07c489743a78d1e76080174e, type: 2}
     playerAllowed: 1
@@ -248,6 +256,182 @@ MonoBehaviour:
     allowBuffScaleOverride: 0
     minBuffScale: 0.1
     maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 2f22269a7b862fb41b017ee5984f0b78, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 63bfc1acc9b7bf04ab0b1ae653c768ac, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 3ec2586d7df7cde4aa2c742f5cca2891, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 64b4e026416b40e4aa8b8673b0b7f3d8, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 41b7ae2a83a6cb24d80b004c956f86d7, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 24b0b41da410efa4aa09b225b9783861, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: d2fe3f2d393307149a303e424d6b20af, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: fbf6a2530197b154fa9b56c92e4bc835, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: e8a4cf96f1c4a95408d2f5d254693eb6, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 7d519c509f1e29548b4c914757604899, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 5aedba0bf597ab84bbe77ef72842cbb0, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 2cda6eb3de555374aa4c0a55f816d6c4, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: fb872e09cc9b14e4e940da1791ff7821, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 846d2a1a606c99643bc5ed66f158ae48, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 633b4b72995da65488b5d02652ef1ecf, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: e12301d5fce4dd5478bd0f5c17b9d62c, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 271a668f02b6fd848b2b48765aaa5238, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 598087f579509f64ca6e46dfd98273e5, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: ba4a2f4429acd464985ae0ccbabfe0b3, type: 2}
+    playerAllowed: 1
+    allowAmountOverride: 1
+    minAmount: 0
+    maxAmount: 100000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 5f5b845efaf7f84409a9e2f6aedb0b34, type: 2}
+    playerAllowed: 0
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 10bbdbc5acc1b6f479a63558081f437c, type: 2}
+    playerAllowed: 0
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
+  - definition: {fileID: 11400000, guid: 8c835be93d3e6a24ca2ec0545449ff5c, type: 2}
+    playerAllowed: 0
+    allowAmountOverride: 0
+    minAmount: 0
+    maxAmount: 1000
+    allowBuffScaleOverride: 0
+    minBuffScale: 0.1
+    maxBuffScale: 3
   buffs:
   - {fileID: 11400000, guid: 62c02bb0e97e79640a5ce69045c8ea40, type: 2}
   - {fileID: 11400000, guid: 62dac026455ec614988ddefbb45b72be, type: 2}
@@ -260,3 +444,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 791f470112b04214a9115b491531fc18, type: 2}
   - {fileID: 11400000, guid: 010aa5e65f5f3bb418dcd667c809ce79, type: 2}
   - {fileID: 11400000, guid: ddbc11f5703eead4bb810509c3ba9426, type: 2}
+  - {fileID: 11400000, guid: 12d2cfcba22446b40b1db10b5b3e06b4, type: 2}
+  - {fileID: 11400000, guid: 391ce4b1750ee4d4db23d4e842d39b39, type: 2}
+  - {fileID: 11400000, guid: 25743d8989ce856428803c8c0bf9814d, type: 2}
+  - {fileID: 11400000, guid: 45fadfd211a76374a982263bdad5e072, type: 2}
+  - {fileID: 11400000, guid: 9cadb04b011b8bb40a519bd5cd778aaf, type: 2}
+  - {fileID: 11400000, guid: 7e026b91a6fec674e802189cc1ac4b5e, type: 2}
+  - {fileID: 11400000, guid: b816b636ce3969945adfd9e97ec23d74, type: 2}
+  - {fileID: 11400000, guid: 7d8f7483c5021dc459d6c3be90b996ad, type: 2}
+  - {fileID: 11400000, guid: 420a3e26e56a8314cb57a5ba4ee97b12, type: 2}
+  - {fileID: 11400000, guid: 3f95380c2a9fdc441985ae8cd3a9b3a5, type: 2}
+  - {fileID: 11400000, guid: 4df0ee88c3db41741bb07a8b4f767d90, type: 2}
+  - {fileID: 11400000, guid: 35634f70fd2d6a647a5c8fb0877b9185, type: 2}
+  - {fileID: 11400000, guid: fbe3158735726e649b1f4f5b3558c5d8, type: 2}
+  - {fileID: 11400000, guid: b6109f409caa0a74bbb890c68644a0f2, type: 2}
+  - {fileID: 11400000, guid: b65345c3c8eb3f74286730d7b3da2f2e, type: 2}
+  - {fileID: 11400000, guid: b0df56e24f3ad6b44888786a2886c6bf, type: 2}

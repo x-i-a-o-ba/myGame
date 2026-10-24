@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b5f6a9ee448e6d48b9988d38a8239e2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.MonsterAbilityDefinition
+  stableId: monster.heal_aura
+  displayName: "\u5973\u5DEB\u6CBB\u7597\u5149\u73AF"
+  template: 4
+  deathAction: 0
+  shape: 0
+  cooldown: 2
+  warningSeconds: 0
+  triggerRange: 30
+  radius: 8
+  range: 8
+  halfAngle: 60
+  innerRadius: 0
+  minimumStage: 1
+  atHero: 0
+  sacrifice: 0
+  damageRatio: 0
+  healMaxHealth: 0.03
+  status: {fileID: 0}
+  knockback: 0
+  duration: 2
+  interval: 1
+  speed: 14
+  projectileCount: 1
+  spreadDegrees: 0
+  projectileAtPoint: 0
+  trailSeconds: 0
+  trailDamageRatio: 0.5
+  summon: {fileID: 0}
+  summonCount: 4
+  summonHealthRatio: 0
+  repeatCount: 1
+  repeatInterval: 0.4
+  repeatOffset: 0
+  expandingRing: 0
+  color: {r: 0.25, g: 1, b: 0.45, a: 0.4}

@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cc422bfd635fd741a1ec1319385aac9, type: 3}
   m_Name: "1009_\u78D0\u77F3\u6218\u6B4C"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.SkillDefinition
+  autoTriggerEveryHits: 0
+  forms:
+  - {fileID: 11400000, guid: ee66b27fd1608814da8cbdfdbdf53957, type: 2}
+  - {fileID: 11400000, guid: 1fc25602640790047aab05270304ee73, type: 2}
   configId: 1009
   stableId: ability.vanguard_guard
   displayName: "\u78D0\u77F3\u6218\u6B4C"
   icon: {fileID: 2800000, guid: 751af932b0c3ab24996d695a04449aa7, type: 3}
-  description: "\u7ACB\u5373\u56DE\u590D\u751F\u547D\uFF0C\u968F\u540E 4 \u79D2\u6BCF\u79D2\u56DE\u590D
-    16 \u70B9\u751F\u547D\uFF1B\u5B88\u52BF\u671F\u95F4\u79FB\u901F\u964D\u4F4E 20%\u3002\u9002\u5408\u5728\u5203\u9635\u4E2D\u8FCE\u6218\u3002"
+  description: "\u805A\u62E2\u5468\u56F4\u654C\u4EBA\uFF1B\u83B7\u5F97\u51CF\u4F24\u548C\u6BCF\u79D2\u6700\u5927\u751F\u547D\u56DE\u590D\uFF0C\u6301\u7EED
+    5 \u79D2\u3002"
   modules: {fileID: 11400000, guid: cdc374f107b2fe044a0b6024bbe4e054, type: 2}
   recipe:
     enabled: 1
@@ -26,10 +30,48 @@ MonoBehaviour:
     revision: 1
     recipeId: 1009
     authorNamespace: official
-    maxDerivedExecutions: 32
-    maxLifetime: 10
+    maxDerivedExecutions: 128
+    maxLifetime: 20
     nodes:
-    - nodeId: 1
+    - pierce: 0
+      followOwner: 0
+      seekDense: 0
+      innerRadius: 0
+      repeatAdvance: 0
+      forwardOffset: 0
+      nodeId: 1
+      parentNodeId: 0
+      trigger: 0
+      deliveryModuleId: 10000
+      queryModuleId: 10103
+      delay: 0
+      repeatInterval: 0
+      repeatCount: 1
+      range: 18
+      radius: 7
+      hitRadius: 0.5
+      halfAngleDegrees: 35
+      speed: 40
+      projectileCount: 1
+      spreadDegrees: 0
+      arcHeight: 3
+      flightSeconds: 1
+      launchHeight: 1
+      arrivalHeight: 0
+      effects:
+      - effectId: 4052
+        overrideAmount: 0
+        amount: 0
+        overrideBuffScale: 0
+        buffScale: 1
+      impactEffects: []
+    - pierce: 0
+      followOwner: 0
+      seekDense: 0
+      innerRadius: 0
+      repeatAdvance: 0
+      forwardOffset: 0
+      nodeId: 2
       parentNodeId: 0
       trigger: 0
       deliveryModuleId: 10000
@@ -49,12 +91,7 @@ MonoBehaviour:
       launchHeight: 1
       arrivalHeight: 0
       effects:
-      - effectId: 4009
-        overrideAmount: 1
-        amount: 45
-        overrideBuffScale: 0
-        buffScale: 1
-      - effectId: 4011
+      - effectId: 4062
         overrideAmount: 0
         amount: 0
         overrideBuffScale: 0
@@ -63,21 +100,57 @@ MonoBehaviour:
   aim: 0
   stages: []
   maxCharges: 1
-  rechargeSeconds: 0
+  rechargeSeconds: 16
   requiredHits: 0
   castRange: 0
-  cooldown: 14
+  cooldown: 16
   castTime: 0
   recoveryTime: 0
-  manaCost: 40
+  manaCost: 50
   levelPower: 0.25
   growth:
-    track: 0
+    track: 2
     effectPerLevel: 0.9
     buffPerLevel: 0.15
     cooldownReductionPerLevel: 0.08
     manaCostPerLevel: 0.1
-    customLevels: []
+    customLevels:
+    - requiredHeroLevel: 1
+      radiusScale: 1
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 1
+      buffScale: 1
+      cooldownScale: 1
+      manaCostScale: 1
+    - requiredHeroLevel: 3
+      radiusScale: 1.1428572
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 1
+      buffScale: 1.25
+      cooldownScale: 0.9375
+      manaCostScale: 1
+    - requiredHeroLevel: 5
+      radiusScale: 1.2857143
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 1
+      buffScale: 1.5
+      cooldownScale: 0.875
+      manaCostScale: 1
+    - requiredHeroLevel: 7
+      radiusScale: 1.4285715
+      projectileBonus: 0
+      spreadBonus: 0
+      extraTargets: 0
+      effectScale: 1
+      buffScale: 1.75
+      cooldownScale: 0.8125
+      manaCostScale: 1
   indicatorColor: {r: 1, g: 0.68, b: 0.2, a: 1}
   delivery: 0
   targets: 0

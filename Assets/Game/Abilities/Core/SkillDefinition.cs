@@ -5,13 +5,13 @@ namespace Roguelike.Abilities
     // Historical values remain stable for serialized sample assets.
     public enum SkillDelivery { [InspectorName("即时圆形")] InstantCircle, [InspectorName("持续圆形")] PersistentCircle, [InspectorName("自身圆形")] SelfCircle }
     public enum TargetRelation { [InspectorName("敌方")] Enemies, [InspectorName("友方")] Allies }
-    public enum EffectKind { [InspectorName("伤害")] Damage, [InspectorName("治疗")] Heal, [InspectorName("施加 Buff")] ApplyBuff, [InspectorName("驱散")] Dispel }
+    public enum EffectKind { [InspectorName("伤害")] Damage, [InspectorName("治疗")] Heal, [InspectorName("施加 Buff")] ApplyBuff, [InspectorName("驱散")] Dispel, [InspectorName("拉向施法者")] Pull, [InspectorName("推离施法者")] Knockback }
     public enum BuffStackRule { [InspectorName("刷新时长")] Refresh, [InspectorName("加层并刷新")] AddAndRefresh }
     public enum PassiveTrigger { [InspectorName("学会后常驻")] WhileLearned, [InspectorName("普攻命中")] BasicAttackHit }
 
     public enum AimMode { [InspectorName("自身")] Self, [InspectorName("目标点")] Point, [InspectorName("方向")] Direction, [InspectorName("单位")] Unit }
     public enum TargetScope { [InspectorName("自身")] Self, [InspectorName("单体")] Single, [InspectorName("范围")] Area, [InspectorName("全体")] All }
-    public enum AreaShape { [InspectorName("圆形")] Circle, [InspectorName("扇形")] Cone, [InspectorName("直线")] Line }
+    public enum AreaShape { [InspectorName("圆形")] Circle, [InspectorName("扇形")] Cone, [InspectorName("直线")] Line, [InspectorName("圆环")] Ring }
     public enum DeliveryKind { [InspectorName("立即结算")] Instant, [InspectorName("飞向目标点")] PointProjectile, [InspectorName("直线弹体")] LinearProjectile, [InspectorName("三维抛物线投递")] ParabolicProjectile }
     public enum EffectTarget { [InspectorName("选中目标")] Selected, [InspectorName("施法者")] Source }
     public enum BuffSourcePolicy { [InspectorName("按定义合并")] ByDefinition, [InspectorName("按来源合并")] BySource, [InspectorName("每次独立")] Independent }
@@ -24,6 +24,13 @@ namespace Roguelike.Abilities
     [System.Serializable]
     public sealed class SkillStage
     {
+        [Tooltip("直线弹体穿透；同一弹体对每个目标最多命中一次。")] public bool pierce;
+        [Tooltip("每次执行时重新读取施法者位置，适合跟随光环。")] public bool followOwner;
+        [Tooltip("在起点附近寻找最密集的敌群中心；长度表示搜索半径，范围半径表示伤害范围。")] public bool seekDense;
+        [Min(0), Tooltip("圆环内半径（米），必须小于外半径。")] public float innerRadius;
+        [Tooltip("重复阶段沿原施法方向逐次前移的距离（米）。")] public float repeatAdvance;
+        [Tooltip("相对起点沿方向前移（米）。")] public float forwardOffset;
+
         [InspectorName("开始延迟（秒）"), Min(0)] public float delay;
         [InspectorName("执行次数"), Range(1,32)] public int repeatCount=1;
         [InspectorName("重复间隔（秒）"), Min(0)] public float repeatInterval;
@@ -61,6 +68,8 @@ namespace Roguelike.Abilities
     [CreateAssetMenu(menuName="Roguelike/技能/技能定义")]
     public sealed class SkillDefinition : ScriptableObject
     {
+        [Min(0), Tooltip("大于 0 时仅由每 N 次主普攻命中自动触发；0 为主动技能。")] public int autoTriggerEveryHits;
+        [Tooltip("满级时可选的两个技能形态，沿用本技能稳定 ID 与成长表。")] public SkillDefinition[] forms=System.Array.Empty<SkillDefinition>();
         [Tooltip("数字配置 ID：技能使用 1000–1999；由编辑器编号登记分配，0 仅表示尚未分配的临时定义。")]
         public int configId;
         [InspectorName("稳定 ID")] public string stableId;

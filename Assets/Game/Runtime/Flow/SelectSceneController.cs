@@ -25,7 +25,7 @@ namespace Roguelike.Flow
         /// <summary>面板文本框能容纳的说明长度（字符）；更长的说明由 Brief 截断，完整说明仍在配置资源中。</summary>
         public const int HeroTextMax=110, AttackTextMax=76, SkillTextMax=74, MapTextMax=140;
         public static readonly string[] StatKeys={"health","mana","attack","interval","range","move"};
-        private static readonly string[] SlotKeys={"Q","W","E","R"};
+        private static readonly string[] SlotKeys={"Q","E","R","F"};
 
         [Tooltip("场景根 Canvas 上的 UI 管理器：选择面板的展示键与按钮命令都经过它。")] public UIManager ui;
         [Tooltip("开局选择目录：可选英雄与战场，顺序即界面顺序。")] public StartSelectionCatalog catalog;
@@ -131,6 +131,8 @@ namespace Roguelike.Flow
             string scene;
             try { scene=ResourcePaths.Resolve(map.sceneId,"scene"); }
             catch(InvalidOperationException error) { Debug.LogException(error,this); return; }
+            var second=Array.Find(catalog.maps,value=>value && value!=map);
+            RunState.Begin(hero,map,second);
             GameSelection.Set(hero,map); Starting=true;
             ui.Text("select.summary",$"正在进入 {map.Label}……");
             Debug.Log($"GAME_SELECTION hero={hero.stableId}; map={map.stableId}; scene={scene}");

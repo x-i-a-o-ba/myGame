@@ -12,16 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3331f61cef564eb18fd2faa5da95637d, type: 3}
   m_Name: "\u88C2\u5203\u666E\u653B"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.AutoAttackDefinition
+  splitTargets: 0
+  cleaveTargets: 4
+  splitDamageRatio: 0.5
+  cleaveRadius: 3.5
+  cleaveHalfAngle: 75
+  cleaveDamageRatio: 0.6
   stableId: attack.vanguard
   displayName: "\u88C2\u5203"
   icon: {fileID: 2800000, guid: 8d662587b13a61d44a43de69edc5b8c7, type: 3}
-  description: "\u8FD1\u6218\u666E\u653B\uFF1B\u547D\u4E2D\u4E3A\u7834\u9635\u91CD\u5288\u79EF\u84C4\u6218\u610F\u3002"
+  description: "\u653B\u51FB\u6700\u8FD1\u654C\u4EBA\uFF0C\u5E76\u5BF9\u524D\u65B9
+    150\xB0\u30013.5 \u7C73\u5185\u6700\u591A\u56DB\u4E2A\u5176\u4ED6\u76EE\u6807\u9020\u6210
+    60% \u987A\u5288\u4F24\u5BB3\u3002"
   delivery: 0
   range: 2.8
-  acquisitionRange: 8
+  acquisitionRange: 2.8
   baseAttackTime: 0.75
-  attackPoint: 0.18
-  backswing: 0.25
+  attackPoint: 0
+  backswing: 0
   projectileSpeed: 30
   rangeBuffer: 1.5
   autoAcquire: 1

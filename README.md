@@ -6,9 +6,9 @@ Unity 6.3 + URP + ECS 的 3D 俯视角肉鸽游戏项目。
 - 依赖：URP `17.3.0`、Entities `1.4.8`、Entities Graphics `1.4.21`，以 `Packages/manifest.json` 为准。
 - 开发文档：[Docs/README.md](Docs/README.md)。
 - 开发约定：[AGENTS.md](AGENTS.md)。
-- 游戏入口：`Assets/Scenes/Main.unity`（主菜单 → 选择英雄 → 选择战场）。战场场景：`Assets/Scenes/Game.unity`（幽暗荒原）、`Assets/Scenes/EmberRift.unity`（熔火裂谷，2026-10-23 新增，2026-10-24 已通过 Unity 构建与 Player 流程检查），见 [开局选择](Docs/hero-and-map-selection.md)。
+- 游戏入口：`Assets/Scenes/Main.unity`（主菜单 → 选择英雄 → 选择首图）。战场为 `Game`（幽暗荒原）和 `EmberRift`（熔火裂谷）。
 
-当前已推进到远征重设计第 2 步：两张战场使用持续刷怪导演、潮涌与软分离，存活上限 4,000。玩法、中文配置与实际 Player 负载证据见 [刷怪导演](Docs/spawn-director.md) 和 [验证记录](Docs/validation-director-2026-10-24.md)。第 3–7 步（新操作/成长、英雄、怪物技能、三关营地与收尾）仍待实现。6000.3.18f1 的窗口模式无障碍退出问题及自动化运行方式也列在验证记录中。
+已实现三关远征、两次营地、十五级成长、WASD 与快速施法、两英雄八技能十六形态、十六装备和八遗物、怪物模块与深渊。存活硬上限 4,000，万级仍为后续目标。实际规则、AI 补充决定、测试和性能适用范围统一见 [开发文档](Docs/README.md) 与 [验证记录](Docs/validation.md)。当前用户要求先完成其他工作，原生界面检查暂缓。
 
 ## 恢复项目
 
@@ -24,9 +24,9 @@ git clone https://github.com/x-i-a-o-ba/myGame.git
 
 ```powershell
 git status
-git add .
+git add --patch
 git commit -m "说明本次修改"
 git push
 ```
 
-首次备份不代表完成游戏编译、功能回归或万敌完整战斗性能验收；历史验证范围以开发文档和报告为准。
+提交前逐项检查待提交文件，新文件应按明确路径加入。统一使用 main 和中文提交信息；历史合并提交保留。

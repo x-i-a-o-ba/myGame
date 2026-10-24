@@ -15,70 +15,34 @@ MonoBehaviour:
   configId: 2002
   stableId: hero.stone_vanguard
   displayName: "\u78D0\u950B\u536B\u58EB"
-  role: "\u8FD1\u6218 \u00B7 \u5766\u514B"
+  role: "\u8FD1\u6218 \xB7 \u5766\u514B"
   description: "\u624B\u6301\u91CD\u5251\u7684\u524D\u6392\u6218\u58EB\u3002\u666E\u653B\u79EF\u84C4\u6218\u610F\u91CA\u653E\u7834\u9635\u91CD\u5288\uFF0C\u7528\u78D0\u77F3\u6218\u6B4C\u5728\u5305\u56F4\u4E2D\u56DE\u8840\uFF0C\u4EE5\u56DE\u73AF\u5203\u9635\u4E0E\u9707\u5CB3\u843D\u5251\u5C01\u9501\u654C\u7FA4\uFF0C\u9002\u5408\u6B63\u9762\u9876\u4F4F\u602A\u6F6E\u3002"
   skills:
   - {fileID: 11400000, guid: d50b685fe35fa7b46a13fcae05630d3d, type: 2}
   - {fileID: 11400000, guid: a049becf44adf8049a727643754b2003, type: 2}
   - {fileID: 11400000, guid: b2d86783cfabd4444b9fb2abc32d9814, type: 2}
   - {fileID: 11400000, guid: 0da00ec083eac1e4093612507175c013, type: 2}
-  health: 620
-  speed: 8
-  attackDamage: 48
+  health: 650
+  speed: 7
+  attackDamage: 40
   attackInterval: 0.75
   range: 2.8
   basicAttack: {fileID: 11400000, guid: 2656576177daa78458b639ee40f714c1, type: 2}
-  turnRate: 1080
-  attackWhileMoving: 0
+  turnRate: 0
+  attackWhileMoving: 1
   portrait: {fileID: 2800000, guid: f41551a9825ac6b44aa81c0ceffb0630, type: 3}
   visualPrefab: {fileID: 4344421073450430219, guid: 8ee0ce23216cbd348aa47abf89cc82a8, type: 3}
   baseMana: 240
   baseHealthRegen: 3
-  baseManaRegen: 4
-  healthPerLevel: 52
+  baseManaRegen: 6
+  healthPerLevel: 60
   manaPerLevel: 14
   attackPerLevel: 4
-  attackSpeedPerLevel: 2.5
+  attackSpeedPerLevel: 2
   moveSpeedPerLevel: 0
-  regenPerLevel: 0.2
-  manaRegenPerLevel: 0.2
-  talents:
-  - heroLevel: 10
-    left:
-      displayName: "+20 \u653B\u51FB\u529B"
-      stat: 1
-      value: 20
-    right:
-      displayName: "+25% \u7ECF\u9A8C\u83B7\u53D6"
-      stat: 7
-      value: 25
-  - heroLevel: 15
-    left:
-      displayName: "+25% \u653B\u51FB\u901F\u5EA6"
-      stat: 2
-      value: 25
-    right:
-      displayName: "+250 \u6700\u5927\u751F\u547D"
-      stat: 0
-      value: 250
-  - heroLevel: 20
-    left:
-      displayName: "+30% \u6280\u80FD\u4F24\u5BB3"
-      stat: 5
-      value: 30
-    right:
-      displayName: "-20% \u6280\u80FD\u51B7\u5374"
-      stat: 6
-      value: 20
-  - heroLevel: 25
-    left:
-      displayName: "+60 \u653B\u51FB\u529B"
-      stat: 1
-      value: 60
-    right:
-      displayName: "+10 \u751F\u547D\u56DE\u590D"
-      stat: 4
-      value: 10
+  regenPerLevel: 0.3
+  manaRegenPerLevel: 0.4
+  talents: []
   baseStats:
   - stat: 11
     value: 12

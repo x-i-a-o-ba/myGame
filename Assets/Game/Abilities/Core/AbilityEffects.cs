@@ -15,7 +15,7 @@ namespace Roguelike.Abilities
         /// <summary>所有单位的基础法力回复（点/秒）；AbilityUnit.ManaRegenBonus 在此之上相加。</summary>
         public const float BaseManaRegen=3;
         /// <summary>伤害减免上限（0.8 = 最多减免 80%）。</summary>
-        public const float MaximumDamageReduction=0.8f;
+        public const float MaximumDamageReduction=0.7f;
         public static EffectOutcome Apply(ref AbilityUnit target,DynamicBuffer<ActiveBuff> buffs,
             ref AbilityLibrary library,in EffectRequest request,float now)
         {
@@ -33,6 +33,7 @@ namespace Roguelike.Abilities
                     return default;
                 case EffectKind.ApplyBuff:
                     ref var definition=ref library.Buffs[effect.Buff];
+                    if(target.ControlImmune && (definition.Controls!=ControlFlags.None || definition.SpeedPercent<0)) return default;
                     int index=-1;
                     if(definition.SourcePolicy!=BuffSourcePolicy.Independent)
                         for(int i=0;i<buffs.Length;i++)
@@ -43,10 +44,10 @@ namespace Roguelike.Abilities
                     var active=index>=0?buffs[index]:new ActiveBuff { Definition=effect.Buff,
                         NextTick=now+definition.Interval };
                     // Definition-level merging adopts the latest application attribution and potency.
-                    active.Source=request.Source; active.Origin=request.Origin;
+                    active.Source=request.Source; active.Origin=request.Origin; active.SourceAttack=request.SourceAttack; active.ExtraTargets=request.ExtraTargets;
                     active.Stacks=definition.Stacking==BuffStackRule.AddAndRefresh?
                         math.min(active.Stacks+1,definition.MaxStacks):1;
-                    active.ExpiresAt=definition.Duration<=0?float.MaxValue:now+definition.Duration;
+                    active.ExpiresAt=definition.Duration<=0?float.MaxValue:now+definition.Duration*(request.DurationScale>0?request.DurationScale:1);
                     // Refresh keeps the existing periodic clock: repeated hits cannot postpone every tick.
                     active.Scale=request.Power*effect.BuffScale;
                     if(index<0) buffs.Add(active); else buffs[index]=active;
@@ -62,7 +63,8 @@ namespace Roguelike.Abilities
         {
             if(target.Health<=0) return default;
             float before=target.Health;
-            float taken=math.max(0,amount)*(1-math.clamp(target.DamageReduction,0,MaximumDamageReduction));
+            float taken=math.max(0,amount)*(1+math.max(0,target.DamageTaken))*(1-math.clamp(target.DamageReduction+target.BuffDamageReduction,0,MaximumDamageReduction));
+            float absorbed=math.min(math.max(0,target.Shield),taken); target.Shield-=absorbed; taken-=absorbed;
             target.Health=math.max(0,before-taken);
             var result=new EffectOutcome {RequestedDamage=math.max(0,amount),ActualDamage=before-target.Health,Killed=target.Health<=0};
             if(result.Killed) { buffs.Clear(); Recalculate(ref target,buffs,ref library); }
@@ -74,6 +76,8 @@ namespace Roguelike.Abilities
         {
             float3 add=0,percent=0,multiply=1;
             float regen=0;
+            unit.BuffDamageReduction=0; unit.RegenMaxHealth=0; unit.DamageTaken=0; unit.Reflect=0; unit.ExtraTargets=0;
+            unit.ControlImmune=false; unit.PierceBasics=false; unit.AttackSplashRadius=0; unit.AttackSplashRatio=0;
             ControlFlags controls=ControlFlags.None;
             for(int i=0;i<buffs.Length;i++)
             {
@@ -84,6 +88,10 @@ namespace Roguelike.Abilities
                 add.y+=definition.AttackFlat*strength;
                 regen+=definition.Regen*strength;
                 controls|=definition.Controls;
+                unit.BuffDamageReduction+=definition.DamageReduction*strength; unit.RegenMaxHealth+=definition.RegenMaxHealth*strength;
+                unit.DamageTaken+=definition.DamageTaken*strength; unit.Reflect+=definition.Reflect;
+                unit.ExtraTargets+=definition.ExtraTargets+active.ExtraTargets; unit.ControlImmune|=definition.ControlImmune; unit.PierceBasics|=definition.PierceBasics;
+                unit.AttackSplashRadius=math.max(unit.AttackSplashRadius,definition.AttackSplashRadius); unit.AttackSplashRatio+=definition.AttackSplashRatio;
                 for(int m=0;m<definition.Modifiers.Length;m++)
                 {
                     var modifier=definition.Modifiers[m];
@@ -99,7 +107,8 @@ namespace Roguelike.Abilities
             }
             float3 final=math.max(0,(new float3(unit.BaseSpeed,unit.BaseAttack,1+unit.AttackSpeedBonus)+add)*(1+percent)*multiply);
             unit.Speed=final.x; unit.Attack=final.y; unit.AttackSpeedMultiplier=final.z;
-            unit.Regen=math.max(0,unit.BaseRegen+regen); unit.Controls=controls;
+            unit.Regen=math.max(0,unit.BaseRegen+regen+unit.MaxHealth*unit.RegenMaxHealth); unit.Controls=unit.ControlImmune?ControlFlags.None:controls;
+            if(unit.ControlImmune || unit.SlowImmune) unit.Speed=math.max(unit.BaseSpeed,unit.Speed);
         }
 
         /// <summary>补齐有效期内周期伤害；刷新不改周期起点。死亡清贡献；周期伤害不派生普攻命中事件。</summary>
@@ -110,14 +119,14 @@ namespace Roguelike.Abilities
             for(int i=buffs.Length-1;i>=0;i--)
             {
                 var active=buffs[i]; ref var definition=ref library.Buffs[active.Definition];
-                if(definition.PeriodicDamage>0)
+                if(definition.PeriodicDamage>0 || definition.PeriodicAttackRatio>0)
                 {
                     float until=math.min(now,active.ExpiresAt);
                     if(active.NextTick<=until)
                     {
                         int ticks=1+(int)math.floor((until-active.NextTick+0.00001f)/definition.Interval);
                         // 旧 periodicDamage 没有逐跳配方回调，允许聚合补跳；仍使用统一生命入口。
-                        Damage(ref unit,buffs,ref library,ticks*definition.PeriodicDamage*active.Scale*active.Stacks);
+                        Damage(ref unit,buffs,ref library,ticks*(definition.PeriodicDamage+definition.PeriodicAttackRatio*active.SourceAttack)*active.Scale*active.Stacks);
                         if(unit.Health<=0) return; // Damage 已清理 Buff，不能再写入失效的旧索引。
                         active.NextTick+=ticks*definition.Interval;
                     }

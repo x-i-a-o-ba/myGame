@@ -6,6 +6,8 @@ namespace Roguelike.Abilities
     public sealed class DamageEffect : EffectDefinition
     {
         [InspectorName("伤害值"), Min(0)] public float amount=10;
-        public override EffectData Compile() => new EffectData { Kind=EffectKind.Damage, Amount=amount, Target=target, Buff=-1 };
+        [Min(0), Tooltip("额外加上来源当前攻击 × 此系数。")] public float sourceAttackRatio;
+        [Range(0,1), Tooltip("额外加上目标最大生命 × 此系数。")] public float targetMaxHealthRatio;
+        public override EffectData Compile() => new EffectData { Kind=EffectKind.Damage, Amount=amount, SourceAttackRatio=sourceAttackRatio,TargetMaxHealthRatio=targetMaxHealthRatio,Target=target, Buff=-1 };
     }
 }

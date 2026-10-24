@@ -14,16 +14,16 @@ namespace Roguelike.Abilities
         [InspectorName("攻击速度（%，25 = +25%）")] AttackSpeed,
         [InspectorName("移动速度（米/秒）")] MoveSpeed,
         [InspectorName("生命回复（点/秒）")] HealthRegen,
-        [InspectorName("技能伤害（%，30 = +30%）")] SkillAmplify,
-        [InspectorName("冷却缩减（%，20 = -20% 冷却，上限 80）")] CooldownReduction,
-        [InspectorName("经验获取（%，25 = +25%）")] ExperienceGain,
+        [InspectorName("技能强度（%，30 = +30%）")] SkillAmplify,
+        [InspectorName("冷却缩减（%，20 = -20% 冷却，上限 50（遗物可到 60））")] CooldownReduction,
+        [InspectorName("已停用：经验获取（%，25 = +25%）")] ExperienceGain,
         [InspectorName("最大法力（点）")] MaxMana,
         [InspectorName("法力回复（点/秒）")] ManaRegen,
-        [InspectorName("攻击距离（米）")] AttackRange,
-        [InspectorName("伤害减免（%，上限 80）")] DamageReduction,
+        [InspectorName("已停用：攻击距离（米）")] AttackRange,
+        [InspectorName("伤害减免（%，上限 70）")] DamageReduction,
         [InspectorName("普攻吸血（%）")] LifeSteal,
-        [InspectorName("暴击几率（%，普攻）")] CriticalChance,
-        [InspectorName("暴击伤害（%，暴击时的伤害倍率）")] CriticalDamage
+        [InspectorName("已停用：暴击几率（%，普攻）")] CriticalChance,
+        [InspectorName("已停用：暴击伤害（%，暴击时的伤害倍率）")] CriticalDamage
     }
 
     /// <summary>一条属性加成：直接加到对应属性上。装备、天赋和英雄额外基础属性共用。</summary>
@@ -43,9 +43,11 @@ namespace Roguelike.Abilities
         public static readonly StatKind[] DisplayOrder=
         {
             StatKind.MaxHealth,StatKind.HealthRegen,StatKind.MaxMana,StatKind.ManaRegen,
-            StatKind.AttackDamage,StatKind.AttackSpeed,StatKind.AttackRange,StatKind.CriticalChance,StatKind.CriticalDamage,StatKind.LifeSteal,
-            StatKind.SkillAmplify,StatKind.CooldownReduction,StatKind.DamageReduction,StatKind.MoveSpeed,StatKind.ExperienceGain
+            StatKind.AttackDamage,StatKind.AttackSpeed,StatKind.LifeSteal,
+            StatKind.SkillAmplify,StatKind.CooldownReduction,StatKind.DamageReduction,StatKind.MoveSpeed
         };
+
+        public static bool IsCurrent(StatKind stat)=>System.Array.IndexOf(DisplayOrder,stat)>=0;
 
         public static string Name(StatKind stat)
         {
@@ -56,7 +58,7 @@ namespace Roguelike.Abilities
                 case StatKind.AttackSpeed: return "攻击速度";
                 case StatKind.MoveSpeed: return "移动速度";
                 case StatKind.HealthRegen: return "生命回复";
-                case StatKind.SkillAmplify: return "技能伤害";
+                case StatKind.SkillAmplify: return "技能强度";
                 case StatKind.CooldownReduction: return "冷却缩减";
                 case StatKind.ExperienceGain: return "经验获取";
                 case StatKind.MaxMana: return "最大法力";

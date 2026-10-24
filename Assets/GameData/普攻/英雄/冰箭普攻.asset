@@ -12,16 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3331f61cef564eb18fd2faa5da95637d, type: 3}
   m_Name: "\u51B0\u7BAD\u666E\u653B"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.AutoAttackDefinition
+  splitTargets: 2
+  cleaveTargets: 4
+  splitDamageRatio: 0.5
+  cleaveRadius: 0
+  cleaveHalfAngle: 75
+  cleaveDamageRatio: 0.6
   stableId: attack.frost_arrow
   displayName: "\u51B0\u7BAD"
   icon: {fileID: 2800000, guid: 6179a16c4e7b478c84efc8cdd816cca8, type: 3}
-  description: "\u88AB\u52A8\uFF1A\u81EA\u52A8\u5411\u653B\u51FB\u8DDD\u79BB\u5185\u7684\u654C\u4EBA\u5C04\u51FA\u8FFD\u8E2A\u51B0\u7BAD\u3002\u547D\u4E2D\u8BA1\u5165\u666E\u653B\u547D\u4E2D\uFF0C\u53EF\u4E3A\u51B0\u971C\u4E13\u6CE8\u53E0\u5C42\u3002"
+  description: "\u81EA\u52A8\u653B\u51FB\u653B\u51FB\u8DDD\u79BB\u5185\u6700\u8FD1\u7684\u654C\u4EBA\uFF0C\u5E76\u5411\u53E6\u5916\u4E24\u4E2A\u76EE\u6807\u53D1\u5C04
+    50% \u4F24\u5BB3\u7684\u5206\u88C2\u7BAD\uFF1B\u79FB\u52A8\u4E0D\u505C\u6B62\u653B\u51FB\u3002"
   delivery: 1
-  range: 20
-  acquisitionRange: 22
-  baseAttackTime: 0.12
-  attackPoint: 0.03
-  backswing: 0.05
+  range: 18
+  acquisitionRange: 18
+  baseAttackTime: 0.3
+  attackPoint: 0
+  backswing: 0
   projectileSpeed: 38
   rangeBuffer: 1.5
   autoAcquire: 1

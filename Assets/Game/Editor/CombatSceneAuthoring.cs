@@ -41,7 +41,7 @@ namespace Roguelike.Editor
                 var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Game/Fonts/NotoSansSC.ttf");
                 if (font == null) throw new InvalidOperationException("缺少场景中文字体资源。");
                 serialized.FindProperty("hud").objectReferenceValue = existing != null
-                    ? existing : new CombatHudSceneBuilder().Build(demo.transform, font);
+                    ? existing : throw new InvalidOperationException("缺少正式 HUD，请装配 UI.Game.BottomHUD 与 UI.Expedition 面板。");
             }
             BindMeshIfMissing(serialized, "enemyMesh", PrimitiveType.Cube);
             BindMeshIfMissing(serialized, "projectileMesh", PrimitiveType.Sphere);

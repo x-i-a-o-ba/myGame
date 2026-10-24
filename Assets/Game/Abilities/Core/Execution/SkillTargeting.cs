@@ -11,17 +11,20 @@ namespace Roguelike.Abilities
             return origin + math.normalizesafe(offset)*math.min(math.length(offset),range);
         }
         public static bool Contains(ref StageData stage, float3 origin, float3 direction, float3 point)
+            =>Contains(stage.Shape,stage.Radius,stage.Range,stage.HalfAngleDegrees,stage.InnerRadius,origin,direction,point);
+        public static bool Contains(AreaShape shape,float radius,float range,float halfAngle,float innerRadius,float3 origin,float3 direction,float3 point)
         {
             float2 delta=point.xz-origin.xz;
-            switch(stage.Shape)
+            switch(shape)
             {
-                case AreaShape.Circle: return math.lengthsq(delta)<=stage.Radius*stage.Radius;
+                case AreaShape.Ring: return math.lengthsq(delta)<=radius*radius && math.lengthsq(delta)>=innerRadius*innerRadius;
+                case AreaShape.Circle: return math.lengthsq(delta)<=radius*radius;
                 case AreaShape.Cone:
-                    return math.lengthsq(delta)<=stage.Range*stage.Range &&
-                        (math.lengthsq(delta)<0.00001f || math.dot(math.normalizesafe(delta),direction.xz)>=math.cos(math.radians(stage.HalfAngleDegrees)));
+                    return math.lengthsq(delta)<=range*range &&
+                        (math.lengthsq(delta)<0.00001f || math.dot(math.normalizesafe(delta),direction.xz)>=math.cos(math.radians(halfAngle)));
                 case AreaShape.Line:
                     float along=math.dot(delta,direction.xz);
-                    return along>=0 && along<=stage.Range && math.lengthsq(delta-direction.xz*along)<=stage.Radius*stage.Radius;
+                    return along>=0 && along<=range && math.lengthsq(delta-direction.xz*along)<=radius*radius;
                 default: return false;
             }
         }

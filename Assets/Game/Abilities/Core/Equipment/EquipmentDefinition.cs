@@ -35,6 +35,7 @@ namespace Roguelike.Abilities
         public StatModifier[] stats=Array.Empty<StatModifier>();
         [Tooltip("普攻命中时依次施加的效果模块（复用技能效果资源，例如“施加扇击减速”）；作用对象为“施法者”时作用于英雄自身。引用的 Buff 必须登记在技能库中。最多 4 个。")]
         public EffectDefinition[] onHitEffects=Array.Empty<EffectDefinition>();
+        [Tooltip("普攻或施法触发的有限范围/连锁效果。")] public EquipmentProc[] procs=Array.Empty<EquipmentProc>();
 
         public string Label=>string.IsNullOrWhiteSpace(displayName)?name:displayName.Trim();
 
@@ -49,14 +50,21 @@ namespace Roguelike.Abilities
         /// <summary>校验单件装备自身的配置；跨资源引用（命中效果的 Buff）由装备库编译时检查。返回 null 表示通过。</summary>
         public string Validate()
         {
+            if(procs==null || procs.Length>4) return "装备触发器最多四个且不可为空："+name;
+            foreach(var proc in procs)
+            {
+                if(proc==null || !Enum.IsDefined(typeof(EquipmentTrigger),proc.trigger) || !float.IsFinite(proc.chance) || proc.chance<0 || proc.chance>1 ||
+                    !float.IsFinite(proc.radius) || proc.radius<=0 || proc.maxTargets<1 || proc.maxTargets>32 || proc.effects==null || proc.effects.Length==0 || proc.effects.Length>4)
+                    return "装备触发器参数无效："+name;
+            }
             if(configId!=0 && (configId<MinimumConfigId || configId>MaximumConfigId)) return "装备数字 ID 必须为 6000–6999："+name;
             if(string.IsNullOrWhiteSpace(stableId) || stableId.Trim()!=stableId) return "装备稳定 ID 不能为空或带首尾空格："+name;
             if(price<0 || price>MaximumPrice) return "装备价格必须在 0–"+MaximumPrice+"："+name;
-            if(!Enum.IsDefined(typeof(EquipmentQuality),quality)) return "装备品质未知："+name;
+            if(quality!=EquipmentQuality.Common && quality!=EquipmentQuality.Rare && quality!=EquipmentQuality.Legendary) return "当前仅支持普通、稀有和传说装备："+name;
             var list=stats??Array.Empty<StatModifier>();
             if(list.Length>MaximumStats) return "装备属性最多 "+MaximumStats+" 条："+name;
             foreach(var modifier in list)
-                if(!Enum.IsDefined(typeof(StatKind),modifier.stat) || float.IsNaN(modifier.value) || float.IsInfinity(modifier.value))
+                if(!StatText.IsCurrent(modifier.stat) || float.IsNaN(modifier.value) || float.IsInfinity(modifier.value))
                     return "装备属性未知或数值非法："+name;
             var effects=onHitEffects??Array.Empty<EffectDefinition>();
             if(effects.Length>MaximumOnHitEffects) return "装备命中效果最多 "+MaximumOnHitEffects+" 个："+name;

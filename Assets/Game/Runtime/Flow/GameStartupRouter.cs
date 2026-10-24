@@ -19,7 +19,7 @@ namespace Roguelike.Flow
         {
             var args=Environment.GetCommandLineArgs();
             if(Array.IndexOf(args,"--start-scene")>=0 || Array.IndexOf(args,"--select-smoke")>=0) return;
-            if(Array.IndexOf(args,"--game-smoke")<0 && Array.IndexOf(args,"--game-balance")<0 && Array.IndexOf(args,"--director-smoke")<0 && Array.IndexOf(args,"--combat-stress")<0) return;
+            if(Array.IndexOf(args,"--game-smoke")<0 && Array.IndexOf(args,"--game-balance")<0 && Array.IndexOf(args,"--director-smoke")<0 && Array.IndexOf(args,"--combat-stress")<0 && Array.IndexOf(args,"--expedition-smoke")<0) return;
             if(UnityEngine.Object.FindFirstObjectByType<GameCombatController>()) return;
             int map=Array.IndexOf(args,"--director-map");
             string scene=map>=0 && map+1<args.Length && args[map+1]=="ember"?"Scene.EmberRift":DefaultBattlefield;

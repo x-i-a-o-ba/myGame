@@ -1,0 +1,152 @@
+> 历史记录：当前规则请从 [开发文档总览](../README.md) 查阅。本页中的旧操作和旧验证结果不代表当前版本。
+
+# 架构与迁移方案
+
+## 2026-10-24 持续刷怪与空间分离
+
+第 2 步已接入两张战场。只读配置编译为 ECS 快照，`CombatDirectorState` 持有每局时钟、随机进度、潮涌余量和首领；相机桥只提供视野矩形与移动方向。`CombatSpawnDirector` 在死亡回收后批量补充，`EnemySeparation` 由模拟系统拥有，先收集位置快照再并行写自身位置，统一完成依赖后才进入串行效果结算。`AbilityUnit` 生命/属性权威与共享技能执行链不变。兼容迁移、资源生命周期和限制见 [刷怪导演](spawn-director.md)，证据见 [验证记录](validation-director-2026-10-24.md)。
+
+依赖清理：未使用的 2D Animation 13.0.5 自动初始化产生退出缓冲区回收警告；确认项目无代码和序列化脚本引用后，只移除该依赖，将 2D feature 展开为其余 8 个原版本依赖，保留 Sprite、PSD/Aseprite 导入、Tilemap 等工具。引擎/URP/ECS 版本不变。窗口模式无障碍退出异常另列为引擎限制，不能与此警告混为一个已修复问题。
+
+清理合并已通过本机 Unity 回归。正式技能配方与旧阶段兼容分别验证；跨场景 UI 检查按目标面板唯一性核对请求合并，避免其他战斗 HUD 的异步加载影响断言。新增战场范围预览验证只消费编译快照，不写战斗权威状态。职责、验证证据和限制见 [清理合并验证](validation-cleanup-2026-10-24.md)。
+
+## 2026-10-24 重设计定稿与工程清理
+
+用户定稿「远征闯关」（3 关 + 2 营地、15 分钟、WASD、保留法力、营地买装备），目标架构与分步计划见 [远征闯关重设计](../redesign-expedition.md)。后续要新增的边界：按强度时间的刷怪导演与怪物分离（第 2 步）、可配置键位与快速施法输入（第 3 步）、怪物技能模板（第 5 步）、跨场景的局内状态 RunState 与营地界面（第 6 步）；技能形态和新技能参数继续按 ability-foundation.md 做成可组合模块。
+
+第 1 步工程清理已完成，现存程序集：`Roguelike.Foundation(.Editor)`、`Roguelike.Abilities.Core`、`Roguelike.Abilities.Editor`、`Roguelike.Runtime`、`Roguelike.Editor`、`Roguelike.SkillAuthoring(.Editor)`、`Roguelike.SkillIndicators`（只剩游戏在用的圆形视图）。删除了 `Roguelike.FogOfWar(.Editor)`、`Roguelike.Abilities`（演示运行时）、`Roguelike.SkillIndicators.Editor` 和默认程序集里的遗留 ProjectBase / `_Scripts`，详见下方“已移除的独立演示”。`SceneFrameworkMigration` 只保留检查场景、更新资源目录和构建跨场景 UI 验证 Player，场景清单为 Main、SelectScene、Game、EmberRift、Benchmark10k；技能编辑场景 `技能配置工作台` 只在编辑器使用，不在清单和构建中。
+
+## 2026-10-24 跨场景校验的资源生命周期
+
+`GameFlowValidation.activeCatalog` 仅在校验期间静态持有开局目录及其依赖，避免打开场景时卸载局部变量引用的资源；`finally` 清空，正常游戏仍由既有选择/会话持有状态。360 项战斗检查、345 项流程检查和 Windows 构建通过，见 [验证记录](validation-hero-map-selection-2026-10-23.md)。
+
+## 2026-10-23 开局选择与多战场
+
+场景流程为 Main → SelectScene → 战场场景（Game 幽暗荒原 / EmberRift 熔火裂谷）。新增 `Roguelike.Flow`（`Assets/Game/Runtime/Flow`，属于 Roguelike.Runtime 程序集）。配置只存在 ScriptableObject 中：`StartSelectionCatalog` 存可选英雄与战场及其顺序，`GameMapDefinition` 存战场展示信息、场景 ID、敌人名册与难度曲线。跨场景只传 `GameSelection` 中的两个配置引用（只在内存中，不写存档），战斗状态仍归战场场景的 `GameCombatSession`。`SelectSceneController` 经场景 UIManager 发布展示键并处理 `select.*` 命令，`HeroShowcase` 只负责外形。`GameCombatController.ApplySelection` 在创建会话前换成所选英雄；只有所选战场属于当前场景时才替换战场，名册和难度统一由 `ActiveRoster` / `ActiveDifficulty` 读取。场景切换统一走 `SceneNavigation` 路由表（命令 → 加载场景 / 退出，可要求限时二次确认），面板不直接切换场景。Game 内的英雄切换组件 `HeroRoster` 已删除，战斗探针改用开局选择目录与 `SelectHero`。说明见 [开局选择](hero-and-map-selection.md)，2026-10-24 已通过 Unity 构建与 Player 流程检查。
+
+## 2026-10-23 散射与英雄切换
+
+通用直线投递按配置创建独立飞行状态；英雄目录按钮调用既有装配重开边界，外形和圆形反馈只消费战斗状态。模块职责与兼容说明见 [冰箭与战士](volley-and-vanguard.md)。
+
+## 2026-10-22 寒冰射手与 GameData
+
+寒冰射手四技能加入逐级蓝耗，重新配置伤害、冷却与攻速收益；基础法力 240、每级 +12、基础回复 3 点/秒。78 份游戏配置迁入 `Assets/GameData`，按功能分类，保留数字 ID 与 GUID；正式配置、编辑示例和历史示例分开。职责、数值表、编辑入口与迁移说明见 [寒冰射手与数据规范](ashe-balance-and-gamedata.md)，实际验证见 [验证记录](validation-ashe-gamedata-2026-10-22.md)。
+
+## 2026-09-24 当前技能架构（优先于下方历史章节）
+
+用户要求组合地基优先，已移除Game固定QWER实现，当前契约见 [ability-foundation.md](../ability-foundation.md)。`HeroDefinition → SkillDefinition → Stage[] → EffectDefinition[]`，Buff独立；Core无UI依赖，Game采用AbilityUnit唯一属性权威。GameCombatSession负责实体与Blob生命周期，Controller只装配输入/展示，CombatSimulationSystem处理战斗宿主行为，技能由AbilityExecution调度。现有行为差异、未实现内容与本轮验证统一见新文档。下文关于四份专用配置和旧验证的段落为历史记录。
+
+
+## 2026-10-22 装备丢弃、拾取与固定商店（PR #6）
+
+- 数据所有权：地上的装备是会话实体上的 `GroundItem` 缓冲（本局唯一编号、装备下标、落点），商店位置是 `ShopSite` 组件（重开时从场景 `GameShop` 读入）；两者都归会话，重开时重建。`HeroEquipment` 只增加最近一次地上装备编号与编号计数。配置只增加装备库的丢弃 / 拾取距离与 `GameShop` 的半径。
+- 规则：`EquipmentLogic` 新增 `TryMove`（换位 / 交换）、`TryDrop`（按装备核对后放到落点）、`CanPickUp`/`TryPickUp`（空格、唯一、距离）与 `InShop`/`Within`/`Reject`。`HeroOrder` 新增 `PickUp`、`DropItem`（`Value`/`Item` 字段），与移动共用走动逻辑（`MoveLike`）。
+- 模拟顺序：`CombatSimulationSystem` 在阵亡判定之后调用纯函数 `AdvanceItemOrder`，英雄进入拾取 / 丢弃距离时把指令转成 `EquipmentCommand` 并待机；随后 `ApplyEquipmentCommand` 逐条结算全部装备指令（买卖先检查商店范围，范围外记 `NotInShop`），装备栏变化时与成长一起重算属性。两个函数都是公开静态函数，编辑器校验直接调用。
+- 输入与展示：Foundation 新增 `UIDragAction` / `UIDropAction`，`UiCommand` 可附带指针屏幕坐标；`CombatHud` 只把拖放结果转成换位 / 出售 / 丢弃请求。控制器负责点选与下令（地上装备与敌人取更接近光标者）、商店范围圈与离开范围关店；`GroundItemViews` 只读 `GroundItem` 显示地面圈与图标牌。UI 与展示对象都不成为规则依据。
+
+详见 [equipment-and-stats.md](equipment-and-stats.md) 第 2.6、2.7、3、4 节。Unity 编译与运行**未验证**。
+
+## 2026-10-22 属性与装备
+
+- `Abilities/Core/Stats`：`StatKind`（15 种属性）与 `StatSheet`（按属性存值、可相加）。`HeroStats` 组件在英雄实体上保存基础、每级成长、天赋、装备与合计；`HeroStatsLogic.Rebuild` 是唯一合成规则（合计 = 基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，直接相加），把合计写入 `AbilityUnit` 基础值、`HeroProgression.ExperienceMultiplier` 和 `AutoAttackData` 距离，再由 `AbilityEffects.Recalculate` 叠加 Buff。等级、天赋、装备任一变化都整体重算，不做增量加减。
+- `Abilities/Core/Equipment`：`EquipmentDefinition`/`EquipmentCatalog`（ScriptableObject，只存配置）在重开时编译为会话拥有的 `EquipmentLibrary` Blob（命中效果用本局技能库解析 Buff）。运行状态 `HeroEquipment`（金币、指令序号、失败原因）与 `EquipmentSlot` 缓冲归英雄实体；`EquipmentLogic` 是购买、出售、金币与装备属性合计的纯规则，不识别具体装备。
+- 输入层只写 `EquipmentCommand`；`CombatSimulationSystem` 在成长命令之后串行处理，变化时重算属性。普攻出手时用会话种子与出手序号判定暴击，命中时依次结算伤害、吸血、装备命中效果（来源编号 3000 + 装备下标）和普攻命中事件；击杀金币与经验一起在 ECB 回放后结算。伤害减免在共享伤害入口 `AbilityEffects.Damage` 统一生效。
+- UI：Foundation 新增 `UIPointerAction`（右键等非左键点击命令），`UITooltip` 上方放不下时放左侧。`CombatHud` 新增商店面板 `UI.Game.Shop` 的开关与翻页（纯展示状态），控制器把装备栏、商店卡片和装备/属性提示只读组装进快照。
+
+详见 [equipment-and-stats.md](equipment-and-stats.md)。PR #5 合并前已通过 Unity 编译、251 项 Editor 检查、Windows 构建与 74 项 Player 检查，见 [验证记录](validation-stats-equipment-2026-10-22.md)。
+
+## 2026-10-21 自动攻击模块、Dota 2 式指令与敌人种类
+
+- `Abilities/Core/AutoAttack`：`AutoAttackDefinition`（ScriptableObject，只存配置）编译为 `AutoAttackData` 组件；`AutoAttackLogic.Step` 是纯函数，推进 `AutoAttackState`（目标、阶段、计时、冷却），返回开始/出手/取消事件，英雄（主线程 `StepHero`）和敌人（Burst `EnemyJob`）共用。伤害结算仍由宿主负责：英雄弹道走共享效果入口并触发普攻命中事件，敌人近战/弹道/冲锋/自爆写入英雄伤害队列。
+- 输入层只写 `HeroOrder`（Idle/Move/AttackTarget/AttackMove/Hold + 目标点 + 目标实体 + 序号），`StepHero` 处理新指令（打断前后摇，保留冷却）、目标有效性与牵引、自动索敌、按 `CombatSettings.TurnRate` 转身、移动与攻击节奏。鼠标点选敌人在 `GameCombatController.PickEnemy`（射线到敌人中心的距离，按体型放宽）。
+- 敌人：`Runtime/Combat/Enemies` 的 `EnemyArchetype`（预制体配置组件）与 `EnemyRoster`（名册）。`GameCombatSession.Reset` 先校验整份名册再清空旧会话；每个种类合并预制体网格后建一个 ECS 原型（`CombatEnemy` + `AutoAttackData/State` + `EnemyBehaviorData` + 实例颜色），种类表存为会话实体上的 `CombatEnemyKind` 缓冲；`CombatWaveDirector` 每波按档位、波次、权重抽种类，再乘种类倍率实例化。敌方弹体是 `HostileProjectile` 实体，由并行任务追踪英雄。
+- HUD：`CombatHud` 把 `CombatHudSnapshot` 转成面板键值，只在值变化时发布；`UIPanel` 新增填充方向（横向/纵向/径向）与显隐开关绑定。UI 不读取 ECS。
+- 移动中攻击（2026-10-22）：`CombatSettings.AttackWhileMoving` 来自英雄配置。`StepHero` 只决定意图（目标、是否追击、是否走向目的地）写成 `HeroMotion`，转身、攻击节奏与位移交给纯函数 `CombatSimulationSystem.StepMotion`；开启时前摇不定身、移动不等转身，移动指令只攻击攻击距离内的目标且不追击。
+- 技能悬停提示（2026-10-22）：Foundation 新增 `UIHoverAction`（悬停命令 + 悬停源登记到 `UIManager.HoverSource`）与 `UITooltip`（分段堆叠与定位，不读业务数据）。`CombatHud` 记录悬停槽位，控制器按槽位用 `AbilityTooltipBuilder` 从技能库 Blob、`AbilitySlot`、`AbilityUnit`、`HeroProgression` 只读组装 `AbilityTooltipView`，经 `CombatHud.TooltipKeys` 发布到 `UI.Game.AbilityTooltip`。说明文字是 `SkillDefinition.description`，只存展示配置。
+- 选中目标（2026-10-21）：控制器只记录左键选中的实体（展示状态，不进入指令或模拟）；HUD 刷新时 `TargetInfoBuilder` 只读该敌人的 `AbilityUnit`、`CombatEnemy`、自动攻击、行为与 Buff，结合会话的种类预制体（`GameCombatSession.EnemyArchetypes`）和 Buff 定义生成 `TargetInfoView`，再由 `CombatHud` 发布到 `UI.Game.TargetInfo`。目标失效时自动取消选中。
+
+详见 [enemies-and-controls.md](enemies-and-controls.md)。Unity 编译与运行**未验证**。
+
+后续开发遵循 [模块化与胶水层规范](../architecture-guidelines.md)。Game 是持续开发的战斗场景，当前操作见[Game 战斗指南](game-combat.md)；旧文档中的 Game Demo 称谓仅指历史交付版本。
+
+用户新增场景可维护性要求后，已完成其中的场景展示迁移：固定 UI、场地、主角外观、移动标记和 EventSystem 保存到 Game；HUD 通过展示快照与重开事件连接。迁移工具只在 Editor 中创建缺失展示，运行时不再拼装这些固定对象。修改入口和所有权见 [场景维护说明](scene-authoring.md)。
+
+状态：3D 俯视角、PC、基础框架与独立压测场景已确认；URP 和基础 ECS 已实现。Game 已有追逐、自动索敌、追踪弹、伤害和死亡重开。本轮以四份 ScriptableObject 配置、W/E/R 指示器和 E 目标点范围伤害替换旧技能接入；Game 视野机制关闭，独立 FogOfWarDemo 保留。Game 场景资产已绑定，最终版隔离 Unity 编译、CombatValidation、Windows Player 构建与 3000 敌人 Player 技能冒烟通过；主项目 Editor 未单独运行，万敌完整战斗性能仍待验证，见[接入说明](ashe-game-integration.md)。
+
+## 系统边界建议
+
+| 层 | 职责 | 约束 |
+| --- | --- | --- |
+| Authoring / Baking | 编辑期配置和实体预制体烘焙 | 使用与实际 Entities 版本匹配的 Baker；不要混用早期 ConvertToEntity 教程 |
+| ECS Simulation | EnemyTag / Health / MoveSpeed 及 Combat 数据；追逐、索敌、子弹与结算 | Burst + Jobs；明确依赖和系统更新顺序；避免每实体 MonoBehaviour.Update |
+| ECS Presentation | 从模拟状态驱动批量显示 | 渲染路径取决于 2D/3D 选择；动画成本单独评估 |
+| GameObject 边界 | UI、相机、输入、声音和少量交互对象 | 通过有限桥接读写 ECS，不为每只敌人创建桥接 GameObject |
+| 配置与流程 | 关卡流程、刷怪参数、资源加载 | 配置与高频运行数据分离；新模块通过 asmdef 隔离 |
+
+现有两套管理工具先保留。逐项确认调用者后再迁移，避免一次性重写 UI、场景和资源管理。现有 GameObjectPool/PoolMgr 不直接承担万级单位模拟。
+
+## 渲染路线
+
+- 已采用 URP Universal Renderer + Forward+ + Entities Graphics；材质需支持 DOTS Instancing。当前压测为 URP Unlit 共享立方体，实际 3D 模型和动画后续接入。
+- 按目标平台设置阴影、附加光源、MSAA、深度/不透明纹理和后处理预算；不要只降低画质后宣称万级战斗达标。
+
+官方参考：[Entities Graphics 功能矩阵](https://docs.unity.cn/Packages/com.unity.entities.graphics%401.4/manual/entities-graphics-versions.html)。包版本和限制以实际解析版本的文档为准。
+
+## ECS 高频路径约束
+
+- 纯数据组件；先实现有明确需求的字段，避免预建大量空框架。
+- 批量生成/销毁与 EntityCommandBuffer；测量结构变化和同步点开销。
+- 空间网格或其他局部查询处理邻居、命中和索敌，避免全体两两遍历。
+- 根据玩法确认是否需要 Unity Physics；不默认给一万实体添加完整刚体。
+- 避免高频托管分配、逐帧全量实体数据复制、每实体事件广播与 Transform 同步。
+- 系统在没有必要单例/实体时不工作；关卡卸载和重新进入要释放 Native 容器和外部引用。
+
+## 落地顺序
+
+1. 已确认画面、平台、数量定义和本轮范围。
+2. Unity Package Manager 已解析 Entities 1.4.8、Entities Graphics 1.4.21；锁文件由 Unity 生成。Burst、Collections、Mathematics 随依赖解析。
+3. 已创建并绑定 URP 管线与 Renderer 资源，各 Quality 继承全局设置。
+4. 已建立 Roguelike.Runtime / Roguelike.Editor 程序集与 EnemyAuthoring Baker。压测采用运行时批量实例化网格实体，无需等待 SubScene 烘焙。
+5. 已建立独立 Benchmark10k 场景和专用系统；BenchmarkOwned 标记负责退出清理，BenchmarkSettings 控制合成负载。并行运动在 TransformSystemGroup 前更新。
+6. 编译、万实体逻辑检查、Windows Release 构建和短时 Player 验证通过；具体玩法另行确认后接入。视觉验收、Editor 重进与正式性能测量待做。
+
+## Game 战斗更新顺序
+
+2026-10-22 起成长命令之后串行处理装备指令（购买/出售，变化时重算属性），击杀金币与经验一起在 ECB 回放后结算，见 [equipment-and-stats.md](equipment-and-stats.md)。2026-10-21 起在下述顺序中加入成长与波次：英雄存活时先串行处理 `ProgressionCommand`（学习技能、选天赋），ECB 回放后累计击杀经验、结算升级并重算属性，再按 `CombatWaveState.NextWaveAt` 每帧最多刷一波；胜利后整局冻结，阵亡记为失败。详见 [hero-progression.md](hero-progression.md)。
+
+（2026-10-21 起：输入桥接写入 HeroOrder → StepHero 转身/移动/自动攻击 → Burst 并行敌人行为与敌方弹体 → 汇总英雄伤害；下面为旧顺序。）输入桥接写入 CombatPlayer.Destination → 玩家移动 → Burst 并行敌人追逐/近战伤害队列 → 汇总玩家伤害与死亡 → 在途弹体追踪/命中 → 到开火间隔时搜索最近存活敌人并生成弹体 → ECB 批量播放结构变化 → TransformSystemGroup 更新渲染变换 → MonoBehaviour LateUpdate 同步玩家外观、镜头和 HUD。
+
+CombatOwned 标记会话拥有的实体（含弹体 Prefab），重开和控制器销毁时集中清理。CombatEnemy 与 BenchmarkAgent 分离，各自系统不会处理对方实体。玩家死亡后冻结当前战斗状态，重开恢复配置和数量。
+
+单玩家索敌采用每次开火 O(N) 扫描，避免每帧逐弹体遍历全部敌人。追踪弹只读取指定目标。W 扇形与 E/R 范围效果会增加对怪物集合的扫描成本；Game 完整万敌战斗仍须 Player 测量，再决定空间索引与批量查询优化。
+
+## 验证状态
+
+已从项目本地 URP 17.3.0 包内资源建立 Assets/Settings/Rendering/RoguelikeURP.asset 和 RoguelikeForwardPlusRenderer.asset；清除示例管线对多个示例 Renderer 的引用，只保留新建 Forward+ Renderer。已启用 SRP Batcher，关闭默认深度/不透明纹理请求和附加光阴影。其余画质为起步值，待平台与性能目标确定后调优。
+
+GraphicsSettings 已绑定管线，现有 Quality 各档无独立覆盖，继承全局管线。原始 GraphicsSettings 和 QualitySettings 保存在 Backups/urp-migration-20260922。恢复时在 Unity 关闭后用备份覆盖同名 ProjectSettings 文件。
+
+完成文件级配置和 GUID 检查，Unity 已导入管线并注册 URP 全局设置；BRG 变体保留为 KeepAll，项目使用 Linear 色彩空间。独立验证副本位于 Temp/AgentValidation，输出日志位于 Logs/AgentValidation.log。最终状态见 requirements.md 和性能记录。
+
+## 已移除的独立演示（2026-10-24）
+
+用户在重设计定稿时决定删除战争迷雾的功能、代码和场景以及其他演示，技能编辑器保留（见 [远征闯关重设计](../redesign-expedition.md)）。已删除：`Roguelike.FogOfWar` / `Roguelike.FogOfWar.Editor` 程序集与 `FogOfWarDemo` 场景、Game 中封存的 `CombatFogSession.cs`；技能架构演示 `Roguelike.Abilities` 运行时程序集（`SkillDemo*`、`AbilityJobs`、`SkillSimulationSystem`）与 `SkillArchitectureDemo` 场景；技能指示器演示（`IndicatorDemo*`、`CircleTargeting`、`CircleSkillPreset`、`IndicatorFeedback`、`Roguelike.SkillIndicators.Editor`）与 `SkillIndicatorDemo` 场景；三组演示面板 Prefab。
+
+游戏在用的部分已迁到 `Assets/Game/Skills/Indicators`，保留原 GUID：`Runtime/CircleIndicatorView.cs`（程序集名仍为 `Roguelike.SkillIndicators`，只剩这一份通用圆形视图）和 `Meshes/UnitDisk.asset`、`Meshes/UnitRing.asset`（施法距离圈和落点圈 Prefab 使用）。`Roguelike.Abilities.Core` 与共享技能核心不变。需要找回旧实现时，从 git 历史（提交 `9bd09b3` 及之前）恢复。
+
+## Game 技能与指示器适配（2026-09-23）
+
+`GameCombatController` 是 Game 会话装配和输入桥接：四份 `CombatQ/W/E/RSkillConfig` ScriptableObject 在重开时填入 `CombatAbilitySettings` ECS 数值快照；冷却、层数和充能属于会话状态，不写回资源。`CombatSimulationSystem` 消费 `CombatAbilityCommand`，统一处理 Q/W/E/R、伤害/击杀和敌人减速、眩晕。E 使用 `CombatAreaProjectile` 飞向目标点，抵达后按半径造成一次范围伤害；R 仍命中第一只怪物后爆炸。
+
+`GameAbilityIndicator` 只维护 W 扇形、E 距离与落点圆、R 直线的可视化及瞄准状态；指示器不结算伤害。Game 输入将左键确认的目标和方向提交给 ECS，右键或 Esc 取消，HUD 区域和无效地面投影不得复用旧落点。固定圆环与轮廓线由 Game 场景的 `03_Presentation/Effects` 持有；`CombatHud` 通过场景 UI 事件转发技能槽意图并展示快照，不读取 ECS。`Roguelike.Runtime` 复用 `Roguelike.SkillIndicators` 程序集中的通用圆形视图（2026-10-24 起该程序集只保留这一份视图，位于 `Assets/Game/Skills/Indicators/Runtime`）。
+
+Game 当前关闭迷雾、昼夜、真视、隐身和视野过滤，自动攻击面向全部存活怪物。旧 Game 迷雾适配曾封存在 `CombatFogSession.cs`，2026-10-24 已与独立 `FogOfWarDemo` 一起删除。Game 场景已绑定四份 `Assets/Game/Skills` 配置资产、两只技能圆环、一条轮廓线和 HUD 技能按钮；地面改用 GameGround，旧视野组件已移除，`enemyCount=3000`、`safeSpawnRadius=30` 保留。隔离副本 Unity 迁移与最终版 CombatValidation、Windows Player 构建、3000 敌人技能冒烟通过；证据位于 `D:\UnityProject\myGame_validation_20260923` 的 `migration2.log`、`build4.log`、`player3.log`、`Smoke3/result.json` 和 `Smoke3/e-aim.png`。右键按住取消瞄准后的移动抑制已静态修复，但真实鼠标输入未测。生成场景资产已复制回主项目，主项目 Editor 未单独运行。旧 Game 迷雾 Player 记录是历史证据；一万可见参战是目标，完整战斗 FPS 未测。详见[接入说明](ashe-game-integration.md)。
+
+## 独立技能架构模块（2026-09-23）
+
+Assets/Game/Abilities 以 ScriptableObject 编写共享配置，启动时编译为 Blob；等级、冷却和 Buff 保存在拥有者 ECS 数据中。技能按投放类型、阵营、范围、效果列表组合，被动在学会/移除或普攻命中入口调用同一效果层。作业流水线为 Buff/移动 → 空间网格 → 命令校验与区域查询 → 请求排序与统一写回 → 摘要。效果写回为单 Burst Job；不为万单位创建事件订阅或 MonoBehaviour。输入、UI、展示与会话装配分开，静态节点保存到场景。当时的独立演示（skill-architecture-demo.md）已于 2026-10-24 删除，共享配置与核心保留在 `Roguelike.Abilities.Core`。
+
+## 场景/UI 模块统一（2026-09-23）
+
+所有 7 个场景已采用 Bootstrap、Systems、World、Presentation、UI、Debug 分组（2026-10-23 新增的 EmberRift 沿用同一分组；2026-10-24 删除三个演示场景后为 Main、SelectScene、Game、EmberRift、Benchmark10k 5 个）。新增独立 Roguelike.Foundation 程序集：场景级 UIManager 管理面板生命周期，UIPanel 只绑定内部控件，UIAction 通过 UiEvents 发出命令，模块 HUD 适配器发布展示快照。15 个常驻面板保存成 Prefab，另有 F1 按需加载的开发说明。ResourcePaths 统一解析 ProjectResourceCatalog.json，旧资源加载入口也转到该清单。世界常驻资源继续保留 Inspector 引用。迷雾 contentRoot 显式定义查找作用域，避免控制器对子节点排布的隐式依赖。详细使用、扩展和设计来源见 scene-ui-framework.md。
+

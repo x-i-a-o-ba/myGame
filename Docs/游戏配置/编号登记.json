@@ -7,7 +7,7 @@
             "assetKey": "3124da9ddd961dc4bb9e5dc1160e0e78:11400000",
             "stableId": "ability.frost_focus",
             "path": "Assets/GameData/技能/1000_冰霜专注.asset",
-            "name": "冰霜专注",
+            "name": "1000_冰霜专注",
             "retired": false
         },
         {
@@ -16,7 +16,7 @@
             "assetKey": "05ec15d5330abe5419bcbfdedf778c67:11400000",
             "stableId": "ability.volley",
             "path": "Assets/GameData/技能/1001_冰霜扇击.asset",
-            "name": "冰霜扇击",
+            "name": "1001_冰霜扇击",
             "retired": false
         },
         {
@@ -25,7 +25,7 @@
             "assetKey": "f0d6ef98d0304cd4397e5fa7e1d12581:11400000",
             "stableId": "ability.frost_impact",
             "path": "Assets/GameData/技能/1002_冰霜冲击.asset",
-            "name": "冰霜冲击",
+            "name": "1002_冰霜冲击",
             "retired": false
         },
         {
@@ -34,7 +34,7 @@
             "assetKey": "7344d4fce2cd8214ba3e75c4588a3cc5:11400000",
             "stableId": "ability.crystal_arrow",
             "path": "Assets/GameData/技能/1003_冰晶巨箭.asset",
-            "name": "冰晶巨箭",
+            "name": "1003_冰晶巨箭",
             "retired": false
         },
         {
@@ -70,7 +70,7 @@
             "assetKey": "c603a2f790c17ba4293be5d65a4c507d:11400000",
             "stableId": "ability.a1a0adca2d274b72b6a4c7e61d4dcebf",
             "path": "Assets/GameData/编辑示例/技能工作台/1007_范围技能示例.asset",
-            "name": "范围技能示例",
+            "name": "1007_范围技能示例",
             "retired": false
         },
         {
@@ -110,12 +110,156 @@
             "retired": false
         },
         {
+            "id": 1100,
+            "category": "skill",
+            "assetKey": "7e24ba6854822c441bcf0decd978c983:11400000",
+            "stableId": "ability.form_1100",
+            "path": "Assets/GameData/技能/形态/1100_霜爆箭.asset",
+            "name": "1100_霜爆箭",
+            "retired": false
+        },
+        {
+            "id": 1101,
+            "category": "skill",
+            "assetKey": "0d5cd9f065d501545a9e04fb84331fc1:11400000",
+            "stableId": "ability.form_1101",
+            "path": "Assets/GameData/技能/形态/1101_穿霜箭.asset",
+            "name": "1101_穿霜箭",
+            "retired": false
+        },
+        {
+            "id": 1102,
+            "category": "skill",
+            "assetKey": "60b8a6c7b9454a04384d0c434f67488d:11400000",
+            "stableId": "ability.form_1102",
+            "path": "Assets/GameData/技能/形态/1102_贯穿齐射.asset",
+            "name": "1102_贯穿齐射",
+            "retired": false
+        },
+        {
+            "id": 1103,
+            "category": "skill",
+            "assetKey": "d2a3e80bb37ad364ba6b34a775129b40:11400000",
+            "stableId": "ability.form_1103",
+            "path": "Assets/GameData/技能/形态/1103_三重齐射.asset",
+            "name": "1103_三重齐射",
+            "retired": false
+        },
+        {
+            "id": 1104,
+            "category": "skill",
+            "assetKey": "b33062b35cf6034408b51d9f939bbb3e:11400000",
+            "stableId": "ability.form_1104",
+            "path": "Assets/GameData/技能/形态/1104_连环冰爆.asset",
+            "name": "1104_连环冰爆",
+            "retired": false
+        },
+        {
+            "id": 1105,
+            "category": "skill",
+            "assetKey": "41acad41db9b0de49ac7e9047fd3fffa:11400000",
+            "stableId": "ability.form_1105",
+            "path": "Assets/GameData/技能/形态/1105_永冻之地.asset",
+            "name": "1105_永冻之地",
+            "retired": false
+        },
+        {
+            "id": 1106,
+            "category": "skill",
+            "assetKey": "40950cbe95c301447a656fb3e191854a:11400000",
+            "stableId": "ability.form_1106",
+            "path": "Assets/GameData/技能/形态/1106_冰晶迸裂.asset",
+            "name": "1106_冰晶迸裂",
+            "retired": false
+        },
+        {
+            "id": 1107,
+            "category": "skill",
+            "assetKey": "ada03dcced4083842b54dc3aa1538690:11400000",
+            "stableId": "ability.form_1107",
+            "path": "Assets/GameData/技能/形态/1107_极寒禁锢.asset",
+            "name": "1107_极寒禁锢",
+            "retired": false
+        },
+        {
+            "id": 1108,
+            "category": "skill",
+            "assetKey": "2411d1b44c57d794296a8dbe522bf8f2:11400000",
+            "stableId": "ability.form_1108",
+            "path": "Assets/GameData/技能/形态/1108_裂地剑波.asset",
+            "name": "1108_裂地剑波",
+            "retired": false
+        },
+        {
+            "id": 1109,
+            "category": "skill",
+            "assetKey": "951253b2fbe7cc14cae74c64ba0f1ebe:11400000",
+            "stableId": "ability.form_1109",
+            "path": "Assets/GameData/技能/形态/1109_回身重斩.asset",
+            "name": "1109_回身重斩",
+            "retired": false
+        },
+        {
+            "id": 1110,
+            "category": "skill",
+            "assetKey": "ee66b27fd1608814da8cbdfdbdf53957:11400000",
+            "stableId": "ability.form_1110",
+            "path": "Assets/GameData/技能/形态/1110_不屈反击.asset",
+            "name": "1110_不屈反击",
+            "retired": false
+        },
+        {
+            "id": 1111,
+            "category": "skill",
+            "assetKey": "1fc25602640790047aab05270304ee73:11400000",
+            "stableId": "ability.form_1111",
+            "path": "Assets/GameData/技能/形态/1111_震地战歌.asset",
+            "name": "1111_震地战歌",
+            "retired": false
+        },
+        {
+            "id": 1112,
+            "category": "skill",
+            "assetKey": "24e3ee66c8fa6ea4dac8098c36f6e9be:11400000",
+            "stableId": "ability.form_1112",
+            "path": "Assets/GameData/技能/形态/1112_随行刃阵.asset",
+            "name": "1112_随行刃阵",
+            "retired": false
+        },
+        {
+            "id": 1113,
+            "category": "skill",
+            "assetKey": "49b9661cc3f533644900340389093629:11400000",
+            "stableId": "ability.form_1113",
+            "path": "Assets/GameData/技能/形态/1113_双环刃阵.asset",
+            "name": "1113_双环刃阵",
+            "retired": false
+        },
+        {
+            "id": 1114,
+            "category": "skill",
+            "assetKey": "2c5323da526584647975a456ba8e1d03:11400000",
+            "stableId": "ability.form_1114",
+            "path": "Assets/GameData/技能/形态/1114_群峰落刃.asset",
+            "name": "1114_群峰落刃",
+            "retired": false
+        },
+        {
+            "id": 1115,
+            "category": "skill",
+            "assetKey": "dcc4269513aaca2479565b4ebc7c3123:11400000",
+            "stableId": "ability.form_1115",
+            "path": "Assets/GameData/技能/形态/1115_裂地余威.asset",
+            "name": "1115_裂地余威",
+            "retired": false
+        },
+        {
             "id": 2000,
             "category": "hero",
             "assetKey": "f29047387b5e76b429c30ea469a0e3f5:11400000",
             "stableId": "hero.frost_archer",
             "path": "Assets/GameData/英雄/2000_寒冰射手.asset",
-            "name": "寒冰射手",
+            "name": "2000_寒冰射手",
             "retired": false
         },
         {
@@ -124,7 +268,7 @@
             "assetKey": "42ce87a7ad244e4409e2f72ccb13b18e:11400000",
             "stableId": "hero.frost_archer_alternate",
             "path": "Assets/GameData/编辑示例/换槽/2001_寒冰射手·换槽示例.asset",
-            "name": "寒冰射手·换槽示例",
+            "name": "2001_寒冰射手·换槽示例",
             "retired": false
         },
         {
@@ -295,7 +439,7 @@
             "assetKey": "12a4173b07c489743a78d1e76080174e:11400000",
             "stableId": "effect.9461525a7492404b8e18bf95738f6069",
             "path": "Assets/GameData/编辑示例/技能工作台/4000_范围技能示例·伤害效果.asset",
-            "name": "范围技能示例·伤害效果",
+            "name": "4000_范围技能示例·伤害效果",
             "retired": false
         },
         {
@@ -304,7 +448,7 @@
             "assetKey": "56f3d5343f0cd4748b26912b820099ed:11400000",
             "stableId": "effect.ca77a76ab9b249219c00753aa078a9fa",
             "path": "Assets/GameData/效果/4001_冰晶爆炸伤害.asset",
-            "name": "冰晶爆炸伤害",
+            "name": "4001_冰晶爆炸伤害",
             "retired": false
         },
         {
@@ -313,7 +457,7 @@
             "assetKey": "791f711cea9d82349a2673209014f12b:11400000",
             "stableId": "effect.6653cd78205341239d33d86fb47d7fb4",
             "path": "Assets/GameData/效果/4002_冰晶首中伤害.asset",
-            "name": "冰晶首中伤害",
+            "name": "4002_冰晶首中伤害",
             "retired": false
         },
         {
@@ -322,7 +466,7 @@
             "assetKey": "db8c2bb5d7ba7f749a103ad76e0cb467:11400000",
             "stableId": "effect.47fd7946cfdb4f80843f46b888106ee2",
             "path": "Assets/GameData/效果/4003_冰霜冲击伤害.asset",
-            "name": "冰霜冲击伤害",
+            "name": "4003_冰霜冲击伤害",
             "retired": false
         },
         {
@@ -331,7 +475,7 @@
             "assetKey": "51df81526f9ecc347b643ed08bb01a42:11400000",
             "stableId": "effect.5b2e0dd30abb4011a84f06b01bfe4979",
             "path": "Assets/GameData/效果/4004_冰霜扇击伤害.asset",
-            "name": "冰霜扇击伤害",
+            "name": "4004_冰霜扇击伤害",
             "retired": false
         },
         {
@@ -340,7 +484,7 @@
             "assetKey": "eaad2490a23cc8e48979266996d47b08:11400000",
             "stableId": "effect.ee1720bbecfa4fae88de5169e8239271",
             "path": "Assets/GameData/效果/4005_施加冰晶减速.asset",
-            "name": "施加冰晶减速",
+            "name": "4005_施加冰晶减速",
             "retired": false
         },
         {
@@ -349,7 +493,7 @@
             "assetKey": "a4c1d3c1a9f724049a8061a26c91974b:11400000",
             "stableId": "effect.645fd12511cd440483f47d5e53c58c3b",
             "path": "Assets/GameData/效果/4006_施加冰晶眩晕.asset",
-            "name": "施加冰晶眩晕",
+            "name": "4006_施加冰晶眩晕",
             "retired": false
         },
         {
@@ -358,7 +502,7 @@
             "assetKey": "e5d9c5d164c6cd04981fa8b845c0239c:11400000",
             "stableId": "effect.44ed1aebdd5e4de0a989f3007cad7861",
             "path": "Assets/GameData/效果/4007_施加冰霜专注.asset",
-            "name": "施加冰霜专注",
+            "name": "4007_施加冰霜专注",
             "retired": false
         },
         {
@@ -367,7 +511,7 @@
             "assetKey": "72282bc99f34428428ee275e7bff9ac4:11400000",
             "stableId": "effect.a982e694958845c1bd2af1b286dbaac6",
             "path": "Assets/GameData/效果/4008_施加扇击减速.asset",
-            "name": "施加扇击减速",
+            "name": "4008_施加扇击减速",
             "retired": false
         },
         {
@@ -376,7 +520,7 @@
             "assetKey": "4dae654f45f148ca8cf287121dccb906:11400000",
             "stableId": "effect.generic_heal",
             "path": "Assets/GameData/效果/4009_通用治疗.asset",
-            "name": "通用治疗",
+            "name": "4009_通用治疗",
             "retired": false
         },
         {
@@ -385,7 +529,7 @@
             "assetKey": "3a70e3fa0813430392c9b0fb5ba19c0f:11400000",
             "stableId": "effect.generic_dispel",
             "path": "Assets/GameData/效果/4010_通用驱散.asset",
-            "name": "通用驱散",
+            "name": "4010_通用驱散",
             "retired": false
         },
         {
@@ -407,12 +551,210 @@
             "retired": false
         },
         {
+            "id": 4050,
+            "category": "effect",
+            "assetKey": "2f22269a7b862fb41b017ee5984f0b78:11400000",
+            "stableId": "effect.expedition_damage",
+            "path": "Assets/GameData/效果/4050_远征通用伤害.asset",
+            "name": "4050_远征通用伤害",
+            "retired": false
+        },
+        {
+            "id": 4051,
+            "category": "effect",
+            "assetKey": "63bfc1acc9b7bf04ab0b1ae653c768ac:11400000",
+            "stableId": "effect.attack_scaled",
+            "path": "Assets/GameData/效果/4051_攻击倍率伤害.asset",
+            "name": "4051_攻击倍率伤害",
+            "retired": false
+        },
+        {
+            "id": 4052,
+            "category": "effect",
+            "assetKey": "3ec2586d7df7cde4aa2c742f5cca2891:11400000",
+            "stableId": "effect.pull",
+            "path": "Assets/GameData/效果/4052_聚拢敌群.asset",
+            "name": "4052_聚拢敌群",
+            "retired": false
+        },
+        {
+            "id": 4053,
+            "category": "effect",
+            "assetKey": "64b4e026416b40e4aa8b8673b0b7f3d8:11400000",
+            "stableId": "effect.expedition_4053",
+            "path": "Assets/GameData/效果/4053_寒箭减速.asset",
+            "name": "4053_寒箭减速",
+            "retired": false
+        },
+        {
+            "id": 4054,
+            "category": "effect",
+            "assetKey": "41b7ae2a83a6cb24d80b004c956f86d7:11400000",
+            "stableId": "effect.expedition_4054",
+            "path": "Assets/GameData/效果/4054_冰晶冻结.asset",
+            "name": "4054_冰晶冻结",
+            "retired": false
+        },
+        {
+            "id": 4055,
+            "category": "effect",
+            "assetKey": "24b0b41da410efa4aa09b225b9783861:11400000",
+            "stableId": "effect.expedition_4055",
+            "path": "Assets/GameData/效果/4055_严冬易伤.asset",
+            "name": "4055_严冬易伤",
+            "retired": false
+        },
+        {
+            "id": 4056,
+            "category": "effect",
+            "assetKey": "d2fe3f2d393307149a303e424d6b20af:11400000",
+            "stableId": "effect.expedition_4056",
+            "path": "Assets/GameData/效果/4056_短暂眩晕.asset",
+            "name": "4056_短暂眩晕",
+            "retired": false
+        },
+        {
+            "id": 4057,
+            "category": "effect",
+            "assetKey": "fbf6a2530197b154fa9b56c92e4bc835:11400000",
+            "stableId": "effect.expedition_4057",
+            "path": "Assets/GameData/效果/4057_冰面迟缓.asset",
+            "name": "4057_冰面迟缓",
+            "retired": false
+        },
+        {
+            "id": 4058,
+            "category": "effect",
+            "assetKey": "e8a4cf96f1c4a95408d2f5d254693eb6:11400000",
+            "stableId": "effect.expedition_4058",
+            "path": "Assets/GameData/效果/4058_刃阵迟缓.asset",
+            "name": "4058_刃阵迟缓",
+            "retired": false
+        },
+        {
+            "id": 4059,
+            "category": "effect",
+            "assetKey": "7d519c509f1e29548b4c914757604899:11400000",
+            "stableId": "effect.expedition_4059",
+            "path": "Assets/GameData/效果/4059_冰霜专注状态.asset",
+            "name": "4059_冰霜专注状态",
+            "retired": false
+        },
+        {
+            "id": 4060,
+            "category": "effect",
+            "assetKey": "5aedba0bf597ab84bbe77ef72842cbb0:11400000",
+            "stableId": "effect.expedition_4060",
+            "path": "Assets/GameData/效果/4060_霜爆专注状态.asset",
+            "name": "4060_霜爆专注状态",
+            "retired": false
+        },
+        {
+            "id": 4061,
+            "category": "effect",
+            "assetKey": "2cda6eb3de555374aa4c0a55f816d6c4:11400000",
+            "stableId": "effect.expedition_4061",
+            "path": "Assets/GameData/效果/4061_穿霜专注状态.asset",
+            "name": "4061_穿霜专注状态",
+            "retired": false
+        },
+        {
+            "id": 4062,
+            "category": "effect",
+            "assetKey": "fb872e09cc9b14e4e940da1791ff7821:11400000",
+            "stableId": "effect.expedition_4062",
+            "path": "Assets/GameData/效果/4062_磐石战歌状态.asset",
+            "name": "4062_磐石战歌状态",
+            "retired": false
+        },
+        {
+            "id": 4063,
+            "category": "effect",
+            "assetKey": "846d2a1a606c99643bc5ed66f158ae48:11400000",
+            "stableId": "effect.expedition_4063",
+            "path": "Assets/GameData/效果/4063_不屈反击状态.asset",
+            "name": "4063_不屈反击状态",
+            "retired": false
+        },
+        {
+            "id": 4064,
+            "category": "effect",
+            "assetKey": "633b4b72995da65488b5d02652ef1ecf:11400000",
+            "stableId": "effect.expedition_4064",
+            "path": "Assets/GameData/效果/4064_霜语命中减速.asset",
+            "name": "4064_霜语命中减速",
+            "retired": false
+        },
+        {
+            "id": 4065,
+            "category": "effect",
+            "assetKey": "e12301d5fce4dd5478bd0f5c17b9d62c:11400000",
+            "stableId": "effect.expedition_4065",
+            "path": "Assets/GameData/效果/4065_余烬技能灼烧.asset",
+            "name": "4065_余烬技能灼烧",
+            "retired": false
+        },
+        {
+            "id": 4066,
+            "category": "effect",
+            "assetKey": "271a668f02b6fd848b2b48765aaa5238:11400000",
+            "stableId": "effect.expedition_4066",
+            "path": "Assets/GameData/效果/4066_闪电链伤害.asset",
+            "name": "4066_闪电链伤害",
+            "retired": false
+        },
+        {
+            "id": 4067,
+            "category": "effect",
+            "assetKey": "598087f579509f64ca6e46dfd98273e5:11400000",
+            "stableId": "effect.expedition_4067",
+            "path": "Assets/GameData/效果/4067_巨斧溅射.asset",
+            "name": "4067_巨斧溅射",
+            "retired": false
+        },
+        {
+            "id": 4068,
+            "category": "effect",
+            "assetKey": "ba4a2f4429acd464985ae0ccbabfe0b3:11400000",
+            "stableId": "effect.expedition_4068",
+            "path": "Assets/GameData/效果/4068_风暴落雷.asset",
+            "name": "4068_风暴落雷",
+            "retired": false
+        },
+        {
+            "id": 4069,
+            "category": "effect",
+            "assetKey": "5f5b845efaf7f84409a9e2f6aedb0b34:11400000",
+            "stableId": "effect.expedition_4069",
+            "path": "Assets/GameData/效果/4069_怪物震地迟缓.asset",
+            "name": "4069_怪物震地迟缓",
+            "retired": false
+        },
+        {
+            "id": 4070,
+            "category": "effect",
+            "assetKey": "10bbdbc5acc1b6f479a63558081f437c:11400000",
+            "stableId": "effect.expedition_4070",
+            "path": "Assets/GameData/效果/4070_怪物冰环冻结.asset",
+            "name": "4070_怪物冰环冻结",
+            "retired": false
+        },
+        {
+            "id": 4071,
+            "category": "effect",
+            "assetKey": "8c835be93d3e6a24ca2ec0545449ff5c:11400000",
+            "stableId": "effect.expedition_4071",
+            "path": "Assets/GameData/效果/4071_精英寒霜命中.asset",
+            "name": "4071_精英寒霜命中",
+            "retired": false
+        },
+        {
             "id": 5000,
             "category": "buff",
             "assetKey": "62c02bb0e97e79640a5ce69045c8ea40:11400000",
             "stableId": "buff.burn",
             "path": "Assets/GameData/Buff/5000_灼烧.asset",
-            "name": "Burn",
+            "name": "5000_灼烧",
             "retired": false
         },
         {
@@ -421,7 +763,7 @@
             "assetKey": "62dac026455ec614988ddefbb45b72be:11400000",
             "stableId": "buff.frost",
             "path": "Assets/GameData/Buff/5001_冰霜减速.asset",
-            "name": "Frost Slow",
+            "name": "5001_冰霜减速",
             "retired": false
         },
         {
@@ -430,7 +772,7 @@
             "assetKey": "174a49731759d6e4396fa7fc423768a8:11400000",
             "stableId": "buff.haste",
             "path": "Assets/GameData/Buff/5002_急速.asset",
-            "name": "Haste",
+            "name": "5002_急速",
             "retired": false
         },
         {
@@ -439,7 +781,7 @@
             "assetKey": "053600e8f5a15eb49b3cbe45a8854734:11400000",
             "stableId": "buff.poison",
             "path": "Assets/GameData/Buff/5003_中毒.asset",
-            "name": "Poison",
+            "name": "5003_中毒",
             "retired": false
         },
         {
@@ -448,7 +790,7 @@
             "assetKey": "3d73348ebfdb4044ab6ad5832c043058:11400000",
             "stableId": "buff.vitality",
             "path": "Assets/GameData/Buff/5004_活力.asset",
-            "name": "Vitality",
+            "name": "5004_活力",
             "retired": false
         },
         {
@@ -457,7 +799,7 @@
             "assetKey": "3a8394a740d5701468ed3a904aee6c3d:11400000",
             "stableId": "buff.crystal_slow",
             "path": "Assets/GameData/Buff/5005_冰晶减速.asset",
-            "name": "冰晶减速",
+            "name": "5005_冰晶减速",
             "retired": false
         },
         {
@@ -466,7 +808,7 @@
             "assetKey": "0fb1c0d09d44d4e4e88bff3eba485966:11400000",
             "stableId": "buff.crystal_stun",
             "path": "Assets/GameData/Buff/5006_冰晶眩晕.asset",
-            "name": "冰晶眩晕",
+            "name": "5006_冰晶眩晕",
             "retired": false
         },
         {
@@ -475,7 +817,7 @@
             "assetKey": "24eb8f36bb568274bb8b7bfc73c60bae:11400000",
             "stableId": "buff.frost_focus",
             "path": "Assets/GameData/Buff/5007_冰霜专注.asset",
-            "name": "冰霜专注",
+            "name": "5007_冰霜专注",
             "retired": false
         },
         {
@@ -484,7 +826,7 @@
             "assetKey": "791f470112b04214a9115b491531fc18:11400000",
             "stableId": "buff.volley_slow",
             "path": "Assets/GameData/Buff/5008_扇击减速.asset",
-            "name": "扇击减速",
+            "name": "5008_扇击减速",
             "retired": false
         },
         {
@@ -506,12 +848,156 @@
             "retired": false
         },
         {
+            "id": 5050,
+            "category": "buff",
+            "assetKey": "12d2cfcba22446b40b1db10b5b3e06b4:11400000",
+            "stableId": "buff.expedition_5050",
+            "path": "Assets/GameData/Buff/5050_寒箭减速.asset",
+            "name": "5050_寒箭减速",
+            "retired": false
+        },
+        {
+            "id": 5051,
+            "category": "buff",
+            "assetKey": "391ce4b1750ee4d4db23d4e842d39b39:11400000",
+            "stableId": "buff.expedition_5051",
+            "path": "Assets/GameData/Buff/5051_冰晶冻结.asset",
+            "name": "5051_冰晶冻结",
+            "retired": false
+        },
+        {
+            "id": 5052,
+            "category": "buff",
+            "assetKey": "25743d8989ce856428803c8c0bf9814d:11400000",
+            "stableId": "buff.expedition_5052",
+            "path": "Assets/GameData/Buff/5052_严冬易伤.asset",
+            "name": "5052_严冬易伤",
+            "retired": false
+        },
+        {
+            "id": 5053,
+            "category": "buff",
+            "assetKey": "45fadfd211a76374a982263bdad5e072:11400000",
+            "stableId": "buff.expedition_5053",
+            "path": "Assets/GameData/Buff/5053_短暂眩晕.asset",
+            "name": "5053_短暂眩晕",
+            "retired": false
+        },
+        {
+            "id": 5054,
+            "category": "buff",
+            "assetKey": "9cadb04b011b8bb40a519bd5cd778aaf:11400000",
+            "stableId": "buff.expedition_5054",
+            "path": "Assets/GameData/Buff/5054_冰面迟缓.asset",
+            "name": "5054_冰面迟缓",
+            "retired": false
+        },
+        {
+            "id": 5055,
+            "category": "buff",
+            "assetKey": "7e026b91a6fec674e802189cc1ac4b5e:11400000",
+            "stableId": "buff.expedition_5055",
+            "path": "Assets/GameData/Buff/5055_刃阵迟缓.asset",
+            "name": "5055_刃阵迟缓",
+            "retired": false
+        },
+        {
+            "id": 5056,
+            "category": "buff",
+            "assetKey": "b816b636ce3969945adfd9e97ec23d74:11400000",
+            "stableId": "buff.expedition_5056",
+            "path": "Assets/GameData/Buff/5056_冰霜专注状态.asset",
+            "name": "5056_冰霜专注状态",
+            "retired": false
+        },
+        {
+            "id": 5057,
+            "category": "buff",
+            "assetKey": "7d8f7483c5021dc459d6c3be90b996ad:11400000",
+            "stableId": "buff.expedition_5057",
+            "path": "Assets/GameData/Buff/5057_霜爆专注状态.asset",
+            "name": "5057_霜爆专注状态",
+            "retired": false
+        },
+        {
+            "id": 5058,
+            "category": "buff",
+            "assetKey": "420a3e26e56a8314cb57a5ba4ee97b12:11400000",
+            "stableId": "buff.expedition_5058",
+            "path": "Assets/GameData/Buff/5058_穿霜专注状态.asset",
+            "name": "5058_穿霜专注状态",
+            "retired": false
+        },
+        {
+            "id": 5059,
+            "category": "buff",
+            "assetKey": "3f95380c2a9fdc441985ae8cd3a9b3a5:11400000",
+            "stableId": "buff.expedition_5059",
+            "path": "Assets/GameData/Buff/5059_磐石战歌状态.asset",
+            "name": "5059_磐石战歌状态",
+            "retired": false
+        },
+        {
+            "id": 5060,
+            "category": "buff",
+            "assetKey": "4df0ee88c3db41741bb07a8b4f767d90:11400000",
+            "stableId": "buff.expedition_5060",
+            "path": "Assets/GameData/Buff/5060_不屈反击状态.asset",
+            "name": "5060_不屈反击状态",
+            "retired": false
+        },
+        {
+            "id": 5061,
+            "category": "buff",
+            "assetKey": "35634f70fd2d6a647a5c8fb0877b9185:11400000",
+            "stableId": "buff.expedition_5061",
+            "path": "Assets/GameData/Buff/5061_霜语迟缓.asset",
+            "name": "5061_霜语迟缓",
+            "retired": false
+        },
+        {
+            "id": 5062,
+            "category": "buff",
+            "assetKey": "fbe3158735726e649b1f4f5b3558c5d8:11400000",
+            "stableId": "buff.expedition_5062",
+            "path": "Assets/GameData/Buff/5062_余烬灼烧.asset",
+            "name": "5062_余烬灼烧",
+            "retired": false
+        },
+        {
+            "id": 5063,
+            "category": "buff",
+            "assetKey": "b6109f409caa0a74bbb890c68644a0f2:11400000",
+            "stableId": "buff.expedition_5063",
+            "path": "Assets/GameData/Buff/5063_震地迟缓.asset",
+            "name": "5063_震地迟缓",
+            "retired": false
+        },
+        {
+            "id": 5064,
+            "category": "buff",
+            "assetKey": "b65345c3c8eb3f74286730d7b3da2f2e:11400000",
+            "stableId": "buff.expedition_5064",
+            "path": "Assets/GameData/Buff/5064_冰环冻结.asset",
+            "name": "5064_冰环冻结",
+            "retired": false
+        },
+        {
+            "id": 5065,
+            "category": "buff",
+            "assetKey": "b0df56e24f3ad6b44888786a2886c6bf:11400000",
+            "stableId": "buff.expedition_5065",
+            "path": "Assets/GameData/Buff/5065_精英寒霜.asset",
+            "name": "5065_精英寒霜",
+            "retired": false
+        },
+        {
             "id": 6000,
             "category": "item",
             "assetKey": "11a81445ec594d8c91e5de34804e61e0:11400000",
             "stableId": "item.iron_sword",
             "path": "Assets/GameData/装备/6000_铁剑.asset",
-            "name": "铁剑",
+            "name": "6000_铁剑",
             "retired": false
         },
         {
@@ -520,7 +1006,7 @@
             "assetKey": "19203632d92a4e8d8ac851964cc8bd91:11400000",
             "stableId": "item.swift_gloves",
             "path": "Assets/GameData/装备/6001_迅捷手套.asset",
-            "name": "迅捷手套",
+            "name": "6001_迅捷手套",
             "retired": false
         },
         {
@@ -528,8 +1014,8 @@
             "category": "item",
             "assetKey": "e0436b5a059044979f78e97477c95a1a:11400000",
             "stableId": "item.leather_vest",
-            "path": "Assets/GameData/装备/6002_皮甲背心.asset",
-            "name": "皮甲背心",
+            "path": "Assets/GameData/装备/6002_皮甲.asset",
+            "name": "6002_皮甲",
             "retired": false
         },
         {
@@ -537,8 +1023,8 @@
             "category": "item",
             "assetKey": "26ac4f78fc3c41b498d6c6baf78a9b1a:11400000",
             "stableId": "item.boots_of_speed",
-            "path": "Assets/GameData/装备/6003_速度之靴.asset",
-            "name": "速度之靴",
+            "path": "Assets/GameData/装备/6003_疾风靴.asset",
+            "name": "6003_疾风靴",
             "retired": false
         },
         {
@@ -547,7 +1033,7 @@
             "assetKey": "cfe48742477b471e8127dd1426a08a73:11400000",
             "stableId": "item.mana_gem",
             "path": "Assets/GameData/装备/6004_法力宝石.asset",
-            "name": "法力宝石",
+            "name": "6004_法力宝石",
             "retired": false
         },
         {
@@ -556,7 +1042,7 @@
             "assetKey": "0c81c1c4cd474f1bb4262b8172b150f5:11400000",
             "stableId": "item.ring_of_regen",
             "path": "Assets/GameData/装备/6005_回复戒指.asset",
-            "name": "回复戒指",
+            "name": "6005_回复戒指",
             "retired": false
         },
         {
@@ -566,7 +1052,7 @@
             "stableId": "item.scout_scope",
             "path": "Assets/GameData/装备/6006_侦察镜.asset",
             "name": "侦察镜",
-            "retired": false
+            "retired": true
         },
         {
             "id": 6007,
@@ -575,7 +1061,7 @@
             "stableId": "item.vampire_fang",
             "path": "Assets/GameData/装备/6007_吸血獠牙.asset",
             "name": "吸血獠牙",
-            "retired": false
+            "retired": true
         },
         {
             "id": 6008,
@@ -584,15 +1070,15 @@
             "stableId": "item.lucky_dagger",
             "path": "Assets/GameData/装备/6008_幸运匕首.asset",
             "name": "幸运匕首",
-            "retired": false
+            "retired": true
         },
         {
             "id": 6009,
             "category": "item",
             "assetKey": "2223275f2344480ca737362684ee8227:11400000",
             "stableId": "item.sage_tome",
-            "path": "Assets/GameData/装备/6009_贤者之书.asset",
-            "name": "贤者之书",
+            "path": "Assets/GameData/装备/6009_法师之书.asset",
+            "name": "6009_法师之书",
             "retired": false
         },
         {
@@ -601,7 +1087,7 @@
             "assetKey": "f1002eab27ff44bfb59b5dcce426977c:11400000",
             "stableId": "item.guardian_armor",
             "path": "Assets/GameData/装备/6010_守护铠甲.asset",
-            "name": "守护铠甲",
+            "name": "6010_守护铠甲",
             "retired": false
         },
         {
@@ -609,8 +1095,8 @@
             "category": "item",
             "assetKey": "9936b09cf327407dab35a6f52ac19a03:11400000",
             "stableId": "item.focus_amulet",
-            "path": "Assets/GameData/装备/6011_专注护符.asset",
-            "name": "专注护符",
+            "path": "Assets/GameData/装备/6011_时光沙漏.asset",
+            "name": "6011_时光沙漏",
             "retired": false
         },
         {
@@ -619,7 +1105,7 @@
             "assetKey": "d3843131114347b5b397f1220408e200:11400000",
             "stableId": "item.frostwhisper_bow",
             "path": "Assets/GameData/装备/6012_霜语长弓.asset",
-            "name": "霜语长弓",
+            "name": "6012_霜语长弓",
             "retired": false
         },
         {
@@ -628,7 +1114,7 @@
             "assetKey": "2b2b4229200442a0a289d72bc9fcf462:11400000",
             "stableId": "item.arcane_staff",
             "path": "Assets/GameData/装备/6013_奥术法杖.asset",
-            "name": "奥术法杖",
+            "name": "6013_奥术法杖",
             "retired": false
         },
         {
@@ -637,7 +1123,7 @@
             "assetKey": "9819c402da8c4afb995da95c7dd69cfb:11400000",
             "stableId": "item.berserker_axe",
             "path": "Assets/GameData/装备/6014_狂战巨斧.asset",
-            "name": "狂战巨斧",
+            "name": "6014_狂战巨斧",
             "retired": false
         },
         {
@@ -646,7 +1132,7 @@
             "assetKey": "a09504f4c1544eb3866918d642a8807d:11400000",
             "stableId": "item.titan_heart",
             "path": "Assets/GameData/装备/6015_泰坦之心.asset",
-            "name": "泰坦之心",
+            "name": "6015_泰坦之心",
             "retired": false
         },
         {
@@ -655,7 +1141,7 @@
             "assetKey": "0de58d0543e944b18c91bc8152ac6a98:11400000",
             "stableId": "item.bloodthirst_blade",
             "path": "Assets/GameData/装备/6016_嗜血之刃.asset",
-            "name": "嗜血之刃",
+            "name": "6016_嗜血之刃",
             "retired": false
         },
         {
@@ -664,7 +1150,16 @@
             "assetKey": "e1bac581022242d29cea59e5fc79e561:11400000",
             "stableId": "item.storm_crown",
             "path": "Assets/GameData/装备/6017_风暴王冠.asset",
-            "name": "风暴王冠",
+            "name": "6017_风暴王冠",
+            "retired": false
+        },
+        {
+            "id": 6018,
+            "category": "item",
+            "assetKey": "c00c86e4218b7f74492a692ae40f54bc:11400000",
+            "stableId": "item.expedition_6018",
+            "path": "Assets/GameData/装备/6018_雷鸣锤.asset",
+            "name": "6018_雷鸣锤",
             "retired": false
         },
         {

@@ -6,9 +6,9 @@ namespace Roguelike.Abilities
     /// <summary>一组英雄属性数值（字段与 <see cref="StatKind"/> 一一对应）。所有来源直接相加；百分比类属性为百分点（25 = 25%）。</summary>
     public struct StatSheet
     {
-        public const int Count=15;
-        public float MaxHealth,AttackDamage,AttackSpeed,MoveSpeed,HealthRegen,SkillAmplify,CooldownReduction,ExperienceGain,
-            MaxMana,ManaRegen,AttackRange,DamageReduction,LifeSteal,CriticalChance,CriticalDamage;
+        public const int Count=11;
+        public float MaxHealth,AttackDamage,AttackSpeed,MoveSpeed,HealthRegen,SkillAmplify,CooldownReduction,
+            MaxMana,ManaRegen,DamageReduction,LifeSteal;
 
         public float this[StatKind stat]
         {
@@ -23,14 +23,10 @@ namespace Roguelike.Abilities
                     case StatKind.HealthRegen: return HealthRegen;
                     case StatKind.SkillAmplify: return SkillAmplify;
                     case StatKind.CooldownReduction: return CooldownReduction;
-                    case StatKind.ExperienceGain: return ExperienceGain;
                     case StatKind.MaxMana: return MaxMana;
                     case StatKind.ManaRegen: return ManaRegen;
-                    case StatKind.AttackRange: return AttackRange;
                     case StatKind.DamageReduction: return DamageReduction;
                     case StatKind.LifeSteal: return LifeSteal;
-                    case StatKind.CriticalChance: return CriticalChance;
-                    case StatKind.CriticalDamage: return CriticalDamage;
                 }
                 return 0;
             }
@@ -45,14 +41,10 @@ namespace Roguelike.Abilities
                     case StatKind.HealthRegen: HealthRegen=value; break;
                     case StatKind.SkillAmplify: SkillAmplify=value; break;
                     case StatKind.CooldownReduction: CooldownReduction=value; break;
-                    case StatKind.ExperienceGain: ExperienceGain=value; break;
                     case StatKind.MaxMana: MaxMana=value; break;
                     case StatKind.ManaRegen: ManaRegen=value; break;
-                    case StatKind.AttackRange: AttackRange=value; break;
                     case StatKind.DamageReduction: DamageReduction=value; break;
                     case StatKind.LifeSteal: LifeSteal=value; break;
-                    case StatKind.CriticalChance: CriticalChance=value; break;
-                    case StatKind.CriticalDamage: CriticalDamage=value; break;
                 }
             }
         }
@@ -62,79 +54,63 @@ namespace Roguelike.Abilities
 
         public static StatSheet operator+(StatSheet a,StatSheet b)
         {
-            for(int i=0;i<Count;i++) a[(StatKind)i]+=b[(StatKind)i];
+            foreach(var stat in StatText.DisplayOrder) a[stat]+=b[stat];
             return a;
         }
         public static StatSheet operator*(StatSheet a,float scale)
         {
-            for(int i=0;i<Count;i++) a[(StatKind)i]*=scale;
+            foreach(var stat in StatText.DisplayOrder) a[stat]*=scale;
             return a;
         }
     }
 
-    /// <summary>英雄属性的来源拆分与合计，归英雄实体所有。等级、天赋或装备变化后由 <see cref="HeroStatsLogic.Rebuild"/> 统一重算。</summary>
+    /// <summary>英雄属性的来源拆分与合计，归英雄实体所有。等级或装备变化后由 <see cref="HeroStatsLogic.Rebuild"/> 统一重算。</summary>
     public struct HeroStats : IComponentData
     {
-        /// <summary>英雄定义的基础属性（基础生命、普攻伤害等字段 + 额外基础属性 + 默认暴击伤害）。</summary>
+        /// <summary>英雄定义的基础属性（基础生命、普攻伤害等字段 + 额外基础属性）。</summary>
         public StatSheet Base;
         /// <summary>每升 1 级的成长；等级贡献 = 成长 ×（等级 - 1）。</summary>
         public StatSheet PerLevel;
-        /// <summary>最近一次重算时的天赋贡献、装备贡献与合计；HUD 与结算读取同一份合计。</summary>
-        public StatSheet Talents,Equipment,Total;
-        /// <summary>自动攻击模块的索敌距离；攻击距离加成同时加到攻击距离和索敌距离上。</summary>
-        public float BaseAcquisitionRange;
+        /// <summary>最近一次重算时的装备贡献与合计；HUD 与结算读取同一份合计。</summary>
+        public StatSheet Equipment,Total;
+        /// <summary>自动攻击模块的基础范围，供遗物重算使用。</summary>
+        public float BaseAcquisitionRange,BaseAttackRange;
         /// <summary>每次重算递增，展示层据此判断属性是否变化。</summary>
         public int Version;
     }
 
     /// <summary>
     /// 英雄属性的唯一合成规则：合计 = 基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，全部直接相加。
-    /// 合计写入 <see cref="AbilityUnit"/> 的基础值、经验倍率与自动攻击距离；Buff 仍由 <see cref="AbilityEffects.Recalculate"/> 在其上叠加。
+    /// 合计写入 <see cref="AbilityUnit"/> 的基础值与自动攻击距离；Buff 仍由 <see cref="AbilityEffects.Recalculate"/> 在其上叠加。
     /// </summary>
     public static class HeroStatsLogic
     {
-        /// <summary>英雄默认暴击伤害（%）：暴击时普攻造成 150% 伤害。</summary>
-        public const float DefaultCriticalDamage=150;
         /// <summary>冷却缩减与伤害减免的上限（%）。</summary>
-        public const float MaximumCooldownReduction=80,MaximumDamageReduction=80;
+        public const float MaximumCooldownReduction=50,MaximumDamageReduction=70;
         /// <summary>攻击速度下限（%）：负攻速最多让攻击变慢到 20%。</summary>
         public const float MinimumAttackSpeed=-80;
 
-        public static HeroStats Create(in StatSheet baseSheet,in StatSheet perLevel,float acquisitionRange)
-            =>new HeroStats {Base=baseSheet,PerLevel=perLevel,BaseAcquisitionRange=math.max(0,acquisitionRange)};
+        public static HeroStats Create(in StatSheet baseSheet,in StatSheet perLevel,float acquisitionRange,float attackRange)
+            =>new HeroStats {Base=baseSheet,PerLevel=perLevel,BaseAcquisitionRange=math.max(0,acquisitionRange),BaseAttackRange=math.max(0,attackRange)};
 
-        /// <summary>按天赋选择掩码累加已选天赋的属性。</summary>
-        public static StatSheet Talents(in HeroProgression progression)
-        {
-            var sheet=default(StatSheet);
-            if(!progression.Library.IsCreated) return sheet;
-            ref var tiers=ref progression.Library.Value.Talents;
-            for(int i=0;i<tiers.Length && i<HeroProgressionLogic.MaximumTalentTiers;i++)
-            {
-                if((progression.TalentChosenMask&(1<<i))==0) continue;
-                var talent=(progression.TalentRightMask&(1<<i))!=0?tiers[i].Right:tiers[i].Left;
-                sheet.Add(talent.Stat,talent.Value);
-            }
-            return sheet;
-        }
-
-        /// <summary>合计 = 基础 + 成长 ×（等级 - 1）+ 天赋 + 装备。</summary>
+        /// <summary>基础、等级成长与装备属性直接相加。</summary>
         public static StatSheet Compose(in HeroStats stats,int level)
-            =>stats.Base+stats.PerLevel*math.max(0,level-1)+stats.Talents+stats.Equipment;
+            =>stats.Base+stats.PerLevel*math.max(0,level-1)+stats.Equipment;
 
         /// <summary>
-        /// 重算天赋与装备贡献及合计，并写入单位基础值、经验倍率与自动攻击距离。
+        /// 重算装备贡献及合计，并写入单位基础值与自动攻击距离。
         /// 调用方随后调用 <see cref="AbilityEffects.Recalculate"/> 叠加 Buff。
         /// </summary>
-        public static void Rebuild(ref HeroStats stats,in StatSheet equipment,ref HeroProgression progression,ref AbilityUnit unit,ref AutoAttackData attack)
+        public static void Rebuild(ref HeroStats stats,in StatSheet equipment,ref HeroProgression progression,ref AbilityUnit unit,ref AutoAttackData attack,AbilityTraits traits=default)
         {
-            stats.Talents=Talents(progression); stats.Equipment=equipment;
+            stats.Equipment=equipment;
             stats.Total=Compose(stats,progression.Level);
+            stats.Total.MaxHealth*=traits.MaxHealthMultiplier>0?traits.MaxHealthMultiplier:1;
+            stats.Total.CooldownReduction+=traits.ExtraCooldownReduction*100;
             Apply(stats.Total,ref unit);
-            progression.ExperienceMultiplier=math.max(0,1+stats.Total.ExperienceGain/100);
-            float bonusRange=stats.Total.AttackRange-stats.Base.AttackRange;
-            attack.Range=math.max(0,stats.Total.AttackRange);
-            attack.AcquisitionRange=math.max(0,stats.BaseAcquisitionRange+bonusRange);
+            unit.CooldownReduction=math.clamp(stats.Total.CooldownReduction/100,0,traits.CooldownCap>0?traits.CooldownCap:.5f);
+            attack.Range=math.max(0,stats.BaseAttackRange)*(traits.BasicRangeMultiplier>0?traits.BasicRangeMultiplier:1);
+            attack.AcquisitionRange=math.max(0,stats.BaseAcquisitionRange);
             stats.Version++;
         }
 
@@ -158,25 +134,6 @@ namespace Roguelike.Abilities
             unit.SkillAmplify=math.max(0,total.SkillAmplify)/100;
             unit.CooldownReduction=math.clamp(total.CooldownReduction,0,MaximumCooldownReduction)/100;
             unit.DamageReduction=math.clamp(total.DamageReduction,0,MaximumDamageReduction)/100;
-        }
-
-        /// <summary>暴击判定：用会话种子与出手序号做确定性哈希，同一局同一次攻击结果固定。返回伤害倍率（未暴击为 1）。</summary>
-        public static float CriticalMultiplier(in StatSheet total,uint seed,int attackIndex,out bool critical)
-        {
-            float chance=math.clamp(total.CriticalChance,0,100)/100;
-            critical=chance>0 && (Mix(seed,(uint)attackIndex)>>8)/(float)0x1000000<chance;
-            return critical?math.max(1,total.CriticalDamage/100):1;
-        }
-
-        /// <summary>
-        /// 整数混合哈希（lowbias32 终混）：相邻出手序号的结果互不相关。math.hash(uint2) 是线性组合，
-        /// 连续序号会形成固定步长的序列（例如 25% 暴击永远不会连续两次暴击），因此这里不用它。
-        /// </summary>
-        private static uint Mix(uint seed,uint index)
-        {
-            uint h=(seed|1u)*0x9E3779B9u+index*0x85EBCA6Bu+0x27D4EB2Fu;
-            h^=h>>16; h*=0x7FEB352Du; h^=h>>15; h*=0x846CA68Bu; h^=h>>16;
-            return h;
         }
 
         /// <summary>普攻吸血：按实际造成的伤害回复生命。</summary>

@@ -57,41 +57,6 @@
             "kind": "resource"
         },
         {
-            "id": "UI.Game.Controls",
-            "path": "UI/Panels/UI.Game.Controls",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.Game.DeathOverlay",
-            "path": "UI/Panels/UI.Game.DeathOverlay",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.Game.Progression",
-            "path": "UI/Panels/UI.Game.Progression",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.Game.Shop",
-            "path": "UI/Panels/UI.Game.Shop",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.Game.Talent",
-            "path": "UI/Panels/UI.Game.Talent",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.Game.TargetInfo",
-            "path": "UI/Panels/UI.Game.TargetInfo",
-            "kind": "resource"
-        },
-        {
-            "id": "UI.Game.Title",
-            "path": "UI/Panels/UI.Game.Title",
-            "kind": "resource"
-        },
-        {
             "id": "UI.Main.MainPanel",
             "path": "UI/Panels/UI.Main.MainPanel",
             "kind": "resource"
@@ -169,6 +134,11 @@
         {
             "id": "UI/Panels/UI.SelectScene.SelectPanel",
             "path": "UI/Panels/UI.SelectScene.SelectPanel",
+            "kind": "resource"
+        },
+        {
+            "id": "UI.Expedition",
+            "path": "UI/Panels/UI.Expedition",
             "kind": "resource"
         }
     ]

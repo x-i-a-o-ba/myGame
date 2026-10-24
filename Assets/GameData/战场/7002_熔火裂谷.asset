@@ -20,3 +20,6 @@ MonoBehaviour:
   sceneId: Scene.EmberRift
   enemyRoster: {fileID: 11400000, guid: f202e1d6a6384a49a0a20e49bba2d1a4, type: 2}
   difficulty: {fileID: 11400000, guid: fcd4cda1ade141bcbe637cfce6b43d87, type: 2}
+  lavaHazards: 1
+  enemyHealthMultiplier: 1.15
+  enemyDamageMultiplier: 1.1

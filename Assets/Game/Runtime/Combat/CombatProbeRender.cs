@@ -44,8 +44,8 @@ namespace Roguelike.Combat
             {
                 Render(); RenderTexture.active=target; texture.ReadPixels(new Rect(0,0,1920,1080),0,0); texture.Apply();
                 Color first=texture.GetPixel(0,0); bool varied=false;
-                for(int y=30;y<1080;y+=97) for(int x=20;x<1920;x+=113)
-                    if(((Vector4)(texture.GetPixel(x,y)-first)).sqrMagnitude>0.01f) varied=true;
+                for(int y=30;y<1080;y+=16) for(int x=20;x<1920;x+=16)
+                    if(((Vector4)(texture.GetPixel(x,y)-first)).sqrMagnitude>0.002f) varied=true;
                 System.IO.File.WriteAllBytes(path,texture.EncodeToPNG()); return varied;
             }
             finally { RenderTexture.active=previous; UnityEngine.Object.Destroy(texture); }

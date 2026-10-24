@@ -11,9 +11,9 @@ namespace Roguelike.Abilities.Editor
         public override void OnInspectorGUI()
         {
             Begin();
-            EditorGUILayout.HelpBox("英雄从 1 级开始，击杀敌人获得经验。默认经验表取自 Dota 2（30 级累计 63900）。每级获得技能点，天赋选择不消耗技能点。重开 Game 后生效。", MessageType.Info);
-            Field("maxLevel", "最高等级", "英雄可达到的最高等级，Dota 2 默认 30。");
-            Field("startingSkillPoints", "开局技能点", "Dota 2 英雄 1 级拥有 1 个技能点。");
+            EditorGUILayout.HelpBox("英雄从 1 级开始，击杀敌人获得经验。默认 15 级累计 20020 经验。每级获得技能点，技能满级后选择形态。重开 Game 后生效。", MessageType.Info);
+            Field("maxLevel", "最高等级", "英雄可达到的最高等级，默认 15。");
+            Field("startingSkillPoints", "开局技能点", " 1 级拥有 1 个技能点。");
             Field("skillPointsPerLevel", "每级技能点");
             var table = serializedObject.FindProperty("experienceToNextLevel");
             int maxLevel = serializedObject.FindProperty("maxLevel").intValue;
@@ -34,9 +34,9 @@ namespace Roguelike.Abilities.Editor
             }
             if (table.arraySize < maxLevel - 1)
                 EditorGUILayout.HelpBox($"经验表只有 {table.arraySize} 项，最高等级 {maxLevel} 需要至少 {maxLevel - 1} 项。", MessageType.Error);
-            if (GUILayout.Button("恢复 Dota 2 默认经验表"))
+            if (GUILayout.Button("恢复十五级远征经验表"))
             {
-                var values = HeroProgressionRules.DotaExperienceTable();
+                var values = HeroProgressionRules.ExpeditionExperienceTable();
                 table.arraySize = values.Length;
                 for (int i = 0; i < values.Length; i++) table.GetArrayElementAtIndex(i).intValue = values[i];
             }
@@ -68,7 +68,7 @@ namespace Roguelike.Abilities.Editor
             {
                 EditorGUI.indentLevel++;
                 AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("track"), "成长类型",
-                    "普通技能 4 级（英雄 1/3/5/7 级可学）；终极技能 3 级（英雄 6/12/18 级可学）；或自定义逐级表。");
+                    "普通技能 4 级（英雄 1/3/5/7 级可学）；终极技能 3 级（英雄 6/10/14 级可学）；或自定义逐级表。");
                 if (IsCustom(property))
                     AbilityPropertyLayout.Array(ref line, property.FindPropertyRelative("customLevels"), "自定义逐级表", "技能等级");
                 else
@@ -101,7 +101,7 @@ namespace Roguelike.Abilities.Editor
     internal sealed class SkillLevelRowChineseDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) =>
-            (AbilityPropertyLayout.Line + AbilityPropertyLayout.Gap) * (property.isExpanded ? 6 : 1);
+            (AbilityPropertyLayout.Line + AbilityPropertyLayout.Gap) * (property.isExpanded ? 10 : 1);
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -117,6 +117,10 @@ namespace Roguelike.Abilities.Editor
                 AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("buffScale"), "Buff 强度倍率");
                 AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("cooldownScale"), "冷却/充能倍率", "0.8 表示缩短 20%；不低于 0.05。");
                 AbilityPropertyLayout.Field(ref line, property.FindPropertyRelative("manaCostScale"), "资源消耗倍率");
+                AbilityPropertyLayout.Field(ref line,property.FindPropertyRelative("radiusScale"),"范围半径倍率");
+                AbilityPropertyLayout.Field(ref line,property.FindPropertyRelative("projectileBonus"),"附加弹体数");
+                AbilityPropertyLayout.Field(ref line,property.FindPropertyRelative("spreadBonus"),"附加散射角度（度）");
+                AbilityPropertyLayout.Field(ref line,property.FindPropertyRelative("extraTargets"),"Buff 附加普攻目标数");
                 EditorGUI.indentLevel--;
             }
             EditorGUI.EndProperty();

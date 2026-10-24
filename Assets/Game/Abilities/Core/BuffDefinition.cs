@@ -15,6 +15,14 @@ namespace Roguelike.Abilities
     [CreateAssetMenu(menuName="Roguelike/技能/Buff 定义")]
     public sealed class BuffDefinition : ScriptableObject
     {
+        [Range(0,1), Tooltip("增加减伤比例，0.2 为 20%，最终上限 70%。")] public float damageReduction;
+        [Range(0,1), Tooltip("每秒回复最大生命比例，0.02 为 2%。")] public float regenMaxHealth;
+        [Range(0,3), Tooltip("额外承受伤害比例，0.3 为多受 30%。")] public float damageTaken;
+        [Range(0,1), Tooltip("近战实际伤害反射比例；反射不再次反射。")] public float reflect;
+        [Min(0)] public int extraTargets;
+        public bool controlImmune,pierceBasics;
+        [Min(0)] public float attackSplashRadius,attackSplashRatio;
+
         [Tooltip("Buff 数字 ID：5000–5999。正式模块必须登记；0 仅供旧配置兼容。")]
         public int configId;
         [InspectorName("稳定 ID")] public string stableId;
@@ -22,6 +30,7 @@ namespace Roguelike.Abilities
         [InspectorName("持续时间（秒）"), Min(0), Tooltip("0 为永久，须显式移除或清理会话。")] public float duration=4;
         [InspectorName("周期（秒）"), Min(0.05f)] public float interval=1;
         [InspectorName("每次周期伤害"), Min(0)] public float periodicDamage;
+        [Min(0),Tooltip("每跳额外伤害 = 施加时来源攻击 × 系数。")] public float periodicAttackRatio;
         [InspectorName("叠层策略")] public BuffStackRule stacking;
         [InspectorName("最大层数"), Range(1,20)] public int maxStacks=1;
         [InspectorName("可驱散")] public bool dispellable=true;

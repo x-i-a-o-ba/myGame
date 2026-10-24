@@ -18,12 +18,14 @@ MonoBehaviour:
   icon: {fileID: 2800000, guid: 13c237aec2624411979cebaefa632b47, type: 3}
   quality: 2
   price: 2200
-  unique: 1
-  description: "\u4EE5\u6C38\u51BB\u5BD2\u51B0\u96D5\u6210\u7684\u957F\u5F13\uFF0C\u666E\u653B\u547D\u4E2D\u65F6\u65BD\u52A0\u6247\u51FB\u51CF\u901F\u3002\u540C\u540D\u88C5\u5907\u53EA\u80FD\u6301\u6709\u4E00\u4EF6\u3002"
+  unique: 0
+  description: "+30 \u653B\u51FB\u529B\n+20% \u653B\u51FB\u901F\u5EA6\n\u666E\u653B\u4F7F\u76EE\u6807\u51CF\u901F
+    25%\uFF0C\u6301\u7EED 1.5 \u79D2\u3002"
   stats:
   - stat: 1
-    value: 25
+    value: 30
   - stat: 2
     value: 20
   onHitEffects:
-  - {fileID: 11400000, guid: 72282bc99f34428428ee275e7bff9ac4, type: 2}
+  - {fileID: 11400000, guid: 633b4b72995da65488b5d02652ef1ecf, type: 2}
+  procs: []

@@ -91,6 +91,9 @@ namespace Roguelike.Abilities
                 if(a.ConfigId<=0 || a.ConfigId!=b.ConfigId || a.Duration!=b.Duration || a.Interval!=b.Interval || a.PeriodicDamage!=b.PeriodicDamage ||
                    a.SpeedPercent!=b.SpeedPercent || a.AttackFlat!=b.AttackFlat || a.Regen!=b.Regen || a.Stacking!=b.Stacking ||
                    a.MaxStacks!=b.MaxStacks || a.Dispellable!=b.Dispellable || a.Controls!=b.Controls || a.SourcePolicy!=b.SourcePolicy ||
+                   a.PeriodicAttackRatio!=b.PeriodicAttackRatio || a.DamageReduction!=b.DamageReduction || a.RegenMaxHealth!=b.RegenMaxHealth ||
+                   a.DamageTaken!=b.DamageTaken || a.Reflect!=b.Reflect || a.ExtraTargets!=b.ExtraTargets || a.ControlImmune!=b.ControlImmune ||
+                   a.PierceBasics!=b.PierceBasics || a.AttackSplashRadius!=b.AttackSplashRadius || a.AttackSplashRatio!=b.AttackSplashRatio ||
                    a.Modifiers.Length!=b.Modifiers.Length)
                 { failure=$"Buff 目录位置 {i} 的定义改变；已有状态必须保留旧语义，请重开会话。"; return false; }
                 for(int m=0;m<a.Modifiers.Length;m++)

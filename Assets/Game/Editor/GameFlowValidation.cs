@@ -81,7 +81,7 @@ namespace Roguelike.Editor
                 if(map.stableId==EmberRiftMap)
                 {
                     var behaviors=new HashSet<EnemyBehavior>(kinds.Select(kind=>kind.archetype.behavior));
-                    Check(kinds.Count>=8 && behaviors.Count==Enum.GetValues(typeof(EnemyBehavior)).Length,"熔火裂谷名册需要至少 8 种怪物并覆盖近战、远程、冲锋、自爆四种行为。");
+                    Check(kinds.Count>=8 && kinds.Any(kind=>kind.archetype.abilities.Any(m=>m && m.template==MonsterAbilityTemplate.Dash)) && kinds.Any(kind=>kind.archetype.abilities.Any(m=>m && m.sacrifice)),"熔火裂谷名册需要至少 8 种怪物并装配近战、远程、预警冲锋与自爆模块。");
                     Check(kinds.Any(kind=>(kind.entry.tiers&EnemyTierMask.Elite)!=0) && kinds.Any(kind=>(kind.entry.tiers&EnemyTierMask.Boss)!=0),"熔火裂谷名册需要精英与首领条目。");
                 }
             }
@@ -162,24 +162,14 @@ namespace Roguelike.Editor
                 try { hero.ResolveSkills(controller.skillCatalog); checks++; }
                 catch(InvalidOperationException error) { Check(false,$"英雄 {hero.name} 的技能无法在 {name} 的技能库中解析：{error.Message}"); }
             }
-            var navigation=Navigation(scene);
-            var leave=Route(navigation,LeaveCommand,SceneRouteAction.LoadScene,"Scene.SelectScene",true);
-            Check(leave.confirmSeconds<=3,$"{name} 的“返回选择”确认时间应不超过 3 秒（--select-smoke 等待 3.4 秒检查超时取消）。");
-            Route(navigation,ReselectCommand,SceneRouteAction.LoadScene,"Scene.SelectScene",false);
-            var controls=Panel(scene,ControlsPanelId);
-            Check(controls.texts.Any(binding=>binding.key=="top.map" && binding.target),"控制面板缺少战场名称文本（top.map）："+name);
-            var confirm=controls.toggles.Where(binding=>binding.key==SceneNavigation.ConfirmKey(LeaveCommand) && binding.target).ToArray();
-            Check(confirm.Any(binding=>!binding.invert && !binding.target.activeSelf) && confirm.Any(binding=>binding.invert),
-                "控制面板的“返回选择”按钮需要 game.leave.confirm 正反两个显隐绑定，且确认提示默认隐藏："+name);
-            Check(controls.GetComponentsInChildren<UIAction>(true).Any(action=>action.command==LeaveCommand && action.GetComponent<Button>()),"控制面板缺少“返回选择”按钮（game.leave）："+name);
-            var death=Panel(scene,DeathPanelId);
-            Check(death.GetComponentsInChildren<UIAction>(true).Any(action=>action.command==ReselectCommand && action.GetComponent<Button>()),"结算面板缺少“返回选择”按钮（game.select）："+name);
-            if(name=="Game")
-            {
-                var probe=controller.GetComponent<GameCombatProbe>();
-                Check(probe && probe.selectionCatalog==catalog,"Game 的 Player 集成检查组件必须引用开局选择目录（英雄切换检查使用）。");
-                Inspector(probe,"GameCombatProbeChineseInspector");
-            }
+            Check(controller.expedition && controller.inputProfile && controller.feedbackMaterial,"远征、操作与反馈资源必须装配："+name);
+            controller.inputProfile.Validate();
+            var overlay=Panel(scene,"UI.Expedition");var bottom=Panel(scene,"UI.Game.BottomHUD");
+            foreach(string key in new[]{"expedition.pause","expedition.camp","expedition.result","expedition.form"})
+                Check(overlay.toggles.Any(binding=>binding.key==key && binding.target),"远征面板缺少状态绑定："+key);
+            foreach(string command in new[]{"expedition.resume","expedition.return","camp.buy","camp.sell","camp.refresh","camp.depart","camp.route","camp.relic"})
+                Check(overlay.GetComponentsInChildren<UIAction>(true).Any(action=>action.command==command && action.GetComponent<Button>()),"远征缺少操作按钮："+command);
+
         }
 
         /// <summary>场景唯一的场景导航：与 UI 管理器同在根 Canvas 上，路由表无错误，并使用中文 Inspector。</summary>

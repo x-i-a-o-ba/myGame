@@ -56,10 +56,10 @@ namespace Roguelike.Abilities.Editor
             var item = ScriptableObject.CreateInstance<EquipmentDefinition>();
             try
             {
-                item.stats = new[] { new StatModifier(StatKind.CriticalChance, 10) };
+                item.stats = new[] { new StatModifier(StatKind.LifeSteal, 10) };
                 var serialized = new SerializedObject(item);
                 var stat = serialized.FindProperty("stats").GetArrayElementAtIndex(0).FindPropertyRelative("stat");
-                if (stat == null || Array.IndexOf(stat.enumDisplayNames, "暴击几率（%，普攻）") < 0)
+                if (stat == null || Array.IndexOf(stat.enumDisplayNames, "普攻吸血（%）") < 0)
                     throw new InvalidOperationException("属性枚举没有显示中文名称。");
                 var quality = serialized.FindProperty("quality");
                 if (quality == null || Array.IndexOf(quality.enumDisplayNames, "传说") < 0)

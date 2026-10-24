@@ -12,16 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3331f61cef564eb18fd2faa5da95637d, type: 3}
   m_Name: "\u5CA9\u77F3\u91CD\u51FB"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.AutoAttackDefinition
+  splitTargets: 0
+  cleaveTargets: 4
+  splitDamageRatio: 0.5
+  cleaveRadius: 0
+  cleaveHalfAngle: 75
+  cleaveDamageRatio: 0.6
   stableId: attack.rock_slam
   displayName: "\u5CA9\u77F3\u91CD\u51FB"
   icon: {fileID: 2800000, guid: 07ef1b81588f468c9580e7320561ca6f, type: 3}
   description: "\u8FD1\u6218\uFF1A\u6162\u901F\u4F46\u6C89\u91CD\u7684\u62F3\u51FB\u3002"
   delivery: 0
-  range: 1.6
-  acquisitionRange: 14
-  baseAttackTime: 1.6
-  attackPoint: 0.5
-  backswing: 0.6
+  range: 1.4
+  acquisitionRange: 1.4
+  baseAttackTime: 1
+  attackPoint: 0.25
+  backswing: 0.2
   projectileSpeed: 0
   rangeBuffer: 0.5
   autoAcquire: 1

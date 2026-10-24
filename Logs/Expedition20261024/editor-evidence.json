@@ -1,0 +1,34 @@
+[
+  {
+    "log": "build-accepted.log",
+    "sha256": "02e02565503d95c5bee48561a72fc196bbe467ee703e78fc7f5e04bc85fc7e99",
+    "markers": [
+      "EXPEDITION_CORE_VALIDATION_PASSED checks=179",
+      "GAME_FLOW_VALIDATION_PASSED checks=339",
+      "EXPEDITION_BUILD_SUCCEEDED",
+      "Exiting without the bug reporter. Application will terminate with return code 0"
+    ]
+  },
+  {
+    "log": "build-final-natural.log",
+    "sha256": "621167e7f3cec2e81b896a467275a2692cf0252e3693567e69c25052d487396a",
+    "markers": [
+      "EXPEDITION_CORE_VALIDATION_PASSED checks=179",
+      "GAME_FLOW_VALIDATION_PASSED checks=339",
+      "EXPEDITION_BUILD_SUCCEEDED",
+      "Exiting without the bug reporter. Application will terminate with return code 0"
+    ]
+  },
+  {
+    "log": "tooling-checks-v3.log",
+    "sha256": "6665250d3a7914bc6f31f73f5a564704b971e54578b36145cef6f2acf00bec8e",
+    "markers": [
+      "ABILITY_INSPECTOR_CHINESE_PASSED: twelve inspectors, enum labels, nested drawers.",
+      "RecipeFoundationChecks PASS assertions=31",
+      "[RecipeProgramStoreValidation] 10 项纯数据兼容与所有权检查通过；未创建 World、未运行游戏。",
+      "RecipeAuthoringValidation PASS: 20 项编辑器事务检查；未运行游戏。",
+      "RECIPE_EDITOR_CHECKS_OK catalogs=2; no World, no Play Mode.",
+      "Exiting without the bug reporter. Application will terminate with return code 0"
+    ]
+  }
+]

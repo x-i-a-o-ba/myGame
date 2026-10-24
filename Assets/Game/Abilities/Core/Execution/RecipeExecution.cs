@@ -74,6 +74,9 @@ namespace Roguelike.Abilities
                 }
             }
             programs.ReleaseOwner(owner);
+            retiredHits.Clear();
+            foreach(var item in pierced) if(item.Key.owner==owner) retiredHits.Add(item.Key);
+            foreach(var key in retiredHits) pierced.Remove(key);
             endedCasts.Clear();
             foreach(var item in derivedCounts) if(item.Key.owner==owner) endedCasts.Add(item.Key);
             foreach(var key in endedCasts) derivedCounts.Remove(key);
@@ -125,6 +128,16 @@ namespace Roguelike.Abilities
         }
         private void PruneState(Entity owner)
         {
+            var liveFlights=manager.GetBuffer<SkillFlight>(owner);
+            retiredHits.Clear();
+            foreach(var entry in pierced)
+            {
+                if(entry.Key.owner!=owner) continue;
+                bool alive=false;
+                for(int i=0;i<liveFlights.Length;i++) if(liveFlights[i].FlightId==entry.Key.id) {alive=true;break;}
+                if(!alive) retiredHits.Add(entry.Key);
+            }
+            foreach(var key in retiredHits) pierced.Remove(key);
             var scheduled=manager.GetBuffer<ScheduledSkillStage>(owner); var flights=manager.GetBuffer<SkillFlight>(owner);
             programs.Prune(owner,scheduled,flights,manager.GetBuffer<SkillCue>(owner));
             activeCasts.Clear();

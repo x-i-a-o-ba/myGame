@@ -19,6 +19,7 @@ namespace Roguelike.Combat
         private BlobAssetReference<AbilityLibrary> originalLibrary;
         private BlobAssetReference<ProgressionLibrary> progressionLibrary;
         private BlobAssetReference<EquipmentLibrary> equipmentLibrary;
+        private readonly List<BlobAssetReference<MonsterAbilityLibrary>> monsterLibraries=new List<BlobAssetReference<MonsterAbilityLibrary>>();
         /// <summary>本局商店出售的装备定义（只读展示用），下标与 EquipmentSlot.Item / 装备库 Blob 一致。</summary>
         public EquipmentDefinition[] Items {get; private set;}=Array.Empty<EquipmentDefinition>();
         /// <summary>本局出售返还比例（展示用；各装备的权威出售价已编译进装备库）。</summary>
@@ -55,7 +56,7 @@ namespace Roguelike.Combat
         private struct RosterPlan
         {
             public EnemySpawnEntry Entry; public EnemyArchetype Archetype; public Material Material;
-            public EnemyBehaviorData Behavior; public AutoAttackData Attack;
+            public EnemyBehaviorData Behavior; public AutoAttackData Attack; public EnemyRoster Roster; public MonsterAbilityData[] Modules; public EffectData Element;
         }
         public void Reset(GameCombatController config,HeroProgressionRules rules,CombatDifficultyDefinition difficulty,Mesh enemyMesh,Mesh projectileMesh)
         {
@@ -66,7 +67,14 @@ namespace Roguelike.Combat
             if(!config.spawnDirector) throw new InvalidOperationException("Game 缺少刷怪导演配置。");
             var director=config.spawnDirector.Compile();
             var heroAttack=config.hero.ResolveAttack(config.projectileSpeed);
-            var roster=PlanRoster(config.ActiveRoster);
+            var roster=PlanRoster(config.ActiveRoster,config.skillCatalog);
+            bool abyss=config.Run!=null && config.Run.Abyss;
+            if(abyss)
+            {
+                var other=config.Run.FirstMap==config.map?config.Run.SecondMap:config.Run.FirstMap;
+                foreach(var extra in PlanRoster(other.enemyRoster,config.skillCatalog))
+                    if(extra.Entry.specialElite || (extra.Entry.tiers&EnemyTierMask.Normal)!=0) roster.Add(extra);
+            }
             var nextProgression=HeroProgressionLogic.Compile(rules,config.hero);
             BlobAssetReference<AbilityLibrary> nextLibrary;
             try { nextLibrary=config.skillCatalog.Compile(); }
@@ -113,12 +121,20 @@ namespace Roguelike.Combat
                     }
                     if(!mesh) { Debug.LogWarning("敌人预制体没有可用网格，改用场景统一敌人网格："+plan.Archetype.name,plan.Archetype); mesh=enemyMesh; }
                     prototype=EnemyPrototype(mesh,plan.Material,plan.Attack,plan.Behavior,LinearColor(plan.Material));
+                    using(var builder=new BlobBuilder(Allocator.Temp))
+                    {
+                        ref var root=ref builder.ConstructRoot<MonsterAbilityLibrary>();
+                        var rows=builder.Allocate(ref root.Abilities,plan.Modules.Length);
+                        for(int n=0;n<plan.Modules.Length;n++) rows[n]=plan.Modules[n];
+                        var blob=builder.CreateBlobAssetReference<MonsterAbilityLibrary>(Allocator.Persistent);monsterLibraries.Add(blob);
+                        manager.SetComponentData(prototype,new MonsterBrain{Library=blob,SummonKind=Array.Find(plan.Roster.entries,e=>!e.specialElite && e.firstSecond==0 && (e.tiers&EnemyTierMask.Normal)!=0)?.prefab.configId??0,ArmoredAboveHalf=plan.Archetype.armoredAboveHalf,ElementIsFire=plan.Archetype.fireElement,ElementEffect=plan.Element});
+                    }
                     prototypes.Add(plan.Archetype,prototype);
                 }
-                var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=config.ActiveRoster;
+                var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=plan.Roster;
                 Color baseColor=MaterialColor(plan.Material);
                 kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstSecond=entry.firstSecond,LastSecond=entry.lastSecond,SpecialElite=entry.specialElite,
-                    Weight=entry.weight,Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
+                    Weight=entry.weight*(abyss && (entry.tiers&EnemyTierMask.Normal)!=0?.5f:1),Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
                     Experience=archetype.experienceMultiplier,Gold=archetype.goldMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
                     EliteColor=Linear(Color.Lerp(baseColor,rosterAsset.eliteTint,rosterAsset.eliteTintStrength)),
                     BossColor=Linear(Color.Lerp(baseColor,rosterAsset.bossTint,rosterAsset.bossTintStrength))});
@@ -136,9 +152,11 @@ namespace Roguelike.Combat
             float safe=Mathf.Clamp(config.safeSpawnRadius,3,config.arenaHalfSize*0.5f);
             Entity=manager.CreateEntity(typeof(CombatOwned),typeof(CombatPlayer),typeof(CombatSettings),typeof(AbilityRuntime),typeof(AbilityUnit),typeof(LocalTransform));
             manager.AddBuffer<ActiveBuff>(Entity); manager.AddBuffer<SkillCommand>(Entity); manager.AddBuffer<ScheduledSkillStage>(Entity);
+            manager.AddBuffer<AbilityLink>(Entity);manager.AddBuffer<AbilityCastEvent>(Entity);manager.AddBuffer<AbilityFeedback>(Entity);
             manager.AddBuffer<SkillFlight>(Entity); manager.AddBuffer<SkillCue>(Entity); manager.AddBuffer<ProgressionCommand>(Entity);
             manager.AddComponentData(Entity,heroAttack); manager.AddComponentData(Entity,new AutoAttackState());
-            manager.AddComponentData(Entity,new HeroOrder{Kind=HeroOrderKind.Idle});
+            manager.AddComponentData(Entity,new HeroSteering());
+            manager.AddComponentData(Entity,AbilityTraits.Identity);
             var kindBuffer=manager.AddBuffer<CombatEnemyKind>(Entity);
             foreach(var kind in kinds) kindBuffer.Add(kind);
             var slots=manager.AddBuffer<AbilitySlot>(Entity);
@@ -148,7 +166,7 @@ namespace Roguelike.Combat
             var hero=config.hero;
             // 英雄属性统一由 HeroStatsLogic 合成：基础 + 成长 ×（等级 - 1）+ 天赋 + 装备，开局满生命、满法力。
             var progression=HeroProgressionLogic.Create(progressionLibrary,rules.startingSkillPoints);
-            var heroStats=HeroStatsLogic.Create(hero.BaseSheet(heroAttack),progressionLibrary.Value.Growth,heroAttack.AcquisitionRange);
+            var heroStats=HeroStatsLogic.Create(hero.BaseSheet(heroAttack),progressionLibrary.Value.Growth,heroAttack.AcquisitionRange,heroAttack.Range);
             var heroUnit=new AbilityUnit {Team=0,AttackSpeedMultiplier=1};
             var liveAttack=heroAttack;
             HeroStatsLogic.Rebuild(ref heroStats,default,ref progression,ref heroUnit,ref liveAttack);
@@ -161,11 +179,6 @@ namespace Roguelike.Combat
             var equipment=EquipmentLogic.Create(equipmentLibrary);
             manager.AddComponentData(Entity,equipment);
             EquipmentLogic.InitializeSlots(manager.AddBuffer<EquipmentSlot>(Entity),equipment);
-            manager.AddBuffer<EquipmentCommand>(Entity);
-            // 地上的装备随会话实体重建（重开清空）；商店位置来自场景的 GameShop，没有配置时不限距离。
-            manager.AddBuffer<GroundItem>(Entity);
-            var shop=config.shop;
-            manager.AddComponentData(Entity,shop?new ShopSite{Position=shop.Position,Radius=shop.Radius,Limited=true}:new ShopSite{Limited=false});
             manager.AddComponentData(Entity,waves);
             manager.AddComponentData(Entity,director);
             manager.AddComponentData(Entity,CombatDirectorState.Begin(director,1,(uint)Environment.TickCount|1u));
@@ -176,7 +189,6 @@ namespace Roguelike.Combat
             manager.SetComponentData(Entity,LocalTransform.FromPosition(origin));
             manager.SetComponentData(Entity,new CombatPlayer{Position=origin,Destination=origin,Facing=new float3(0,0,1),Health=heroUnit.Health,MaximumHealth=heroUnit.MaxHealth});
             manager.SetComponentData(Entity,new CombatSettings{ProjectilePrefab=bullet,HostileProjectilePrefab=hostile,PlayerSpeed=hero.speed,
-                TurnRate=math.radians(hero.turnRate),AttackWhileMoving=hero.attackWhileMoving,
                 EnemyAttackRange=config.enemyAttackRange,EnemyAttackDamage=difficulty.baseEnemyDamage,EnemyAttackInterval=config.enemyAttackInterval,ArenaHalfSize=config.arenaHalfSize,
                 EnemyPrefab=enemy,EnemyHealth=difficulty.baseEnemyHealth,EnemySpeed=difficulty.baseEnemySpeed,SafeSpawnRadius=safe,MaxAlive=maxAlive});
         }
@@ -189,7 +201,7 @@ namespace Roguelike.Combat
             finally { if(Application.isPlaying) UnityEngine.Object.Destroy(empty); else UnityEngine.Object.DestroyImmediate(empty); }
         }
         /// <summary>校验名册全部条目并生成快照；名册为空引用时返回空列表（使用兼容原型）。</summary>
-        private static List<RosterPlan> PlanRoster(EnemyRoster roster)
+        private static List<RosterPlan> PlanRoster(EnemyRoster roster,SkillCatalog skills)
         {
             var result=new List<RosterPlan>();
             if(!roster) return result;
@@ -198,7 +210,12 @@ namespace Roguelike.Combat
             foreach(var entry in roster.entries)
             {
                 var behavior=entry.prefab.Compile(out var attack);
-                result.Add(new RosterPlan{Entry=entry,Archetype=entry.prefab,Material=entry.prefab.ResolveMaterial(),Behavior=behavior,Attack=attack});
+                var modules=entry.prefab.abilities??Array.Empty<MonsterAbilityDefinition>();
+                if(modules.Length>4) throw new InvalidOperationException("单个怪物最多装配四个技能模块。");
+                var compiled=new MonsterAbilityData[modules.Length];
+                for(int i=0;i<modules.Length;i++) compiled[i]=modules[i]?modules[i].Compile(skills):throw new InvalidOperationException("怪物技能引用为空。");
+                result.Add(new RosterPlan{Entry=entry,Archetype=entry.prefab,Material=entry.prefab.ResolveMaterial(),Behavior=behavior,Attack=attack,Roster=roster,Modules=compiled,
+                    Element=entry.prefab.elementalSlow?skills.CompileExternalEffect(entry.prefab.elementalSlow,entry.prefab.name):default});
             }
             return result;
         }
@@ -206,7 +223,7 @@ namespace Roguelike.Combat
         {
             var manager=World.EntityManager;
             Entity enemy=Rendered(mesh,material);
-            manager.AddComponent<CombatEnemy>(enemy); manager.AddBuffer<ActiveBuff>(enemy);
+            manager.AddComponent<MonsterBrain>(enemy);manager.AddComponent<CombatEnemy>(enemy); manager.AddBuffer<ActiveBuff>(enemy);
             manager.AddComponentData(enemy,new AbilityUnit {Team=1,Health=1,MaxHealth=1,AttackSpeedMultiplier=1});
             manager.AddComponentData(enemy,attack); manager.AddComponentData(enemy,new AutoAttackState());
             manager.AddComponentData(enemy,behavior);
@@ -267,6 +284,37 @@ namespace Roguelike.Combat
                 if(catalog) UnityEngine.Object.Destroy(catalog);
             }
         }
+        /// <summary>选择形态的配置事务。保持目录身份、等级与在途版本；成功后新计划由执行器接管。</summary>
+        public bool TryApplyForm(int slot,SkillDefinition form,out string failure)
+        {
+            failure=null;
+            var manager=World.EntityManager;
+            if(!manager.Exists(Entity) || !form) {failure="会话或形态无效。";return false;}
+            var slots=manager.GetBuffer<AbilitySlot>(Entity);
+            if(slot<0 || slot>=slots.Length) {failure="技能槽不存在。";return false;}
+            int index=slots[slot].Definition;
+            var candidate=UnityEngine.Object.Instantiate(form);
+            candidate.configId=activeSkills[index].configId;candidate.stableId=activeSkills[index].stableId;
+            candidate.growth=activeSkills[index].growth.Clone();
+            var catalog=ScriptableObject.CreateInstance<SkillCatalog>();
+            BlobAssetReference<AbilityLibrary> replacement=default;
+            try
+            {
+                catalog.skills=(SkillDefinition[])activeSkills.Clone();catalog.skills[index]=candidate;catalog.buffs=activeBuffs;
+                replacement=catalog.Compile();
+                if(!World.GetExistingSystemManaged<CombatSimulationSystem>().TryReplaceLibrary(Entity,replacement,out failure)) return false;
+                replacement=default;
+                UnityEngine.Object.Destroy(activeSkills[index]);activeSkills[index]=candidate;candidate=null;
+                SkillNames[slot]=activeSkills[index].displayName;return true;
+            }
+            catch(Exception error) {failure=error.Message;return false;}
+            finally
+            {
+                if(replacement.IsCreated) replacement.Dispose();
+                if(candidate) UnityEngine.Object.Destroy(candidate);
+                UnityEngine.Object.Destroy(catalog);
+            }
+        }
         private void Clear()
         {
             World.EntityManager.CompleteAllTrackedJobs();
@@ -275,6 +323,7 @@ namespace Roguelike.Combat
             if(originalLibrary.IsCreated) originalLibrary.Dispose();
             if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
             if(equipmentLibrary.IsCreated) equipmentLibrary.Dispose();
+            foreach(var monster in monsterLibraries) if(monster.IsCreated) monster.Dispose();monsterLibraries.Clear();
             if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
             activeSkills=null; activeBuffs=null;
             EnemyNames=Array.Empty<string>(); EnemyArchetypes=Array.Empty<EnemyArchetype>(); Items=Array.Empty<EquipmentDefinition>();
@@ -288,6 +337,7 @@ namespace Roguelike.Combat
                 if(originalLibrary.IsCreated) originalLibrary.Dispose();
                 if(progressionLibrary.IsCreated) progressionLibrary.Dispose();
                 if(equipmentLibrary.IsCreated) equipmentLibrary.Dispose();
+            foreach(var monster in monsterLibraries) if(monster.IsCreated) monster.Dispose();monsterLibraries.Clear();
                 if(activeSkills!=null) foreach(var skill in activeSkills) if(skill) UnityEngine.Object.Destroy(skill);
                 activeSkills=null; activeBuffs=null;
                 ReleaseMeshes();

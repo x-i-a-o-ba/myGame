@@ -72,6 +72,8 @@ namespace Roguelike.SkillAuthoring.Editor
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("5. 延迟与重复", EditorStyles.boldLabel);
                 Field(node, "delay", "收到触发事件后的延迟（秒）");
+                Field(node,"followOwner","重复区域跟随拥有者"); Field(node,"seekDense","寻找密集目标中心");
+                Field(node,"forwardOffset","中心沿方向偏移（米）");Field(node,"repeatAdvance","每次重复前进（米）");
                 Field(node, "repeatCount", "执行次数（有限次数）");
                 if (node.FindPropertyRelative("repeatCount").intValue > 1) Field(node, "repeatInterval", "重复间隔（秒）");
             }
@@ -134,7 +136,7 @@ namespace Roguelike.SkillAuthoring.Editor
                 Field(node, "launchHeight", "发射高度偏移（Unity 单位）"); Field(node, "arrivalHeight", "落点高度偏移（Unity 单位）");
             }
             else if (delivery.kind != DeliveryKind.Instant) Field(node, "speed", "飞行速度（Unity 单位 / 秒）");
-            if(delivery.kind==DeliveryKind.LinearProjectile) { Field(node,"projectileCount","每次发射数量（支）"); Field(node,"spreadDegrees","完整散射张角（度）"); }
+            if(delivery.kind==DeliveryKind.LinearProjectile) { Field(node,"pierce","穿透弹体（每目标一次）"); Field(node,"projectileCount","每次发射数量（支）"); Field(node,"spreadDegrees","完整散射张角（度）"); }
             if (delivery.kind == DeliveryKind.LinearProjectile) { Field(node, "range", "最大飞行距离（Unity 单位）"); Field(node, "hitRadius", "弹体碰撞半径（Unity 单位）"); }
         }
 
@@ -146,7 +148,8 @@ namespace Roguelike.SkillAuthoring.Editor
             if (query == null) return;
             if (query.scope == TargetScope.Area)
             {
-                if (query.shape == AreaShape.Circle) Field(node, "radius", "区域半径（Unity 单位）");
+                if (query.shape == AreaShape.Circle || query.shape==AreaShape.Ring) Field(node, "radius", "区域外半径（米）");
+                if(query.shape==AreaShape.Ring) Field(node,"innerRadius","区域内半径（米）");
                 else
                 {
                     Field(node, "range", "区域长度（Unity 单位）");

@@ -16,15 +16,17 @@ MonoBehaviour:
   stableId: item.titan_heart
   displayName: "\u6CF0\u5766\u4E4B\u5FC3"
   icon: {fileID: 2800000, guid: 10b8444d20e64b5c838dbd5eed088e61, type: 3}
-  quality: 3
-  price: 3000
+  quality: 4
+  price: 4000
   unique: 0
-  description: "\u8FDC\u53E4\u6CF0\u5766\u7684\u5FC3\u810F\u5316\u77F3\uFF0C\u8D4B\u4E88\u60CA\u4EBA\u7684\u751F\u547D\u529B\u3002"
+  description: "+1200 \u6700\u5927\u751F\u547D\n+15 \u751F\u547D\u56DE\u590D\n+10%
+    \u4F24\u5BB3\u51CF\u514D"
   stats:
   - stat: 0
-    value: 600
+    value: 1200
   - stat: 4
-    value: 12
+    value: 15
   - stat: 11
-    value: 8
+    value: 10
   onHitEffects: []
+  procs: []

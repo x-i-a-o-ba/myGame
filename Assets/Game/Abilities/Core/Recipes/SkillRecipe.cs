@@ -33,6 +33,8 @@ namespace Roguelike.Abilities
     [Serializable]
     public sealed class RecipeNode
     {
+        public bool pierce,followOwner,seekDense;
+        public float innerRadius,repeatAdvance,forwardOffset;
         public int nodeId=1;
         public int parentNodeId;
         public RecipeTrigger trigger;

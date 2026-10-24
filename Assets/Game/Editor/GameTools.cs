@@ -29,7 +29,7 @@ namespace Roguelike.Editor
             var scene = EditorSceneManager.OpenScene(ScenePath);
             var demo = UnityEngine.Object.FindFirstObjectByType<GameCombatController>();
             if (demo == null) demo = new GameObject("Game Combat").AddComponent<GameCombatController>();
-            if (demo.GetComponent<GameCombatProbe>() == null) demo.gameObject.AddComponent<GameCombatProbe>();
+
             bool needsMigration = UnityEngine.Object.FindFirstObjectByType<CombatHud>() == null;
             if (demo.gameCamera == null) demo.gameCamera = Camera.main;
             if (demo.playerMaterial == null) demo.playerMaterial = Material("GamePlayer", new Color(0.14f, 0.65f, 0.85f), true);
@@ -79,9 +79,7 @@ namespace Roguelike.Editor
         [MenuItem("Tools/Roguelike/构建/Windows 游戏")]
         public static void Build()
         {
-            BenchmarkTools.ValidateFoundation();
-            CombatValidation.Validate();
-            GameFlowValidation.Validate();
+            CombatValidation.ValidateExpeditionCore();
             foreach (string path in BuildScenes)
                 if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(path)) throw new InvalidOperationException("构建场景缺失：" + path);
             foreach (string path in new[] { ScenePath, SecondBattlefieldPath })

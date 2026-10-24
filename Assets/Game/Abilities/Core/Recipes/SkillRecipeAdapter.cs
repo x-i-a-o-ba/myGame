@@ -26,6 +26,7 @@ namespace Roguelike.Abilities
                 if(delivery==null || query==null) throw new InvalidOperationException("模块目录未登记旧阶段使用的投递/查询："+i);
                 result.nodes[i]=new RecipeNode {nodeId=i+1,deliveryModuleId=delivery.id,queryModuleId=query.id,
                     delay=s.delay,repeatCount=s.repeatCount,repeatInterval=s.repeatInterval,
+                    pierce=s.pierce,followOwner=s.followOwner,seekDense=s.seekDense,innerRadius=s.innerRadius,repeatAdvance=s.repeatAdvance,forwardOffset=s.forwardOffset,
                     range=s.range,radius=s.radius,hitRadius=s.hitRadius,halfAngleDegrees=s.halfAngleDegrees,speed=s.speed,
                     projectileCount=s.projectileCount,spreadDegrees=s.spreadDegrees,
                     arcHeight=s.arcHeight,flightSeconds=s.flightSeconds,launchHeight=s.launchHeight,arrivalHeight=s.arrivalHeight,

@@ -86,7 +86,7 @@ namespace Roguelike.Combat
             }
             private void SeparateBody(Entity entity,ref LocalTransform transform,in CombatEnemy enemy,in AbilityUnit unit)
             {
-                if(unit.Health<=0 || (unit.Controls&ControlFlags.MovementBlocked)!=0 || enemy.ChargeTimer>0) return;
+                if(unit.Health<=0 || (unit.Controls&ControlFlags.MovementBlocked)!=0) return;
                 float2 origin=transform.Position.xz,push=float2.zero;
                 int2 cell=(int2)math.floor(origin/Cell);
                 float radius=Radius(transform.Scale,Cell); int checkedCount=0;

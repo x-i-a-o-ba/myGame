@@ -20,3 +20,6 @@ MonoBehaviour:
   sceneId: Scene.Game
   enemyRoster: {fileID: 11400000, guid: 91435bcec21046efb74915127f3dbd2c, type: 2}
   difficulty: {fileID: 11400000, guid: fcd4cda1ade141bcbe637cfce6b43d87, type: 2}
+  lavaHazards: 0
+  enemyHealthMultiplier: 1
+  enemyDamageMultiplier: 1

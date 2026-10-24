@@ -12,16 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3331f61cef564eb18fd2faa5da95637d, type: 3}
   m_Name: "\u7070\u70EC\u5F39"
   m_EditorClassIdentifier: Roguelike.Abilities.Core::Roguelike.Abilities.AutoAttackDefinition
+  splitTargets: 0
+  cleaveTargets: 4
+  splitDamageRatio: 0.5
+  cleaveRadius: 0
+  cleaveHalfAngle: 75
+  cleaveDamageRatio: 0.6
   stableId: attack.ash_bolt
   displayName: "\u7070\u70EC\u5F39"
   icon: {fileID: 2800000, guid: b1c6676d561b42438271f90fada34057, type: 3}
   description: "\u5F39\u9053\uFF1A\u8FDC\u8DDD\u79BB\u5C04\u51FA\u7070\u70EC\u5F39\uFF0C\u547D\u4E2D\u540E\u7ED3\u7B97\u4F24\u5BB3\u3002"
   delivery: 1
-  range: 16
-  acquisitionRange: 20
-  baseAttackTime: 1.4
-  attackPoint: 0.5
-  backswing: 0.5
+  range: 10
+  acquisitionRange: 10
+  baseAttackTime: 1
+  attackPoint: 0.25
+  backswing: 0.2
   projectileSpeed: 16
   rangeBuffer: 1.5
   autoAcquire: 1

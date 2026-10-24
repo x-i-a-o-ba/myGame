@@ -30,6 +30,7 @@ namespace Roguelike.Abilities
     [InternalBufferCapacity(4)]
     public struct SkillCommand : IBufferElementData
     {
+        public bool Automatic;
         public int Slot;
         public float3 Point, Direction;
         public Entity Target;
@@ -47,6 +48,7 @@ namespace Roguelike.Abilities
     [InternalBufferCapacity(0)]
     public struct SkillFlight : IBufferElementData
     {
+        public int FlightId;
         public int Skill, Stage, Cast, ProgramVersion, Depth;
         public int Level;
         public float RootReleasedAt;
@@ -61,6 +63,7 @@ namespace Roguelike.Abilities
     public struct SkillCue : IBufferElementData
     {
         public int Skill, Stage, ProgramVersion;
+        public float Radius,Range,InnerRadius;
         public float3 Position, Direction;
     }
     public enum RecipeExecutionFailure { None,DepthLimit,DerivedLimit,LifetimeLimit,QueueLimit }

@@ -73,6 +73,7 @@ namespace Roguelike.Abilities
                 if(forPlayer && (!d.playerAllowed || !q.playerAllowed)) throw new InvalidOperationException(c+"：模块尚未向玩家开放。");
                 Bounded(n.delay,0,recipe.maxLifetime,c+" 延迟"); Bounded(n.repeatInterval,0,recipe.maxLifetime,c+" 重复间隔");
                 if(n.repeatCount<1 || n.repeatCount>(forPlayer?8:32)) throw new InvalidOperationException(c+"：重复次数越界。");
+                Bounded(n.innerRadius,0,q.maxRadius,c+" 内半径"); Bounded(n.repeatAdvance,0,100,c+" 重复前移"); Bounded(n.forwardOffset,0,100,c+" 起点前移");
                 Bounded(n.range,0,Math.Min(d.maxRange,q.maxRange),c+" 长度"); Bounded(n.radius,0,q.maxRadius,c+" 半径");
                 Bounded(n.hitRadius,0,q.maxRadius,c+" 碰撞半径"); Bounded(n.speed,0,d.maxSpeed,c+" 速度");
                 Bounded(n.halfAngleDegrees,.001f,180,c+" 扇形半角");
@@ -97,6 +98,7 @@ namespace Roguelike.Abilities
                 lifetime[i]=(parent<0?0:lifetime[parent])+n.delay+(n.repeatCount-1)*n.repeatInterval+travel;
                 if(lifetime[i]>recipe.maxLifetime) throw new InvalidOperationException(c+"：延迟、重复和飞行路径超过配方寿命。");
                 result.Stages[i]=new SkillStage {delay=n.delay,repeatCount=n.repeatCount,repeatInterval=n.repeatInterval,
+                    pierce=n.pierce,followOwner=n.followOwner,seekDense=n.seekDense,innerRadius=n.innerRadius,repeatAdvance=n.repeatAdvance,forwardOffset=n.forwardOffset,
                     delivery=d.kind,scope=q.scope,shape=q.shape,targets=q.targets,
                     range=n.range,radius=n.radius,hitRadius=n.hitRadius,halfAngleDegrees=n.halfAngleDegrees,speed=n.speed,
                     projectileCount=n.projectileCount,spreadDegrees=n.spreadDegrees,

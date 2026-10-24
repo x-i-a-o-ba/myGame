@@ -16,13 +16,14 @@ MonoBehaviour:
   stableId: item.bloodthirst_blade
   displayName: "\u55DC\u8840\u4E4B\u5203"
   icon: {fileID: 2800000, guid: 2d28e6ea99cb4b10a3d982b79652dcde, type: 3}
-  quality: 3
-  price: 2600
-  unique: 1
-  description: "\u6E34\u8840\u7684\u5F2F\u5203\uFF0C\u666E\u653B\u9020\u6210\u5927\u91CF\u5438\u8840\u3002\u540C\u540D\u88C5\u5907\u53EA\u80FD\u6301\u6709\u4E00\u4EF6\u3002"
+  quality: 2
+  price: 1900
+  unique: 0
+  description: "+25 \u653B\u51FB\u529B\n+12% \u666E\u653B\u5438\u8840"
   stats:
   - stat: 1
-    value: 30
+    value: 25
   - stat: 12
-    value: 18
+    value: 12
   onHitEffects: []
+  procs: []

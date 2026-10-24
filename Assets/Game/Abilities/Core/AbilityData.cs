@@ -6,6 +6,7 @@ namespace Roguelike.Abilities
     public struct AbilityLibrary { public BlobArray<SkillData> Skills; public BlobArray<BuffData> Buffs; public BlobArray<PassiveData> Passives; }
     public struct SkillData
     {
+        public int AutoTriggerEveryHits;
         public int ConfigId;
         public AimMode Aim;
         public int MaxCharges,RequiredHits;
@@ -29,6 +30,7 @@ namespace Roguelike.Abilities
     /// <summary>不可变的组合阶段。每次重复先投递，再查询，最后提交效果；不存冷却或剩余次数。</summary>
     public struct StageData
     {
+        public bool Pierce,FollowOwner,SeekDense; public float InnerRadius,RepeatAdvance,ForwardOffset;
         public int ParentStage,NodeId;
         public RecipeTrigger Trigger;
         public float Delay,RepeatInterval;
@@ -43,12 +45,14 @@ namespace Roguelike.Abilities
         public float ArcHeight,FlightSeconds,LaunchHeight,ArrivalHeight;
         public BlobArray<EffectData> Effects,ImpactEffects;
     }
-    public struct EffectData { public EffectKind Kind; public EffectTarget Target; public float Amount,BuffScale; public int Buff; }
+    public struct EffectData { public EffectKind Kind; public EffectTarget Target; public float Amount,BuffScale,StopDistance; public float SourceAttackRatio,TargetMaxHealthRatio; public int Buff; }
     public struct AttributeModifierData { public AttributeKind Attribute; public ModifierOperation Operation; public float Value; }
     public struct BuffData
     {
+        public float DamageReduction,RegenMaxHealth,DamageTaken,Reflect,AttackSplashRadius,AttackSplashRatio;
+        public int ExtraTargets; public bool ControlImmune,PierceBasics;
         public int ConfigId;
-        public float Duration,Interval,PeriodicDamage,SpeedPercent,AttackFlat,Regen;
+        public float Duration,Interval,PeriodicDamage,PeriodicAttackRatio,SpeedPercent,AttackFlat,Regen;
         public BuffStackRule Stacking; public int MaxStacks; public bool Dispellable;
         public BlobArray<AttributeModifierData> Modifiers;
         public ControlFlags Controls;
@@ -58,6 +62,9 @@ namespace Roguelike.Abilities
     /// <summary>战斗单位的唯一权威属性与状态；基础值与 Buff 聚合值分离。Kind/PassiveMask 保留旧示例兼容。</summary>
     public struct AbilityUnit : IComponentData
     {
+        public bool SlowImmune,DisplacementImmune;
+        public float BuffDamageReduction,RegenMaxHealth,DamageTaken,Reflect,Shield;
+        public float AttackSplashRadius,AttackSplashRatio; public int ExtraTargets; public bool ControlImmune,PierceBasics;
         public int Team,Kind;
         public float Health,MaxHealth,Mana,MaxMana,BaseSpeed,Speed,BaseAttack,Attack,Regen,AttackReadyAt;
         public float3 Destination;
@@ -75,13 +82,13 @@ namespace Roguelike.Abilities
     public struct ActiveBuff : IBufferElementData
     {
         public int Definition,Origin,Stacks; public Entity Source;
-        public float ExpiresAt,NextTick,Scale;
+        public float ExpiresAt,NextTick,Scale,SourceAttack; public int ExtraTargets;
     }
     /// <summary>持有者的技能槽运行状态。Level 为 0 表示尚未学习，执行器拒绝施放并返回 NotLearned。</summary>
     [InternalBufferCapacity(3)]
     public struct AbilitySlot : IBufferElementData
     {
-        public int Definition,Level; public float ReadyAt;
+        public int Definition,Level,FormChoice; public float ReadyAt;
         public int Charges,HitStacks;
         public float RechargeAt;
     }
@@ -110,7 +117,7 @@ namespace Roguelike.Abilities
     public struct SpatialEntry { public Entity Entity; public float3 Position; public int Team; }
     public struct EffectRequest : System.IComparable<EffectRequest>
     {
-        public Entity Source,Target; public int Origin,Order; public EffectData Effect; public float Power;
+        public Entity Source,Target; public int Origin,Order; public EffectData Effect; public float Power,SourceAttack,DurationScale; public int ExtraTargets;
         public int CompareTo(EffectRequest other)
         { int n=Target.Index.CompareTo(other.Target.Index); return n!=0?n:Order.CompareTo(other.Order); }
     }

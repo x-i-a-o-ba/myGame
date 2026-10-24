@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b646fbddf2c79504c94295460e901a3f, type: 3}
+  m_Name: "\u5DE8\u4EBA\u8170\u5E26"
+  m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Flow.RelicDefinition
+  stableId: relic.giant
+  displayName: "\u5DE8\u4EBA\u8170\u5E26"
+  description: "\u4F53\u578B\u3001\u6700\u5927\u751F\u547D\u4E0E\u666E\u653B\u8DDD\u79BB\u589E\u52A0
+    20%\u3002"
+  icon: {fileID: 2800000, guid: 3d246d55906342608824f5e061019753, type: 3}
+  extraBasicTargets: 0
+  echoChance: 0
+  killHealMaxHealth: 0
+  skillHitBuff: {fileID: 0}
+  controlDurationMultiplier: 1
+  bodyScale: 1.2
+  maxHealthMultiplier: 1.2
+  basicRangeMultiplier: 1.2
+  eliteGoldMultiplier: 1
+  cooldownReduction: 0
+  cooldownCap: 50

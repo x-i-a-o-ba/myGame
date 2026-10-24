@@ -10,8 +10,8 @@ namespace Roguelike.Combat
     {
         [InspectorName("近战追击")] Melee,
         [InspectorName("远程游击（保持距离射击）")] Ranged,
-        [InspectorName("冲锋（接近后直线突进撞击）")] Charger,
-        [InspectorName("自爆（前摇结束范围爆炸并死亡）")] Exploder
+        [InspectorName("已停用：请装配冲锋技能模块")] Charger,
+        [InspectorName("已停用：请装配自爆技能模块")] Exploder
     }
 
     /// <summary>
@@ -48,6 +48,12 @@ namespace Roguelike.Combat
         [Min(0.1f), Tooltip("爆炸半径（米），从自身中心计算。")] public float explosionRadius=3.5f;
         [Min(0), Tooltip("爆炸伤害 = 攻击力 × 该倍率。")] public float explosionDamageMultiplier=5;
 
+        [Header("模块化怪物技能（最多四个）")]
+        public MonsterAbilityDefinition[] abilities=Array.Empty<MonsterAbilityDefinition>();
+        public ApplyBuffEffect elementalSlow;
+        public bool fireElement;
+        [Range(0,1)] public float armoredAboveHalf;
+
         public string Label=>string.IsNullOrWhiteSpace(displayName)?name:displayName;
 
         /// <summary>行为的简短中文名称，供信息面板等界面显示。</summary>
@@ -68,7 +74,7 @@ namespace Roguelike.Combat
         {
             if(configId<3000 || configId>3999) throw new InvalidOperationException("怪物数字 ID 必须为 3000–3999："+name);
             if(string.IsNullOrWhiteSpace(stableId) || stableId.Trim()!=stableId) throw new InvalidOperationException("怪物内部兼容键为空或含首尾空格："+name);
-            if(!Enum.IsDefined(typeof(EnemyBehavior),behavior)) throw new InvalidOperationException("未知的怪物行为："+name);
+            if(behavior!=EnemyBehavior.Melee && behavior!=EnemyBehavior.Ranged) throw new InvalidOperationException("旧冲锋和自爆行为已停用，请装配怪物技能模块："+name);
             if(!attack) throw new InvalidOperationException("怪物缺少自动攻击模块："+name);
             attackData=attack.Compile();
             if(behavior==EnemyBehavior.Ranged && attackData.Delivery!=AttackDelivery.Projectile)
@@ -78,13 +84,7 @@ namespace Roguelike.Combat
             foreach(float value in values)
                 if(float.IsNaN(value) || float.IsInfinity(value) || value<0) throw new InvalidOperationException("怪物数值必须是有限的非负数："+name);
             if(healthMultiplier<0.01f || bodyScale<0.1f) throw new InvalidOperationException("怪物生命倍率至少 0.01、体型倍率至少 0.1："+name);
-            if(behavior==EnemyBehavior.Charger && (chargeSpeedMultiplier<1 || chargeDuration<0.05f))
-                throw new InvalidOperationException("冲锋怪物的冲锋速度倍率至少 1、持续时间至少 0.05 秒："+name);
-            if(behavior==EnemyBehavior.Exploder && explosionRadius<0.1f) throw new InvalidOperationException("自爆怪物的爆炸半径至少 0.1 米："+name);
-            return new EnemyBehaviorData {Behavior=behavior,PreferredDistance=Mathf.Clamp(preferredDistance,0.2f,1),RetreatDistance=retreatDistance,
-                ChargeTriggerRange=chargeTriggerRange,ChargeSpeedMultiplier=chargeSpeedMultiplier,ChargeDuration=chargeDuration,
-                ChargeCooldown=chargeCooldown,ChargeDamageMultiplier=chargeDamageMultiplier,
-                ExplosionRadius=explosionRadius,ExplosionDamageMultiplier=explosionDamageMultiplier};
+            return new EnemyBehaviorData {Behavior=behavior,PreferredDistance=Mathf.Clamp(preferredDistance,0.2f,1),RetreatDistance=retreatDistance};
         }
 
         /// <summary>预制体使用的材质：第一个 MeshRenderer 的共享材质。</summary>

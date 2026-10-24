@@ -17,6 +17,13 @@ namespace Roguelike.Abilities
     [CreateAssetMenu(menuName="Roguelike/技能/自动攻击（被动模块）")]
     public sealed class AutoAttackDefinition : ScriptableObject
     {
+        [Min(0),Tooltip("额外分裂弹体目标数，0 关闭。仅主弹体累积普攻触发次数。")] public int splitTargets;
+        [Min(1),Tooltip("顺劈最多附加目标数，主目标不计入。")] public int cleaveTargets=4;
+        [Range(0,1)] public float splitDamageRatio=.5f;
+        [Min(0),Tooltip("顺劈半径（米），0 关闭。")] public float cleaveRadius;
+        [Range(0,180),Tooltip("顺劈半角（度）。")] public float cleaveHalfAngle=75;
+        [Range(0,1)] public float cleaveDamageRatio=.6f;
+
         [Tooltip("内部兼容键，例如 attack.frost_arrow。")] public string stableId;
         [Tooltip("界面显示名称。")] public string displayName;
         [Tooltip("HUD 被动栏图标。")] public Texture2D icon;
@@ -38,7 +45,8 @@ namespace Roguelike.Abilities
             if(string.IsNullOrWhiteSpace(stableId) || stableId.Trim()!=stableId)
                 throw new InvalidOperationException("自动攻击模块缺少内部兼容键或含首尾空格："+name);
             if(!Enum.IsDefined(typeof(AttackDelivery),delivery)) throw new InvalidOperationException("未知的自动攻击结算方式："+name);
-            float[] values={range,acquisitionRange,baseAttackTime,attackPoint,backswing,projectileSpeed,rangeBuffer};
+            if(splitTargets<0 || splitTargets>32 || splitDamageRatio>1 || cleaveDamageRatio>1 || cleaveHalfAngle>180) throw new InvalidOperationException("普攻群伤配置越界："+name);
+            float[] values={splitDamageRatio,cleaveRadius,cleaveHalfAngle,cleaveDamageRatio,range,acquisitionRange,baseAttackTime,attackPoint,backswing,projectileSpeed,rangeBuffer};
             foreach(float value in values)
                 if(float.IsNaN(value) || float.IsInfinity(value) || value<0) throw new InvalidOperationException("自动攻击数值必须是有限的非负数："+name);
             if(range<0.1f || baseAttackTime<0.01f) throw new InvalidOperationException("自动攻击距离至少 0.1 米、基础间隔至少 0.01 秒："+name);
@@ -46,7 +54,8 @@ namespace Roguelike.Abilities
             if(delivery==AttackDelivery.Projectile && projectileSpeed<1) throw new InvalidOperationException("弹道攻击的弹道速度至少为 1 米/秒："+name);
             return new AutoAttackData {Delivery=delivery,Range=range,AcquisitionRange=Mathf.Max(range,acquisitionRange),BaseAttackTime=baseAttackTime,
                 AttackPoint=attackPoint,Backswing=backswing,ProjectileSpeed=projectileSpeed,RangeBuffer=rangeBuffer,
-                AutoAcquire=autoAcquire,CountsAsBasicAttackHit=countsAsBasicAttackHit};
+                AutoAcquire=autoAcquire,CountsAsBasicAttackHit=countsAsBasicAttackHit,
+                SplitTargets=splitTargets,CleaveTargets=cleaveTargets,SplitDamageRatio=splitDamageRatio,CleaveRadius=cleaveRadius,CleaveHalfAngle=cleaveHalfAngle,CleaveDamageRatio=cleaveDamageRatio};
         }
 
         /// <summary>界面显示名称：未填写时回退到资源名。</summary>

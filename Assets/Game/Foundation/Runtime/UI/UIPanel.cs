@@ -76,7 +76,7 @@ namespace Roguelike.Foundation.UI
                     if (target && target.text != value.Text) target.text = value.Text;
                 }
             if (value.Kind == UiValueKind.Texture && imageIndex.TryGetValue(value.Key, out var imageTargets))
-                foreach (int i in imageTargets) { if (images[i].target) images[i].target.texture = value.Texture; }
+                foreach (int i in imageTargets) { if (images[i].target) { images[i].target.texture = value.Texture; images[i].target.enabled=value.Texture!=null; } }
             if (value.Kind == UiValueKind.Fill && fillIndex.TryGetValue(value.Key, out var fillTargets))
                 foreach (int i in fillTargets)
                 {
