@@ -29,6 +29,8 @@ ECS 并行任务结束后才进入串行共享效果结算，避免同时写单�
 - 正式技能、Buff、普攻、装备、英雄、地图、怪物模块、遗物及输入资源都有中文 Inspector。普通字段通过 CustomEditor / PropertyDrawer 绘制，枚举使用 `InspectorName`。旧属性枚举编号仍保留为“已停用”，编辑和编译均拒绝再次装配。
 - `Tools/Roguelike/远征/配置字段检查` 将正式 CustomEditor 放进宽窗口，供逐项实际查看，并不是独立模拟表单。当前轮的人工可视检查状态见验证记录。
 - `Tools/Roguelike/远征/生成界面并装配战场` 重新保存正式 HUD 与营地面板；它会重建布局，已有手工布局应先提交。旧 HUD Python 生成器与旧面板已删除，避免恢复被淘汰机制。
+- 当前布局源为 `ExpeditionSceneAuthoring.Style.cs`，加载既有 `Assets/Game/UI/Sprites` 九宫格纹理及肖像/技能/装备图标。`ExpeditionSceneAuthoring.cs` 负责控件绑定、Prefab 保存和两个战场的装配；资源 GUID 保持不变，生成后场景实例同步更新。展示绑定只消费 `CombatHud` / `PublishExpedition` 快照，按钮经 `UIAction` 发意图；生命、冷却、交易仍归现有玩法模块。
+- 仅布局与绑定变更时可用 `ExpeditionSceneAuthoring.BuildInterface` 重新生成并构建，不执行英雄/装备数值迁移。`--expedition-smoke --hud-review` 增加补给前的 HUD、暂停和属性截图；渲染尺寸跟随 `-screen-width` / `-screen-height`。压力探针的默认渲染尺寸保持 1920×1080。
 - `ExpeditionContent.Heroes`、`.Equipment`、`.Monsters` 是整套定稿内容的重建入口，会覆盖对应配置，日常局部调参优先直接编辑资源。
 - 数字编号、中文配置清单位于 `Docs/游戏配置`；`HeroSkillDocumentation.Export` 更新导出快照。装备改名保留 `.meta` GUID，退休编号不复用。
 

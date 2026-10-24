@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using Roguelike.Abilities;
 using Roguelike.Flow;
 using Roguelike.Foundation;
@@ -117,6 +116,8 @@ namespace Roguelike.Combat
         {
             switch(command.Id)
             {
+                case "expedition.stats":ToggleStats();break;
+                case "expedition.pause":SetPaused(true);break;
                 case "expedition.resume":SetPaused(false);returnConfirmation=false;break;
                 case "expedition.return":ReturnToSelection();break;
                 case "expedition.form":ChooseForm(command.Value);break;
@@ -199,11 +200,16 @@ namespace Roguelike.Combat
             ui.Visible("expedition.result",Phase==ExpeditionPhase.Victory || Phase==ExpeditionPhase.Defeat);
             ui.Visible("expedition.victoryNotice",Phase==ExpeditionPhase.VictoryNotice);
             ui.Text("expedition.result.title",Phase==ExpeditionPhase.Victory?"远征胜利":"远征结束");
-            ui.Text("expedition.result.body",$"抵达第 {Director.Stage} 关\n战斗时间 {State.Elapsed/60:0} 分 {State.Elapsed%60:00} 秒\n等级 {Progression.Level}　击杀 {State.Kills:N0}\n本局收入 {Equipment.GoldEarned:0} 金币");
-            var stats=new StringBuilder();foreach(var kind in StatText.DisplayOrder) stats.Append(StatText.Name(kind)).Append("  ").Append(StatText.Value(kind,EffectiveStat(kind))).AppendLine();
-            ui.Text("expedition.stats.body",stats.ToString());
+            int elapsedSeconds=Mathf.FloorToInt(State.Elapsed);
+            ui.Text("expedition.result.body",$"抵达第 {Director.Stage} 关\n战斗时间 {elapsedSeconds/60} 分 {elapsedSeconds%60:00} 秒\n等级 {Progression.Level}　击杀 {State.Kills:N0}\n本局收入 {Equipment.GoldEarned:0} 金币");
+            ui.Texture("expedition.hero.icon",hero.portrait);ui.Text("expedition.hero.name",hero.displayName);
+            for(int i=0;i<StatText.DisplayOrder.Length;i++)
+            {
+                var kind=StatText.DisplayOrder[i];ui.Text("expedition.stat."+i+".name",StatText.Name(kind));
+                ui.Text("expedition.stat."+i+".value",StatText.Value(kind,EffectiveStat(kind)));
+            }
             if(Run!=null) for(int i=0;i<2;i++)
-            {ui.Text("expedition.relic."+i,i<Run.Relics.Count?Run.Relics[i].displayName:"");ui.Texture("expedition.relic.icon."+i,i<Run.Relics.Count?Run.Relics[i].icon:null);}
+            {ui.Text("expedition.relic."+i,i<Run.Relics.Count?Run.Relics[i].displayName:"尚未获得");ui.Texture("expedition.relic.icon."+i,i<Run.Relics.Count?Run.Relics[i].icon:null);}
             if(Phase!=ExpeditionPhase.Camp) return;
             ui.Text("camp.title",$"第 {Run.Stage} 关完成 · 营地");ui.Text("camp.gold",$"金币 {Equipment.Gold:0}");
             ui.Text("camp.hint",!Camp.RelicChosen?"先选择一件遗物":!Camp.RouteChosen?"整备装备，并选择下一关路线":"整备完成后出发 · 下一关回复全部生命与法力");
@@ -213,14 +219,24 @@ namespace Roguelike.Combat
             for(int i=0;i<4;i++)
             {
                 ui.Visible("camp.relic.visible."+i,i<Camp.RelicOptions.Count);
-                if(i<Camp.RelicOptions.Count) ui.Text("camp.relic."+i,Camp.RelicOptions[i].displayName+"\n\n"+Camp.RelicOptions[i].description);
+                if(i<Camp.RelicOptions.Count)
+                {
+                    var relic=Camp.RelicOptions[i];ui.Text("camp.relic.title."+i,relic.displayName);
+                    ui.Text("camp.relic.description."+i,relic.description);ui.Texture("camp.relic.icon."+i,relic.icon);
+                }
             }
             for(int i=0;i<5;i++)
             {
                 int index=Camp.Stock[i];var item=index>=0?session.Items[index]:null;
-                ui.Text("camp.stock."+i,item?$"{item.Label}\n{item.price} 金\n\n{item.description}":"已售出");ui.Texture("camp.stock.icon."+i,item?item.icon:null);
+                ui.Text("camp.stock.title."+i,item?item.Label:"已售出");
+                ui.Text("camp.stock.description."+i,item?item.description:"");
+                ui.Text("camp.stock.price."+i,item?$"{item.price} 金":"");ui.Texture("camp.stock.icon."+i,item?item.icon:null);
             }
-            for(int i=0;i<6;i++) {int item=EquippedAt(i);ui.Text("camp.sell."+i,item<0?"空装备位":$"{session.Items[item].Label}\n出售 {equipmentCatalog.SellPrice(session.Items[item])} 金");}
+            for(int i=0;i<6;i++)
+            {
+                int item=EquippedAt(i);ui.Text("camp.sell."+i,item<0?"空装备位":$"{session.Items[item].Label}\n出售 {equipmentCatalog.SellPrice(session.Items[item])} 金");
+                ui.Texture("camp.sell.icon."+i,item<0?null:session.Items[item].icon);
+            }
         }
     }
 }

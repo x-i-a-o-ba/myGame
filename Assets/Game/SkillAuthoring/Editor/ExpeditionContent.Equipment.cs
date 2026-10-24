@@ -72,6 +72,7 @@ namespace Roguelike.SkillAuthoring.Editor
                 Item(6015,"泰坦之心",EquipmentQuality.Legendary,4000,"",Stat(StatKind.MaxHealth,1200),Stat(StatKind.HealthRegen,15),Stat(StatKind.DamageReduction,10)),
                 Item(6017,"风暴王冠",EquipmentQuality.Legendary,4600,"施放主动技能时，对 8 米内最多六个敌人落雷，每道 150 + 50% 攻击伤害。",Stat(StatKind.SkillAmplify,35),Stat(StatKind.CooldownReduction,15))
             };
+            items[12].icon=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game/UI/Icons/黑曜重锤.png");
             items[3].unique=true;items[8].onHitEffects=new EffectDefinition[]{frostEffect};
             items[12].procs=new[]{new EquipmentProc{trigger=EquipmentTrigger.BasicHit,chance=.25f,radius=6,maxTargets=5,chain=true,effects=new EffectDefinition[]{chain}}};
             items[13].procs=new[]{new EquipmentProc{trigger=EquipmentTrigger.BasicHit,radius=3.5f,maxTargets=32,includePrimary=false,effects=new EffectDefinition[]{splash}}};
@@ -98,7 +99,8 @@ namespace Roguelike.SkillAuthoring.Editor
             for(int i=0;i<expedition.relics.Length;i++)
             {
                 expedition.relics[i].icon=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game/UI/Icons/"+icons[i]+".png");
-                if(!expedition.relics[i].icon) expedition.relics[i].icon=items[Mathf.Min(i,items.Length-1)].icon;
+                if(!expedition.relics[i].icon) expedition.relics[i].icon=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game/Equipment/Icons/"+icons[i]+".png");
+                if(!expedition.relics[i].icon) throw new InvalidOperationException("遗物图标不存在："+icons[i]);
             }
             AssetDatabase.SaveAssets();NumericConfigIds.AssignMissing();
             using(var library=catalog.Compile(skills)) { }

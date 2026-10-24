@@ -15,7 +15,7 @@ MonoBehaviour:
   configId: 6018
   stableId: item.expedition_6018
   displayName: "\u96F7\u9E23\u9524"
-  icon: {fileID: 0}
+  icon: {fileID: 2800000, guid: e07be79e2f3f4a018b7f276df5a51e23, type: 3}
   quality: 2
   price: 2400
   unique: 0

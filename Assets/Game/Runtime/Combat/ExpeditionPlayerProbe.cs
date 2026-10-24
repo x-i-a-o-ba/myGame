@@ -38,7 +38,7 @@ namespace Roguelike.Combat
             // 直接调用玩法 API 后，等待限频 HUD 发布本帧状态，再验证真实像素。
             yield return new WaitForSecondsRealtime(.2f);
             yield return new WaitForEndOfFrame();
-            using(var render=new CombatProbeRender(game.gameCamera,false)) Check(render.Save(Path.Combine(output,name+".png")),"渲染 "+name);
+            using(var render=new CombatProbeRender(game.gameCamera,false,Screen.width,Screen.height)) Check(render.Save(Path.Combine(output,name+".png")),"渲染 "+name);
         }
         void Supply()
         {
@@ -58,6 +58,11 @@ namespace Roguelike.Combat
                 RunState.Begin(selected,game.map,Array.Find(game.expedition.selection.maps,x=>x!=game.map));game.SelectHero(selected);
             }
             game.Run.Seed=20261024;
+            if(Has("--hud-review"))
+            {
+                game.SetPaused(true);yield return Capture("hud-opening-paused");game.SetPaused(false);
+                yield return Capture("hud-opening");game.ToggleStats();yield return Capture("hero-stats");game.ToggleStats();
+            }
             Supply();game.ExternalMovementInput=true;
             var startPosition=game.State.Position;game.SetMovement(Vector2.right);yield return new WaitForSeconds(.3f);game.SetMovement(Vector2.zero);
             Check(game.State.Position.x>startPosition.x+1,"方向输入驱动英雄移动且不自动追击");
@@ -65,6 +70,7 @@ namespace Roguelike.Combat
             Check(game.Progression.Level==1 && game.Progression.SkillPoints==1,"一级一个技能点开局");
             game.LearnSkill(0);yield return null;yield return null;
             Check(manager.GetBuffer<AbilitySlot>(game.SessionEntity)[0].Level==1,"学习技能消耗权威技能点");
+            if(Has("--hud-review")) {game.CastAbility(0);yield return Capture("skill-cooldown");}
             game.SetPaused(true);float before=game.Director.StageElapsed;yield return new WaitForSecondsRealtime(.25f);
             Check(Mathf.Approximately(before,game.Director.StageElapsed),"暂停冻结战斗计时");yield return Capture("pause");game.SetPaused(false);
             var progression=game.Progression;HeroProgressionLogic.GainExperience(ref progression,20020);HeroProgressionLogic.ApplyPendingLevels(ref progression);

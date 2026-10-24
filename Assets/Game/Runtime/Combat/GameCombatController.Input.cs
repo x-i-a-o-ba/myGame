@@ -33,7 +33,7 @@ namespace Roguelike.Combat
             bool learn=Input.GetKey(KeyCode.LeftControl)||Input.GetKey(KeyCode.RightControl);
             for(int i=0;i<4;i++) if(Input.GetKeyDown(AbilityKey(i))) {if(learn) LearnSkill(i);else CastAbility(i);}
             if(Input.GetKeyDown(inputProfile?inputProfile.statistics:KeyCode.Tab))
-            { StatsOpen=!StatsOpen; ExpeditionUI?.Visible("expedition.stats",StatsOpen); }
+            { ToggleStats(); }
             if(!hud.BlocksPointer(Input.mousePosition)) cameraZoom=Mathf.Clamp(cameraZoom-Input.mouseScrollDelta.y*Mathf.Max(2,cameraZoom*.08f),12,160);
         }
         public void SetMovement(Vector2 direction)
@@ -47,6 +47,11 @@ namespace Roguelike.Combat
             if(!Running) return;
             Paused=paused; SetMovement(Vector2.zero);
             ExpeditionUI?.Visible("expedition.pause",paused);
+        }
+        public void ToggleStats()
+        {
+            if(!IsReady) return;
+            StatsOpen=!StatsOpen;ExpeditionUI?.Visible("expedition.stats",StatsOpen);
         }
         public int PendingFormSlot
         {

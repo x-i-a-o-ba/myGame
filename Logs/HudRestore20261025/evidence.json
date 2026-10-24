@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-25",
+  "baseline": "0dc9bf3291053afeb3569aefed69f560714229b1",
+  "unity": "6000.3.18f1",
+  "build": "Builds/HudRestored/Game.exe",
+  "editorLog": "Logs/HudRestore20261025/build-accepted.log",
+  "editorLogSha256": "4d6198400751c1ca1dd40d575d55cc58932fae3786a454f0248d181e5f1e5f62",
+  "markers": [
+    "EXPEDITION_CORE_VALIDATION_PASSED checks=179",
+    "GAME_FLOW_VALIDATION_PASSED checks=339",
+    "EXPEDITION_BUILD_SUCCEEDED",
+    "Exiting without the bug reporter. Application will terminate with return code 0"
+  ],
+  "playerRuns": [
+    {
+      "path": "accepted-archer-1920/result.json",
+      "result": {
+        "passed": true,
+        "checks": 59,
+        "failures": []
+      },
+      "exitCode": 0,
+      "logSha256": "d024bdf5b4bc3c76809dfb9eac7e7ea5077a1a1be2a882bcafd79bab57cd94dd"
+    },
+    {
+      "path": "accepted-warrior-1280/result.json",
+      "result": {
+        "passed": true,
+        "checks": 59,
+        "failures": []
+      },
+      "exitCode": 0,
+      "logSha256": "bf0994a5663dbd658ccf5d27e982c987e8a2cf8f2a0088cd80a08e74fd4b3f78"
+    },
+    {
+      "path": "accepted-archer-1600/result.json",
+      "result": {
+        "passed": true,
+        "checks": 59,
+        "failures": []
+      },
+      "exitCode": 0,
+      "logSha256": "36771ddea38bcea12ab4d3491e0dd2cd9b4f05a77ab69790f9d305e2066c85a2"
+    }
+  ],
+  "manual": {
+    "completed": [
+      "底栏暂停按钮打开暂停菜单",
+      "Esc 恢复战斗",
+      "Ctrl+E 学习冰霜扇击，技能点和图标更新",
+      "底栏属性按钮打开 11 项面板",
+      "Tab 收起属性面板",
+      "点击 Q 上方加号学习",
+      "技能图标悬停展示当前/下级说明",
+      "结算返回选择并重新进入战场"
+    ],
+    "scope": "正常窗口下原生键鼠；未完成正常难度三关与旧任务 Inspector 验收；流程截图中补给后的生命、金币不代表正式平衡。",
+    "logSha256": "f02b707e8a03cbb80d99a719582703fb9fcf0adf2d99c510b2af49ffe2e45853"
+  }
+}

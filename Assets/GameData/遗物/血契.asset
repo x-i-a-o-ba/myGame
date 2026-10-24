@@ -15,7 +15,7 @@ MonoBehaviour:
   stableId: relic.blood
   displayName: "\u8840\u5951"
   description: "\u51FB\u6740\u56DE\u590D 0.3% \u6700\u5927\u751F\u547D\u3002"
-  icon: {fileID: 2800000, guid: 1687338056514b73a8a3993d040a6fa2, type: 3}
+  icon: {fileID: 2800000, guid: 2d28e6ea99cb4b10a3d982b79652dcde, type: 3}
   extraBasicTargets: 0
   echoChance: 0
   killHealMaxHealth: 0.003

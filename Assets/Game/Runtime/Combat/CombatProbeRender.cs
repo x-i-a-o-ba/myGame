@@ -10,9 +10,11 @@ namespace Roguelike.Combat
     {
         public Camera Camera {get;}
         private readonly RenderTexture target;
+        private readonly int width,height;
         private readonly List<(Canvas canvas,RenderMode mode,Camera camera,float distance)> canvases=new();
-        public CombatProbeRender(Camera source,bool overview)
+        public CombatProbeRender(Camera source,bool overview,int width=1920,int height=1080)
         {
+            this.width=Mathf.Max(256,width);this.height=Mathf.Max(256,height);
             var go=new GameObject("验证用渲染相机"); Camera=go.AddComponent<Camera>(); Camera.CopyFrom(source); Camera.enabled=false;
             Camera.transform.SetPositionAndRotation(source.transform.position,source.transform.rotation);
             if(overview)
@@ -21,7 +23,7 @@ namespace Roguelike.Combat
                 var rotation=Quaternion.Euler(58,0,0);
                 Camera.transform.SetPositionAndRotation(rotation*new Vector3(0,0,-300),rotation);
             }
-            target=new RenderTexture(1920,1080,24,RenderTextureFormat.ARGB32); target.Create(); Camera.targetTexture=target;
+            target=new RenderTexture(this.width,this.height,24,RenderTextureFormat.ARGB32); target.Create(); Camera.targetTexture=target;
             foreach(var canvas in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
             {
                 if(!canvas.isRootCanvas) continue;
@@ -39,12 +41,12 @@ namespace Roguelike.Combat
         }
         public bool Save(string path)
         {
-            var previous=RenderTexture.active; var texture=new Texture2D(1920,1080,TextureFormat.RGB24,false);
+            var previous=RenderTexture.active; var texture=new Texture2D(width,height,TextureFormat.RGB24,false);
             try
             {
-                Render(); RenderTexture.active=target; texture.ReadPixels(new Rect(0,0,1920,1080),0,0); texture.Apply();
+                Render(); RenderTexture.active=target; texture.ReadPixels(new Rect(0,0,width,height),0,0); texture.Apply();
                 Color first=texture.GetPixel(0,0); bool varied=false;
-                for(int y=30;y<1080;y+=16) for(int x=20;x<1920;x+=16)
+                for(int y=30;y<height;y+=16) for(int x=20;x<width;x+=16)
                     if(((Vector4)(texture.GetPixel(x,y)-first)).sqrMagnitude>0.002f) varied=true;
                 System.IO.File.WriteAllBytes(path,texture.EncodeToPNG()); return varied;
             }

@@ -57,7 +57,7 @@ namespace Roguelike.Combat
             Text("hero.manaRegen", $"{(s.ManaRegen>=0?"+":"")}{s.ManaRegen:0.0}/秒");
             Text("stats.attack",$"{s.AttackDamage:0}");Text("stats.attackSpeed",$"{s.AttacksPerSecond:0.0}/秒");
             Text("stats.move",$"{s.MoveSpeed:0.#}");Text("stats.reduction",$"{s.DamageReduction:0.#}%");
-            // 金币、装备栏与商店（商店按钮在商店范围外变暗并显示距离）
+            // 金币与随身装备；交易入口由远征营地提供。
             Text(EquipmentKeys.Gold, $"{Mathf.FloorToInt(Mathf.Max(0, s.Gold)):N0}");
             for (int i = 0; i < EquipmentSlots && i < s.Equipment.Length; i++) Equip(i, s.Equipment[i]);
             // 自动攻击被动模块
