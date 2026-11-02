@@ -48,10 +48,16 @@ namespace Roguelike.Abilities
         /// </summary>
         public static Vector3 AreaCenter(in SkillAimPreview preview,Vector3 origin,Vector3 point)
         {
+            // 多发直线弹体组成的扇面（如冰霜扇击）从施法者脚下向外展开，顶点在施法者，而不是鼠标落点。
+            if(IsProjectileFan(preview)) return origin;
             if(preview.Delivery==DeliveryKind.ParabolicProjectile) return point+Vector3.up*preview.ArrivalHeight;
             if(preview.Delivery!=DeliveryKind.Instant) return point;
             return preview.Aim==AimMode.Point || preview.Aim==AimMode.Unit?point:origin;
         }
+
+        /// <summary>多发直线弹体按散射角铺开的扇面；<see cref="SkillAimPreview.From"/> 将其表示为扇形范围。</summary>
+        public static bool IsProjectileFan(in SkillAimPreview preview)=>
+            preview.Delivery==DeliveryKind.LinearProjectile && preview.Scope==TargetScope.Area && preview.Shape==AreaShape.Cone;
 
         /// <summary>落点弹体沿起点到落点定向；零距离直接结算时保留施法方向，其余投递也消费施法方向。</summary>
         public static Vector3 DeliveryDirection(in SkillAimPreview preview,Vector3 origin,Vector3 point,Vector3 aimDirection)

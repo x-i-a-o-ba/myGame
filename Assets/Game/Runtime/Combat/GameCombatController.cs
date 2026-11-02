@@ -226,8 +226,23 @@ namespace Roguelike.Combat
             ref var skill=ref session.Library.Value.Skills[slots[slot].Definition];
             if(skill.Aim==AimMode.Self || skill.Stages.Length==0 || !abilityIndicator.HasBindings) { CastImmediately(slot); return; }
             if(abilityIndicator.IsAiming && abilityIndicator.ActiveSlot==slot) { abilityIndicator.Cancel(); return; }
-            abilityIndicator.BeginAim(slot,SkillAimPreview.From(ref skill));
+            abilityIndicator.BeginAim(slot,LevelPreview(ref skill,slots[slot].Level));
             UpdateSkillAim(false);
+        }
+        /// <summary>按当前技能等级修正指示器：半径倍率、逐级弹体数和散射角，与 AbilityExecution 的施法时等级快照一致。</summary>
+        private static SkillAimPreview LevelPreview(ref SkillData skill,int level)
+        {
+            var preview=SkillAimPreview.From(ref skill);
+            var row=SkillLevels.Row(ref skill,math.max(1,level));
+            preview.Radius*=row.RadiusScale;
+            ref var stage=ref skill.Stages[0];
+            if(stage.Delivery==DeliveryKind.LinearProjectile)
+            {
+                int count=math.clamp(stage.ProjectileCount+row.ProjectileBonus,1,32);
+                float spread=math.min(360,stage.SpreadDegrees+row.SpreadBonus);
+                if(count>1 && spread>0) {preview.Scope=TargetScope.Area;preview.Shape=AreaShape.Cone;preview.HalfAngleDegrees=spread*.5f;}
+            }
+            return preview;
         }
         /// <summary>不经瞄准，直接朝鼠标落点（无地面时朝面向）施放；供自身技能和自动化探针使用。</summary>
         public void CastImmediately(int slot)

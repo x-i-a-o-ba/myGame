@@ -46,7 +46,8 @@ namespace Roguelike.Combat
             if(direction.sqrMagnitude>0.00001f) direction.Normalize();
             else if(skill.Aim==AimMode.Direction) return;
             else direction=Vector3.forward;
-            rangeCircle.Show(new Vector3(origin.x,RangeHeight,origin.z),Mathf.Max(0.1f,skill.CastRange),previewColor,0.7f);
+            // 方向技能的射程已由扇形 / 弹道轮廓表达，只给指定点、指定单位的技能显示施法距离圈，避免两个半径混在一起。
+            if(skill.Aim!=AimMode.Direction) rangeCircle.Show(new Vector3(origin.x,RangeHeight,origin.z),Mathf.Max(0.1f,skill.CastRange),previewColor,0.7f);
             Vector3 deliveryDirection=SkillPreviewGeometry.DeliveryDirection(skill,origin,target,direction);
             if(skill.Delivery==DeliveryKind.LinearProjectile && !(skill.Scope==TargetScope.Area && skill.Shape==AreaShape.Cone))
             {
