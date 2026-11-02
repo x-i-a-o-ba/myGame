@@ -216,6 +216,8 @@ namespace Roguelike.Combat
             ui.Visible("camp.choices",!Camp.RelicChosen);ui.Visible("camp.store",Camp.RelicChosen);ui.Visible("camp.routes",Camp.RelicChosen && Run.Stage==1);
             ui.Text("camp.refresh",$"刷新货架 · {Camp.RefreshPrice} 金");
             ui.Text("camp.route.status",Camp.RouteChosen?(Run.DangerousRoute?"已选凶险路线":"已选稳健路线"):"请选择路线");
+            // 已选路线的金边高亮，仅展示选择结果，不参与路线结算。
+            ui.Visible("camp.route.selected.0",Camp.RouteChosen && !Run.DangerousRoute);ui.Visible("camp.route.selected.1",Camp.RouteChosen && Run.DangerousRoute);
             for(int i=0;i<4;i++)
             {
                 ui.Visible("camp.relic.visible."+i,i<Camp.RelicOptions.Count);

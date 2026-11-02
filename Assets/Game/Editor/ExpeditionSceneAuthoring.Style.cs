@@ -10,6 +10,8 @@ namespace Roguelike.Editor
     public static partial class ExpeditionSceneAuthoring
     {
         static readonly Color Muted=new Color(.60f,.67f,.72f),Cyan=new Color(.62f,.86f,1),White=new Color(.92f,.94f,.96f);
+        /// <summary>血条、蓝条、首领条的填充色；比纯绿/纯蓝略收饱和度，与金属金边协调。</summary>
+        static readonly Color HealthColor=new Color(.34f,.74f,.27f),ManaColor=new Color(.26f,.5f,.92f),BossColor=new Color(.8f,.2f,.17f);
         static Sprite Art(string name)=>AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game/UI/Sprites/"+name+".png");
         static RectTransform Skin(Transform parent,string name,float x,float y,float w,float h,string art="hud_body",bool sliced=true)
         {
@@ -27,8 +29,11 @@ namespace Roguelike.Editor
         {
             var t=l.Text(p,key,value,x,y,w,h,size,color??White);t.fontStyle=FontStyle.Bold;t.alignment=align;
             // Noto Sans SC 的行高高于字号；固定高度的标题须按实际行高适配，避免整行被 UGUI 裁掉。
-            t.resizeTextForBestFit=true;t.resizeTextMinSize=Mathf.Max(10,size-5);t.resizeTextMaxSize=size;return t;
+            t.resizeTextForBestFit=true;t.resizeTextMinSize=Mathf.Max(10,size-5);t.resizeTextMaxSize=size;return Shade(t);
         }
+        /// <summary>给压在图标、血条或亮色地面上的文字加一层投影，避免与背景混在一起。</summary>
+        static Text Shade(Text text,float alpha=.85f)
+        {var shadow=text.gameObject.AddComponent<Shadow>();shadow.effectColor=new Color(0,0,0,alpha);shadow.effectDistance=new Vector2(1.2f,-1.2f);return text;}
         static void Icon(Transform parent,string path,float x,float y,float w,float h)
         {var r=Rect(parent,"装饰图标",x,y,w,h);var image=r.gameObject.AddComponent<RawImage>();image.texture=AssetDatabase.LoadAssetAtPath<Texture2D>(path);image.raycastTarget=false;}
         static RectTransform Slot(Transform parent,string name,float x,float y,float size)
@@ -58,7 +63,7 @@ namespace Roguelike.Editor
             l.Picture(portrait,"hero.portrait",4,4,132,138);
             Skin(portrait,"姓名渐变",4,100,132,42,"shade_bottom",false);
             Bold(l,portrait,"hero.name","英雄",6,112,128,26,18,White,TextAnchor.MiddleCenter);
-            l.Text(portrait,"hero.xpText","",43,5,88,18,11,Cyan).alignment=TextAnchor.MiddleRight;
+            Shade(l.Text(portrait,"hero.xpText","",43,5,88,18,11,Cyan)).alignment=TextAnchor.MiddleRight;
             var badge=Skin(root,"等级徽章",0,22,58,58,"level_badge",false);
             var ring=Skin(badge,"经验环",-3,-3,64,64,"ring",false).GetComponent<Image>();ring.color=Gold;
             ring.type=Image.Type.Filled;ring.fillMethod=Image.FillMethod.Radial360;ring.fillOrigin=0;
@@ -80,16 +85,16 @@ namespace Roguelike.Editor
                 float x=110+i*112;string key="ability."+letters[i]+".";
                 var skill=Card(l,center,"combat.ability",i,x,38,98,90);Hover(skill,i);
                 l.Picture(skill,key+"icon",7,7,84,76);
-                Skin(skill,"名称渐变",7,52,84,31,"shade_bottom",false);
-                l.Text(skill,key+"name","",6,54,86,28,13,White).alignment=TextAnchor.MiddleCenter;
-                var locked=Box(skill,"未学习",7,7,84,76,new Color(.02f,.03f,.05f,.63f));locked.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"locked",locked.gameObject);
+                Skin(skill,"名称渐变",7,44,84,39,"shade_bottom",false);
+                Shade(l.Text(skill,key+"name","",6,52,86,20,13,White)).alignment=TextAnchor.MiddleCenter;
+                var locked=Box(skill,"未学习",7,7,84,76,new Color(.02f,.03f,.05f,.72f));locked.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"locked",locked.gameObject);
                 var cooling=Skin(skill,"径向冷却",7,7,84,76,"white",false);var image=cooling.GetComponent<Image>();image.color=new Color(0,0,0,.7f);
                 image.type=Image.Type.Filled;image.fillMethod=Image.FillMethod.Radial360;image.fillOrigin=2;image.fillClockwise=false;
                 l.Fills.Add(new UIPanel.FillBinding{key=key+"cd",target=image,axis=FillAxis.Amount});l.Toggle(key+"cooling",cooling.gameObject);
                 Frame(skill);Bold(l,skill,key+"cdText","",15,17,68,45,29,White,TextAnchor.MiddleCenter);
                 var hotkey=Skin(skill,"按键",3,3,24,24,"hotkey");Bold(l,hotkey,key+"key","",0,0,24,24,15,White,TextAnchor.MiddleCenter);
-                l.Text(skill,key+"status","",29,5,61,18,11,Cyan).alignment=TextAnchor.MiddleRight;
-                l.Text(skill,key+"mana","",67,69,24,15,11,Cyan).alignment=TextAnchor.MiddleRight;
+                Shade(l.Text(skill,key+"status","",29,5,61,18,11,Cyan)).alignment=TextAnchor.MiddleRight;
+                Shade(l.Text(skill,key+"mana","",44,70,46,13,11,Cyan)).alignment=TextAnchor.MiddleRight;
                 var learn=Button(l,center,null,"+","combat.learnSkill",i,x+31,4,36,28,23);l.Toggle(key+"learn",learn.gameObject);
                 for(int n=0;n<4;n++)
                 {
@@ -97,10 +102,10 @@ namespace Roguelike.Editor
                     var lit=Skin(pip,"已学习",0,0,19,7,"pip_on",false);l.Toggle(key+"pip"+n,lit.gameObject);
                 }
             }
-            Bar(l,center,"hero.health","hero.healthText",22,145,550,24,new Color(.27f,.8f,.24f));
-            l.Text(center,"hero.regen","",442,146,120,22,12,new Color(.76f,1,.7f)).alignment=TextAnchor.MiddleRight;
-            Bar(l,center,"hero.mana","hero.manaText",22,172,550,17,new Color(.22f,.48f,.98f),12);
-            l.Text(center,"hero.manaRegen","",442,172,120,17,11,Cyan).alignment=TextAnchor.MiddleRight;
+            Bar(l,center,"hero.health","hero.healthText",22,145,550,24,HealthColor);
+            Shade(l.Text(center,"hero.regen","",442,146,120,22,12,new Color(.82f,1,.76f))).alignment=TextAnchor.MiddleRight;
+            Bar(l,center,"hero.mana","hero.manaText",22,172,550,17,ManaColor,12);
+            Shade(l.Text(center,"hero.manaRegen","",442,172,120,17,11,Cyan)).alignment=TextAnchor.MiddleRight;
             var equipment=Skin(root,"装备",934,36,200,146,"hud_plate");
             for(int i=0;i<6;i++)
             {
@@ -141,15 +146,15 @@ namespace Roguelike.Editor
             Bold(l,top,"top.alive","0",515,36,100,32,25,new Color(1,.48f,.4f),TextAnchor.MiddleCenter);
             var map=Skin(root,"战场信息",22,18,280,76,"hint_back");
             Bold(l,map,"top.map","",14,8,252,27,17,White);
-            l.Text(map,null,"WASD 移动  ·  Q / E / R / F 施法",14,38,252,21,13,Muted);
+            Shade(l.Text(map,null,"WASD 移动  ·  Q / E / R / F 施法",14,38,252,21,13,Muted),.6f);
             var performance=Skin(root,"状态提示",0,0,250,69,"hint_back");
             performance.anchorMin=performance.anchorMax=performance.pivot=Vector2.one;performance.anchoredPosition=new Vector2(-22,-18);
             Bold(l,performance,"top.fps","",13,8,120,25,17,new Color(.6f,.95f,.47f));
             l.Text(performance,"top.projectiles","",130,8,105,25,12,Muted).alignment=TextAnchor.MiddleRight;
-            l.Text(performance,null,"Ctrl + 技能键升级  ·  滚轮缩放",13,37,225,21,12,Muted);
+            Shade(l.Text(performance,null,"Ctrl + 技能键升级  ·  滚轮缩放",13,37,225,21,12,Muted),.6f);
             var boss=Skin(root,"首领",0,0,600,62,"boss_frame");TopCenter(boss,104);l.Toggle("top.boss",boss.gameObject);
             Bold(l,boss,"top.bossName","",15,4,570,24,17,Gold,TextAnchor.MiddleCenter);
-            Bar(l,boss,"top.bossFill",null,15,32,570,18,new Color(.85f,.19f,.16f));
+            Bar(l,boss,"top.bossFill",null,15,32,570,18,BossColor);
             var hint=Skin(root,"操作提示",0,0,620,46,"hint_back");TopCenter(hint,177);l.Toggle("progression.hintVisible",hint.gameObject);
             Bold(l,hint,"progression.hint","",14,5,592,36,18,Gold,TextAnchor.MiddleCenter);
             var stats=Skin(root,"属性面板",24,145,330,440,"tooltip_frame");l.Toggle("expedition.stats",stats.gameObject);
@@ -183,6 +188,12 @@ namespace Roguelike.Editor
             Button(l,results,null,"返回选择界面","expedition.return",0,90,512,440,58,22);
             BuildCamp(l,Overlay(l,"营地","expedition.camp"));
             l.Save("Assets/Resources/UI/Panels/UI.Expedition.prefab");
+        }
+        /// <summary>已选路线外圈的金色高亮框，由 camp.route.selected.N 显示。</summary>
+        static void RouteHighlight(Layout l,RectTransform button,int index)
+        {
+            var size=button.sizeDelta;var glow=Skin(button,"已选高亮",-4,-4,size.x+8,size.y+8,"highlight");
+            glow.GetComponent<Image>().color=Gold;l.Toggle("camp.route.selected."+index,glow.gameObject);
         }
         static void BuildCamp(Layout l,Transform overlay)
         {
@@ -224,9 +235,10 @@ namespace Roguelike.Editor
                 l.Text(sell,"camp.sell."+i,"",72,9,104,64,15,White);
             }
             var routes=Rect(store,"路线",0,466,1168,112);l.Toggle("camp.routes",routes.gameObject);
-            Button(l,routes,null,"稳健路线\n常规强度与奖励","camp.route",0,0,0,420,78,18);
-            Button(l,routes,null,"凶险路线\n双倍精英 · 生命 +25% · 金币 ×1.6","camp.route",1,438,0,448,78,18);
-            Bold(l,routes,"camp.route.status","",0,82,890,27,15,Gold);
+            var safe=Button(l,routes,null,"稳健路线\n常规强度与奖励","camp.route",0,0,0,420,78,18);
+            var danger=Button(l,routes,null,"凶险路线\n双倍精英 · 生命 +25% · 金币 ×1.6","camp.route",1,438,0,448,78,18);
+            RouteHighlight(l,safe,0);RouteHighlight(l,danger,1);
+            Bold(l,routes,"camp.route.status","",0,82,890,27,17,Gold);
             Button(l,store,null,"整备完成 · 出发","camp.depart",0,900,567,268,58,22);
             var feedback=Rect(camp,"交易反馈",32,786,1168,32);l.Toggle("progression.hintVisible",feedback.gameObject);
             Bold(l,feedback,"progression.hint","",0,0,1168,32,17,Gold,TextAnchor.MiddleCenter);

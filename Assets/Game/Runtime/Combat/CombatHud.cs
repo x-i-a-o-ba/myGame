@@ -71,8 +71,10 @@ namespace Roguelike.Combat
             Text("top.next", s.SpawnStatus);
             Text("top.kills", $"{s.Kills:N0}");
             Text("top.alive", $"{s.Alive:N0}");
-            Text("top.fps", $"{s.Fps:0} FPS");
-            Text("top.projectiles", $"弹体 {s.Projectiles:N0}");
+            // 帧率与弹体数是调试信息，正式（非开发版）构建不展示给玩家。
+            bool debugInfo = Debug.isDebugBuild || Application.isEditor;
+            Text("top.fps", debugInfo ? $"{s.Fps:0} FPS" : "");
+            Text("top.projectiles", debugInfo ? $"弹体 {s.Projectiles:N0}" : "");
             Text("top.map", string.IsNullOrEmpty(s.MapName) ? "" : "战场 · " + s.MapName);
             Toggle("top.boss", running && s.BossAlive);
             if (s.BossAlive) { Text("top.bossName", s.BossName); Fill("top.bossFill", s.BossFraction); }
