@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: "\u5173\u5361\u96BE\u5EA6\u66F2\u7EBF"
   m_EditorClassIdentifier: Roguelike.Runtime::Roguelike.Combat.CombatDifficultyDefinition
   baseEnemyHealth: 30
-  baseEnemyDamage: 6
+  baseEnemyDamage: 4.5
   baseEnemySpeed: 3.5
   healthGrowth: 1.15
-  damageGrowth: 1.07
+  damageGrowth: 1.09
   speedPerMinute: 0.08
   maxSpeed: 4.7
   baseExperience: 1

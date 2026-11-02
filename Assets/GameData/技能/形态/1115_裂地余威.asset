@@ -46,7 +46,7 @@ MonoBehaviour:
       repeatInterval: 0
       repeatCount: 1
       range: 18
-      radius: 6
+      radius: 7
       hitRadius: 0.5
       halfAngleDegrees: 35
       speed: 40
@@ -59,7 +59,7 @@ MonoBehaviour:
       effects:
       - effectId: 4050
         overrideAmount: 1
-        amount: 300
+        amount: 360
         overrideBuffScale: 0
         buffScale: 1
       - effectId: 4056
@@ -83,7 +83,7 @@ MonoBehaviour:
       repeatInterval: 1
       repeatCount: 6
       range: 18
-      radius: 6
+      radius: 7
       hitRadius: 0.5
       halfAngleDegrees: 35
       speed: 40
@@ -96,7 +96,7 @@ MonoBehaviour:
       effects:
       - effectId: 4050
         overrideAmount: 1
-        amount: 90
+        amount: 108
         overrideBuffScale: 0
         buffScale: 1
       - effectId: 4058
@@ -110,7 +110,7 @@ MonoBehaviour:
   maxCharges: 1
   rechargeSeconds: 40
   requiredHits: 0
-  castRange: 12
+  castRange: 14
   cooldown: 40
   castTime: 0
   recoveryTime: 0

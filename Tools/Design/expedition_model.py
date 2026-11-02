@@ -3,7 +3,7 @@
 
 运行：python3 Tools/Design/expedition_model.py
 假设（都是设计目标，不是实测）：
-- 击杀速度按强度时间 t 插值（见 KILL_RATE），乘以每关开头的恢复系数（40% → 100%，60 秒）
+- 击杀速度按强度时间 t 插值（见 KILL_RATE），乘以每关开头的恢复系数（35% → 100%，75 秒）
   和首领阶段的补充系数（本关 3:30 起 50%）。
 - 普通怪经验 / 金币按出场后的种类占比加权（TYPES）。
 - 精英按各关节奏出现到首领出现为止；首领在本关 4:30 前被击杀。
@@ -49,7 +49,7 @@ def simulate(step=1 / 240):
         seconds, next_elite = 0.0, ELITE["first"][stage]
         while seconds < STAGE_MINUTES * 60:
             t = STAGE_MINUTES * stage + seconds / 60
-            ramp = min(1.0, 0.4 + 0.6 * seconds / 60)
+            ramp = min(1.0, 0.35 + 0.65 * seconds / 75)
             refill = 0.5 if seconds >= BOSS_AT * 60 else 1.0
             rate = interp(KILL_RATE, t) * ramp * refill
             avg_xp, avg_gold = per_kill(t)

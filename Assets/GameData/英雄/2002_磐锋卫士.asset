@@ -22,7 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a049becf44adf8049a727643754b2003, type: 2}
   - {fileID: 11400000, guid: b2d86783cfabd4444b9fb2abc32d9814, type: 2}
   - {fileID: 11400000, guid: 0da00ec083eac1e4093612507175c013, type: 2}
-  health: 650
+  health: 720
   speed: 7
   attackDamage: 40
   attackInterval: 0.75
@@ -33,7 +33,7 @@ MonoBehaviour:
   portrait: {fileID: 2800000, guid: f41551a9825ac6b44aa81c0ceffb0630, type: 3}
   visualPrefab: {fileID: 4344421073450430219, guid: 8ee0ce23216cbd348aa47abf89cc82a8, type: 3}
   baseMana: 240
-  baseHealthRegen: 3
+  baseHealthRegen: 4.5
   baseManaRegen: 6
   healthPerLevel: 60
   manaPerLevel: 14
@@ -45,4 +45,4 @@ MonoBehaviour:
   talents: []
   baseStats:
   - stat: 11
-    value: 12
+    value: 15

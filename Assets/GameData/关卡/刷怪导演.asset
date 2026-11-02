@@ -33,13 +33,13 @@ MonoBehaviour:
   aliveLimit: 4000
   batchBudget: 128
   stageSeconds: 270
-  openingFraction: 0.4
-  recoverySeconds: 60
+  openingFraction: 0.35
+  recoverySeconds: 75
   bossAt: 210
   bossPopulationFraction: 0.5
   enrageAt: 270
   tideAt: 150
-  tideCounts: {x: 300, y: 800, z: 1500}
+  tideCounts: {x: 200, y: 800, z: 1500}
   eliteFirstAt: {x: 90, y: 30, z: 20}
   eliteIntervals: {x: 60, y: 30, z: 20}
   ringWidth: 20
