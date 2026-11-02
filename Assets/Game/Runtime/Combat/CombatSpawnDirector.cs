@@ -15,6 +15,21 @@ namespace Roguelike.Combat
         public const float NormalScale=0.85f;
         public static float Minutes(in SpawnDirectorSettings settings,int stage,float elapsed)
             =>(settings.StageSeconds*math.max(0,stage-1)+math.max(0,elapsed))/60;
+        /// <summary>当前强度时间（分钟）：整关规则按关卡累计，路线图遭遇按“起点 + 本场用时”。</summary>
+        public static float Minutes(in SpawnDirectorSettings settings,in CombatDirectorState state)
+            =>state.Encounter==EncounterKind.Stage?Minutes(settings,state.Stage,state.StageElapsed):state.MinuteOffset+math.max(0,state.StageElapsed)/60;
+        /// <summary>首领战开场后刷出首领的延迟（秒）。</summary>
+        public const float EncounterBossDelay=3;
+        /// <summary>本场刷出首领的时刻（秒）；不刷首领的遭遇返回正无穷。</summary>
+        public static float BossAt(in SpawnDirectorSettings settings,in CombatDirectorState state)
+            =>state.Encounter==EncounterKind.Stage?settings.BossAt:state.Encounter==EncounterKind.Boss?EncounterBossDelay:float.PositiveInfinity;
+        /// <summary>首领狂暴时刻（秒）：与整关规则相同，在首领出现 (EnrageAt − BossAt) 秒后。</summary>
+        public static float EnrageAt(in SpawnDirectorSettings settings,in CombatDirectorState state)
+            =>state.Encounter==EncounterKind.Stage?settings.EnrageAt:BossAt(settings,state)+math.max(0,settings.EnrageAt-settings.BossAt);
+        /// <summary>击杀数或精英数达标；首领类遭遇由首领死亡判定。</summary>
+        public static bool EncounterComplete(in CombatDirectorState state)
+            =>state.Encounter==EncounterKind.Kills?state.KillGoal>0 && state.EncounterKills>=state.KillGoal:
+              state.Encounter==EncounterKind.Elite && state.ElitesRequired>0 && state.ElitesKilled>=state.ElitesRequired;
 
         public static float Population(NativeArray<PopulationPoint> curve,float minute)
         {
@@ -28,7 +43,7 @@ namespace Roguelike.Combat
         {
             float recovery=settings.RecoverySeconds<=0?1:math.lerp(settings.OpeningFraction,1,math.saturate(state.StageElapsed/settings.RecoverySeconds));
             float boss=state.BossSpawned?settings.BossPopulationFraction:1;
-            return math.clamp((int)math.round(Population(curve,Minutes(settings,state.Stage,state.StageElapsed))*recovery*boss),0,settings.AliveLimit);
+            return math.clamp((int)math.round(Population(curve,Minutes(settings,state))*recovery*boss),0,settings.AliveLimit);
         }
         public static EnemySpawnStats Stats(in CombatDifficultySettings settings,in CombatSettings combat,float minute,int stage,EnemyTier tier)
         {
@@ -49,6 +64,8 @@ namespace Roguelike.Combat
             }
             return value;
         }
+        /// <summary>精英战开场后第一只精英的延迟（秒）。</summary>
+        public const float EncounterEliteDelay=2;
         public static CombatEnemyKind LegacyKind(in CombatSettings combat)
             =>new CombatEnemyKind {Prefab=combat.EnemyPrefab,ConfigId=GameCombatController.EnemyConfigId,
                 Tiers=EnemyTierMask.Normal|EnemyTierMask.Elite|EnemyTierMask.Boss,Weight=1,Health=1,Damage=1,Speed=1,Experience=1,Gold=1,Scale=1,
@@ -110,15 +127,15 @@ namespace Roguelike.Combat
             state.NextTickAt=state.StageElapsed+settings.TickSeconds; // 不因卡顿补跑多个批次。
             state.LastBatchSpawned=0;
             int cap=math.min(combat.MaxAlive,settings.AliveLimit),index=math.clamp(state.Stage-1,0,2);
-            float minute=Minutes(settings,state.Stage,state.StageElapsed);
+            float minute=Minutes(settings,state),bossAt=BossAt(settings,state);
             var random=Random.CreateFromIndex(state.Seed++);
-            if(!state.TideStarted && state.StageElapsed>=settings.TideAt)
+            if(state.Encounter==EncounterKind.Stage && !state.TideStarted && state.StageElapsed>=settings.TideAt)
             {
                 state.TideStarted=true; state.PendingTide=settings.TideCounts[index]; state.TideNoticeUntil=state.StageElapsed+5;
                 float angle=random.NextFloat(-math.PI,math.PI); state.TideDirection=new float2(math.cos(angle),math.sin(angle));
             }
             int room=math.min(settings.BatchBudget,math.max(0,cap-alive));
-            if(!state.BossSpawned && state.StageElapsed>=settings.BossAt && room>0)
+            if(!state.BossSpawned && state.StageElapsed>=bossAt && room>0)
             {
                 int kind=Pick(kinds,EnemyTier.Boss,minute*60,ref random,state.Stage==1);
                 if(kind<0) kind=Pick(kinds,EnemyTier.Boss,minute*60,ref random);
@@ -127,7 +144,16 @@ namespace Roguelike.Combat
             }
             // 首领预留 1 格，首领也不突破上限；普通补充按目标减存活，潮涌是额外一次性预算。
             if(!state.BossSpawned) room=math.min(room,math.max(0,cap-1-alive));
-            if(!state.BossSpawned && state.StageElapsed<settings.BossAt && state.StageElapsed>=state.NextEliteAt && room>0)
+            // 精英战：开场后逐只刷出指定数量的精英，第一只是本图专属精英。
+            if(state.Encounter==EncounterKind.Elite && state.ElitesSpawned<state.ElitesRequired && state.StageElapsed>=EncounterEliteDelay && room>0)
+            {
+                bool special=state.ElitesSpawned==0;
+                int kind=Pick(kinds,EnemyTier.Elite,minute*60,ref random,special);
+                if(kind<0 && special) kind=Pick(kinds,EnemyTier.Elite,minute*60,ref random);
+                int n=Spawn(manager,combat,difficulty,settings,view,ref state,minute,EnemyTier.Elite,kind,kinds,1,center,view.Heading,false,ref random);
+                if(n>0) { state.ElitesSpawned++; room-=n; alive+=n; }
+            }
+            if(!state.BossSpawned && state.StageElapsed<bossAt && state.StageElapsed>=state.NextEliteAt && room>0)
             {
                 bool special=(state.ElitesSpawned+1)%3==0;
                 int kind=Pick(kinds,EnemyTier.Elite,minute*60,ref random,special);

@@ -1,4 +1,5 @@
 using Roguelike.Combat;
+using Roguelike.Flow;
 using Roguelike.Foundation.UI;
 using UnityEditor;
 using UnityEngine;
@@ -86,8 +87,8 @@ namespace Roguelike.Editor
                 // 技能卡与图标都用正方形，方形图标贴图不再被横向拉伸。
                 var skill=Card(l,center,"combat.ability",i,x,36,94,94);Hover(skill,i);
                 l.Picture(skill,key+"icon",7,7,80,80);
-                Skin(skill,"名称渐变",7,48,80,39,"shade_bottom",false);
-                Shade(l.Text(skill,key+"name","",5,56,84,20,13,White)).alignment=TextAnchor.MiddleCenter;
+                // Dota 2 式：图标上不印技能名（名称见悬停提示）；法力不足时图标蒙上一层蓝色。
+                var noMana=Box(skill,"法力不足",7,7,80,80,new Color(.08f,.22f,.7f,.5f));noMana.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"noMana",noMana.gameObject);
                 var locked=Box(skill,"未学习",7,7,80,80,new Color(.02f,.03f,.05f,.72f));locked.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"locked",locked.gameObject);
                 var cooling=Skin(skill,"径向冷却",7,7,80,80,"white",false);var image=cooling.GetComponent<Image>();image.color=new Color(0,0,0,.7f);
                 image.type=Image.Type.Filled;image.fillMethod=Image.FillMethod.Radial360;image.fillOrigin=2;image.fillClockwise=false;
@@ -95,7 +96,9 @@ namespace Roguelike.Editor
                 Frame(skill);Bold(l,skill,key+"cdText","",13,22,68,45,29,White,TextAnchor.MiddleCenter);
                 var hotkey=Skin(skill,"按键",3,3,24,24,"hotkey");Bold(l,hotkey,key+"key","",0,0,24,24,15,White,TextAnchor.MiddleCenter);
                 Shade(l.Text(skill,key+"status","",29,5,59,18,11,Cyan)).alignment=TextAnchor.MiddleRight;
-                Shade(l.Text(skill,key+"mana","",42,74,46,13,11,Cyan)).alignment=TextAnchor.MiddleRight;
+                // Dota 2 式：右下角深蓝底的法力消耗块。
+                var manaChip=Box(skill,"法力消耗",56,72,34,16,new Color(.04f,.14f,.38f,.92f));manaChip.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"hasMana",manaChip.gameObject);
+                Bold(l,manaChip,key+"mana","",0,0,34,16,12,new Color(.72f,.88f,1f),TextAnchor.MiddleCenter);
                 var learn=Button(l,center,null,"+","combat.learnSkill",i,x+29,3,36,28,23);l.Toggle(key+"learn",learn.gameObject);
                 for(int n=0;n<4;n++)
                 {
@@ -116,11 +119,13 @@ namespace Roguelike.Editor
             l.Text(equipment,null,"装备",10,121,57,21,13,Muted);Icon(equipment,"Assets/Game/UI/Icons/金币.png",76,124,16,16);
             Bold(l,equipment,"hero.gold","",98,121,90,21,16,Gold,TextAnchor.MiddleRight);
             var relics=Skin(root,"远征行囊",1144,36,280,146,"hud_plate");
-            l.Text(relics,null,"远征遗物",12,7,250,22,14,Gold);
-            for(int i=0;i<2;i++)
+            l.Text(relics,null,"远征遗物",12,7,150,22,14,Gold);
+            l.Text(relics,"expedition.relic.count","",150,7,118,22,13,Muted).alignment=TextAnchor.MiddleRight;
+            for(int i=0;i<GameCombatController.RelicSlots;i++)
             {
-                var slot=Slot(relics,"遗物 "+i,12+i*134,34,48);l.Picture(slot,"expedition.relic.icon."+i,5,5,38,38);Frame(slot);
-                l.Text(relics,"expedition.relic."+i,"",65+i*134,34,67,48,13,White);
+                var slot=Slot(relics,"遗物 "+i,16+i*66,31,42);l.Picture(slot,"expedition.relic.icon."+i,4,4,34,34);Frame(slot);
+                var name=l.Text(relics,"expedition.relic."+i,"",5+i*66,74,64,19,11,White);name.alignment=TextAnchor.MiddleCenter;
+                name.resizeTextForBestFit=true;name.resizeTextMinSize=9;name.resizeTextMaxSize=11;
             }
             Button(l,relics,null,"属性  Tab","expedition.stats",0,12,97,122,33,14);
             Button(l,relics,null,"暂停  Esc","expedition.pause",0,145,97,122,33,14);
@@ -187,14 +192,11 @@ namespace Roguelike.Editor
             Skin(results,"分割线",40,135,540,2,"divider",false);
             l.Text(results,"expedition.result.body","",90,174,440,275,26,White).alignment=TextAnchor.MiddleCenter;
             Button(l,results,null,"返回选择界面","expedition.return",0,90,512,440,58,22);
+            BuildTarget(l,root);
             BuildCamp(l,Overlay(l,"营地","expedition.camp"));
+            BuildRouteMap(l,Overlay(l,"路线","expedition.map"));
+            BuildEvent(l,Overlay(l,"事件","expedition.event"));
             l.Save("Assets/Resources/UI/Panels/UI.Expedition.prefab");
-        }
-        /// <summary>已选路线外圈的金色高亮框，由 camp.route.selected.N 显示。</summary>
-        static void RouteHighlight(Layout l,RectTransform button,int index)
-        {
-            var size=button.sizeDelta;var glow=Skin(button,"已选高亮",-4,-4,size.x+8,size.y+8,"highlight");
-            glow.GetComponent<Image>().color=Gold;l.Toggle("camp.route.selected."+index,glow.gameObject);
         }
         static void BuildCamp(Layout l,Transform overlay)
         {
@@ -235,14 +237,87 @@ namespace Roguelike.Editor
                 var slot=Slot(sell,"图标",8,14,54);l.Picture(slot,"camp.sell.icon."+i,5,5,44,44);Frame(slot);
                 l.Text(sell,"camp.sell."+i,"",72,9,104,64,15,White);
             }
-            var routes=Rect(store,"路线",0,466,1168,112);l.Toggle("camp.routes",routes.gameObject);
-            var safe=Button(l,routes,null,"稳健路线\n常规强度与奖励","camp.route",0,0,0,420,78,18);
-            var danger=Button(l,routes,null,"凶险路线\n双倍精英 · 生命 +25% · 金币 ×1.6","camp.route",1,438,0,448,78,18);
-            RouteHighlight(l,safe,0);RouteHighlight(l,danger,1);
-            Bold(l,routes,"camp.route.status","",0,82,890,27,17,Gold);
-            Button(l,store,null,"整备完成 · 出发","camp.depart",0,900,567,268,58,22);
+            Button(l,store,"camp.depart.label","离开商店","camp.depart",0,900,480,268,58,22);
             var feedback=Rect(camp,"交易反馈",32,786,1168,32);l.Toggle("progression.hintVisible",feedback.gameObject);
             Bold(l,feedback,"progression.hint","",0,0,1168,32,17,Gold,TextAnchor.MiddleCenter);
+        }
+        /// <summary>左键选中敌人后的单位面板（Dota 2 式）：头像、生命、攻击 / 攻速 / 射程 / 移速 / 减伤、赏金、词缀、技能与状态。</summary>
+        static void BuildTarget(Layout l,Transform root)
+        {
+            var target=Skin(root,"目标信息",22,104,410,372,"tooltip_frame");l.Toggle("target.visible",target.gameObject);
+            // 独立面板：鼠标落在面板上时不穿透到地面，避免误选或误施法。
+            var panel=target.gameObject.AddComponent<UIPanel>();panel.panelId="UI.Expedition.目标";panel.blocksPointer=true;
+            Skin(target,"标题底",7,7,396,104,"tooltip_header");
+            var portrait=Slot(target,"头像",16,16,86);l.Picture(portrait,"target.portrait",5,5,76,76);Frame(portrait);
+            Bold(l,target,"target.name","",114,14,230,30,21,White);
+            l.Text(target,"target.tier","",340,16,56,24,14,White).alignment=TextAnchor.MiddleRight;
+            l.Text(target,"target.subtitle","",114,44,280,22,13,Muted);
+            Bar(l,target,"target.health","target.healthText",114,72,282,24,new Color(.78f,.2f,.17f),14);
+            string[] names={"攻击力","攻击间隔","攻击距离","移动速度","伤害减免","击杀奖励"};
+            string[] keys={"target.damage","target.interval","target.range","target.speed","target.armor","target.bounty"};
+            for(int i=0;i<names.Length;i++)
+            {
+                float x=16+(i%2)*195,y=122+(i/2)*30;
+                if(i%2==0) Skin(target,"属性底 "+i,12,y,386,28,"tooltip_block");
+                l.Text(target,null,names[i],x,y,80,28,14,Muted);
+                Bold(l,target,keys[i],"",x+76,y,112,28,i==5?13:16,White,TextAnchor.MiddleRight);
+            }
+            var affixes=l.Text(target,"target.affixes","",16,216,380,22,14,new Color(1f,.7f,.4f));affixes.fontStyle=FontStyle.Bold;
+            l.Text(target,"target.abilities","",16,240,380,40,14,Cyan).alignment=TextAnchor.UpperLeft;
+            l.Text(target,"target.statuses","",16,282,380,22,13,new Color(.8f,.86f,.92f));
+            l.Text(target,"target.description","",16,306,380,42,13,Muted).alignment=TextAnchor.UpperLeft;
+            l.Text(target,null,"左键空地 / Esc 取消选择",16,346,300,20,12,Muted);
+            Button(l,target,null,"×","target.close",0,366,15,30,30,18);
+        }
+        /// <summary>
+        /// 分支路线图（类似《杀戮尖塔》）：自下而上 7 层节点 + 顶部首领，每层 4 列。节点显隐、图标与可达状态由绑定驱动，
+        /// 节点之间的连线由 <see cref="RouteMapView"/> 在运行时按路线图快照绘制。
+        /// </summary>
+        static void BuildRouteMap(Layout l,Transform overlay)
+        {
+            var frame=Skin(overlay,"路线图",0,0,1240,1000);Center(frame);
+            Skin(frame,"标题底",9,9,1222,86,"tooltip_header");Icon(frame,"Assets/Game/UI/Icons/天赋树.png",30,22,56,56);
+            Bold(l,frame,"map.title","",100,20,800,52,30,Gold);
+            l.Text(frame,"map.hint","",40,100,1160,30,17,Muted).alignment=TextAnchor.MiddleCenter;
+            var lines=Rect(frame,"连线层",0,0,1240,1000);
+            var view=frame.gameObject.AddComponent<RouteMapView>();view.lineLayer=lines;
+            view.nodes=new RectTransform[(RouteMap.MaxFloors-1)*RouteMap.Lanes];
+            for(int floor=0;floor<RouteMap.MaxFloors-1;floor++)
+                for(int lane=0;lane<RouteMap.Lanes;lane++)
+                {
+                    int slot=floor*RouteMap.Lanes+lane;
+                    view.nodes[slot]=RouteNodeButton(l,frame,slot,620+(lane-1.5f)*190,900-floor*100,64,30);
+                }
+            view.boss=RouteNodeButton(l,frame,RouteMap.BossSlot,620,190,96,44);
+            l.Text(frame,null,"<color=#D9DEE4>战</color> 战斗    <color=#FF7B5C>精</color> 精英    <color=#F7D485>商</color> 商店    <color=#9FDBFF>？</color> 事件    <color=#FFB04A>火</color> 营火    <color=#FF4D4D>王</color> 首领",
+                40,958,1160,30,16,Muted).alignment=TextAnchor.MiddleCenter;
+        }
+        static RectTransform RouteNodeButton(Layout l,Transform frame,int slot,float centerX,float centerY,float size,int glyphSize)
+        {
+            string key="map.node."+slot;
+            var node=Card(l,frame,"map.node",slot,centerX-size/2,centerY-size/2,size,size);l.Toggle(key+".visible",node.gameObject);
+            var reachable=Skin(node,"可达",-7,-7,size+14,size+14,"highlight");reachable.GetComponent<Image>().color=Gold;l.Toggle(key+".reachable",reachable.gameObject);
+            var current=Skin(node,"当前位置",-9,-9,size+18,size+18,"ring",false);current.GetComponent<Image>().color=Cyan;l.Toggle(key+".current",current.gameObject);
+            Bold(l,node,key+".glyph","",0,0,size,size,glyphSize,White,TextAnchor.MiddleCenter);
+            var visited=Box(node,"已走过",4,4,size-8,size-8,new Color(0,0,0,.6f));visited.GetComponent<Image>().raycastTarget=false;l.Toggle(key+".visited",visited.gameObject);
+            l.Text(node,key+".label","",-20,size+1,size+40,20,13,Muted).alignment=TextAnchor.MiddleCenter;
+            return node;
+        }
+        /// <summary>特殊事件与营火共用：标题、描述、最多三个选项，选择后显示结果与“继续前进”。</summary>
+        static void BuildEvent(Layout l,Transform overlay)
+        {
+            var dialog=Skin(overlay,"事件面板",0,0,960,640);Center(dialog);
+            Skin(dialog,"标题底",9,9,942,82,"tooltip_header");
+            Bold(l,dialog,"event.title","",40,18,880,56,30,Gold,TextAnchor.MiddleCenter);
+            var body=l.Text(dialog,"event.body","",56,112,848,150,20,White);body.alignment=TextAnchor.UpperLeft;
+            for(int i=0;i<ExpeditionEvent.MaxChoices;i++)
+            {
+                var choice=Button(l,dialog,"event.choice."+i,"","event.choice",i,56,284+i*86,848,72,19);
+                l.Toggle("event.choice."+i+".visible",choice.gameObject);
+            }
+            var done=Rect(dialog,"结果",0,270,960,350);l.Toggle("event.done",done.gameObject);
+            var result=l.Text(done,"event.result","",56,14,848,170,21,Gold);result.alignment=TextAnchor.MiddleCenter;
+            Button(l,done,null,"继续前进","event.continue",0,330,214,300,58,22);
         }
     }
 }

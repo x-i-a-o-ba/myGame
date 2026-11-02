@@ -360,11 +360,12 @@ namespace Roguelike.Combat
             }
             if(feedbackView==null) feedbackView=new CombatFeedbackView(feedbackMaterial,gameCamera);
             feedbackView.Step(this,session);
+            UpdateSelectionView();
             smoothFrameTime=Mathf.Lerp(smoothFrameTime,Time.unscaledDeltaTime,0.08f);
             if(Time.unscaledTime<nextHudUpdate) return;
             nextHudUpdate=Time.unscaledTime+0.1f;
             hud.Refresh(BuildSnapshot(state));
-            PublishFormChoices();PublishExpedition();
+            PublishFormChoices();PublishExpedition();PublishTarget();
         }
         private Vector3 previousSpawnCenter;
         private void UpdateSpawnView(in CombatPlayer state)
@@ -417,7 +418,7 @@ namespace Roguelike.Combat
             s.SkillAmplify=unit.SkillAmplify*100; s.CooldownReduction=unit.CooldownReduction*100; s.DamageReduction=math.min(.7f,unit.DamageReduction+unit.BuffDamageReduction)*100;
             BuildEquipment(s,equipment,equipped);
             s.Elapsed=wave.StageElapsed; s.Kills=state.Kills; s.Alive=state.AliveEnemies; s.Projectiles=state.ActiveProjectiles;
-            s.Fps=smoothFrameTime>0?1/smoothFrameTime:0; s.Stage=wave.Stage;
+            s.Fps=smoothFrameTime>0?1/smoothFrameTime:0; s.Stage=wave.Stage; s.StageTitle=StageTitle;
             var basic=hero.basicAttack;
             s.PassiveName=basic?basic.Label:"普通攻击"; s.PassiveIcon=basic?basic.icon:null;
             s.PassiveStatus=attackState.Phase==AttackPhase.Windup?"前摇":attackState.Phase==AttackPhase.Backswing?"后摇":Alive(attackState.Target)?"攻击中":"索敌";
@@ -429,14 +430,13 @@ namespace Roguelike.Combat
                 s.ExperienceText=progress.y>0?$"经验 {progress.x:0} / {progress.y:0}":"已满级";
             }
             var settings=manager.GetComponentData<SpawnDirectorSettings>(session.Entity);
-            s.SpawnStatus=wave.StageElapsed<wave.TideNoticeUntil?"潮涌来袭！":wave.BossEnraged?"首领狂暴 · 伤害翻倍":wave.BossSpawned?"击败首领完成本关":
-                $"目标 {wave.TargetAlive}  ·  首领 {Mathf.Max(0,settings.BossAt-wave.StageElapsed):0} 秒";
+            s.SpawnStatus=EncounterStatus(wave,settings);
             s.BossAlive=Alive(wave.Boss) && manager.HasComponent<CombatEnemy>(wave.Boss);
             if(s.BossAlive)
             {
                 var boss=manager.GetComponentData<AbilityUnit>(wave.Boss); var record=manager.GetComponentData<CombatEnemy>(wave.Boss);
                 string name=record.Kind>=0 && record.Kind<session.EnemyNames.Length?session.EnemyNames[record.Kind]:"首领";
-                s.BossName=$"首领 · {name}（第 {record.Stage} 关）"; s.BossFraction=boss.Health/Mathf.Max(1,boss.MaxHealth);
+                s.BossName=$"首领 · {name}（第 {record.Stage} 幕）"; s.BossFraction=boss.Health/Mathf.Max(1,boss.MaxHealth);
             }
             var slots=manager.GetBuffer<AbilitySlot>(session.Entity);
             float now=runtime.Time; bool busy=AbilityCastTiming.IsBusy(runtime,now);

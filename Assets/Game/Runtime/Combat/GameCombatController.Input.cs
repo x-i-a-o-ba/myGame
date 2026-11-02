@@ -1,5 +1,6 @@
 using Roguelike.Foundation.UI;
 using Roguelike.Abilities;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -25,15 +26,21 @@ namespace Roguelike.Combat
                 if(Input.GetKeyDown(KeyCode.Alpha1)) ChooseForm(0);
                 else if(Input.GetKeyDown(KeyCode.Alpha2)) ChooseForm(1);
             }
-            // 瞄准中 Esc 只取消瞄准，不打开暂停菜单。
+            // Esc 依次：取消技能瞄准 → 取消选中敌人 → 打开 / 关闭暂停菜单。
             if(Input.GetKeyDown(inputProfile?inputProfile.pause:KeyCode.Escape))
-            { if(IsAimingSkill && !Paused) abilityIndicator.Cancel(); else SetPaused(!Paused); }
+            {
+                if(IsAimingSkill && !Paused) abilityIndicator.Cancel();
+                else if(selectedEnemy!=Entity.Null && !Paused) ClearSelection();
+                else SetPaused(!Paused);
+            }
             if(!Running || Paused) { SetMovement(Vector2.zero); if(IsAimingSkill) abilityIndicator.Cancel(); return; }
             if(!ExternalMovementInput) SetMovement(new Vector2(
                 (Input.GetKey(inputProfile?inputProfile.right:KeyCode.D)?1:0)-(Input.GetKey(inputProfile?inputProfile.left:KeyCode.A)?1:0),
                 (Input.GetKey(inputProfile?inputProfile.forward:KeyCode.W)?1:0)-(Input.GetKey(inputProfile?inputProfile.backward:KeyCode.S)?1:0)));
-            // 先处理上一帧开始的瞄准（左键确认 / 右键取消），再读取本帧技能键。
+            // 先处理上一帧开始的瞄准（左键确认 / 右键取消），再处理左键选中敌人，最后读取本帧技能键。
+            bool wasAiming=IsAimingSkill;
             UpdateSkillAim();
+            if(!wasAiming) UpdateSelectionInput();
             bool learn=Input.GetKey(KeyCode.LeftControl)||Input.GetKey(KeyCode.RightControl);
             for(int i=0;i<4;i++) if(Input.GetKeyDown(AbilityKey(i))) {if(learn) LearnSkill(i);else CastAbility(i);}
             if(Input.GetKeyDown(inputProfile?inputProfile.statistics:KeyCode.Tab))

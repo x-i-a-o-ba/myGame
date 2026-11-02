@@ -39,6 +39,18 @@ namespace Roguelike.Editor
             Check(Rejects(()=>definition.Compile()),"拒绝未经验收的超过 4000 上限");
             difficulty.healthGrowth=0.9f;
             Check(Rejects(()=>difficulty.ToSettings()),"拒绝随时间反向衰减的难度倍率");
+            // 路线图遭遇：击杀 / 精英 / 首领三种过关条件，以及界面期间的冻结状态。
+            var encounterKills=CombatDirectorState.BeginEncounter(settings,1,EncounterKind.Kills,2,120,0,5);
+            Check(Mathf.Approximately(CombatSpawnDirector.Minutes(settings,encounterKills),2) && !CombatSpawnDirector.EncounterComplete(encounterKills),"击杀遭遇从层强度时间开始");
+            encounterKills.EncounterKills=120;
+            Check(CombatSpawnDirector.EncounterComplete(encounterKills) && float.IsPositiveInfinity(CombatSpawnDirector.BossAt(settings,encounterKills)),"击杀达标即过关且不刷首领");
+            var encounterElite=CombatDirectorState.BeginEncounter(settings,2,EncounterKind.Elite,7,0,3,5);
+            encounterElite.ElitesKilled=2;Check(!CombatSpawnDirector.EncounterComplete(encounterElite),"精英未全部击败不能过关");
+            encounterElite.ElitesKilled=3;Check(CombatSpawnDirector.EncounterComplete(encounterElite),"击败全部精英过关");
+            var encounterBoss=CombatDirectorState.BeginEncounter(settings,1,EncounterKind.Boss,5,0,0,5);
+            Check(CombatSpawnDirector.BossAt(settings,encounterBoss)==CombatSpawnDirector.EncounterBossDelay &&
+                Mathf.Approximately(CombatSpawnDirector.EnrageAt(settings,encounterBoss),CombatSpawnDirector.EncounterBossDelay+settings.EnrageAt-settings.BossAt),"首领战开场刷首领并保持狂暴间隔");
+            Check(CombatDirectorState.Idle(1,5).Outcome==CombatOutcome.Idle,"路线图期间战斗冻结");
 
             var view=new CombatSpawnView{Valid=true,Min=new float2(-30,-20),Max=new float2(30,20),Heading=new float2(1,0)};
             var random=Unity.Mathematics.Random.CreateFromIndex(9);

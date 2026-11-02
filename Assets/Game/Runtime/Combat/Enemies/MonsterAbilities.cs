@@ -304,7 +304,7 @@ namespace Roguelike.Combat
             if(index<0) return;
             var kind=kinds[index];count=math.min(count,math.max(0,settings.MaxAlive-population-(director.BossSpawned?0:1)));
             var random=Unity.Mathematics.Random.CreateFromIndex(seed++);
-            var stats=CombatSpawnDirector.Stats(difficulty,settings,(270*(director.Stage-1)+director.StageElapsed)/60,director.Stage,EnemyTier.Normal);
+            var stats=CombatSpawnDirector.Stats(difficulty,settings,director.Encounter==EncounterKind.Stage?(270*(director.Stage-1)+director.StageElapsed)/60:director.MinuteOffset+director.StageElapsed/60,director.Stage,EnemyTier.Normal);
             for(int n=0;n<count;n++)
             {
                 var entity=manager.Instantiate(kind.Prefab);float2 point=cast.Center.xz+random.NextFloat2Direction()*random.NextFloat(1,3);

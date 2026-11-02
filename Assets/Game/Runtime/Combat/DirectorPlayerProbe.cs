@@ -47,6 +47,8 @@ namespace Roguelike.Combat
             if(!failed)
             {
                 manager=World.DefaultGameObjectInjectionWorld.EntityManager;
+                // 导演与压力验证使用原整关规则（定时潮涌、精英、首领），不经过路线图。
+                controller.RouteMapEnabled=false; controller.RestartRun(); yield return null; yield return null;
                 enemies=manager.CreateEntityQuery(typeof(CombatEnemy),typeof(AbilityUnit),typeof(LocalTransform)); hasQuery=true;
                 Application.runInBackground=true; QualitySettings.vSyncCount=0; Application.targetFrameRate=-1;
                 if(Has("--combat-stress")) yield return Stress(); else yield return Smoke();
@@ -117,7 +119,7 @@ namespace Roguelike.Combat
 
         private IEnumerator Stress()
         {
-            var run=controller.Run;run.Stage=3;run.Level=15;run.Experience=20020;run.SkillPoints=0;
+            var run=controller.Run;run.Act=2;run.Level=15;run.Experience=20020;run.SkillPoints=0;
             for(int i=0;i<4;i++) {run.SkillLevels[i]=i==3?3:4;run.Forms[i]=1;}
             controller.RestartRun();
             int requested=int.Parse(Arg("--stress-count","4000"),CultureInfo.InvariantCulture);

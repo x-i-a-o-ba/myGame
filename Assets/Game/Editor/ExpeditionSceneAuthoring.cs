@@ -63,6 +63,11 @@ namespace Roguelike.Editor
         }
         static void Hover(RectTransform rect,int value)
         {var graphic=rect.GetComponent<Graphic>();if(graphic) graphic.raycastTarget=true;var hover=rect.gameObject.AddComponent<UIHoverAction>();hover.command=CombatHud.HoverCommand;hover.value=value;}
+        /// <summary>
+        /// 界面生成代码的版本。修改 HUD / 远征面板布局或绑定后递增；打开 Unity 时
+        /// <see cref="ExpeditionInterfaceAutoBuild"/> 发现版本不一致会自动重新生成，避免预制体落后于生成代码。
+        /// </summary>
+        public const string LayoutVersion="2026-11-02.3 路线图 / 事件 / 目标面板 / Dota 式技能栏";
         public static void BuildInterface()
         {Apply();ExpeditionBuild.Build();}
         [MenuItem("Tools/Roguelike/远征/生成界面并装配战场")]
@@ -86,7 +91,7 @@ namespace Roguelike.Editor
                 foreach(var old in Object.FindObjectsByType<GameCombatProbe>(FindObjectsInactive.Include,FindObjectsSortMode.None)) Object.DestroyImmediate(old);
                 EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);
             }
-            AssetDatabase.SaveAssets();Debug.Log("EXPEDITION_SCENES_AUTHORED scenes=2");
+            AssetDatabase.SaveAssets();ExpeditionInterfaceAutoBuild.WriteStamp();Debug.Log("EXPEDITION_SCENES_AUTHORED scenes=2");
         }
     }
 }

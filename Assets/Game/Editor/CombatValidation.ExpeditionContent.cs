@@ -79,15 +79,64 @@ namespace Roguelike.Editor
             {
                 var run=RunState.Begin(expedition.selection.heroes[0],expedition.selection.maps[0],expedition.selection.maps[1],1947);
                 run.EquipmentIds[0]=6003;
-                var camp=new CampState(run,expedition,equipment.items);
+                var camp=new CampState(run,expedition,equipment.items,CampMode.Shop);
+                Check(camp.RelicChosen && camp.RelicOptions.Count==0,"商店节点不选遗物");
                 bool uniqueExcluded=true;for(int i=0;i<100;i++)
                 {camp.Roll(run,equipment.items);foreach(int item in camp.Stock) uniqueExcluded&=equipment.items[item].configId!=6003;}
                 Check(uniqueExcluded,"连续百次刷新排除已持有唯一装备");
-                run.Relics.Add(camp.RelicOptions[0]);run.Stage=2;run.DangerousRoute=true;
-                camp=new CampState(run,expedition,equipment.items);
-                Check(camp.RelicOptions.Count==4 && !camp.RelicOptions.Contains(run.Relics[0]),"凶险营地四选一且不重复遗物");
+                run.Relics.Add(expedition.relics[0]);
+                var reward=new CampState(run,expedition,equipment.items,CampMode.Reward);
+                Check(!reward.RelicChosen && reward.RelicOptions.Count==CampState.RelicChoices && !reward.RelicOptions.Contains(run.Relics[0]),"战利品三选一且不重复已有遗物");
+                ValidateRouteMap(expedition);
             }
             finally {RunState.Clear();GameSelection.Clear();}
+        }
+        /// <summary>路线图生成规则：层结构、首领与营火层、商店与精英保底、连通性、可达判定与种子确定性。</summary>
+        private static void ValidateRouteMap(ExpeditionCatalog expedition)
+        {
+            var settings=expedition.route;
+            bool structure=true,connected=true,guaranteed=true,deterministic=true;
+            for(uint seed=1;seed<=200;seed++)
+            for(int act=1;act<=RunState.FinalAct;act++)
+            {
+                var route=RouteMap.Generate(settings,act,seed);var again=RouteMap.Generate(settings,act,seed);
+                var boss=route.Boss;int rest=route.Floors-2;
+                structure&=boss!=null && boss.Kind==RouteNodeKind.Boss && boss.Floor==route.Floors-1 && boss.Next.Count==0;
+                bool shop=false,elite=false;var reached=new HashSet<int>();
+                foreach(var node in route.Nodes)
+                {
+                    if(node.Kind==RouteNodeKind.Boss) continue;
+                    structure&=node.Next.Count>0 && node.Lane>=0 && node.Lane<RouteMap.Lanes;
+                    structure&=node.Floor!=0 || node.Kind==RouteNodeKind.Combat;
+                    structure&=node.Floor!=rest || node.Kind==RouteNodeKind.Rest;
+                    foreach(int next in node.Next) {structure&=route.Nodes[next].Floor==node.Floor+1;reached.Add(next);}
+                    if(node.Floor==0) reached.Add(node.Id);
+                    shop|=node.Kind==RouteNodeKind.Shop;elite|=node.Kind==RouteNodeKind.Elite;
+                }
+                connected&=reached.Count==route.Nodes.Count;
+                guaranteed&=shop && elite;
+                deterministic&=again.Nodes.Count==route.Nodes.Count;
+                for(int i=0;i<route.Nodes.Count && i<again.Nodes.Count;i++) deterministic&=again.Nodes[i].Kind==route.Nodes[i].Kind && again.Nodes[i].Next.Count==route.Nodes[i].Next.Count;
+            }
+            Check(structure,"路线图：第 0 层战斗、首领前营火、唯一首领且只连向下一层");
+            Check(connected,"路线图：每个节点都能从第 0 层到达");
+            Check(guaranteed,"路线图：每幕至少一个商店和一个精英");
+            Check(deterministic,"路线图：同一种子生成结果一致");
+            var map=RouteMap.Generate(settings,1,7);
+            bool start=true;foreach(var node in map.Nodes) start&=map.CanEnter(node.Id)==(node.Floor==0);
+            Check(start,"路线图：开局只能进入第 0 层");
+            int first=-1;foreach(var node in map.Nodes) if(node.Floor==0) {first=node.Id;break;}
+            map.Current=first;map.Cleared=false;
+            Check(!map.CanEnter(map.Nodes[first].Next[0]),"路线图：当前节点未完成不能前进");
+            map.Cleared=true;
+            bool forward=true;foreach(var node in map.Nodes) forward&=map.CanEnter(node.Id)==map.Nodes[first].Next.Contains(node.Id);
+            Check(forward,"路线图：完成后只能前往相连的下一层节点");
+            Check(map.FromSlot(RouteMap.Slot(map.Nodes[first]))==first && map.FromSlot(RouteMap.BossSlot)==map.Boss.Id,"路线图：界面槽位与节点互相对应");
+            Check(settings.KillGoal(0)<settings.KillGoal(6) && settings.KillGoal(6)<settings.KillGoal(12),"击杀目标随强度时间增长");
+            Check(expedition.events!=null && expedition.events.Length>0,"至少配置一个特殊事件");
+            bool events=true;
+            foreach(var item in expedition.events) events&=item!=null && !string.IsNullOrWhiteSpace(item.id) && item.choices!=null && item.choices.Length>0 && item.choices.Length<=ExpeditionEvent.MaxChoices;
+            Check(events,"事件编号与 1–3 个选项有效");
         }
     }
 }

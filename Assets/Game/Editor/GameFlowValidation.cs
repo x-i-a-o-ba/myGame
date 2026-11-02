@@ -165,10 +165,13 @@ namespace Roguelike.Editor
             Check(controller.expedition && controller.inputProfile && controller.feedbackMaterial,"远征、操作与反馈资源必须装配："+name);
             controller.inputProfile.Validate();
             var overlay=Panel(scene,"UI.Expedition");var bottom=Panel(scene,"UI.Game.BottomHUD");
-            foreach(string key in new[]{"expedition.pause","expedition.camp","expedition.result","expedition.form"})
+            foreach(string key in new[]{"expedition.pause","expedition.camp","expedition.result","expedition.form","expedition.map","expedition.event","target.visible"})
                 Check(overlay.toggles.Any(binding=>binding.key==key && binding.target),"远征面板缺少状态绑定："+key);
-            foreach(string command in new[]{"expedition.resume","expedition.return","camp.buy","camp.sell","camp.refresh","camp.depart","camp.route","camp.relic"})
+            foreach(string command in new[]{"expedition.resume","expedition.return","camp.buy","camp.sell","camp.refresh","camp.depart","camp.relic","map.node","event.choice","event.continue","target.close"})
                 Check(overlay.GetComponentsInChildren<UIAction>(true).Any(action=>action.command==command && action.GetComponent<Button>()),"远征缺少操作按钮："+command);
+            var routeView=overlay.GetComponentInChildren<RouteMapView>(true);
+            Check(routeView && routeView.lineLayer && routeView.boss && routeView.nodes!=null && routeView.nodes.Length==(RouteMap.MaxFloors-1)*RouteMap.Lanes && routeView.nodes.All(node=>node!=null),
+                "路线图缺少节点或连线层引用："+name);
 
         }
 

@@ -71,8 +71,8 @@ namespace Roguelike.Combat
             var runtime=manager.GetComponentData<AbilityRuntime>(session);
             var waveState=manager.GetComponentData<CombatDirectorState>(session);
             var director=manager.GetComponentData<SpawnDirectorSettings>(session);
-            // 胜利后冻结战斗：不推进时间、不刷怪，由远征流程进入营地或结算。
-            if(waveState.Outcome==CombatOutcome.Victory) { ClearCommands(session); return; }
+            // 胜利后或路线图等界面期间冻结战斗：不推进时间、不刷怪，由远征流程处理下一步。
+            if(waveState.Outcome==CombatOutcome.Victory || waveState.Outcome==CombatOutcome.Idle) { ClearCommands(session); return; }
             float dt=math.min(SystemAPI.Time.DeltaTime,0.1f);
             if(dt<=0) return;
             float now=runtime.Time+dt;
@@ -84,7 +84,7 @@ namespace Roguelike.Combat
             hero=manager.GetComponentData<AbilityUnit>(session);
             player.Elapsed+=dt;
             waveState.StageElapsed+=dt;
-            if(waveState.BossSpawned && !waveState.BossEnraged && waveState.StageElapsed>=director.EnrageAt && Alive(waveState.Boss))
+            if(waveState.BossSpawned && !waveState.BossEnraged && waveState.StageElapsed>=CombatSpawnDirector.EnrageAt(director,waveState) && Alive(waveState.Boss))
             {
                 var boss=manager.GetComponentData<AbilityUnit>(waveState.Boss); boss.BaseAttack*=2; boss.Attack*=2;
                 manager.SetComponentData(waveState.Boss,boss); waveState.BossEnraged=true;
@@ -183,10 +183,13 @@ namespace Roguelike.Combat
                     Monsters.OnDeath(units[i],now,ref library);
                     var feedback=manager.GetBuffer<AbilityFeedback>(session);
                     if(feedback.Length<256) feedback.Add(new AbilityFeedback{Target=units[i],Position=manager.GetComponentData<LocalTransform>(units[i]).Position,Killed=true});
+                    // 精英战按精英死亡计数（含自爆），避免自爆精英让本场无法完成。
+                    if(enemy.Tier==EnemyTier.Elite) waveState.ElitesKilled++;
                     // 自爆死亡不给经验和金币、不计击杀，也不会触发首领胜利。
                     if(!enemy.SelfDestructed)
                     {
                         experience+=enemy.Experience; gold+=enemy.Gold*(enemy.Tier==EnemyTier.Normal?1:traits.EliteGoldMultiplier); player.Kills++;
+                        waveState.EncounterKills++;
                         if(enemy.Tier==EnemyTier.Boss && units[i]==waveState.Boss) victory=true;
                     }
                     destroy.DestroyEntity(units[i]);
@@ -206,6 +209,8 @@ namespace Roguelike.Combat
             hero=manager.GetComponentData<AbilityUnit>(session);
             if(player.Kills>killsBefore && traits.KillHealRatio>0)
                 abilities.Apply(session,session,-1,new EffectData{Kind=EffectKind.Heal,Amount=(player.Kills-killsBefore)*hero.MaxHealth*traits.KillHealRatio},ref library,now);
+            // 路线图遭遇：击杀数或精英数达标即过关，首领战仍由首领死亡判定。
+            if(!victory && waveState.Outcome==CombatOutcome.Running && CombatSpawnDirector.EncounterComplete(waveState)) victory=true;
             if(victory)
             {
                 waveState.Outcome=CombatOutcome.Victory;Monsters.Clear();

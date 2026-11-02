@@ -88,8 +88,14 @@ namespace Roguelike.Combat
         public float3 BossHealth,BossExperience,BossGold;
         public float BossDamage,BossScale,BossSpeed;
     }
-    public enum CombatOutcome { Running, Victory, Defeat }
-    /// <summary>会话拥有的导演进度；Stage 从 1 开始，本关时钟不含营地。第六步接入跨关前，一次会话是一关。</summary>
+    /// <summary>Idle：路线图、商店或事件界面期间战斗冻结，不推进时间、不刷怪。</summary>
+    public enum CombatOutcome { Running, Victory, Defeat, Idle }
+    /// <summary>
+    /// 遭遇类型。Stage 为原整关规则（定时首领，压力探针与旧测试使用）；
+    /// Kills 击杀数达标过关；Elite 击败指定数量的精英过关；Boss 开场后刷出首领，击败首领过关。
+    /// </summary>
+    public enum EncounterKind { Stage, Kills, Elite, Boss }
+    /// <summary>会话拥有的导演进度；Stage 从 1 开始（路线图中为第几幕），本关时钟只计本场遭遇。</summary>
     public struct CombatDirectorState : IComponentData
     {
         public int Stage,LastBatchSpawned,SpawnedTotal,PositionRejected,TargetAlive,PendingTide,ElitesSpawned;
@@ -99,8 +105,20 @@ namespace Roguelike.Combat
         public uint Seed;
         public bool BossSpawned,TideStarted,BossEnraged;
         public Entity Boss;
+        public EncounterKind Encounter;
+        /// <summary>遭遇开始时的强度时间（分钟）；遭遇中强度时间 = 起点 + 本场用时。</summary>
+        public float MinuteOffset;
+        public int KillGoal,EncounterKills,ElitesRequired,ElitesKilled;
         public static CombatDirectorState Begin(in SpawnDirectorSettings settings,int stage,uint seed)
             =>new CombatDirectorState {Stage=math.clamp(stage,1,3),NextEliteAt=settings.EliteFirstAt[math.clamp(stage-1,0,2)],Seed=seed==0?1:seed};
+        /// <summary>路线图遭遇战：普通战斗按幕的节奏穿插精英，精英战与首领战不再定时刷精英。</summary>
+        public static CombatDirectorState BeginEncounter(in SpawnDirectorSettings settings,int act,EncounterKind encounter,float minute,int killGoal,int elites,uint seed)
+            =>new CombatDirectorState {Stage=math.clamp(act,1,3),Encounter=encounter,MinuteOffset=math.max(0,minute),KillGoal=math.max(0,killGoal),
+                ElitesRequired=encounter==EncounterKind.Elite?math.max(1,elites):0,TideStarted=true,
+                NextEliteAt=encounter==EncounterKind.Kills?settings.EliteFirstAt[math.clamp(act-1,0,2)]:float.MaxValue,Seed=seed==0?1:seed};
+        /// <summary>冻结状态：用于路线图等非战斗界面。</summary>
+        public static CombatDirectorState Idle(int act,uint seed)
+            =>new CombatDirectorState {Stage=math.clamp(act,1,3),Encounter=EncounterKind.Kills,Outcome=CombatOutcome.Idle,TideStarted=true,NextEliteAt=float.MaxValue,Seed=seed==0?1:seed};
     }
     public struct CombatPlayer : IComponentData
     {

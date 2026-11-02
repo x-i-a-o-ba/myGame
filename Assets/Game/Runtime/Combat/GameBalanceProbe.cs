@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace Roguelike.Combat
 {
-    /// <summary>只发出合法操作的三关观测：不补生命、法力、经验、金币，不改敌人和导演时钟。自动操作不代表玩家手感。</summary>
+    /// <summary>只发出合法操作的两幕路线图观测：不补生命、法力、经验、金币，不改敌人和导演时钟。自动操作不代表玩家手感。</summary>
     public sealed class GameBalanceProbe:MonoBehaviour
     {
         GameCombatController game;EntityManager manager;EntityQuery enemies;bool queryCreated,finished;
@@ -25,7 +25,7 @@ namespace Roguelike.Combat
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)] static void Boot()
         {
             if(Array.IndexOf(Environment.GetCommandLineArgs(),"--game-balance")<0) return;
-            var go=new GameObject("三关合法操作观测");DontDestroyOnLoad(go);go.AddComponent<GameBalanceProbe>();
+            var go=new GameObject("远征合法操作观测");DontDestroyOnLoad(go);go.AddComponent<GameBalanceProbe>();
         }
         IEnumerator Start()
         {
@@ -43,25 +43,53 @@ namespace Roguelike.Combat
             {
                 if(!game || !game.IsReady) {game=FindFirstObjectByType<GameCombatController>();yield return null;continue;}
                 game.ExternalMovementInput=true;
-                if(stageSeen!=game.Run.Stage) {stageSeen=game.Run.Stage;events.Add("进入第 "+stageSeen+" 关，等级 "+game.Progression.Level);}
+                if(stageSeen!=game.Run.Act) {stageSeen=game.Run.Act;events.Add("进入第 "+stageSeen+" 幕，等级 "+game.Progression.Level);}
                 if(game.Phase==ExpeditionPhase.Victory || game.Phase==ExpeditionPhase.Defeat) {Finish(game.Phase.ToString());yield break;}
-                if(game.Phase==ExpeditionPhase.Camp)
-                {
-                    if(!game.Camp.RelicChosen) game.ChooseRelic(0);
-                    for(int n=0;n<game.Camp.Stock.Length;n++) game.CampBuy(n);
-                    if(game.Run.Stage==1) game.ChooseRoute(false);
-                    game.Depart();yield return null;continue;
-                }
+                if(Navigate()) {yield return null;continue;}
                 if(game.Phase==ExpeditionPhase.Battle && Time.unscaledTime>=nextThink) {Think();nextThink=Time.unscaledTime+.12f;}
                 if(Time.unscaledTime>=nextSample)
                 {
                     nextSample=Time.unscaledTime+2;var u=manager.GetComponentData<AbilityUnit>(game.SessionEntity);var r=manager.GetComponentData<AbilityRuntime>(game.SessionEntity);casts=r.CastSerial;
-                    rows.AppendLine(FormattableString.Invariant($"{game.Run.Stage},{game.State.Elapsed:F2},{game.Progression.Level},{game.State.Kills},{game.State.AliveEnemies},{u.Health:F1},{u.Mana:F1},{game.Equipment.Gold:F1},{casts}"));
+                    rows.AppendLine(FormattableString.Invariant($"{game.Run.Act},{game.State.Elapsed:F2},{game.Progression.Level},{game.State.Kills},{game.State.AliveEnemies},{u.Health:F1},{u.Mana:F1},{game.Equipment.Gold:F1},{casts}"));
                     File.WriteAllText(Path.Combine(output,"timeline.csv"),rows.ToString());
                 }
                 yield return null;
             }
             Finish("观测超时");
+        }
+        /// <summary>非战斗阶段的合法操作：路线选择、战利品、商店、事件与营火。返回 true 表示本帧已处理。</summary>
+        bool Navigate()
+        {
+            var unit=manager.GetComponentData<AbilityUnit>(game.SessionEntity);float health=unit.MaxHealth>0?unit.Health/unit.MaxHealth:1;
+            switch(game.Phase)
+            {
+                case ExpeditionPhase.Map:
+                {
+                    int best=-1;float bestScore=float.MinValue;
+                    foreach(int slot in game.ReachableSlots())
+                    {
+                        var kind=game.Route.Nodes[game.Route.FromSlot(slot)].Kind;
+                        float score=kind==RouteNodeKind.Rest?(health<.6f?10:1):kind==RouteNodeKind.Shop?(game.Equipment.Gold>=600?8:2):
+                            kind==RouteNodeKind.Elite?(health>.75f?6:-5):kind==RouteNodeKind.Event?4:5;
+                        if(score>bestScore) {bestScore=score;best=slot;}
+                    }
+                    if(best<0) return false;
+                    var node=game.Route.Nodes[game.Route.FromSlot(best)];
+                    events.Add($"第 {game.Run.Act} 幕第 {node.Floor+1} 层：{RouteMap.Label(node.Kind)}，等级 {game.Progression.Level}，生命 {health*100:0}%");
+                    return game.EnterNode(best);
+                }
+                case ExpeditionPhase.Reward: return game.ChooseRelic(0);
+                case ExpeditionPhase.Shop:
+                    for(int n=0;n<game.Camp.Stock.Length;n++) game.CampBuy(n);
+                    return game.Depart();
+                case ExpeditionPhase.Event:
+                    if(!game.EventDone) for(int n=0;n<ExpeditionEvent.MaxChoices && !game.EventDone;n++) game.ChooseEventOption(n);
+                    return game.ContinueEvent();
+                case ExpeditionPhase.Rest:
+                    if(!game.EventDone && !game.ChooseEventOption(health<.7f?0:1)) game.ChooseEventOption(0);
+                    return game.ContinueEvent();
+                default: return false;
+            }
         }
         void Think()
         {

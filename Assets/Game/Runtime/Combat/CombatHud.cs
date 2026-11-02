@@ -67,7 +67,7 @@ namespace Roguelike.Combat
             for (int i = 0; i < AbilitySlots && i < s.Abilities.Length; i++) Ability(abilityKeys[i], s.Abilities[i]);
             // 顶栏
             Text("top.clock", Clock(s.Elapsed));
-            Text("top.wave", $"第 {s.Stage} 关 · 持续战斗");
+            Text("top.wave", string.IsNullOrEmpty(s.StageTitle) ? $"第 {s.Stage} 关 · 持续战斗" : s.StageTitle);
             Text("top.next", s.SpawnStatus);
             Text("top.kills", $"{s.Kills:N0}");
             Text("top.alive", $"{s.Alive:N0}");
@@ -141,6 +141,7 @@ namespace Roguelike.Combat
             Fill(keys.Cooldown, cooling ? view.Cooldown : 0);
             Text(keys.CooldownText, cooling ? view.CooldownText : "");
             Text(keys.Mana, view.ManaText);
+            Toggle(keys.HasMana, !string.IsNullOrEmpty(view.ManaText));
             Toggle(keys.NoMana, view.NoMana);
             Text(keys.Status, view.Status);
             for (int p = 0; p < LevelPips; p++)
@@ -219,7 +220,7 @@ namespace Roguelike.Combat
         }
         private struct AbilityKeys
         {
-            public string Icon, Name, Key, Locked, Learn, Cooling, Cooldown, CooldownText, Mana, NoMana, Status;
+            public string Icon, Name, Key, Locked, Learn, Cooling, Cooldown, CooldownText, Mana, HasMana, NoMana, Status;
             public string[] PipSlots, Pips;
         }
         private static AbilityKeys[] BuildAbilityKeys()
@@ -230,7 +231,7 @@ namespace Roguelike.Combat
             {
                 string p = "ability." + letters[i] + ".";
                 result[i] = new AbilityKeys { Icon = p + "icon", Name = p + "name", Key=p+"key", Locked = p + "locked", Learn = p + "learn", Cooling = p + "cooling",
-                    Cooldown = p + "cd", CooldownText = p + "cdText", Mana = p + "mana", NoMana = p + "noMana", Status = p + "status",
+                    Cooldown = p + "cd", CooldownText = p + "cdText", Mana = p + "mana", HasMana = p + "hasMana", NoMana = p + "noMana", Status = p + "status",
                     PipSlots = new string[LevelPips], Pips = new string[LevelPips] };
                 for (int n = 0; n < LevelPips; n++) { result[i].PipSlots[n] = p + "pipSlot" + n; result[i].Pips[n] = p + "pip" + n; }
             }
@@ -256,6 +257,8 @@ namespace Roguelike.Combat
         public string PassiveName, PassiveStatus; public Texture PassiveIcon;
         public readonly AbilityView[] Abilities = new AbilityView[CombatHud.AbilitySlots];
         public float Elapsed, Fps; public int Stage, Kills, Alive, Projectiles;
+        /// <summary>顶栏标题，例如“第 1 幕 · 第 3 层 · 精英”。</summary>
+        public string StageTitle;
         public string SpawnStatus;
         public bool BossAlive; public string BossName; public float BossFraction;
         public string Hint;

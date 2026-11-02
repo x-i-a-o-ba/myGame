@@ -1,5 +1,16 @@
 # 验证记录
 
+## 2026-11-02 路线图远征、选中敌人与 Dota 2 式技能栏（未经 Unity 验证）
+
+同样在没有 Unity 的环境中完成：**未编译、未生成界面、未运行 Player**。只做了括号 / 字符串结构检查与人工逐行复查。
+
+- 新增 `RouteMap`（生成与可达判定）、`ExpeditionEvent`（事件表）、`RouteMapView`（连线）、`CombatTargetInfo`（单位面板）、`ExpeditionInterfaceAutoBuild`（界面版本不一致时自动生成）。
+- 导演新增 `EncounterKind`（Stage / Kills / Elite / Boss）与 `CombatOutcome.Idle`；原整关规则保留给导演与压力探针（`RouteMapEnabled=false`）。
+- 编辑器验证新增：三种遭遇过关条件、冻结状态、路线图 200 个种子 × 两幕的结构 / 连通 / 保底 / 确定性、可达判定与槽位映射、事件表有效性。
+- `--expedition-smoke` 改为按路线图走完两幕：至少经历三种节点、商店买卖刷新、事件与营火结算、战利品、跨幕保留、胜利与失败；新增截图 `route-map`、`target-info`、`shop`、`event`、`rest`、`reward-*`。`--game-balance` 自动选择路线并处理所有节点。
+
+建议验收：打开 Unity 等待自动生成界面 → `ExpeditionBuild.Build` → `ExpeditionBuild.ValidateTools` → 两英雄各跑 `--expedition-smoke --hud-review` 与 `--game-balance`。
+
 ## 2026-11-02 仓库清理、数值与界面调整（未经 Unity 验证）
 
 本轮在没有 Unity Editor 的环境中完成，**没有编译、生成界面或运行任何 Player 探针**，以下改动均待本机验证：

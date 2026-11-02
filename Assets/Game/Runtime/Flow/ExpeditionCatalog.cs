@@ -9,9 +9,10 @@ namespace Roguelike.Flow
         public StartSelectionCatalog selection;
         public RelicDefinition[] relics=Array.Empty<RelicDefinition>();
         [Min(0)] public float passiveGoldPerSecond=2;
-        [Range(0,1)] public float dangerousHealthBonus=.25f;
-        [Min(1)] public float dangerousGoldMultiplier=1.6f;
-        [Range(0,1)] public float abyssHealthBonus=.3f;
         [Min(0)] public float victoryNoticeSeconds=2;
+        [Tooltip("两幕路线图：层数、节点权重、击杀目标、精英数量、营火与奖励数值。")]
+        public RouteMapSettings route=new RouteMapSettings();
+        [Tooltip("路线图上的特殊事件。")]
+        public ExpeditionEvent[] events=ExpeditionEvent.Defaults();
     }
 }

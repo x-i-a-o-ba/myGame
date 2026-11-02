@@ -23,7 +23,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3d8294d23f048cf498d0d8aa7b320230, type: 2}
   - {fileID: 11400000, guid: 9c0b8e09c6302fc4892711f6487925a5, type: 2}
   passiveGoldPerSecond: 2
-  dangerousHealthBonus: 0.25
-  dangerousGoldMultiplier: 1.6
-  abyssHealthBonus: 0.3
   victoryNoticeSeconds: 2

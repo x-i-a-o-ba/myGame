@@ -68,13 +68,6 @@ namespace Roguelike.Combat
             var director=config.spawnDirector.Compile();
             var heroAttack=config.hero.ResolveAttack(config.projectileSpeed);
             var roster=PlanRoster(config.ActiveRoster,config.skillCatalog);
-            bool abyss=config.Run!=null && config.Run.Abyss;
-            if(abyss)
-            {
-                var other=config.Run.FirstMap==config.map?config.Run.SecondMap:config.Run.FirstMap;
-                foreach(var extra in PlanRoster(other.enemyRoster,config.skillCatalog))
-                    if(extra.Entry.specialElite || (extra.Entry.tiers&EnemyTierMask.Normal)!=0) roster.Add(extra);
-            }
             var nextProgression=HeroProgressionLogic.Compile(rules,config.hero);
             BlobAssetReference<AbilityLibrary> nextLibrary;
             try { nextLibrary=config.skillCatalog.Compile(); }
@@ -134,7 +127,7 @@ namespace Roguelike.Combat
                 var archetype=plan.Archetype; var entry=plan.Entry; var rosterAsset=plan.Roster;
                 Color baseColor=MaterialColor(plan.Material);
                 kinds.Add(new CombatEnemyKind {Prefab=prototype,ConfigId=archetype.configId,Tiers=entry.tiers,FirstSecond=entry.firstSecond,LastSecond=entry.lastSecond,SpecialElite=entry.specialElite,
-                    Weight=entry.weight*(abyss && (entry.tiers&EnemyTierMask.Normal)!=0?.5f:1),Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
+                    Weight=entry.weight,Health=archetype.healthMultiplier,Damage=archetype.damageMultiplier,Speed=archetype.speedMultiplier,
                     Experience=archetype.experienceMultiplier,Gold=archetype.goldMultiplier,Scale=archetype.bodyScale,Color=Linear(baseColor),
                     EliteColor=Linear(Color.Lerp(baseColor,rosterAsset.eliteTint,rosterAsset.eliteTintStrength)),
                     BossColor=Linear(Color.Lerp(baseColor,rosterAsset.bossTint,rosterAsset.bossTintStrength))});
