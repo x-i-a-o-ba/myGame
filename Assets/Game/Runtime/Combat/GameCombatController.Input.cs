@@ -25,11 +25,15 @@ namespace Roguelike.Combat
                 if(Input.GetKeyDown(KeyCode.Alpha1)) ChooseForm(0);
                 else if(Input.GetKeyDown(KeyCode.Alpha2)) ChooseForm(1);
             }
-            if(Input.GetKeyDown(inputProfile?inputProfile.pause:KeyCode.Escape)) SetPaused(!Paused);
-            if(!Running || Paused) { SetMovement(Vector2.zero); return; }
+            // 瞄准中 Esc 只取消瞄准，不打开暂停菜单。
+            if(Input.GetKeyDown(inputProfile?inputProfile.pause:KeyCode.Escape))
+            { if(IsAimingSkill && !Paused) abilityIndicator.Cancel(); else SetPaused(!Paused); }
+            if(!Running || Paused) { SetMovement(Vector2.zero); if(IsAimingSkill) abilityIndicator.Cancel(); return; }
             if(!ExternalMovementInput) SetMovement(new Vector2(
                 (Input.GetKey(inputProfile?inputProfile.right:KeyCode.D)?1:0)-(Input.GetKey(inputProfile?inputProfile.left:KeyCode.A)?1:0),
                 (Input.GetKey(inputProfile?inputProfile.forward:KeyCode.W)?1:0)-(Input.GetKey(inputProfile?inputProfile.backward:KeyCode.S)?1:0)));
+            // 先处理上一帧开始的瞄准（左键确认 / 右键取消），再读取本帧技能键。
+            UpdateSkillAim();
             bool learn=Input.GetKey(KeyCode.LeftControl)||Input.GetKey(KeyCode.RightControl);
             for(int i=0;i<4;i++) if(Input.GetKeyDown(AbilityKey(i))) {if(learn) LearnSkill(i);else CastAbility(i);}
             if(Input.GetKeyDown(inputProfile?inputProfile.statistics:KeyCode.Tab))
@@ -69,6 +73,7 @@ namespace Roguelike.Combat
         {
             int slot=PendingFormSlot;
             if(slot<0 || option<0 || option>1) return false;
+            if(IsAimingSkill && abilityIndicator.ActiveSlot==slot) abilityIndicator.Cancel(); // 形态替换后旧瞄准几何失效
             if(!session.TryApplyForm(slot,hero.skills[slot].forms[option],out string failure)) {ShowNotice(failure,2);return false;}
             var slots=session.World.EntityManager.GetBuffer<AbilitySlot>(session.Entity);var value=slots[slot];
             value.FormChoice=option+1;slots[slot]=value;nextHudUpdate=0;

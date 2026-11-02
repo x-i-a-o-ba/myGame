@@ -7,6 +7,7 @@
 - 清理：移除归档文档、旧验证日志、旧导出和一次性工具，见根目录 README；可从提交 `0a6ef8f` 恢复。
 - 数值：前期怪物伤害、开局刷怪、第 1 关潮涌、两英雄生存和卫士顺劈/大招，明细见 [英雄与技能](heroes-and-skills.md#2026-11-02-数值调整)。只用 `Tools/Design/expedition_model.py` 估算了升级节奏。
 - 界面：见 [操作与界面](controls-and-ui.md#2026-11-02-界面细节)。
+- 第二轮（同日）：技能卡改正方形；施法改为按键瞄准、左键确认、右键 / Esc 取消。需在 Editor 中实际按 Q/E/R/F 检查指示器、确认与取消，以及点击技能图标的同一流程。
 
 建议验收顺序：先执行 `ExpeditionSceneAuthoring.BuildInterface`（生成界面、跑规则与资源检查并构建），再用 `--expedition-smoke --hud-review` 截图核对界面，最后两英雄各跑一次 `--game-balance` 对比 10-24 的 135 秒 / 75 秒。
 

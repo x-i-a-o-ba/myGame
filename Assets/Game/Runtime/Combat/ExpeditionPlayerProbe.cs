@@ -70,7 +70,7 @@ namespace Roguelike.Combat
             Check(game.Progression.Level==1 && game.Progression.SkillPoints==1,"一级一个技能点开局");
             game.LearnSkill(0);yield return null;yield return null;
             Check(manager.GetBuffer<AbilitySlot>(game.SessionEntity)[0].Level==1,"学习技能消耗权威技能点");
-            if(Has("--hud-review")) {game.CastAbility(0);yield return Capture("skill-cooldown");}
+            if(Has("--hud-review")) {game.CastImmediately(0);yield return Capture("skill-cooldown");}
             game.SetPaused(true);float before=game.Director.StageElapsed;yield return new WaitForSecondsRealtime(.25f);
             Check(Mathf.Approximately(before,game.Director.StageElapsed),"暂停冻结战斗计时");yield return Capture("pause");game.SetPaused(false);
             var progression=game.Progression;HeroProgressionLogic.GainExperience(ref progression,20020);HeroProgressionLogic.ApplyPendingLevels(ref progression);

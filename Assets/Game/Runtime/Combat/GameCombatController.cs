@@ -165,7 +165,7 @@ namespace Roguelike.Combat
             previousSpawnCenter=State.Position;
             destinationMarker.gameObject.SetActive(false); nextHudUpdate=0;
             observedLevelUps=0; observedCommands=0; observedEquipment=0;
-            ShowNotice("WASD 移动 · Ctrl+Q/E/R/F 学习技能 · 击败首领后进入营地",6);
+            ShowNotice("WASD 移动 · Ctrl+Q/E/R/F 学习技能 · 技能键瞄准后左键释放",6);
             Debug.Log($"GAME_STARTED maxAlive={enemyCount}; hero={hero.stableId}; map={(map?map.stableId:"none")}; composedSkills={hero.skills.Length}; enemyKinds={session.EnemyNames.Length}; directorCap={spawnDirector.aliveLimit}; shopItems={session.Items.Length}; gold={Equipment.Gold:0}");
         }
         /// <summary>
@@ -213,18 +213,65 @@ namespace Roguelike.Combat
             }
             return best;
         }
+        /// <summary>技能是否处于鼠标瞄准中（按键后、左键确认前）。</summary>
+        public bool IsAimingSkill=>abilityIndicator && abilityIndicator.IsAiming;
+        /// <summary>
+        /// 玩家施法入口（按键或点击技能图标）。自身技能立即施放；需要点、方向或单位的技能进入瞄准，
+        /// 由 <see cref="UpdateSkillAim"/> 每帧刷新指示器，左键确认、右键或 Esc 取消。再次按同一技能键也会取消。
+        /// </summary>
         public void CastAbility(int slot)
         {
-            if(!Running || Paused) return;
+            if(!CanCast(slot,true)) return;
             var slots=session.World.EntityManager.GetBuffer<AbilitySlot>(session.Entity);
-            if(slot<0 || slot>=slots.Length) return;
-            if(slots[slot].Level<=0)
-            { ShowNotice($"{session.SkillNames[slot]} 尚未学习：Ctrl+{KeyLabel(slot)}",2); return; }
             ref var skill=ref session.Library.Value.Skills[slots[slot].Definition];
-            if(skill.AutoTriggerEveryHits>0) { ShowNotice("此技能通过普攻自动触发",2); return; }
+            if(skill.Aim==AimMode.Self || skill.Stages.Length==0 || !abilityIndicator.HasBindings) { CastImmediately(slot); return; }
+            if(abilityIndicator.IsAiming && abilityIndicator.ActiveSlot==slot) { abilityIndicator.Cancel(); return; }
+            abilityIndicator.BeginAim(slot,SkillAimPreview.From(ref skill));
+            UpdateSkillAim(false);
+        }
+        /// <summary>不经瞄准，直接朝鼠标落点（无地面时朝面向）施放；供自身技能和自动化探针使用。</summary>
+        public void CastImmediately(int slot)
+        {
+            if(!CanCast(slot,true)) return;
+            var slots=session.World.EntityManager.GetBuffer<AbilitySlot>(session.Entity);
+            ref var skill=ref session.Library.Value.Skills[slots[slot].Definition];
             Vector3 origin=State.Position;
             if(!TryGround(Input.mousePosition,out var point)) point=origin+(Vector3)State.Facing*skill.CastRange;
             QuickCast(slot,point);
+        }
+        /// <summary>施法前的即时提示预检；权威判定仍在模拟系统中完成。</summary>
+        private bool CanCast(int slot,bool notify)
+        {
+            if(!Running || Paused) return false;
+            var manager=session.World.EntityManager;
+            var slots=manager.GetBuffer<AbilitySlot>(session.Entity);
+            if(slot<0 || slot>=slots.Length) return false;
+            var equipped=slots[slot];
+            if(equipped.Level<=0)
+            { if(notify) ShowNotice($"{session.SkillNames[slot]} 尚未学习：Ctrl+{KeyLabel(slot)}",2); return false; }
+            ref var skill=ref session.Library.Value.Skills[equipped.Definition];
+            if(skill.AutoTriggerEveryHits>0) { if(notify) ShowNotice("此技能通过普攻自动触发",2); return false; }
+            float now=manager.GetComponentData<AbilityRuntime>(session.Entity).Time;
+            string failure=equipped.ReadyAt>now?$"冷却中：{equipped.ReadyAt-now:0.0} 秒":
+                equipped.Charges<=0?$"充能中：{math.max(0,equipped.RechargeAt-now):0.0} 秒":
+                SkillLevels.ManaCost(ref skill,equipped.Level)>manager.GetComponentData<AbilityUnit>(session.Entity).Mana?"法力不足":null;
+            if(failure==null) return true;
+            if(notify) ShowNotice($"{session.SkillNames[slot]} {failure}",1.5f);
+            return false;
+        }
+        /// <summary>瞄准中每帧刷新指示器并处理确认/取消；指针在界面上时不显示落点、不确认。</summary>
+        private void UpdateSkillAim(bool acceptClicks=true)
+        {
+            if(!IsAimingSkill) return;
+            if(!Running || Paused) { abilityIndicator.Cancel(); return; }
+            if(acceptClicks && Input.GetMouseButtonDown(1)) { abilityIndicator.Cancel(); return; }
+            bool overUi=hud.BlocksPointer(Input.mousePosition);
+            bool ground=TryGround(Input.mousePosition,out var point);
+            abilityIndicator.UpdateAim(State.Position,point,ground && !overUi,arenaHalfSize);
+            if(!acceptClicks || overUi || !Input.GetMouseButtonDown(0)) return;
+            int slot=abilityIndicator.ActiveSlot;
+            if(!CanCast(slot,true)) { abilityIndicator.Cancel(); return; }
+            if(abilityIndicator.TryConfirm(out var target,out var direction)) Queue(slot,target,direction);
         }
         public bool QuickCast(int slot,Vector3 point)
         {

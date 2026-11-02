@@ -1,6 +1,6 @@
 # 组合技能与 Buff 基础架构
 
-2026-10-24 现行契约。游戏采用三关远征、十五级成长、Q/E/R/F 快速施法与满级形态；数值见 [英雄与技能](heroes-and-skills.md)，扩展、迁移和执行职责见 [工程与工具](engineering-and-tools.md)，实际结果见 [验证记录](validation.md)。此前架构过程和旧验证保存在 git 历史提交 `0a6ef8f` 的 `Docs/History/ability-foundation-history.md`，不能将其中的旧操作、数值或隔离工作区要求恢复到当前项目。
+2026-10-24 现行契约。游戏采用三关远征、十五级成长、Q/E/R/F 瞄准施法（左键确认）与满级形态；数值见 [英雄与技能](heroes-and-skills.md)，扩展、迁移和执行职责见 [工程与工具](engineering-and-tools.md)，实际结果见 [验证记录](validation.md)。此前架构过程和旧验证保存在 git 历史提交 `0a6ef8f` 的 `Docs/History/ability-foundation-history.md`，不能将其中的旧操作、数值或隔离工作区要求恢复到当前项目。
 
 ## 架构底线
 

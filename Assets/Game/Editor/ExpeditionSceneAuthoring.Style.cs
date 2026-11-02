@@ -60,7 +60,7 @@ namespace Roguelike.Editor
             var l=New("UI.Game.BottomHUD",1440,198);var root=l.Root.transform;
             Skin(root,"底部金属框",0,24,1440,174);
             var portrait=Skin(root,"英雄肖像框",16,36,140,146,"hud_plate");
-            l.Picture(portrait,"hero.portrait",4,4,132,138);
+            l.Picture(portrait,"hero.portrait",4,7,132,132); // 方形区域，避免肖像被纵向拉伸
             Skin(portrait,"姓名渐变",4,100,132,42,"shade_bottom",false);
             Bold(l,portrait,"hero.name","英雄",6,112,128,26,18,White,TextAnchor.MiddleCenter);
             Shade(l.Text(portrait,"hero.xpText","",43,5,88,18,11,Cyan)).alignment=TextAnchor.MiddleRight;
@@ -83,22 +83,23 @@ namespace Roguelike.Editor
             for(int i=0;i<4;i++)
             {
                 float x=110+i*112;string key="ability."+letters[i]+".";
-                var skill=Card(l,center,"combat.ability",i,x,38,98,90);Hover(skill,i);
-                l.Picture(skill,key+"icon",7,7,84,76);
-                Skin(skill,"名称渐变",7,44,84,39,"shade_bottom",false);
-                Shade(l.Text(skill,key+"name","",6,52,86,20,13,White)).alignment=TextAnchor.MiddleCenter;
-                var locked=Box(skill,"未学习",7,7,84,76,new Color(.02f,.03f,.05f,.72f));locked.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"locked",locked.gameObject);
-                var cooling=Skin(skill,"径向冷却",7,7,84,76,"white",false);var image=cooling.GetComponent<Image>();image.color=new Color(0,0,0,.7f);
+                // 技能卡与图标都用正方形，方形图标贴图不再被横向拉伸。
+                var skill=Card(l,center,"combat.ability",i,x,36,94,94);Hover(skill,i);
+                l.Picture(skill,key+"icon",7,7,80,80);
+                Skin(skill,"名称渐变",7,48,80,39,"shade_bottom",false);
+                Shade(l.Text(skill,key+"name","",5,56,84,20,13,White)).alignment=TextAnchor.MiddleCenter;
+                var locked=Box(skill,"未学习",7,7,80,80,new Color(.02f,.03f,.05f,.72f));locked.GetComponent<Image>().raycastTarget=false;l.Toggle(key+"locked",locked.gameObject);
+                var cooling=Skin(skill,"径向冷却",7,7,80,80,"white",false);var image=cooling.GetComponent<Image>();image.color=new Color(0,0,0,.7f);
                 image.type=Image.Type.Filled;image.fillMethod=Image.FillMethod.Radial360;image.fillOrigin=2;image.fillClockwise=false;
                 l.Fills.Add(new UIPanel.FillBinding{key=key+"cd",target=image,axis=FillAxis.Amount});l.Toggle(key+"cooling",cooling.gameObject);
-                Frame(skill);Bold(l,skill,key+"cdText","",15,17,68,45,29,White,TextAnchor.MiddleCenter);
+                Frame(skill);Bold(l,skill,key+"cdText","",13,22,68,45,29,White,TextAnchor.MiddleCenter);
                 var hotkey=Skin(skill,"按键",3,3,24,24,"hotkey");Bold(l,hotkey,key+"key","",0,0,24,24,15,White,TextAnchor.MiddleCenter);
-                Shade(l.Text(skill,key+"status","",29,5,61,18,11,Cyan)).alignment=TextAnchor.MiddleRight;
-                Shade(l.Text(skill,key+"mana","",44,70,46,13,11,Cyan)).alignment=TextAnchor.MiddleRight;
-                var learn=Button(l,center,null,"+","combat.learnSkill",i,x+31,4,36,28,23);l.Toggle(key+"learn",learn.gameObject);
+                Shade(l.Text(skill,key+"status","",29,5,59,18,11,Cyan)).alignment=TextAnchor.MiddleRight;
+                Shade(l.Text(skill,key+"mana","",42,74,46,13,11,Cyan)).alignment=TextAnchor.MiddleRight;
+                var learn=Button(l,center,null,"+","combat.learnSkill",i,x+29,3,36,28,23);l.Toggle(key+"learn",learn.gameObject);
                 for(int n=0;n<4;n++)
                 {
-                    var pip=Skin(center,"等级 "+n,x+5+n*23,131,19,7,"pip_off",false);l.Toggle(key+"pipSlot"+n,pip.gameObject);
+                    var pip=Skin(center,"等级 "+n,x+3+n*23,134,19,7,"pip_off",false);l.Toggle(key+"pipSlot"+n,pip.gameObject);
                     var lit=Skin(pip,"已学习",0,0,19,7,"pip_on",false);l.Toggle(key+"pip"+n,lit.gameObject);
                 }
             }
