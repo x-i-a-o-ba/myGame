@@ -73,4 +73,4 @@
 
 早期窗口式 Player 退出曾在 Unity `PlatformAccessibilityManager::StaticDestroy` 崩溃；最终使用 D3D11 批模式，成功流程和持续负载测试均正常退出 0。未擅自升级引擎，不把批模式退出正常等同于窗口缺陷已修复。
 
-历史第 1–2 步证据见 [工程清理](History/validation-cleanup-2026-10-24.md) 与 [刷怪导演](History/validation-director-2026-10-24.md)，不代替本轮内容负载。
+历史第 1–2 步证据（工程清理、刷怪导演）及更早的验证日志已于 2026-11-02 移出仓库，可从 git 历史提交 `0a6ef8f` 的 `Docs/History` 与 `Logs/` 恢复，不代替本轮内容负载。
