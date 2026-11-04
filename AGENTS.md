@@ -1,5 +1,11 @@
 # Unity 项目开发约定
 
+## 网站文档为开发依据（2026-11-03）
+
+用户指定 [关卡之外 · 个人游戏设计工作台](https://mygame.mighty-seal-7217.chatgpt.site/) 为后续游戏开发的统一文档入口。开工先读 [当前开发基准与文档总索引](https://mygame.mighty-seal-7217.chatgpt.site/?doc=cfba1d53-4cea-44b6-a1de-82001812a3d9)，再读对应专题、技能地基和验证记录。最新用户要求优先；网站当前开发基准及专题规格优先于本地旧快照和历史设计。当前为两幕路线图远征，不能恢复三关深渊或旧营地规则。
+
+本地 `Docs` 保留为同步副本与离线参考。网站正文、原始下载快照与 Unity 配置不会自动双向同步；实现后应同步网站的需求、架构与验证记录，并维护必要的本地副本。网站不可访问时明确注明使用的快照日期与未核对事项，不把旧内容当作已核对的最新需求。设计定稿与实现验收分别记录，未经 Player 验证不得将功能说明写成验收通过。
+
 本项目目标是 Unity 6 + URP + ECS 的万级同屏肉鸽游戏。实际 Editor 和包版本以 ProjectSettings/ProjectVersion.txt 与 Packages/manifest.json 为准。
 
 按任务需要查阅 [Unity 项目参考](Tools/Skills/unity-requirements-first/SKILL.md) 和 [开发文档](Docs/README.md)。本文件与用户最新要求是当前项目约定；历史流程和旧版副本仅作背景参考。

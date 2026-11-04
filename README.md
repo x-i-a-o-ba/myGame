@@ -4,7 +4,7 @@ Unity 6.3 + URP + ECS 的 3D 俯视角肉鸽游戏项目。
 
 - Unity Editor：`6000.3.18f1`，以 `ProjectSettings/ProjectVersion.txt` 为准。
 - 依赖：URP `17.3.0`、Entities `1.4.8`、Entities Graphics `1.4.21`，以 `Packages/manifest.json` 为准。
-- 开发文档：[Docs/README.md](Docs/README.md)。
+- 开发依据：[关卡之外 · 当前开发基准与文档总索引](https://mygame.mighty-seal-7217.chatgpt.site/?doc=cfba1d53-4cea-44b6-a1de-82001812a3d9)；本地离线参考：[Docs/README.md](Docs/README.md)。网站与本地配置不会自动同步，后续变更应同步维护。
 - 开发约定：[AGENTS.md](AGENTS.md)。
 - 游戏入口：`Assets/Scenes/Main.unity`（主菜单 → 选择英雄 → 选择首图）。战场为 `Game`（幽暗荒原）和 `EmberRift`（熔火裂谷）。
 
